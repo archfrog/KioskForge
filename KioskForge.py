@@ -29,12 +29,12 @@ import types
 
 # Try to import syslog (non-Windows platforms) or create a dummy stub.
 try:
-	from syslog import syslog, LOG_ERR, LOG_INFO
+	from syslog import syslog, LOG_ERR, LOG_INFO	# type: ignore
 except ModuleNotFoundError:
-	syslog = None						# type: ignore
+	syslog = None
 	# Dummy values, they are never used on Windows.
-	LOG_ERR  = 1						# type: ignore
-	LOG_INFO = 2						# type: ignore
+	LOG_ERR  = 1
+	LOG_INFO = 2
 
 VERSION = "0.10"
 COMPANY = "Vendsyssel Historiske Museum"
@@ -189,7 +189,7 @@ class Recognizer(object):
 		targets : List[Target] = []
 		while True:
 			if platform.system() == "Windows":
-				mounts = os.listdrives()    # type: ignore
+				mounts = os.listdrives()
 			elif platform.system() == "Linux":
 				raise InternalError("Feature not finished")
 				mounts = 'df -a -T -h -t vfat | grep -Fv "/boot/efi" | grep -Fv "Use%"'
@@ -355,7 +355,7 @@ class Logger(object):
 			if not AUTOSTART:
 				print(line)
 
-			if syslog:					# type: ignore
+			if syslog:
 				syslog(kind, line)
 
 	def error(self, text : str = "") -> None:
@@ -1675,7 +1675,7 @@ class KioskSetup(KioskClass):
 				raise KioskError("This script is can only be run on a target Linux kiosk machine")
 
 			# Check that we've got root privileges (instruct MyPy to ignore the Windows-only error in the next line).
-			if os.name == "posix" and os.geteuid() != 0:
+			if os.name == "posix" and os.geteuid() != 0:		# type: ignore
 				raise KioskError("You must be root (use 'sudo') to run this script")
 
 			# Parse command-line arguments.
