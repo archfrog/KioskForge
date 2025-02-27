@@ -29,12 +29,15 @@ import types
 
 # Try to import syslog (non-Windows platforms) or create a dummy stub.
 try:
-	from syslog import syslog, LOG_ERR, LOG_INFO	# type: ignore
+	import syslog
+	SYSLOG_LOG_ERR = syslog.LOG_ERR
+	SYSLOG_LOG_INFO = syslog.LOG_INFO
+	syslog_active = True
 except ModuleNotFoundError:
-	syslog = None
-	# Dummy values, they are never used on Windows.
-	LOG_ERR  = 1
-	LOG_INFO = 2
+	syslog_active = False
+	# NOTE: Dummy values used to make the code simpler (and MyPy choke a bit less).
+	SYSLOG_LOG_ERR = 1
+	SYSLOG_LOG_INFO = 2
 
 VERSION = "0.10"
 COMPANY = "Vendsyssel Historiske Museum"
@@ -339,8 +342,12 @@ class TextWriter(object):
 class Logger(object):
 	"""Class that implements the multi-line logging functionality required by the script (Linux only)."""
 
-	def __init__(self, filename):
+	def __init__(self, filename : str):
 		self.__name = filename
+
+		# Prepare syslog() for our messages.
+		if syslog_active:
+			syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL0)
 
 	def __enter__(self) -> Any:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
@@ -361,14 +368,14 @@ class Logger(object):
 			if not AUTOSTART:
 				print(line)
 
-			if syslog:
-				syslog(kind, line)
+			if syslog_active:
+				syslog.syslog(kind, line)
 
 	def error(self, text : str = "") -> None:
-		self._write(LOG_ERR, text)
+		self._write(SYSLOG_LOG_ERR, text)
 
 	def write(self, text : str = "") -> None:
-		self._write(LOG_INFO, text)
+		self._write(SYSLOG_LOG_INFO, text)
 
 
 class Result(object):
@@ -1279,7 +1286,7 @@ class KioskForge(KioskClass):
 				stream.write("WantedBy=cloud-init.target")
 				stream.dedent()
 				stream.write("owner: 'root:root'")
-				stream.write("permissions: '700'")
+				stream.write("permissions: '666'")
 				stream.dedent()
 				stream.write()
 
@@ -1929,7 +1936,7 @@ class KioskSetup(KioskClass):
 				lines += ""
 				lines += "# Spawn Chromium over and over in case it crashes (probably never happens, but better safe than sorry)."
 				lines += "while true; do"
-				lines += "\t# Launch Chromium with the URL given when the kiosk was forged."
+				lines += "\t# Launch Chromium with the URL given in the configuration file (can be edited after forging)."
 				lines += '\tchromium --kiosk --fast --fast-start --start-maximised --noerrdialogs --no-first-run --enable-pinch --overscroll-history-navigation=disabled --disable-features=TouchpadOverscrollHistoryNavigation --overscroll-history-navigation=0 --disable-restore-session-state --disable-infobars --disable-crashpad "%s"' % setup.website.data
 				lines += "done"
 				script += CreateTextWithUserAndModeAction(
@@ -1989,7 +1996,7 @@ class KioskSetup(KioskClass):
 			lines += ""
 			lines += "# Function that displays all syslog entries made by Kiosk*.py."
 			lines += "kiosklog() {"
-			lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors."
+			lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors, instead of all messages."
 			lines += "\tjournalctl -o short-iso $* | grep -F Kiosk"
 			lines += "}"
 			script += AppendTextAction(
