@@ -112,5 +112,5 @@ Development currently takes place on a Windows 11 Pro desktop computer, but I'll
 
 
 ## Bugs
-Please report bugs on [KioskForge at GitHub](https://github.com/vhmdk/KioskForge).
+Please report bugs on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues).
 
