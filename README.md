@@ -3,20 +3,18 @@ KioskForge is a portable tool to automate and simplify the process of setting up
 
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.* on Raspberry Pi 4+ [^1] ARM64 (aarch64) and PC x64/AMD64 machines.
-* Creating a kiosk that allows browsing a website using Chromium, which has no address bar so new URLs cannot be entered.
-* Touch screen input insofar the particular touch screen is supported out of the box by the supported operating systems.
+* Ubuntu Server 24.04.* on Raspberry Pi 4B ARM64 (aarch64) and PC x64/AMD64 machines.
+* Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
+* Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or WIFI networking.
-
-[^1]: KioskForge does not currently support Raspberry Pi 5 at all!  It has not even been tried on a Raspberry Pi 5.
 
 Customization of the target kiosk machine can be done using KioskForge.py or using an editor to create a .INI-style file:
 
 | Name             | .INI Field      | Type    | Description                                                                 |
 | ----             | -----           | ------  | :-------------------------------------------------------------------------- |
-| Host name        | `hostname`      | string  | The unqualified domain name for the kiosk machine.                          |
+| Host name        | `hostname`      | string  | The unqualified domain name of the kiosk machine.                           |
 | Time zone        | `timezone`      | string  | The Linux-compatible time zone name (`CET` or `Europe/Copenhagen`).         |
-| Locale           | `locale`        | string  | The UTF-8 locale (`en_US.UTF-8` or a similar value).                        |
+| Locale           | `locale`        | string  | The system locale (`en_US.UTF-8` or a similar value).                       |
 | Keyboard layout  | `keyboard`      | string  | The name of the kiosk's keyboard layout (`en`, `dk`, etc.).                 |
 | Website URL      | `website`       | string  | The full, canonical URL of the website that is opened in the web browser.   |
 | Audio volume     | `audio`         | integer | The logarithmic audio volume from 0 through 100 (0 disables audio).         |
@@ -36,7 +34,7 @@ Customization of the target kiosk machine can be done using KioskForge.py or usi
 
 
 ## Philosophy
-KioskForge is designed and implemented using three primary rules:
+KioskForge is designed and implemented using three primary requirements:
 
 1. The script must be completely reliable.  This is why we use Python and its exception handling instead of, say, a Bash script.
 2. The script must be as user-friendly as possible.  Most people who need a kiosk aren't particularly tech savvy.
@@ -48,7 +46,8 @@ People probably only use the script occasionally, albeit we want to automate it 
 
 ## Usage
 KioskForge is a simple application that allows you to create, load, edit, and save a *kiosk configuration* - a .INI-style file
-that defines the kiosk and what it is supposed to do.
+that defines the kiosk and what it is supposed to do.  After that, you can choose to *update* an installation media to apply the
+configuration during installation.
 
 As of now, the procedure is as follows:
 
@@ -76,14 +75,16 @@ using SSH, once in a while to verify that logs are being rotated, that there is 
 
 
 ### Windows
-Install a recent version of the [Python programming language](https://python.org).  On most Linuxes, this can be done with the
-package manager.  On Windows, you need to download and install the product from the website given above.
+On Windows, you need to download and install the product from [Python v3.x programming language](https://python.org).
 
-You can launch KioskForge directly from Windows Explorer, by double-clicking it, or directly from the command-line.
+After this, you can launch KioskForge directly from Windows Explorer, by double-clicking it, or directly from the command-line.
 
 
 ### Linux
-KioskForge currently **cannot** be run on Linux.  This is work in progress and is expected to be solved pretty soon.
+`KioskForge.py` currently **cannot** be run on Linux.  This is work in progress and is expected to be solved pretty soon.
+
+Install a recent version of the [Python v3.x programming language](https://python.org).  On most Linuxes, this can be done with the
+system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
 then you can invoke it using `./KioskForge.py`.
@@ -103,7 +104,7 @@ To develop on KioskForge, install a recent Python v3.x and MyPy, and then set up
 Run the script `test.bat` (Windows only) or `test.sh` (Linux only) to make MyPy test the code and report any errors.
 
 *Currently, the MyPy test is a bit broken because the script uses both Windows-only and Linux-only features, something which
-MyPy isn't all that happy about.  This will be fixed in not too long by splitting the single script into three logical parts.*
+MyPy isn't all that happy about.  This will be fixed in not too long by splitting the single script into its logical parts.*
 
 Development currently takes place on a Windows 11 Pro desktop computer, but I'll setup a Linux development environment soon.
 
