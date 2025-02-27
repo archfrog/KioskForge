@@ -11,7 +11,7 @@ KioskForge currently supports these things:
 Customization of the target kiosk machine can be done using KioskForge.py or using an editor to create a .INI-style file:
 
 | Name             | .INI Field      | Type    | Description                                                                 |
-| ----             | -----           | ------  | :-------------------------------------------------------------------------- |
+| ---------------- | --------------- | ------  | --------------------------------------------------------------------------- |
 | Host name        | `hostname`      | string  | The unqualified domain name of the kiosk machine.                           |
 | Time zone        | `timezone`      | string  | The Linux-compatible time zone name (`CET` or `Europe/Copenhagen`).         |
 | Locale           | `locale`        | string  | The system locale (`en_US.UTF-8` or a similar value).                       |
