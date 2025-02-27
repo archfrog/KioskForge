@@ -339,6 +339,9 @@ class TextWriter(object):
 class Logger(object):
 	"""Class that implements the multi-line logging functionality required by the script (Linux only)."""
 
+	def __init__(self, filename):
+		self.__name = filename
+
 	def __enter__(self) -> Any:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
 		return self
@@ -351,6 +354,9 @@ class Logger(object):
 		"""Writes one or more lines to the output device."""
 		lines = text.split(os.linesep)
 		for line in lines:
+			# Output to local log file (for ease of use of people without experience in using the syslog facility on Linux).
+			open(self.__name, "at").write(line + os.linesep)
+
 			# Don't output text to the console when using AUTOSTART as this clutters and probably confuses the end-user.
 			if not AUTOSTART:
 				print(line)
@@ -2221,14 +2227,15 @@ if __name__ == "__main__":
 	# NOTE: 'KioskSetup.py' creates a symbolic link between 'KioskStart.py' and 'KioskSetup.py' so OpenBox:autostart can launch it.
 	# NOTE: 'KioskStart.py' launches Chrome, monitors it, and restarts it if necessary.
 	status = EXIT_FAILURE
-	with Logger() as logger:
+
+	# Compute full path of this script, which we pass into the constructor of the KioskXxx class.
+	(origin, basename) = os.path.split(os.path.abspath(sys.argv[0]))
+
+	# Extract the name of the class to create an instance of, by stripping the extension (could be either '.py' or '.pyc').
+	(class_, extension) = os.path.splitext(basename)
+
+	with Logger(class_ + ".log") as logger:
 		try:
-			# Compute full path of this script, which we pass into the constructor of the KioskXxx class.
-			(origin, basename) = os.path.split(os.path.abspath(sys.argv[0]))
-
-			# Extract the name of the class to create an instance of, by stripping the extension (could be either '.py' or '.pyc').
-			(class_, extension) = os.path.splitext(basename)
-
 			# Exit gracefully if the extension is not .py - we need this to be a true Python script on Linux to execute it.
 			if extension != ".py":
 				raise KioskError("This script must end in '.py'")
