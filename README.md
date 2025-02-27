@@ -98,8 +98,8 @@ submit a pull request.  Please make sure that the result generates a valid, reli
 ## Development
 To develop on KioskForge, install a recent Python v3.x and MyPy, and then set up these environment variables:
 
-| Environment Variable      | Value | Explanation |
-| ------------------------- | ----- | ----------- |
+| Environment Variable      | Value | Explanation                                                                             |
+| ------------------------- | ----- | --------------------------------------------------------------------------------------- |
 | `PYTHONDONTWRITEBYTECODE` | `1`   | Disable the generation of needless Python byte-code files everywhere.                   |
 | `RAMDISK` 				| path  | A temporary folder, preferably on a ram disk.  This is used for caching MyPy data, etc. |
 
