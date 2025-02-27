@@ -8,9 +8,9 @@ KioskForge currently supports these things:
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or WIFI networking.
 
-Customization of the target kiosk machine can be done using KioskForge.py or using an editor to create a .INI-style file:
+Customization of the target kiosk machine can be done using KioskForge.py or using an editor to create an INI-style file:
 
-| Name             | .INI Field      | Type    | Description                                                                 |
+| Name             | INI Field       | Type    | Description                                                                 |
 | ---------------- | --------------- | ------  | --------------------------------------------------------------------------- |
 | Host name        | `hostname`      | string  | The unqualified domain name of the kiosk machine.                           |
 | Time zone        | `timezone`      | string  | The Linux-compatible time zone name (`CET` or `Europe/Copenhagen`).         |
@@ -45,7 +45,7 @@ People probably only use the script occasionally, albeit we want to automate it 
 
 
 ## Usage
-KioskForge is a simple application that allows you to create, load, edit, and save a *kiosk configuration* - a .INI-style file
+KioskForge is a simple application that allows you to create, load, edit, and save a *kiosk configuration* - an INI-style file
 that defines the kiosk and what it is supposed to do.  After that, you can choose to *update* an installation media to apply the
 configuration during installation.
 
