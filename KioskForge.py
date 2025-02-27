@@ -342,9 +342,7 @@ class TextWriter(object):
 class Logger(object):
 	"""Class that implements the multi-line logging functionality required by the script (Linux only)."""
 
-	def __init__(self, filename : str):
-		self.__name = filename
-
+	def __init__(self):
 		# Prepare syslog() for our messages.
 		if syslog_active:
 			syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL0)
@@ -361,9 +359,6 @@ class Logger(object):
 		"""Writes one or more lines to the output device."""
 		lines = text.split(os.linesep)
 		for line in lines:
-			# Output to local log file (for ease of use of people without experience in using the syslog facility on Linux).
-			open(self.__name, "at").write(line + os.linesep)
-
 			# Don't output text to the console when using AUTOSTART as this clutters and probably confuses the end-user.
 			if not AUTOSTART:
 				print(line)
@@ -2233,15 +2228,17 @@ if __name__ == "__main__":
 	# NOTE: 'KioskForge.py' copies itself to 'KioskSetup.py' on the kiosk machine and then uses cloud-init to launch it.
 	# NOTE: 'KioskSetup.py' creates a symbolic link between 'KioskStart.py' and 'KioskSetup.py' so OpenBox:autostart can launch it.
 	# NOTE: 'KioskStart.py' launches Chrome, monitors it, and restarts it if necessary.
+
+	# Assume failure until success has been achieved.
 	status = EXIT_FAILURE
 
-	# Compute full path of this script, which we pass into the constructor of the KioskXxx class.
-	(origin, basename) = os.path.split(os.path.abspath(sys.argv[0]))
+	with Logger() as logger:
+		# Compute full path of this script, which we pass into the constructor of the KioskXxx class.
+		(origin, basename) = os.path.split(os.path.abspath(sys.argv[0]))
 
-	# Extract the name of the class to create an instance of, by stripping the extension (could be either '.py' or '.pyc').
-	(class_, extension) = os.path.splitext(basename)
+		# Extract the name of the class to create an instance of, by stripping the extension (could be either '.py' or '.pyc').
+		(class_, extension) = os.path.splitext(basename)
 
-	with Logger(class_ + ".log") as logger:
 		try:
 			# Exit gracefully if the extension is not .py - we need this to be a true Python script on Linux to execute it.
 			if extension != ".py":
