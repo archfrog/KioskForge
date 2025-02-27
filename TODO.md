@@ -27,11 +27,15 @@ Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby 
 does not need to know how to create a new Linux bootable key or card.
 
 ## Open Tasks
+- [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
+                         full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
+- [ ] 2025.02.27.16.49 H Once the GUI version is complete, remove explanatory comments from configuration files.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2024.11.14.14.00 H Make the script fail graciously if it can see a Linux media but not recognize the version.
 - [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
-- [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
+- [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
+- [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
 
 ## Completed Tasks
 - [x] 2024.11.21.13.58 H Make the script use Linux' 'syslog' facility for logging instead of a local log file.
