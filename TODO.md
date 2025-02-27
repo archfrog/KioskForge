@@ -1,9 +1,9 @@
 # KioskForge Main Task List
 
 ## GUI Support
-`KioskForge` is intended to be used by non-technical users to set up a kiosk machine for browsing some website.  Initially, I made
-a very primitive Text User Interface (TUI) for the application, consisting of a main menu with five menu items.  Feedback from
-actual users, however, strongly suggested that they much preferred a real Graphical User Interface (GUI).  `KioskForge` being
+`KioskForge` is intended to be used by non-technical users to set up a kiosk machine for browsing a given website.  Initially, I
+made a very primitive Text User Interface (TUI) for the application, consisting of a main menu with five menu items.  Feedback
+from actual users, however, strongly suggested that they much preferred a real Graphical User Interface (GUI).  `KioskForge` being
 written in Python, made it logical and sensible to develop a GUI using TK/Inter for Python.
 
 I see various paths forward for the TK/Inter GUI:
@@ -27,6 +27,7 @@ Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby 
 does not need to know how to create a new Linux bootable key or card.
 
 ## Open Tasks
+- [ ] 2025.02.27.17.21 H Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated.
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2025.02.27.16.49 H Once the GUI version is complete, remove explanatory comments from configuration files.
