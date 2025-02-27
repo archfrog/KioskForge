@@ -9,7 +9,7 @@ KioskForge currently supports these things:
 * Ethernet and/or WIFI networking.
 
 ## Development
-To develop on KioskForge, install Python v3.11+ and set up these environment variables:
+To develop on KioskForge, install Python v3.11+ and MyPy, and then set up these environment variables:
 
 1. `PYTHONDONTWRITEBYTECODE` should be set to `1` to disable the generation of needless Python byte-code files everywhere.
 2. `RAMDISK` should be set to point to a temporary folder, preferably on a ram disk.  This is used for caching MyPy data, etc.
