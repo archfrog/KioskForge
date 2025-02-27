@@ -32,9 +32,7 @@ try:
 	import syslog
 	SYSLOG_LOG_ERR = syslog.LOG_ERR
 	SYSLOG_LOG_INFO = syslog.LOG_INFO
-	syslog_active = True
 except ModuleNotFoundError:
-	syslog_active = False
 	# NOTE: Dummy values used to make the code simpler (and MyPy choke a bit less).
 	SYSLOG_LOG_ERR = 1
 	SYSLOG_LOG_INFO = 2
@@ -342,9 +340,9 @@ class TextWriter(object):
 class Logger(object):
 	"""Class that implements the multi-line logging functionality required by the script (Linux only)."""
 
-	def __init__(self):
+	def __init__(self) -> None:
 		# Prepare syslog() for our messages.
-		if syslog_active:
+		if 'syslog' in sys.modules:
 			syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL0)
 
 	def __enter__(self) -> Any:
@@ -363,7 +361,7 @@ class Logger(object):
 			if not AUTOSTART:
 				print(line)
 
-			if syslog_active:
+			if 'syslog' in sys.modules:
 				syslog.syslog(kind, line)
 
 	def error(self, text : str = "") -> None:
