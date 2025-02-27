@@ -98,8 +98,10 @@ submit a pull request.  Please make sure that the result generates a valid, reli
 ## Development
 To develop on KioskForge, install a recent Python v3.x and MyPy, and then set up these environment variables:
 
-1. `PYTHONDONTWRITEBYTECODE` should be set to `1` to disable the generation of needless Python byte-code files everywhere.
-2. `RAMDISK` should be set to point to a temporary folder, preferably on a ram disk.  This is used for caching MyPy data, etc.
+| Environment Variable      | Value | Explanation |
+| ------------------------- | ----- | ----------- |
+| `PYTHONDONTWRITEBYTECODE` | `1`   | Disable the generation of needless Python byte-code files everywhere.                   |
+| `RAMDISK` 				| path  | A temporary folder, preferably on a ram disk.  This is used for caching MyPy data, etc. |
 
 Run the script `test.bat` (Windows only) or `test.sh` (Linux only) to make MyPy test the code and report any errors.
 
