@@ -2207,6 +2207,7 @@ class KioskStart(KioskClass):
 					current = x_idle_time()
 					if timeout and current >= timeout:
 						process.terminate()
+						process = None
 
 						if TESTING:
 							logger.write("Restarting Chromium after idle timeout: timeout=%f, current=%f." % (timeout, current))
