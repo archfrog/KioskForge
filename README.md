@@ -73,6 +73,9 @@ As of now, the procedure is as follows:
 After that, the kiosk should *theoretically* run nicely and reliably for years and years.  However, you may want to log into it,
 using SSH, once in a while to verify that logs are being rotated, that there is sufficient disk space available, and so on.
 
+If you SSH into the kiosk or use a local keyboard to log in, you can use the `kiosklog` command to view `syslog` entries related
+to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `kiosklog -p 3`.
+
 
 ### Windows
 On Windows, you need to download and install the product from [Python v3.x programming language](https://python.org).
