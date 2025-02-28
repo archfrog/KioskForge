@@ -1307,11 +1307,14 @@ class KioskForge(KioskClass):
 			stream.write()
 
 			# Write commands to update and upgrade the system before we reboot the first time.
-			# NOTE: We're rebooting with the "power_state" key above, not only in case of a kernel upgrade
-			# NOTE: ("package_reboot_if_required").
-			stream.write("package_update: true")
-			stream.write("package_upgrade: true")
-			stream.write()
+			if False:
+				# TODO: Either reenable cloud-init updates or disable AutoInstall updates.
+				# NOTE: Temporarily disabled it possibly causes an issue where cloud-init times out.
+				# NOTE: We're rebooting with the "power_state" key above, not only in case of a kernel upgrade
+				# NOTE: ("package_reboot_if_required").
+				stream.write("package_update: true")
+				stream.write("package_upgrade: true")
+				stream.write()
 
 			# Write commands to install and/or enable Network Time Protocol (NTP).
 			stream.write("ntp:")
@@ -2193,7 +2196,7 @@ class KioskStart(KioskClass):
 				# Let Chromium start before we begin to check if it has been idle for too long.
 				time.sleep(15)
 
-				# Loop forever, launching Chromium and terminate it if it "times out" (becomes idle for N seconds).
+				# Loop forever, launching Chromium and terminating it if it "times out" (becomes idle for N seconds).
 				while True:
 					# Wait one second between checking if Chromium should be restarted.
 					time.sleep(1)
