@@ -27,6 +27,22 @@ Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby 
 does not need to know how to create a new Linux bootable key or card.
 
 ## Open Tasks
+- [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
+- [ ] 2025.02.28.01.48 H Remember to search the KioskForge.py source file for `TODO:` marks.
+- [ ] 2025.02.28.01.44 H I observed cloud-init report "ERROR: Timeout was reached" (?), which could indicate that I am giving
+                         cloud-init too much work during the initial boot.  I am going to disable cloud-init upgrades for now.
+                         Remember to disable upgrades when using autoinstall.yaml (Subiquity).
+- [ ] 2025.02.28.00.56 H I believe I left the Pi on yet it was off after five hours.  I'll try again over the night.
+                         This issue has not been recreated, but it *may* be caused by the idle timeout code.  Perhaps a process
+						 that is not closed down correctly or Chromium that crashes when restarted.
+						 X11 left this error in its log file (`.xsession-errors`):
+						 `XIO: fatal IO error 4 (Interrupted system call) on X server ":0" after 4801 requests (4798 known processed) with 0 events remaining.`
+						 After which X11 seems to have crashed, pulling down the entire kiosk (into a dead state).
+						 I reread the code in `KioskStart.py` and an assignment statement was missing, possibly causing the issue.
+						 I am going to make a new kiosk and leave it running through the night.
+						 04:25 So far, the box has run without issues, I am confident that the missing assignment statement was the
+						 cause of the X11 crash because it meant that a dead process was occasionally attempted killed.
+- [ ] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
 - [ ] 2025.02.27.17.21 H Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated.
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
@@ -61,12 +77,7 @@ does not need to know how to create a new Linux bootable key or card.
 - [x] 2026.02.27.14.10 H Create a new repository `KioskForge` on GitHub for the user `vhmdk`.
 - [x] 2025.02.21.17.43 H Ask Darren and Rune what their expectations and wishes for KioskForge v2.x are.
 - [x] 2025.02.26.11.54 M Investigate [Open Kiosk](https://openkiosk.mozdevgroup.com/).  It might be worth a try!  Too complex!
-- [x] 2025.02.22.13.58 H Rename the `KioskForge` project to something else - the name is already taken by an Italian entity:
-	1. `KioskBuilder`?  Taken.
-    2. `KioskSetup`?  Taken.
-    3. `OpenKiosk`?  Taken (see link in above entry on `Open Kiosk`).
-    4. `KioskBuild`?  Not taken, but not very good.
-    5. `Kiosk Master`?  Taken.
-    6. `KioskForge`? Free.  Chosen.
-      `KioskMaker` has just now been renamed to `KioskForge` and that is its current and future name from now on.
+- [x] 2025.02.22.13.58 H Rename the `KioskForge` project to something else - the name is already taken by an Italian entity.
+                         Names such as `KioskBuilder`, `KioskSetup`, `OpenKiosk`, `Kiosk Master` were all taken but `KioskForge`
+						 turned out to be free, according to Google, so I chose that and have registered the .org domain already.
 
