@@ -32,8 +32,6 @@ does not need to know how to create a new Linux bootable key or card.
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.28.01.48 H Remember to search the KioskForge.py source file for `TODO:` marks.
 - [ ] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
-- [ ] 2025.02.27.17.21 H Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated.
-- [ ] 2025.03.05.18.25 H Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
@@ -41,6 +39,9 @@ does not need to know how to create a new Linux bootable key or card.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
+- [ ] 2025.02.27.17.21 L Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated:
+                         "c:\Program Files (x86)\Raspberry Pi Imager\rpi-imager-cli.cmd" --cli --disable-verify --disable-eject --enable-writing-system-drives "c:\Users\Mikael\Downloads\ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz" \\.\PhysicalDrive2
+- [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 
 ## Completed Tasks
 - [x] 2025.03.05.16.29 H Figure out why `ExternalAptAction.execute()` does not work when the `lsof` code is enabled then enable it.
@@ -88,4 +89,3 @@ does not need to know how to create a new Linux bootable key or card.
 - [x] 2025.02.22.13.58 H Rename the `KioskForge` project to something else - the name is already taken by an Italian entity.
                          Names such as `KioskBuilder`, `KioskSetup`, `OpenKiosk`, `Kiosk Master` were all taken but `KioskForge`
 						 turned out to be free, according to Google, so I chose that and have registered the .org domain already.
-
