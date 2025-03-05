@@ -27,13 +27,13 @@ Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby 
 does not need to know how to create a new Linux bootable key or card.
 
 ## Open Tasks
-- [ ] 2025.03.05.16.29 H Figure out why `ExternalAptAction.execute()` does not work when the `lsof` code is enabled then enable it.
 - [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
 - [ ] 2025.02.28.05.15 M Add support for Ubuntu Server (and Desktop) v24.04.2 to the operating system detector.
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.28.01.48 H Remember to search the KioskForge.py source file for `TODO:` marks.
 - [ ] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
 - [ ] 2025.02.27.17.21 H Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated.
+- [ ] 2025.03.05.18.25 H Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
@@ -43,6 +43,10 @@ does not need to know how to create a new Linux bootable key or card.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
 
 ## Completed Tasks
+- [x] 2025.03.05.16.29 H Figure out why `ExternalAptAction.execute()` does not work when the `lsof` code is enabled then enable it.
+                         An `InternalError` exception was thrown in `Result.__init__()` when `status` was zero and `output` empty.
+- [x] 2025.03.05.16.35 H Investigate if background `apt` services can be temporarily stopped while running `KioskSetup.py`.
+                         Not necessary, I finally found and removed the incorrect parameter check in `Result.__init__()`.
 - [x] 2024.11.14.14.00 H Make the script fail graciously if it can see a Linux media but not recognize the version.
 - [x] 2025.02.27.16.49 H Remove explanatory comments from configuration files (people use the TUI/GUI to edit these values).
 - [x] 2025.02.28.00.56 H I believe I left the Pi on yet it was off after five hours.  I'll try again over the night.
