@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, TextIO, Tuple
 import abc
 import glob
 import hashlib
+import http.client as httplib
 import os
 import platform
 import shlex
@@ -26,6 +27,7 @@ import subprocess
 import sys
 import time
 import types
+
 
 # Try to import syslog (non-Windows platforms) or create a dummy stub.
 try:
@@ -103,6 +105,18 @@ class ArgumentError(Error):
 	@property
 	def index(self) -> int:
 		return self.__index
+
+
+# Source: https://stackoverflow.com/questions/3764291/how-can-i-see-if-theres-an-available-and-active-network-connection-in-python
+def internet_active() -> bool:
+	connection = httplib.HTTPSConnection("8.8.8.8", timeout=5)
+	try:
+		connection.request("HEAD", "/")
+		return True
+	except Exception:
+		return False
+	finally:
+		connection.close()
 
 
 class Version(object):
@@ -914,9 +928,9 @@ class Setup(Record):
 		self.mouse         = BooleanField("If the mouse should be enabled (y/n).")
 		self.user_name     = StringField("The user name of the non-root administrative user (e.g., 'user').")
 		self.user_code     = StringField("The password for the user (e.g., 'dumsey3rumble').")
-		self.ssh_key       = StringField("The public SSH key.")
-		self.wifi_name     = StringField("The name of the WiFi network (e.g., 'MyWiFi', blank = no WiFi).")
-		self.wifi_code     = StringField("The password for the WiFi network (e.g., 'stay4out!', only used if 'wifi_name' is set).")
+		self.ssh_key       = StringField("The public SSH key for accessing the kiosk using the 'ssh' command.")
+		self.wifi_name     = StringField("The WiFi network (case sensitive!) (e.g., 'MyWiFi', blank = no WiFi).")
+		self.wifi_code     = StringField("The password for WiFi access (case sensitive!) (e.g., 'stay4out!', blank = no password).")
 		self.snap_time     = StringField("The daily period of time that snap updates software (e.g., '10:00-10:30').")
 		self.swap_size     = NaturalField("The size in gigabytes of the swap file (0 = none).", 0, 128)
 		self.vacuum_time   = TimeField("The time of day to vacuum system logs (blank = never)")
@@ -1686,6 +1700,16 @@ class KioskSetup(KioskClass):
 			# Check that we've got root privileges (instruct MyPy to ignore the Windows-only error in the next line).
 			if os.name == "posix" and os.geteuid() != 0:		# type: ignore
 				raise KioskError("You must be root (use 'sudo') to run this script")
+
+			# Check that we have got an active, usable internet connection.
+			if not internet_active():
+				print("*" * 78)
+				print("FATAL ERROR: NO INTERNET CONNECTION DETECTED!")
+				print("PLEASE CHECK THE WIFI NAME AND PASSWORD USING KioskForge - BOTH ARE CASE SENSITIVE.")
+				print("*" * 78)
+				input("Press ENTER to continue")
+
+				raise KioskError("No active network connections detected")
 
 			# Parse command-line arguments.
 			if len(arguments) >= 2:
