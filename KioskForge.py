@@ -371,9 +371,8 @@ class Logger(object):
 		"""Writes one or more lines to the output device."""
 		lines = text.split(os.linesep)
 		for line in lines:
-			# Don't output text to the console when using AUTOSTART as this clutters and probably confuses the end-user.
-			if not AUTOSTART:
-				print(line)
+			# NOTE: Always output status to the console, even when AUTOSTART is True, to allow the user to see what is happening.
+			print(line)
 
 			if 'syslog' in sys.modules:
 				syslog.syslog(kind, line)
