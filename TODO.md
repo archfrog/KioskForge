@@ -27,6 +27,8 @@ Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby 
 does not need to know how to create a new Linux bootable key or card.
 
 ## Open Tasks
+- [ ] 2025.03.05.16.29 H Figure out why `ExternalAptAction.execute()` does not work when the `lsof` code is enabled then enable it.
+- [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
 - [ ] 2025.02.28.05.15 M Add support for Ubuntu Server (and Desktop) v24.04.2 to the operating system detector.
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.28.01.48 H Remember to search the KioskForge.py source file for `TODO:` marks.
