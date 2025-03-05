@@ -30,10 +30,20 @@ does not need to know how to create a new Linux bootable key or card.
 - [ ] 2025.02.28.05.15 M Add support for Ubuntu Server (and Desktop) v24.04.2 to the operating system detector.
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.28.01.48 H Remember to search the KioskForge.py source file for `TODO:` marks.
-- [ ] 2025.02.28.01.44 H I observed cloud-init report "ERROR: Timeout was reached" (?), which could indicate that I am giving
-                         cloud-init too much work during the initial boot.  I am going to disable cloud-init upgrades for now.
-                         Remember to disable upgrades when using autoinstall.yaml (Subiquity).
-- [ ] 2025.02.28.00.56 H I believe I left the Pi on yet it was off after five hours.  I'll try again over the night.
+- [ ] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
+- [ ] 2025.02.27.17.21 H Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated.
+- [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
+                         full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
+- [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
+- [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
+- [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
+- [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
+- [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
+
+## Completed Tasks
+- [x] 2024.11.14.14.00 H Make the script fail graciously if it can see a Linux media but not recognize the version.
+- [x] 2025.02.27.16.49 H Remove explanatory comments from configuration files (people use the TUI/GUI to edit these values).
+- [x] 2025.02.28.00.56 H I believe I left the Pi on yet it was off after five hours.  I'll try again over the night.
                          This issue has not been recreated, but it *may* be caused by the idle timeout code.  Perhaps a process
 						 that is not closed down correctly or Chromium that crashes when restarted.
 						 X11 left this error in its log file (`.xsession-errors`):
@@ -43,19 +53,10 @@ does not need to know how to create a new Linux bootable key or card.
 						 I am going to make a new kiosk and leave it running through the night.
 						 04:25 So far, the box has run without issues, I am confident that the missing assignment statement was the
 						 cause of the X11 crash because it meant that a dead process was occasionally attempted killed.
-- [ ] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
-- [ ] 2025.02.27.17.21 H Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated.
-- [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
-                         full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
-- [ ] 2025.02.27.16.49 H Once the GUI version is complete, remove explanatory comments from configuration files.
-- [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
-- [ ] 2024.11.14.14.00 H Make the script fail graciously if it can see a Linux media but not recognize the version.
-- [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
-- [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
-- [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
-- [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
-
-## Completed Tasks
+- [x] 2025.02.28.01.44 H I observed cloud-init report "ERROR: Timeout was reached" (?), which could indicate that I am giving
+                         cloud-init too much work during the initial boot.  I am going to disable cloud-init upgrades for now.
+                         Remember to disable upgrades when using autoinstall.yaml (Subiquity).
+- [x] 2025.03.03.15.10 H Make the script report no active internet connection loudly and clearly.
 - [x] 2024.11.21.13.58 H Make the script use Linux' 'syslog' facility for logging instead of a local log file.
 - [x] 2024.11.08.11.09 H Ask the user if he/she wants to save the changes after having modified the setup (it already does this).
 - [x] 2024.11.07.20.27 H Extract all client-dependent options and make them part of the `Setup` class' information:
