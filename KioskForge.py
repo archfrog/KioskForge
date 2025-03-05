@@ -218,10 +218,9 @@ class Recognizer(object):
 
 			# If no kiosk images were found, let the user fix the error and try again.
 			if len(targets) == 0:
-				raise KioskError("No kiosk installation media found")
-
 				# NOTE: Windows takes a little while to discover the written image, so we try once more if we fail at first.
-				print("Waiting three seconds for USB/MicroSD drive to become available...")
+				print("ALERT: Waiting three seconds for installation media to be discovered by the host operating system...")
+				print("ALERT: If you have not already done so, please insert the installation media to proceed.")
 				time.sleep(3)
 				continue
 
@@ -388,11 +387,6 @@ class Result(object):
 	"""The result (status code, output) of an action."""
 
 	def __init__(self, status : int = 0, output : str = "") -> None:
-		# Check arguments.
-		if status and not output:
-			raise InternalError("A failed (non-zero) result MUST have associated output text")
-
-		# Initialize instance.
 		self.__status = status
 		self.__output = output
 
@@ -405,8 +399,9 @@ class Result(object):
 		return self.__output
 
 
-# Global function to invoke an external program and return a 'Result' instance.
+# Global function to invoke an external program and return a 'Result' instance with the program's exit code and output.
 def invoke(line : str) -> Result:
+	# Capture stderr and stdout interleaved in the same output string by using stderr=...STDOUT and stdout=...PIPE.
 	result = subprocess.run(
 		shlex.split(line), stderr=subprocess.STDOUT, stdout=subprocess.PIPE, check=False, shell=False, text=False
 	)
@@ -663,12 +658,11 @@ class ExternalAptAction(ExternalAction):
 
 	def execute(self) -> Result:
 		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' is removed.
-		# NOTE: If I enable the loop below, the call to ExternalAction.execute() is never invoked.  Python bug???
-		while False and invoke("lsof /var/lib/dpkg/lock").status == 0:
-			print("Waiting for 'apt' lock to be released...")
+		while invoke("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke("lsof /var/lib/dpkg/lock").status == 0:
+			print("ALERT: Waiting 5 seconds for 'apt' lock to be released - 'apt' is running in the background...")
 			time.sleep(5)
 
-		return ExternalAction.execute(self)
+		return super().execute()
 
 
 class CleanPackageCacheAction(ExternalAptAction):
@@ -1292,7 +1286,7 @@ class KioskForge(KioskClass):
 				stream.write("WantedBy=cloud-init.target")
 				stream.dedent()
 				stream.write("owner: 'root:root'")
-				stream.write("permissions: '666'")
+				stream.write("permissions: '664'")
 				stream.dedent()
 				stream.write()
 
@@ -1701,12 +1695,18 @@ class KioskSetup(KioskClass):
 				raise KioskError("You must be root (use 'sudo') to run this script")
 
 			# Check that we have got an active, usable internet connection.
+			index = 0
+			while not internet_active() and index < 6:
+				print("*** NETWORK DOWN: Waiting 5 seconds for the kiosk to come online")
+				index += 1
+				time.sleep(5)
+			del index
+
 			if not internet_active():
 				print("*" * 78)
-				print("FATAL ERROR: NO INTERNET CONNECTION DETECTED!")
-				print("PLEASE CHECK THE WIFI NAME AND PASSWORD USING KioskForge - BOTH ARE CASE SENSITIVE.")
+				print("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
+				print("*** (Please check the wifi name and password - both are case-sensitive.)")
 				print("*" * 78)
-				input("Press ENTER to continue")
 
 				raise KioskError("No active network connections detected")
 
