@@ -27,6 +27,8 @@ Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby 
 does not need to know how to create a new Linux bootable key or card.
 
 ## Open Tasks
+- [ ] 2025.03.07.07.43 H GUI version: Make a checkbox next to each optional field that disables or enables the input value.
+                         This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
 - [ ] 2025.02.28.05.15 M Add support for Ubuntu Server (and Desktop) v24.04.2 to the operating system detector.
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
@@ -39,6 +41,8 @@ does not need to know how to create a new Linux bootable key or card.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
+                         This could, perhaps, be done by sawing a list of already performed steps or by adding a feature to undo a
+						 step that has already been done, although this is a more complicated than just skipping successful steps.
 - [ ] 2025.02.27.17.21 L Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated:
                          "c:\Program Files (x86)\Raspberry Pi Imager\rpi-imager-cli.cmd" --cli --disable-verify --disable-eject --enable-writing-system-drives "c:\Users\Mikael\Downloads\ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz" \\.\PhysicalDrive2
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
