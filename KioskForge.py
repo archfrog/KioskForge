@@ -1956,7 +1956,7 @@ class KioskSetup(KioskClass):
 				lines += "# Spawn Chromium over and over in case it crashes (probably never happens, but better safe than sorry)."
 				lines += "while true; do"
 				lines += "\t# Launch Chromium with the URL given in the configuration file (can be edited after forging)."
-				lines += '\tchromium --kiosk --fast --fast-start --start-maximised --noerrdialogs --no-first-run --enable-pinch --overscroll-history-navigation=disabled --disable-features=TouchpadOverscrollHistoryNavigation --overscroll-history-navigation=0 --disable-restore-session-state --disable-infobars --disable-crashpad "%s"' % setup.website.data
+				lines += '\tchromium --kiosk --fast --fast-start --start-maximised --noerrdialogs --no-first-run --disable-pinch --overscroll-history-navigation=disabled --disable-features=TouchpadOverscrollHistoryNavigation --overscroll-history-navigation=0 --disable-restore-session-state --disable-infobars --disable-crashpad "%s"' % setup.website.data
 				lines += "done"
 				script += CreateTextWithUserAndModeAction(
 					"Creating Chromium launcher script",
