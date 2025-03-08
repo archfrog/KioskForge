@@ -1,32 +1,9 @@
 # KioskForge Main Task List
 
-## GUI Support
-`KioskForge` is intended to be used by non-technical users to set up a kiosk machine for browsing a given website.  Initially, I
-made a very primitive Text User Interface (TUI) for the application, consisting of a main menu with five menu items.  Feedback
-from actual users, however, strongly suggested that they much preferred a real Graphical User Interface (GUI).  `KioskForge` being
-written in Python, made it logical and sensible to develop a GUI using TK/Inter for Python.
-
-I see various paths forward for the TK/Inter GUI:
-
-1. A traditional menu-based application that allows the user to create, load, edit, and save a configuration, and then apply it.
-2. A wizard-like application that guides the end-user through each of the steps necessary to make a new kiosk.  This approach
-   probably sounds sensible, but some users need to deploy more than one kiosk for which reason such an UI is not adequate.
-3. A list view that presents all known kiosks and lets the user edit them as he or she wants to.  Very experimental and not good.
-
-I experimentally used a folder structure where the `Kiosks` folder, as a subfolder of the `KioskForge` folder, was used to store
-kiosk configurations.  This has turned out to be confusing and unexpected for the end-users as they like to be able to load and
-save configurations from anywhere, such as a network share or the window manager's `Desktop` folder.
-
-My current view is that a traditional modal application, with a main menu that provides features for loading and saving kiosks,
-would be the best.  The app needs to provide an editor to edit a configuration with proper validation and error handling.
-
-Darren, the main user of the early versions of KioskForge, suggests that the app uses a wizard-like UI as people only use the app
-infrequently and likely won't be sure of how to use it.  The `New` menu item in the `File` menu will eventually open this wizard.
-
-Darren also suggested that KioskForge invokes `Raspberry Pi Imager` and thereby creates the USB/SD-card image so that the user
-does not need to know how to create a new Linux bootable key or card.
-
 ## Open Tasks
+- [ ] 2025.03.09.00.53 H Make a guide/wizard for the "File/New" menu item so that any user can configure the new kiosk easily.
+- [ ] 2025.03.09.00.04 H As KioskForge grows, the need for it to run in a virtual environment probably does too.
+                         Only if extra, non-standard packages are used, something which I prefer to avoid.
 - [ ] 2025.03.07.07.43 H GUI version: Make a checkbox next to each optional field that disables or enables the input value.
                          This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
