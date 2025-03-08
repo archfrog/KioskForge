@@ -1,5 +1,6 @@
 # KioskForge Master Readme File
-KioskForge is a portable tool to automate and simplify the process of setting up a new kiosk machine for browsing a website.
+KioskForge is a portable tool to automate and simplify the process of setting up a new kiosk machine for browsing a website.  It is
+intended to be used by non-technical users to set up a kiosk machine for browsing a given website.
 
 KioskForge currently supports these things:
 
