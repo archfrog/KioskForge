@@ -43,8 +43,6 @@ does not need to know how to create a new Linux bootable key or card.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
                          This could, perhaps, be done by sawing a list of already performed steps or by adding a feature to undo a
 						 step that has already been done, although this is a more complicated than just skipping successful steps.
-- [ ] 2025.02.27.17.21 L Make the script invoke `Raspberry Pi Imager` directly so that this step is eliminated:
-                         "c:\Program Files (x86)\Raspberry Pi Imager\rpi-imager-cli.cmd" --cli --disable-verify --disable-eject --enable-writing-system-drives "c:\Users\Mikael\Downloads\ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz" \\.\PhysicalDrive2
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 
 ## Completed Tasks
@@ -93,3 +91,10 @@ does not need to know how to create a new Linux bootable key or card.
 - [x] 2025.02.22.13.58 H Rename the `KioskForge` project to something else - the name is already taken by an Italian entity.
                          Names such as `KioskBuilder`, `KioskSetup`, `OpenKiosk`, `Kiosk Master` were all taken but `KioskForge`
 						 turned out to be free, according to Google, so I chose that and have registered the .org domain already.
+- [x] 2025.02.27.17.21 L Make the script invoke `Raspberry Pi Imager` directly so that the burning step is eliminated:
+                         "c:\Program Files (x86)\Raspberry Pi Imager\rpi-imager-cli.cmd" --cli --disable-verify --disable-eject --enable-writing-system-drives "c:\Users\Mikael\Downloads\ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz" \\.\PhysicalDrive2
+                         This requires finding the physical path of the USB key, which can be done with `wmi` for Python, but I am
+                         not happy about the prospect of the user accidentally deleting a drive with valuable data, so this is dropped.
+						 Furthermore, it will require the installation of two additional packages for Python, something I doubt the
+						 average KioskForge user will be capable of.
+
