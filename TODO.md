@@ -9,6 +9,12 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [ ] 2025.03.09.16.28 H Begin using [type_enforced](https://github.com/connor-makowski/type_enforced) globally in the project.
+                         This *may* require installing the module via `pip`, but in that case the script should detect that the
+						 module is missing and automatically install it (perhaps with a confirmation).
+- [ ] 2025.03.09.10.15 H Consider to use tabs for the different configuration sections (General, Network, ...).
+- [ ] 2025.03.09.09.55 M GUI on Linux: Check that tkinter is available and perhaps also that X11/Wayland is installed.
+- [ ] 2025.03.09.06.39 H Make KioskForge check that it is running on a supported Windows such as Windows 10+.
 - [ ] 2025.03.09.00.53 H Make a guide/wizard for the "File/New" menu item so that any user can configure the new kiosk easily.
 - [ ] 2025.03.09.00.04 H As KioskForge grows, the need for it to run in a virtual environment probably does too.
                          Only if extra, non-standard packages are used, something which I prefer to avoid.
