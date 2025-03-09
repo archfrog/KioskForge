@@ -1,5 +1,13 @@
 # KioskForge Main Task List
 
+Please notice that the task list of KioskForge is *currently* spread over three sources:
+
+1. This document, which is updated most frequently.
+2. The source code itself, these `TODO:` comments are typically intended to be read and acted upon by actual developers.
+3. The `Opgaveliste for Kiosk projekt.docx` Word document, which will be eliminated soon.
+
+Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
+
 ## Open Tasks
 - [ ] 2025.03.09.00.53 H Make a guide/wizard for the "File/New" menu item so that any user can configure the new kiosk easily.
 - [ ] 2025.03.09.00.04 H As KioskForge grows, the need for it to run in a virtual environment probably does too.
@@ -74,4 +82,3 @@
                          not happy about the prospect of the user accidentally deleting a drive with valuable data, so this is dropped.
 						 Furthermore, it will require the installation of two additional packages for Python, something I doubt the
 						 average KioskForge user will be capable of.
-
