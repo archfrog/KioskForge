@@ -25,6 +25,7 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
+- [ ] 2025.03.09.05.18 L Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.  Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
                          This could, perhaps, be done by sawing a list of already performed steps or by adding a feature to undo a
 						 step that has already been done, although this is a more complicated than just skipping successful steps.
