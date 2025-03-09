@@ -12,6 +12,9 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.03.09.16.28 H Begin using [type_enforced](https://github.com/connor-makowski/type_enforced) globally in the project.
                          This *may* require installing the module via `pip`, but in that case the script should detect that the
 						 module is missing and automatically install it (perhaps with a confirmation).
+      2025.03.09.16.44   I spent like fifteen minutes on trying out `type_enforced` and didn't manage to get it to work.  Most
+                         noticably, it doesn't yet really support global enforcement, only per-class and per-function.  Looks good,
+						 but probably needs a bit more work before I can use it as I plan to (on all of my code).
 - [ ] 2025.03.09.10.15 H Consider to use tabs for the different configuration sections (General, Network, ...).
 - [ ] 2025.03.09.09.55 M GUI on Linux: Check that tkinter is available and perhaps also that X11/Wayland is installed.
 - [ ] 2025.03.09.06.39 H Make KioskForge check that it is running on a supported Windows such as Windows 10+.
