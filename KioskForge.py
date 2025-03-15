@@ -2189,14 +2189,14 @@ class KioskStart(KioskClass):
 				subprocess.check_call(shlex.split(xset), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			del xset
 
-			# Rotate the screen, if applicable.
+			# Rotate the screen, if applicable (TODO: This may possibly depend on whether we're doing a PI or PC build).
 			if setup.rotate_screen.data:
 				command  = TextBuilder()
 				command += "xrandr"
 				command += "--output"
 				command += "HDMI-1"
 				command += "--rotate"
-				command += setup.rotate_screen.data
+				command += { 0 : 'normal', 1 : 'left', 2 : 'inverted', 3 : 'right' }[setup.rotate_screen.data]
 				subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
