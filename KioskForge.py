@@ -1061,7 +1061,7 @@ class Setup(Record):
 			stream.write("idle_timeout=%s" % self.idle_timeout.data)
 
 			stream.write("# %s" % self.rotate_screen.text)
-			stream.write("screen_rotate=%d" % self.rotate_screen.data)
+			stream.write("rotate_screen=%d" % self.rotate_screen.data)
 
 
 class Editor(object):
