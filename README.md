@@ -40,7 +40,7 @@ KioskForge is designed and implemented using three primary requirements:
 
 1. The script must be completely reliable.  This is why we use Python and its exception handling instead of, say, a Bash script.
 2. The script must be as user-friendly as possible.  Most people who need a kiosk aren't particularly tech savvy.
-3. The script must be portable to all major platforms, Windows and Linux in particular.  This is why we use Tk/Inter for Python.
+3. The script must be portable to all major platforms, Windows and Linux in particular.  This is why we use Tkinter for Python.
 
 It does not matter the least if the script is ugly, a bit clumsy, somewhat suboptimal in terms of execution speed or algorithms.
 People probably only use the script occasionally, albeit we want to automate it as much as possible in the future.
@@ -56,15 +56,15 @@ As of now, the procedure is as follows:
 1. Create an appropriate Ubuntu Server 24.04.x installation media (a USB key or a MicroSD card) using
    [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
    When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
+   Also, be sure to **not** select `Ubuntu Desktop` as this won't work (KioskForge will detect this issue, though).
 2. Launch KioskForge as described below.
 3. Create a new configuration using menu item `1` or load an existing configuration using menu item `2`.
 4. Edit the configuration to ensure that the configuration is correct using menu item `3`.
 5. Save the changed configuration, if it has been modified, using menu item `4`.
 5. Select the `Update Raspberry Pi Imager prepared installation media` (`5`) to have KioskForge modify the install media so that
    it installs and launches an actual Linux kiosk with the Chromium web browser pointing to whatever URL you have configured.
-   *This may fail the first time, because Windows is somewhat sluggish to discover new media.  Simply try again.*
 6. Press `ENTER` to exit KioskForge.
-7. Use Windows' safe removal feature or `Eject` from within Windows Explorer to safely unmount the installation media.
+7. Use Windows' *Safe Removal* feature or `Eject` from Windows Explorer to safely unmount the installation media.
 8. Move the installation media to the powered off Raspberry Pi 4+.
 9. Power on the Raspberry Pi 4+.
 10. Wait between 15 and 30 minutes (this depends a lot on the I/O speed of the installation media) until the kiosk has been forged.
@@ -76,11 +76,11 @@ After that, the kiosk should *theoretically* run nicely and reliably for years a
 using SSH, once in a while to verify that logs are being rotated, that there is sufficient disk space available, and so on.
 
 If you SSH into the kiosk or use a local keyboard to log in, you can use the `kiosklog` command to view `syslog` entries related
-to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `kiosklog -p 3`.
+to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `kiosklog -p 3 | more`.
 
 
 ### Windows
-On Windows, you need to download and install the product from [Python v3.x programming language](https://python.org).
+On Windows, you need to download and install Python from [Python v3.x programming language](https://python.org).
 
 After this, you can launch KioskForge directly from Windows Explorer, by double-clicking it, or directly from the command-line.
 
@@ -92,7 +92,7 @@ Install a recent version of the [Python v3.x programming language](https://pytho
 system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
-then you can invoke it using `./KioskForge.py`.
+then you can invoke it using `sudo ./KioskForge.py`.
 
 
 ## Macintosh
