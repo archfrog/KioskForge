@@ -39,7 +39,7 @@ except ModuleNotFoundError:
 	SYSLOG_LOG_ERR = 1
 	SYSLOG_LOG_INFO = 2
 
-VERSION = "0.10"
+VERSION = "0.11"
 COMPANY = "Vendsyssel Historiske Museum"
 CONTACT = "me@vhm.dk"
 TESTING = True
@@ -931,6 +931,7 @@ class Setup(Record):
 		self.upgrade_time  = TimeField("The time of day to upgrade the system (blank = never)")
 		self.poweroff_time = TimeField("The time of day to power off the system (blank = never)")
 		self.idle_timeout  = NaturalField("The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
+		self.rotate_screen = NaturalField("0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
 
 	def check(self) -> List[str]:
 		result = []
@@ -1058,6 +1059,9 @@ class Setup(Record):
 
 			stream.write("# %s" % self.idle_timeout.text)
 			stream.write("idle_timeout=%s" % self.idle_timeout.data)
+
+			stream.write("# %s" % self.rotate_screen.text)
+			stream.write("screen_rotate=%d" % self.rotate_screen.data)
 
 
 class Editor(object):
@@ -2184,6 +2188,16 @@ class KioskStart(KioskClass):
 			for xset in [ "xset s off", "xset s noblank", "xset -dpms"]:
 				subprocess.check_call(shlex.split(xset), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			del xset
+
+			# Rotate the screen, if applicable.
+			if setup.rotate_screen.data:
+				command  = TextBuilder()
+				command += "xrandr"
+				command += "--output"
+				command += "HDMI-1"
+				command += "--rotate"
+				command += setup.rotate_screen.data
+				subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
 			# NOTE: Chromium does not complain about any of the options listed below!
