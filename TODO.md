@@ -9,6 +9,12 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
+- [ ] 2025.03.15.19.00 H Would it make sense to uninstall `needrestart`?  The kiosk always reboots after upgrading.
+- [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
+- [ ] 2025.03.15.19.53 H Add `display.rotate` option: `left`, `right`, `normal`, and `flip` (`flip` is `inverted` on X11).
+- [ ] 2025.03.15.18.52 H Add `target` option: `rpi4`, `rpi5`, `pc`.
+- [ ] 2025.03.15.18.43 M Add GUI tab for the target device (Raspberry Pi, PC), where target-specific settings can be configured.
 - [ ] 2025.03.09.16.28 H Begin using [type_enforced](https://github.com/connor-makowski/type_enforced) globally in the project.
                          This *may* require installing the module via `pip`, but in that case the script should detect that the
 						 module is missing and automatically install it (perhaps with a confirmation).
