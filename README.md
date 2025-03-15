@@ -32,6 +32,7 @@ Customization of the target kiosk machine can be done using KioskForge.py or usi
 | Vacuum time      | `vacuum_time`   | time    | The hour and minute of when to automatically compact and clean log files.   |
 | Vacuum retention | `vacuum_days`   | integer | The number of days to retain system logs.                                   |
 | Idle timeout     | `idle_timeout`  | seconds | Seconds of idle time before restarting the web browser (0 = never).         |
+| Screen rotation  | `rotate_screen` | integer | 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right.       |
 
 
 ## Philosophy
