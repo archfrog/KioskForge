@@ -1,4 +1,5 @@
 @echo off
+setlocal
 
 rem Call MyPy to check for obvious errors.
 call test.bat
@@ -9,9 +10,14 @@ git status
 pause
 
 rem Prepare distribution archive.
-if exist "%RAMDISK%\KioskForge.zip" del "%RAMDISK%\KioskForge.zip"
-7z a %RAMDISK%\KioskForge.zip KioskForge.py FAQ.md README.md LICENSE
+set image=%RAMDISK%\KioskForge.zip
+if exist "%image%" del "%image%"
+7z a "%image%" KioskForge.py FAQ.md README.md LICENSE
 
 rem Upload distribution archive to Egevig.org (temporary solution).
-"C:\Program Files\Git\usr\bin\scp.exe" -F u:\.ssh\config -p %RAMDISK%\KioskForge.zip web:web/pub/egevig.org/KioskForge.zip
+"C:\Program Files\Git\usr\bin\scp.exe" -F u:\.ssh\config -p "%image%" web:web/pub/egevig.org/KioskForge.zip
 
+rem Clean up the Ram disk after use.
+if exist "%image%" del "%image%"
+
+endlocal
