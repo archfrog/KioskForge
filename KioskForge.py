@@ -918,7 +918,7 @@ class Setup(Record):
 		self.locale        = StringField("The locale (e.g., 'da_DK.UTF-8').")
 		self.website       = StringField("The URL (e.g., 'https://google.com').")
 		self.audio         = NaturalField("The default audio level (0 = no audio).", 0, 100)
-		self.mouse         = BooleanField("If the mouse should be enabled (y/n).")
+		self.mouse         = BooleanField("If the mouse should be enabled (y/n or 1/0).")
 		self.user_name     = StringField("The user name of the non-root administrative user (e.g., 'user').")
 		self.user_code     = StringField("The password for the user (e.g., 'dumsey3rumble').")
 		self.ssh_key       = StringField("The public SSH key for accessing the kiosk using the 'ssh' command.")
@@ -1022,7 +1022,7 @@ class Setup(Record):
 			stream.write("audio=%d" % self.audio.data)
 
 			stream.write("# %s" % self.mouse.text)
-			stream.write("mouse=%s" % ("y" if self.mouse.data else "n"))
+			stream.write("mouse=%s" % ("1" if self.mouse.data else "0"))
 
 			stream.write("# %s" % self.user_name.text)
 			stream.write("user_name=%s" % self.user_name.data)
