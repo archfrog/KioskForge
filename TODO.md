@@ -9,6 +9,9 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [ ] 2025.03.16.05.34 H Change boolean configuration options into using `0` and `1` as their values instead of `n` and `y`.
+- [ ] 2025.03.16.03.31 H Make the Kiosk configuration loader and write handle multi-line text lines for the `comment` field.
+- [ ] 2025.03.16.03.31 H Consider to add purely administrative fields such as `IP address` and possibly others like that.
 - [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
 - [ ] 2025.03.15.19.00 H Would it make sense to uninstall `needrestart`?  The kiosk always reboots after upgrading.
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
