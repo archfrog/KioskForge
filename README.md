@@ -4,7 +4,7 @@ intended to be used by non-technical users to set up a kiosk machine for browsin
 
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.* on Raspberry Pi 4B ARM64 (aarch64) and PC x64/AMD64 machines.
+* Ubuntu Server 24.04.* on Raspberry Pi 4/4B ARM64 (aarch64) and PC x64/AMD64 machines.
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or WIFI networking.
@@ -117,5 +117,6 @@ Development currently takes place on a Windows 11 Pro desktop computer, but I'll
 
 
 ## Bugs
-Please report bugs on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues).
+Please report bugs on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to
+[Mikael Egevig](mailto:me@vhm.dk).  The former is the preferred method, but use whichever suits you best.
 
