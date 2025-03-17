@@ -874,7 +874,7 @@ class TimeField(StringField):
 		StringField.__init__(self, text)
 
 	def parse(self, data : str) -> None:
-		if data != "":
+		if data == "":
 			StringField.parse(self, data)
 			return
 
