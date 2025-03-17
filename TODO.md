@@ -17,9 +17,10 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.03.16.03.31 H Consider to add purely administrative fields such as `IP address` and possibly others like that.
 - [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
 - [ ] 2025.03.15.19.00 H Would it make sense to uninstall `needrestart`?  The kiosk always reboots after upgrading.
+                         Yes!  https://discourse.ubuntu.com/t/needrestart-changes-in-ubuntu-24-04-service-restarts/44671/8
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
 - [ ] 2025.03.15.18.52 H Add `target` option: `rpi4`, `rpi5`, `pc`.
-- [ ] 2025.03.15.18.43 M Add GUI tab for the target device (Raspberry Pi, PC), where target-specific settings can be configured.
+- [ ] 2025.03.15.18.43 M Add GUI tab for the target device (Raspberry Pi, PC), where overclocking, etc. can be configured.
 - [ ] 2025.03.09.16.28 H Begin using [type_enforced](https://github.com/connor-makowski/type_enforced) globally in the project.
                          This *may* require installing the module via `pip`, but in that case the script should detect that the
 						 module is missing and automatically install it (perhaps with a confirmation).
