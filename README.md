@@ -1,10 +1,10 @@
 # KioskForge Master Readme File
 KioskForge is a portable tool to automate and simplify the process of setting up a new kiosk machine for browsing a website.  It is
-intended to be used by non-technical users to set up a kiosk machine for browsing a given website.
+intended to be used by somewhat non-technical users to set up a kiosk machine for browsing a given website.
 
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.* on Raspberry Pi 4/4B ARM64 (aarch64) and PC x64/AMD64 machines.
+* Ubuntu Server 24.04.2 on Raspberry Pi 4/4B ARM64 (aarch64) and PC x64/AMD64 machines.
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or WIFI networking.
@@ -98,6 +98,12 @@ then you can invoke it using `sudo ./KioskForge.py`.
 ## Macintosh
 I don't have access to a Mac computer, so no development or testing is done on this platform.  Feel free to port the script and
 submit a pull request.  Please make sure that the result generates a valid, reliable kiosk before submitting the pull request.
+
+
+## Issues
+The following known issues exist with KioskForge:
+
+1. The `rotate_screen` option does not work with touch screens, only the display is rotated (the mouse is not affected).
 
 
 ## Development
