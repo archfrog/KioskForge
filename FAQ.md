@@ -38,8 +38,6 @@ Adding support for a single target platform takes weeks, if not months, as Linux
 ### Why was KioskForge written in Python v3.x?
 I originally wrote the first version of KioskForge in Bash, because it was very simple in the beginning, but soon came to rediscover that Bash *is* a pain to use if things go wrong.  The `set -e` command does not make a script truly reliable and I demand reliability of my tools.
 
-In other words: I tend to *only* use programming languages that support exception handling.  I still haven't grokked by so many new languages (Rust, Go, etc.) leave out exception handling.  To me, this is a braindead decision that *I* cannot support...
-
 In short: Because Python v3.x is preinstalled on many Linux distributions and because Python is a great scripting language.
 
 ### Why does KioskForge use Tkinter for Python?
