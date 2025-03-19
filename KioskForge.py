@@ -290,10 +290,10 @@ class PcRecognizer(Recognizer):
 		return Target("PC", path, "Ubuntu", "Server", "24.04.1", "amd64", "subiquity")
 
 
-SHA512_UBUNTU_SERVER_24_04_1_ARM64 = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
+SHA512_UBUNTU_SERVER_24_04_1_ARM64  = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
 SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 = 'ce3eb9b96c3e458380f4cfd731b2dc2ff655bdf837cad00c2396ddbcded64dbc1d20510c22bf211498ad788c8c81ba3ea04c9e33d8cf82538be0b1c4133b2622'
-SHA512_UBUNTU_SERVER_24_04_2_ARM64 = '5c62b93b8d19e8d7ac23aa9759a23893af5dd1ab5f80e4fb71f7b4fd3ddd0f84f7c82f9342ea4c9fdba2c350765c2c83eaaa6dcaac236f9a13f6644386e6a1d2'
-SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = 'TODO: fill in Ubuntu Desktop 24.04.2 SHA512 sum'
+SHA512_UBUNTU_SERVER_24_04_2_ARM64  = '5c62b93b8d19e8d7ac23aa9759a23893af5dd1ab5f80e4fb71f7b4fd3ddd0f84f7c82f9342ea4c9fdba2c350765c2c83eaaa6dcaac236f9a13f6644386e6a1d2'
+SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = '32825b5b770f94996f05a9f2fa95e8f7670944de5990a258d10d95c5bd0062123a707d8b943d23e7b0d54e8c3ff8440b0fd7ebbb8dc42bc20da8a77b3f3f6408'
 
 class PiRecognizer(Recognizer):
 	"""Derived class that recognizes Ubuntu Desktop or Server 24.04.x in a Raspberry Pi 4B install image."""
@@ -315,6 +315,8 @@ class PiRecognizer(Recognizer):
 			return Target("PI", path, "Ubuntu", "Server", "24.04.2", "arm64", "cloud-init")
 		elif hash == SHA512_UBUNTU_DESKTOP_24_04_1_ARM64:
 			return Target("PI", path, "Ubuntu", "Desktop", "24.04.1", "arm64", "cloud-init")
+		elif hash == SHA512_UBUNTU_DESKTOP_24_04_2_ARM64:
+			return Target("PI", path, "Ubuntu", "Desktop", "24.04.2", "arm64", "cloud-init")
 
 		return None
 
@@ -1550,6 +1552,7 @@ class KioskForge(KioskClass):
 		editor = Editor()
 		setup = Setup()
 		changed = False
+		kiosk = ""
 		while True:
 			try:
 				# Present a menu of valid choices for the user to make.
@@ -1563,7 +1566,6 @@ class KioskForge(KioskClass):
 				choice = editor.select("Select a menu choice", choices)
 
 				# Process the requested menu command.
-				kiosk = ""
 				if choice == -1:
 					if changed:
 						print("Warning: Kiosk has unsaved changes, please save it before exiting the program")
@@ -1574,6 +1576,7 @@ class KioskForge(KioskClass):
 				elif choice == 0:
 					# Create new kiosk.
 					setup = Setup()
+					kiosk = ""
 					changed = False
 				elif choice == 1:
 					# Load existing kiosks.
@@ -1652,23 +1655,30 @@ class KioskForge(KioskClass):
 					else:
 						print("Kiosk not changed, no need to save it.")
 				elif choice == 4:
+					# Check if a kiosk has been created or loaded.
+					if not kiosk and not changed:
+						raise KioskError("No kiosk defined, cannot forge the kiosk")
+
 					# Update installation media.
 					# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 					target = Recognizer().identify()
 
-					print()
+					# Report the kind of image that was discovered.
 					print(
 						"Discovered %s kiosk %s %s v%s (%s) install image at %s." %
 						(
 							target.kind, target.product, target.edition, target.version, target.cpukind, target.basedir
 						)
 					)
+					print()
+
+					# Only accept Server images for now.
+					if target.edition != "Server":
+						raise KioskError("Only Ubuntu Server 24.04.x images are supported")
 
 					print()
 					print("Preparing kiosk image for first boot.")
-
-					if target.edition != "Server":
-						raise KioskError("Only Ubuntu Server images are supported")
+					print()
 
 					# Append options to quiet both the kernel and systemd.
 					if target.kind == "PI":
@@ -1715,7 +1725,8 @@ class KioskForge(KioskClass):
 				else:
 					raise KioskError("Unknown main menu choice: %d" % choice)
 			except KioskError as that:
-				print("Error: %s" % that.text)
+				print("*** Error: %s" % that.text)
+				print()
 
 
 class KioskSetup(KioskClass):
