@@ -238,6 +238,7 @@ class Recognizer(object):
 				# NOTE: Windows takes a little while to discover the written image, so we try once more if we fail at first.
 				print("ALERT: Waiting three seconds for installation media to be discovered by the host operating system...")
 				print("ALERT: If you have not already done so, please insert the installation media to proceed.")
+				print()
 				time.sleep(3)
 				continue
 
@@ -1676,7 +1677,6 @@ class KioskForge(KioskClass):
 					if target.edition != "Server":
 						raise KioskError("Only Ubuntu Server 24.04.x images are supported")
 
-					print()
 					print("Preparing kiosk image for first boot.")
 					print()
 
@@ -1720,8 +1720,8 @@ class KioskForge(KioskClass):
 					shutil.copyfile(self.homedir + os.sep + self.version.program, target.basedir + "KioskSetup.py")
 
 					# Report success to the log.
-					print()
 					print("Preparation of boot image successfully completed - please eject/unmount %s safely." % target.basedir)
+					print()
 				else:
 					raise KioskError("Unknown main menu choice: %d" % choice)
 			except KioskError as that:
