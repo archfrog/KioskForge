@@ -62,6 +62,13 @@ EXIT_FAILURE = 1
 STRING_TO_BOOLEAN = {'y' : True, '1' : True, 't' : True, 'true' : True, 'n' : False, '0' : False, 'f' : False, 'false' : False}
 
 
+def password_crypt(text : str) -> str:
+	assert(len(text) >= 1 and len(text) <= 72)
+	data = value.encode('utf-8')
+	hash = bcrypt.pwhash(data, bcrypt.gensalt(14))
+	return hash
+
+
 class Error(Exception):
 	"""The base class for all exceptions."""
 
@@ -874,6 +881,29 @@ class StringField(Field):
 		self.__data = data
 
 
+class PasswordField(StringField):
+	"""Derived class that checks a Linux password."""
+
+	def __init__(self, text : str) -> None:
+		StringField.__init__(self, text)
+
+	def parse(self, data : str) -> None:
+		# Report error if the password string is empty.
+		if data == "":
+			raise KioskError("Password cannot be empty")
+
+		# Disallow passwords starting with a dollar sign, including encrypted passwords.
+		if data[0] == '$':
+			raise KioskError("Password cannot begin with a dollar sign ($)")
+
+		# Apparently, the maximum length of an input password to 'bcrypt' is 72 characters.
+		if len(data) > 72:
+			raise KioskError("Password too long - cannot exceed 72 characters")
+
+		# Finally, store the encrypted password.
+		StringField.parse(self, data)
+
+
 class TimeField(StringField):
 	"""Derived class that implements a time (HH:MM) field."""
 
@@ -927,7 +957,7 @@ class Setup(Record):
 		self.audio         = NaturalField("The default audio level (0 = no audio).", 0, 100)
 		self.mouse         = BooleanField("If the mouse should be enabled (y/n or 1/0).")
 		self.user_name     = StringField("The user name of the non-root administrative user (e.g., 'user').")
-		self.user_code     = StringField("The password for the user (e.g., 'dumsey3rumble').")
+		self.user_code     = PasswordField("The password for the user (e.g., 'dumsey3rumble').")
 		self.ssh_key       = StringField("The public SSH key for accessing the kiosk using the 'ssh' command.")
 		self.wifi_name     = StringField("The WiFi network (case sensitive!) (e.g., 'MyWiFi', blank = no WiFi).")
 		self.wifi_code     = StringField("The password for WiFi access (case sensitive!) (e.g., 'stay4out!', blank = no password).")
@@ -1255,7 +1285,7 @@ class KioskForge(KioskClass):
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			stream.write("passwd: %s" % setup.user_code.data)
+			stream.write("passwd: %s" % password_crypt(setup.user_code.data))
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
@@ -1414,7 +1444,7 @@ class KioskForge(KioskClass):
 			stream.write("hostname: %s" % setup.hostname.data)
 			stream.write("realname: %s" % "Kiosk")
 			stream.write("username: %s" % setup.user_name.data)
-			stream.write("password: '%s'" % setup.user_code.data)
+			stream.write("password: '%s'" % password_crypt(setup.user_code.data))
 			stream.dedent()
 			stream.write("kernel:")
 			stream.indent()
