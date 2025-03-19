@@ -62,6 +62,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
 - [ ] 2025.03.19.23.08 M Open up the GitHub repository for the public once most of the high priority tasks are completed and a
                          kiosk has proven itself for three to six months.
+- [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
+                         https://github.com/MaxBelkov/visualsyslog
 - [ ] 2025.03.19.10.07 L Consider to add color support to the TUI version of the script, most noticable red colors for errors.
 - [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
