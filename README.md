@@ -128,3 +128,13 @@ Development currently takes place on a Windows 11 Pro desktop computer, but I'll
 Please report bugs on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to
 [Mikael Egevig](mailto:me@vhm.dk).  The former is the preferred method, but use whichever suits you best.
 
+When you report a bug, please try to run this command to create a log file:
+
+```bash
+kiosklog > kiosk.log
+```
+
+Then please include the two files `~/.xsession-errors` and `kiosk.log` in your bug report.  These files may provide invaluable
+information to me about the issue.
+
+
