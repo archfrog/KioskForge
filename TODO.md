@@ -4,12 +4,26 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 
 1. This document, which is updated most frequently.
 2. The source code itself, these `TODO:` comments are typically intended to be read and acted upon by actual developers.
-3. The `Opgaveliste for Kiosk projekt.docx` Word document, which will be eliminated soon.
+   Ideally, there shouldn't be any `TODO:` markers in the source code, but they are very easy to create and documents things.
 
-Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
+
+## Task Priorities
+1. `U` = Unassigned Priority, not yet assigned a priority.
+2. `H` = High Priority, something that should be worked on right away.
+3. `M` = Medium Priority, something that should be worked on after the high priority tasks have been closed.
+4. `L` = Low Priority, something that should be worked on after the medium priority tasks have been closed.
+5. `[x]` = Completed, a task that has been closed for some reason.
+6. `D` = Dropped, a task that has been dropped for some reason.
+
+
+## Tasks in the Source Code
+**NOTE:** Use `grep -FR TODO: *.py` to see the current list of task items embedded in the source code.
+
 
 ## Open Tasks
-- [ ] 2025.02.28.01.48 H ALways remember to search the KioskForge.py source file for `TODO:` markers.
+- [ ] 2025.02.28.01.48 H Always remember to search the KioskForge.py source file for `TODO:` markers.
+- [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all uses need every step.
+- [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user`.
 - [ ] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
 - [ ] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput` (requires a touch screen).
@@ -38,10 +52,16 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
+- [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
+- [ ] 2024.12.17.xx.xx M Add support for a local NGINX or Apache web server so that the kiosk can serve the web site locally.
+- [ ] 2024.12.17.xx.xx M Write documentation on how to update the files served by the local web server, if any, using `WinSCP`.
+- [ ] 2025.03.19.23.07 M Write a tool to generate a website from a set of pictures and descriptions of them.
 - [ ] 2025.03.09.06.39 M Make KioskForge check that it is running on a supported Windows such as Windows 10+.
 - [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
+- [ ] 2025.03.19.23.08 M Open up the GitHub repository for the public once most of the high priority tasks are completed and a
+                         kiosk has proven itself for three to six months.
 - [ ] 2025.03.19.10.07 L Consider to add color support to the TUI version of the script, most noticable red colors for errors.
 - [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
@@ -51,6 +71,7 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
                          This could, perhaps, be done by sawing a list of already performed steps or by adding a feature to undo a
 						 step that has already been done, although this is a more complicated than just skipping successful steps.
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
+- [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
 - [x] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
