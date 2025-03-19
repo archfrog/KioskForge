@@ -10,15 +10,15 @@ The developer is named *Mikael Egevig* and can be contacted directly by mail at 
 This section contains various common questions about technical issues with KioskForge.
 
 ### I am unable to connect to my WIFI network?
-This is most likely because you have misspelled the WIFI network name or used a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
+This is most likely because you have misspelled the WIFI network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
 
 ### I get weird errors about "set chanspec 0xNNNN fail, reason -52"
-To be honest, I get a bunch of these errors pretty much every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the WIFI network card by Broadcomm, but I have no idea what they mean and why they pop up.
+To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the WIFI network card by Broadcomm, but I have no idea what they mean and why they pop up.
 
 Please ignore these errors - as far as I can tell, the WIFI card works as it should and the kiosk runs reliably as it should.
 
 ### The Linux installer fails with an 'apt' error because `apt` is already using a lock file?
-KioskForge tries to take the fact that `apt` is a rude process that keeps meddling with central lock files at arbitrary times into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.
+KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.
 
 ### I get spurious errors while the Linux installer ('KioskSetup.py') is running?
 The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Try with another installation media (USB key or another MicroSD card), and the errors should disappear.
@@ -31,9 +31,9 @@ This section contains various common questions about the development of KioskFor
 ### Will KioskForge support Linux distribution X?
 For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
 
-I could theoretically add support for a host of Linux distrubutions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.  Furthermore, Ubuntu supports Raspberry Pi and PCs equally well, which some Linux distros don't do.  It is a hard requirement that both PCs and PIs are equally well supported.
+I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.  Furthermore, Ubuntu supports Raspberry Pi and PCs equally well, which some Linux distros don't do.  It is a hard requirement that both PCs and PIs are equally well supported.
 
-Adding support for a single target platform takes weeks, if not months, as Linux is a mess when it comes to administration of the operating system.  Almost every distro does things in its own way and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
+Adding support for a single target platform takes weeks or months, as Linux is a mess when it comes to administration of the operating system.  Almost every distro does things in its own way and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
 
 ### Why was KioskForge written in Python v3.x?
 I originally wrote the first version of KioskForge in Bash, because it was very simple in the beginning, but soon came to rediscover that Bash *is* a pain to use if things go wrong.  The `set -e` command does not make a script truly reliable and I demand reliability of my tools.
