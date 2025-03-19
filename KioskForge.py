@@ -64,8 +64,8 @@ STRING_TO_BOOLEAN = {'y' : True, '1' : True, 't' : True, 'true' : True, 'n' : Fa
 
 def password_crypt(text : str) -> str:
 	assert(len(text) >= 1 and len(text) <= 72)
-	data = value.encode('utf-8')
-	hash = bcrypt.pwhash(data, bcrypt.gensalt(14))
+	data = text.encode('utf-8')
+	hash = str(bcrypt.hashpw(data, bcrypt.gensalt(14)))
 	return hash
 
 
@@ -1994,8 +1994,8 @@ class KioskSetup(KioskClass):
 			)
 
 			# Install 'xinput' used to detect touch panels and rotate them using a transformation matrix.
-			if setup.screen_rotate.data != 0:
-				script += InstallPackageNoRecommendsAction(
+			if setup.rotate_screen.data != 0:
+				script += InstallPackagesNoRecommendsAction(
 					"Installing 'xinput' to detect touch panel(s) and configure X11 to rotate them.",
 					["xinput"]
 				)
@@ -2204,9 +2204,11 @@ def string_strip_from_substring(text : str, substring : str) -> str:
 def xinput_get_pointer_devices() -> List[str]:
 	# Ask 'xinput' for a list of all known pointing and keyboard devices.
 	result = invoke("xinput list")
+	if result.status != 0:
+		raise KioskError("Could not invoke 'xinput'")
 
 	# Attempt to parse the lame 'xinput list' format, which uses non-ASCII characters.
-	lines = output.split("\n")
+	lines = result.output.split("\n")
 
 	# Remove embedded UTF-8 characters.
 	lines = list(map(utf8_discard, lines))
@@ -2229,13 +2231,10 @@ def xinput_get_pointer_devices() -> List[str]:
 			found.append(line)
 
 	# Discard the 'Virtual core XTEST pointer' entry.
-	found = filter(lambda x: x != 'Virtual core XTEST pointer', found)
+	found = list(filter(lambda x: x != 'Virtual core XTEST pointer', found))
 
 	# Discard Raspberry Pi's builtin HDMI devices.
-	found = filter(lambda x: x[:9] != "vc4-hdmi-", found)
-
-	# Convert to a list.
-	found = list(found)
+	found = list(filter(lambda x: x[:9] != "vc4-hdmi-", found))
 
 	return found
 
@@ -2288,7 +2287,7 @@ class KioskStart(KioskClass):
 					2 : '-1 0 1 0 -1 1 0 0 1',
 					3 : '0 1 0 -1 0 1 0 0 1'
 				}
-				devices = xinput_get_devices()
+				devices = xinput_get_pointer_devices()
 				for device in devices:
 					command  = TextBuilder()
 					command += "xinput"
