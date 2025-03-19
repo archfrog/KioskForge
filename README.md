@@ -9,6 +9,8 @@ KioskForge currently supports these things:
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or WIFI networking.
 
+**NOTE**: Intel Compute Sticks generally run very unreliably with Ubuntu Server 24.04.x so they are *not* supported at all.
+
 Customization of the target kiosk machine can be done using KioskForge.py or using an editor to create an INI-style file:
 
 | Name             | INI Field       | Type    | Description                                                                 |
