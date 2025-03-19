@@ -25,7 +25,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user`.
 - [ ] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
-- [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is disabled.
+- [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
 - [ ] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput` (requires a touch screen).
 - [ ] 2025.03.15.19.00 H Uninstall the Ubuntu package `needrestart` as the kiosk always reboots after upgrading.
 - [ ] 2025.03.19.22.17 H Always use the name `KioskForge.cfg` for the configuration file so as to not confuse end users.
