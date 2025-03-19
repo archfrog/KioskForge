@@ -1509,6 +1509,7 @@ class KioskForge(KioskClass):
 			stream.dedent()
 			stream.write("refresh-installer:")
 			stream.indent()
+			# TODO: Disable 'update: true' so that `KioskSetup.py` always handles all system updates.  This requires a test PC.
 			stream.write("update: true")
 			stream.dedent()
 			stream.write("source:")
@@ -2297,7 +2298,7 @@ class KioskStart(KioskClass):
 				subprocess.check_call(shlex.split(xset), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			del xset
 
-			# Rotate the screen, if applicable (TODO: This may possibly depend on whether we're doing a PI or PC build).
+			# Rotate the screen, if applicable.
 			if setup.rotate_screen.data != 0:
 				orientation = setup.rotate_screen.data
 
