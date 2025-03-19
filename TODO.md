@@ -56,6 +56,7 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
+- [ ] 2025.03.19.10.07 M Consider to add color support to the TUI version of the script, most noticable red colors for errors.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
                          https://forums.raspberrypi.com/viewtopic.php?p=1979825#p1979542
 - [ ] 2025.03.09.05.18 L Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.  Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
