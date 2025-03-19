@@ -9,6 +9,7 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [ ] 2025.03.19.04.28 H Mark errors **much** more visibly, possibly by writing three stars in front of them.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
                          https://forums.raspberrypi.com/viewtopic.php?p=1979825#p1979542
 - [ ] 2025.03.19.01.35 H Parse output of `xinput list` and keep all `Virtual core pointer` values but `Virtual core XTEST pointer`:
