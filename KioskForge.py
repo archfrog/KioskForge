@@ -39,12 +39,15 @@ except ModuleNotFoundError:
 	SYSLOG_LOG_ERR = 1
 	SYSLOG_LOG_INFO = 2
 
+
 # Try to import bcrypt.  If not found, try to silently install it and try to import it once more.
-try:
-	import bcrypt
-except ModuleNotFoundError:
-	subprocess.check_call([sys.executable, "-m", "pip", "install", "bcrypt"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-	import bcrypt
+if platform.system() == "Windows":
+	try:
+		import bcrypt
+	except ModuleNotFoundError:
+		subprocess.check_call([sys.executable, "-m", "pip", "install", "bcrypt"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+		import bcrypt
+
 
 VERSION = "0.12"
 COMPANY = "Vendsyssel Historiske Museum"
@@ -65,7 +68,7 @@ STRING_TO_BOOLEAN = {'y' : True, '1' : True, 't' : True, 'true' : True, 'n' : Fa
 def password_crypt(text : str) -> str:
 	assert(len(text) >= 1 and len(text) <= 72)
 	data = text.encode('utf-8')
-	hash = str(bcrypt.hashpw(data, bcrypt.gensalt(14)))
+	hash = bcrypt.hashpw(data, bcrypt.gensalt(14)).decode('utf-8')
 	return hash
 
 
@@ -1285,7 +1288,7 @@ class KioskForge(KioskClass):
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			stream.write("passwd: '%s'" % password_crypt(setup.user_code.data))
+			stream.write('passwd: "%s"' % password_crypt(setup.user_code.data))
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
@@ -1444,7 +1447,7 @@ class KioskForge(KioskClass):
 			stream.write("hostname: %s" % setup.hostname.data)
 			stream.write("realname: %s" % "Kiosk")
 			stream.write("username: %s" % setup.user_name.data)
-			stream.write("password: '%s'" % password_crypt(setup.user_code.data))
+			stream.write('password: "%s"' % password_crypt(setup.user_code.data))
 			stream.dedent()
 			stream.write("kernel:")
 			stream.indent()
@@ -2297,8 +2300,10 @@ class KioskStart(KioskClass):
 					command += "'%s'" % device
 					command += "'Coordinate Transformation Matrix'"
 					command += "'%s'" % matrices[orientation]
-					subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-				del command
+					# NOTE: Use 'subprocess.run()' to avoid having to check or process the possibly likely exit code from 'xinput'.
+					# NOTE: I sort of brute-force attempt to configure all discovered pointing devices, so 'xinput' WILL fail.
+					subprocess.run(command.list)
+					del command
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
 			# NOTE: Chromium does not complain about any of the options listed below!
@@ -2395,6 +2400,8 @@ if __name__ == "__main__":
 				status = EXIT_SUCCESS
 			except (AttributeError, KeyError):
 				# We get here if there's no class named X or the instantiated class does not have a main() method.
+				# TODO: This exception handler is quite problematic; all attribute errors and key errors end up here.
+				# TODO: The proper solution is to split this script into its three parts and work from there.
 				logger.error("This script must be called 'KioskForge.py', 'KioskSetup.py', or 'KioskStart.py'")
 		except ArgumentError as that:
 			text = ""
@@ -2415,6 +2422,8 @@ if __name__ == "__main__":
 				text = that.message
 			elif hasattr(that, "strerror"):
 				text = that.strerror
+			if text == "":
+				text = str(that)
 			logger.error("Unknown Error: %s" % text)
 			raise
 
