@@ -11,8 +11,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 2. `H` = High Priority, something that should be worked on right away.
 3. `M` = Medium Priority, something that should be worked on after the high priority tasks have been closed.
 4. `L` = Low Priority, something that should be worked on after the medium priority tasks have been closed.
-5. `[x]` = Completed, a task that has been closed for some reason.
-6. `D` = Dropped, a task that has been dropped for some reason.
+5. `D` = Dropped, a task that has been dropped for some reason.
+6. `[x]` = Completed, a task that has been closed for some reason.
 
 
 ## Tasks in the Source Code
