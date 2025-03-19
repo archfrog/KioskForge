@@ -1993,6 +1993,13 @@ class KioskSetup(KioskClass):
 				["xprintidle"]
 			)
 
+			# Install 'xinput' used to detect touch panels and rotate them using a transformation matrix.
+			if setup.screen_rotate.data != 0:
+				script += InstallPackageNoRecommendsAction(
+					"Installing 'xinput' to detect touch panel(s) and configure X11 to rotate them.",
+					["xinput"]
+				)
+
 			# Create symbolic link from KioskSetup.py to KioskStart.py, the latter being used just below.
 			script += ExternalAction("Create symlink from KioskSetup.py to KioskStart.py", "ln -s %s/KioskSetup.py %s/KioskStart.py" % (self.homedir, self.homedir))
 
@@ -2175,6 +2182,64 @@ def x_idle_time() -> float:
 	return int(result.output) / 1000
 
 
+# Discards all UTF-8 characters from the given string and returns the result.
+def utf8_discard(text : str) -> str:
+	result = ""
+	for ch in text:
+		if ord(ch) >= 0x80:
+			continue
+		result += ch
+	return result
+
+
+# Strips trailing part beginning with 'substring'.
+def string_strip_from_substring(text : str, substring : str) -> str:
+	pos = text.find(substring)
+	if pos == -1:
+		return text
+	return text[:pos]
+
+
+# NOTE: This function returns ALL xinput touch devices but a predefined list.  I haven't found a better method just yet.
+def xinput_get_pointer_devices() -> List[str]:
+	# Ask 'xinput' for a list of all known pointing and keyboard devices.
+	result = invoke("xinput list")
+
+	# Attempt to parse the lame 'xinput list' format, which uses non-ASCII characters.
+	lines = output.split("\n")
+
+	# Remove embedded UTF-8 characters.
+	lines = list(map(utf8_discard, lines))
+
+	# Remove trailing garbage.
+	lines = list(map(lambda x: string_strip_from_substring(x, 'id='), lines))
+
+	# Strip leading whitespace from each line.
+	lines = list(map(lambda x: x.strip(" \t"), lines))
+
+	# Filter out the stuff we don't need.
+	store = False
+	found = []
+	for line in lines:
+		if line == "Virtual core pointer":
+			store = True
+		elif line == "Virtual core keyboard":
+			store = False
+		elif store:
+			found.append(line)
+
+	# Discard the 'Virtual core XTEST pointer' entry.
+	found = filter(lambda x: x != 'Virtual core XTEST pointer', found)
+
+	# Discard Raspberry Pi's builtin HDMI devices.
+	found = filter(lambda x: x[:9] != "vc4-hdmi-", found)
+
+	# Convert to a list.
+	found = list(found)
+
+	return found
+
+
 class KioskStart(KioskClass):
 	"""This class contains the 'KioskStart' code, which starts Chromium, monitors it, and restarts it if necessary."""
 
@@ -2214,6 +2279,25 @@ class KioskStart(KioskClass):
 				command += "--rotate"
 				command += { 0 : 'normal', 1 : 'left', 2 : 'inverted', 3 : 'right' }[setup.rotate_screen.data]
 				subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+				del command
+
+				# Identify and configure all non-reserved pointing devices using 'xinput'.
+				matrices = {
+					0 : '1 0 0 0 1 0 0 0 1',
+					1 : '0 -1 1 1 0 0 0 0 1',
+					2 : '-1 0 1 0 -1 1 0 0 1',
+					3 : '0 1 0 -1 0 1 0 0 1'
+				}
+				devices = xinput_get_devices()
+				for device in devices:
+					command  = TextBuilder()
+					command += "xinput"
+					command += "set-prop"
+					command += "'%s'" % device
+					command += "'Coordinate Transformation Matrix'"
+					command += "'%s'" % matrices[setup.rotate_screen.data]
+					subprocess.check_call(command.list)
+				del command
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
 			# NOTE: Chromium does not complain about any of the options listed below!
