@@ -15,7 +15,7 @@ if exist "%image%" del "%image%"
 7z a "%image%" KioskForge.py FAQ.md README.md LICENSE
 
 rem Upload distribution archive to Egevig.org (temporary solution).
-"C:\Program Files\Git\usr\bin\scp.exe" -F u:\.ssh\config -p "%image%" web:web/pub/egevig.org/KioskForge.zip
+"C:\Program Files\Git\usr\bin\scp.exe" -F u:\.ssh\config -p "%image%" web:web/pub/kioskforge.org/KioskForge.zip
 
 rem Clean up the Ram disk after use.
 if exist "%image%" del "%image%"
