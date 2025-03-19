@@ -2227,7 +2227,7 @@ class KioskStart(KioskClass):
 			del xset
 
 			# Rotate the screen, if applicable (TODO: This may possibly depend on whether we're doing a PI or PC build).
-			if setup.rotate_screen.data:
+			if setup.rotate_screen.data != 0:
 				command  = TextBuilder()
 				command += "xrandr"
 				command += "--output"
