@@ -9,12 +9,12 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [ ] 2025.03.19.09.47 H Consider to move SHA512 sums for Ubuntu versions into a .INI file so that it is easy to adjust and expand.
 - [ ] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
 - [ ] 2025.03.19.07.35 H Protect against "injection attacks": Quote all user-supplied data passed to cloud-init and AutoInstall.
 - [ ] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput` (requires a touch screen).
 - [ ] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
 - [ ] 2025.03.19.04.53 H KioskForge fails to report an error if completely unable to identify the install image.
-- [ ] 2025.03.19.04.45 H TUI version: Suggest to save to same folder as was loaded from.  Don't generate a path.
 - [ ] 2025.03.19.04.35 H Investigate if this entry can be used for anything (not very likely):
                          [Get list of touch screens using `xinput`](https://gist.github.com/rubo77/daa262e0229f6e398766?permalink_comment_id=1763721#gistcomment-1763721)
 - [ ] 2025.03.19.04.28 H Mark errors **much** more visible, possibly by writing three stars in front of them.
@@ -69,6 +69,8 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 
 ## Completed Tasks
+- [x] 2025.03.19.04.45 H TUI version: Suggest to save to same folder as was loaded from.  Don't generate a path.
+                         The TUI version already does this, a path is only generated if a configuration wasn't loaded beforehand.
 - [x] 2025.03.19.08.08 H Make the `xinput` configuration code in `KioskStart` use device ids rather than device names to avoid
                          the problem that device names either are not found or are listed twice by `xinput`.
 - [x] 2025.03.19.01.03 H If using `bcrypt`, passwords can only be 72 chars in length.  Check this in the `Setup()` class.
