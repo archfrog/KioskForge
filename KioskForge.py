@@ -2195,49 +2195,53 @@ def utf8_discard(text : str) -> str:
 	return result
 
 
-# Strips trailing part beginning with 'substring'.
-def string_strip_from_substring(text : str, substring : str) -> str:
-	pos = text.find(substring)
-	if pos == -1:
-		return text
-	return text[:pos]
-
-
-# NOTE: This function returns ALL xinput touch devices but a predefined list.  I haven't found a better method just yet.
-def xinput_get_pointer_devices() -> List[str]:
+# NOTE: This function returns all xinput touch device ids but a few predefined ids.  I haven't found a better method just yet.
+def xinput_get_pointer_device_ids() -> List[str]:
 	# Ask 'xinput' for a list of all known pointing and keyboard devices.
 	result = invoke("xinput list")
 	if result.status != 0:
 		raise KioskError("Could not invoke 'xinput'")
 
-	# Attempt to parse the lame 'xinput list' format, which uses non-ASCII characters.
+	# Split the 'xinput' output into separate lines.
 	lines = result.output.split("\n")
 
-	# Remove embedded UTF-8 characters.
+	# Remove lame embedded UTF-8 characters.
 	lines = list(map(utf8_discard, lines))
 
-	# Remove trailing garbage.
-	lines = list(map(lambda x: string_strip_from_substring(x, 'id='), lines))
-
-	# Strip leading whitespace from each line.
-	lines = list(map(lambda x: x.strip(" \t"), lines))
-
-	# Filter out the stuff we don't need.
-	store = False
+	# Extract device ids for all relevant devices from the output of 'xinput list'.
 	found = []
+	store = False
 	for line in lines:
-		if line == "Virtual core pointer":
+		# Strip leading whitespace from each line.
+		line = line.strip(" \t")
+
+		# Locate device id or ignore the line if not found.
+		id_pos = line.find('id=')
+		if id_pos == -1:
+			continue
+
+		# Locate master/slave info or ignore line if not found.
+		kind_pos = line.find('[')
+		if kind_pos == -1:
+			continue
+
+		# Extract device name and id.
+		(name, id) = (line[:id_pos].strip(), line[id_pos+3:kind_pos].strip())
+
+		# Guard against unintentional uses of 'line' in the code below.
+		del line
+
+		if name == "Virtual core pointer":
 			store = True
-		elif line == "Virtual core keyboard":
+		elif name == "Virtual core keyboard":
 			store = False
+		elif name[:9] == "vc4-hdmi-":
+			continue
 		elif store:
-			found.append(line)
+			found.append(id)
 
 	# Discard the 'Virtual core XTEST pointer' entry.
-	found = list(filter(lambda x: x != 'Virtual core XTEST pointer', found))
-
-	# Discard Raspberry Pi's builtin HDMI devices.
-	found = list(filter(lambda x: x[:9] != "vc4-hdmi-", found))
+	#found = list(filter(lambda x: x != 'Virtual core XTEST pointer', found))
 
 	return found
 
@@ -2292,7 +2296,7 @@ class KioskStart(KioskClass):
 					2 : '-1 0 1 0 -1 1 0 0 1',
 					3 : '0 1 0 -1 0 1 0 0 1'
 				}
-				devices = xinput_get_pointer_devices()
+				devices = xinput_get_pointer_device_ids()
 				for device in devices:
 					command  = TextBuilder()
 					command += "xinput"
