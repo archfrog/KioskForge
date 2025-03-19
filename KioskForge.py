@@ -2302,6 +2302,7 @@ class KioskStart(KioskClass):
 			if setup.rotate_screen.data != 0:
 				orientation = setup.rotate_screen.data
 
+				# Ask 'xrandr' to rotate the screen.
 				command  = TextBuilder()
 				command += "xrandr"
 				command += "--output"
