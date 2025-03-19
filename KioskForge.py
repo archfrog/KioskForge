@@ -2392,17 +2392,19 @@ if __name__ == "__main__":
 			try:
 				# Create an instance of the class whose name matches the basename, without extension, of this script.
 				instance = globals()[class_](origin)
+			except KeyError:
+				# We get here if there's no class named X.
+				raise KioskError("No suitable class found: This script must be called 'KioskForge.py', 'KioskSetup.py', or 'KioskStart.py'")
 
+			try:
 				# Attempt to invoke the main() method on the newly created instance.
 				instance.main(logger, origin, sys.argv[1:])
-
-				# Signal success to the client (caller).
-				status = EXIT_SUCCESS
-			except (AttributeError, KeyError):
+			except AttributeError:
 				# We get here if there's no class named X or the instantiated class does not have a main() method.
-				# TODO: This exception handler is quite problematic; all attribute errors and key errors end up here.
-				# TODO: The proper solution is to split this script into its three parts and work from there.
-				logger.error("This script must be called 'KioskForge.py', 'KioskSetup.py', or 'KioskStart.py'")
+				raise KioskError("No main method found: This script must be called 'KioskForge.py', 'KioskSetup.py', or 'KioskStart.py'")
+
+			# Signal success to the client (caller).
+			status = EXIT_SUCCESS
 		except ArgumentError as that:
 			text = ""
 			if that.index != -1:
