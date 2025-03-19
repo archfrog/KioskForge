@@ -39,7 +39,14 @@ except ModuleNotFoundError:
 	SYSLOG_LOG_ERR = 1
 	SYSLOG_LOG_INFO = 2
 
-VERSION = "0.11"
+# Try to import bcrypt.  If not found, try to silently install it and try to import it once more.
+try:
+	import bcrypt
+except ModuleNotFoundError:
+	subprocess.check_call([sys.executable, "-m", "pip", "install", "bcrypt"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+	import bcrypt
+
+VERSION = "0.12"
 COMPANY = "Vendsyssel Historiske Museum"
 CONTACT = "me@vhm.dk"
 TESTING = True
