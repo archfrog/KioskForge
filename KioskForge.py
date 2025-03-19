@@ -2393,14 +2393,14 @@ if __name__ == "__main__":
 				# Create an instance of the class whose name matches the basename, without extension, of this script.
 				instance = globals()[class_](origin)
 			except KeyError:
-				# We get here if there's no class named X.
+				# We get here if there's no class named X or there is a Python error in its constructor.
 				raise KioskError("No suitable class found: This script must be called 'KioskForge.py', 'KioskSetup.py', or 'KioskStart.py'")
 
 			try:
 				# Attempt to invoke the main() method on the newly created instance.
 				instance.main(logger, origin, sys.argv[1:])
 			except AttributeError:
-				# We get here if there's no class named X or the instantiated class does not have a main() method.
+				# We get here if the instantiated class does not have a main() method or there is a Python error in it.
 				raise KioskError("No main method found: This script must be called 'KioskForge.py', 'KioskSetup.py', or 'KioskStart.py'")
 
 			# Signal success to the client (caller).
