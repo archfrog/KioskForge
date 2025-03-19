@@ -104,6 +104,7 @@ submit a pull request.  Please make sure that the result generates a valid, reli
 The following known issues exist with KioskForge:
 
 1. The `rotate_screen` option does not work with touch screens, only the display is rotated (the mouse is not affected).
+   A solution for this has been implemented on March 19th, 2025, but I cannot test it due to lack of a touch screen.
 
 
 ## Development
