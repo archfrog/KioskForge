@@ -1285,7 +1285,7 @@ class KioskForge(KioskClass):
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			stream.write("passwd: %s" % password_crypt(setup.user_code.data))
+			stream.write("passwd: '%s'" % password_crypt(setup.user_code.data))
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
