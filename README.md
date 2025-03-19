@@ -4,7 +4,7 @@ intended to be used by somewhat non-technical users to set up a kiosk machine fo
 
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.2 on Raspberry Pi 4/4B ARM64 (aarch64) and PC x64/AMD64 machines.
+* Ubuntu Server 24.04.2 on Raspberry Pi 4/4B (2+ GB RAM) ARM64 (aarch64) and PC x64/AMD64 machines.
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or WIFI networking.
@@ -53,7 +53,7 @@ configuration during installation.
 
 As of now, the procedure is as follows:
 
-1. Create an appropriate Ubuntu Server 24.04.x installation media (a USB key or a MicroSD card) using
+1. Create an appropriate Ubuntu Server 24.04.2 installation media (a USB key or a MicroSD card) using
    [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
    When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
    Also, be sure to **not** select `Ubuntu Desktop` as this won't work (KioskForge will detect this issue, though).
