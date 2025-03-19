@@ -52,6 +52,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
+- [ ] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
+                         install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
 - [ ] 2024.12.17.xx.xx M Add support for a local NGINX or Apache web server so that the kiosk can serve the web site locally.
 - [ ] 2024.12.17.xx.xx M Write documentation on how to update the files served by the local web server, if any, using `WinSCP`.
