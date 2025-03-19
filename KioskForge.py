@@ -1987,35 +1987,14 @@ class KioskSetup(KioskClass):
 			)
 			del lines
 
-			if False:
-				# Create Chromium launcher script used by '~/.config/openbox/autostart'.
-				# NOTE: Options intentionally left out: --disable-extensions --disable-features=Translate.
-				lines  = TextBuilder()
-				lines += "#!/usr/bin/bash"
-				lines += "set -e"
-				lines += ""
-				lines += "# Spawn Chromium over and over in case it crashes (probably never happens, but better safe than sorry)."
-				lines += "while true; do"
-				lines += "\t# Launch Chromium with the URL given in the configuration file (can be edited after forging)."
-				lines += '\tchromium --kiosk --fast --fast-start --start-maximised --noerrdialogs --no-first-run --disable-pinch --overscroll-history-navigation=disabled --disable-features=TouchpadOverscrollHistoryNavigation --overscroll-history-navigation=0 --disable-restore-session-state --disable-infobars --disable-crashpad "%s"' % setup.website.data
-				lines += "done"
-				script += CreateTextWithUserAndModeAction(
-					"Creating Chromium launcher script",
-					"%s/.config/openbox/start-chromium.sh" % self.homedir,
-					setup.user_name.data,
-					stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-					lines.text
-				)
-				del lines
-			else:
-				# Install 'xprintidle' used to detect X idle periods and restart the browser.
-				script += InstallPackagesNoRecommendsAction(
-					"Installing 'xprintidle' used to restart browser on idle timeout",
-					["xprintidle"]
-				)
+			# Install 'xprintidle' used to detect X idle periods and restart the browser.
+			script += InstallPackagesNoRecommendsAction(
+				"Installing 'xprintidle' used to restart browser whenever idle timeout expires",
+				["xprintidle"]
+			)
 
-				# Create symbolic link from KioskSetup.py to KioskStart.py, the latter being used just below.
-				script += ExternalAction("Create symlink from KioskSetup.py to KioskStart.py", "ln -s %s/KioskSetup.py %s/KioskStart.py" % (self.homedir, self.homedir))
+			# Create symbolic link from KioskSetup.py to KioskStart.py, the latter being used just below.
+			script += ExternalAction("Create symlink from KioskSetup.py to KioskStart.py", "ln -s %s/KioskSetup.py %s/KioskStart.py" % (self.homedir, self.homedir))
 
 			# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 			# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
