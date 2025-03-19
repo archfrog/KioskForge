@@ -9,14 +9,17 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [x] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput`: `xrandr |grep eDP|cut -d" " -f1`
+- [ ] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
 - [ ] 2025.03.19.04.53 H KioskForge fails to report an error if completely unable to identify the install image.
-- [ ] 2025.03.19.04.45 H TUI version: Suggest to save to same folder as was loaded from.  Don't use the hostname to generate a path.
+- [ ] 2025.03.19.04.45 H TUI version: Suggest to save to same folder as was loaded from.  Don't generate a path.
 - [ ] 2025.03.19.04.35 H Investigate if this entry can be used for anything (not very likely):
                          [Get list of touch screens using `xinput`](https://gist.github.com/rubo77/daa262e0229f6e398766?permalink_comment_id=1763721#gistcomment-1763721)
-- [ ] 2025.03.19.04.28 H Mark errors **much** more visibly, possibly by writing three stars in front of them.
+- [ ] 2025.03.19.04.28 H Mark errors **much** more visible, possibly by writing three stars in front of them.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
                          https://forums.raspberrypi.com/viewtopic.php?p=1979825#p1979542
 - [ ] 2025.03.19.01.35 H Parse output of `xinput list` and keep all `Virtual core pointer` values but `Virtual core XTEST pointer`:
+                         One person on the 'net reported that he or she had to use `Virtual core XTEST pointer` as the choice.
                          Filter out the two Raspberry Pi 4 devices (RPI5?) `vc4-hdmi-0` and `vc4-hdmi-1`.
                          This is the list of devices that need a transformation matrix to operate with a rotated display.
 						 Consider or experiment with only keeping values that match `touch` (case-insensitive).
