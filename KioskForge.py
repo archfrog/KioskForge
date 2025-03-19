@@ -1653,7 +1653,7 @@ class KioskForge(KioskClass):
 							break
 						del folder
 					else:
-						print("Kiosk not changed, no need to save it.")
+						raise KioskError("Kiosk not changed, no need to save it")
 				elif choice == 4:
 					# Check if a kiosk has been created or loaded.
 					if not kiosk and not changed:
