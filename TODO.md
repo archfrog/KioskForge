@@ -53,6 +53,7 @@ Use `grep -F TODO: *.py` to see the current list of task items embedded in the s
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 
 ## Completed Tasks
+- [x] 2025.03.19.01.03 H If using `bcrypt`, passwords can only be 72 chars in length.  Check this in the `Setup()` class.
 - [x] 2025.03.15.19.53 H Add `rotate_screen` option: `0`=`normal`, `1`=`left`, `2`=`inverse`, and `3` = `right` (`xrandr` values).
 - [x] 2025.03.16.05.34 H Change boolean configuration options into using `0` and `1` as their values instead of `n` and `y`.
 - [x] 2025.03.05.16.29 H Figure out why `ExternalAptAction.execute()` does not work when the `lsof` code is enabled then enable it.
