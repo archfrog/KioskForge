@@ -213,12 +213,13 @@ class Recognizer(object):
 	def _identify(self, path : str) -> Optional[Target]:
 		raise NotImplementedError("Abstract method called")
 
-	def identify(self) -> Target:
+	def identify(self) -> Optional[Target]:
 		if platform.system() != "Windows":
 			raise KioskError("KioskForge.py only runs on Windows")
 
 		# Scan all mount points/drives and see if there are any of the reserved files we're looking for.
 		targets : List[Target] = []
+		attempts = 0
 		while True:
 			if platform.system() == "Windows":
 				mounts = os.listdrives()
@@ -233,8 +234,13 @@ class Recognizer(object):
 					if target:
 						targets.append(target)
 
-			# If no kiosk images were found, let the user fix the error and try again.
+			# If zero kiosk images were found, let the user fix the error and try again.
 			if len(targets) == 0:
+				# Only wait three seconds five times so as to not force the user to hit Ctrl-C.
+				if attempts == 5:
+					return None
+				attempts += 1
+
 				# NOTE: Windows takes a little while to discover the written image, so we try once more if we fail at first.
 				print("ALERT: Waiting three seconds for installation media to be discovered by the host operating system...")
 				print("ALERT: If you have not already done so, please insert the installation media to proceed.")
@@ -242,7 +248,7 @@ class Recognizer(object):
 				time.sleep(3)
 				continue
 
-			# Handle incorrect number of target drives in the target (zero or more than one).
+			# Handle more than one target drives.
 			if len(targets) >= 2:
 				raise KioskError("More than one USB key or MicroSD card found")
 
@@ -1663,6 +1669,10 @@ class KioskForge(KioskClass):
 					# Update installation media.
 					# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 					target = Recognizer().identify()
+
+					# Fail if no target was identified.
+					if not target:
+						raise KioskError("Unable to locate install image - did you select Ubuntu Server?")
 
 					# Report the kind of image that was discovered.
 					print(
