@@ -9,6 +9,7 @@ Please notice that the task list of KioskForge is *currently* spread over three 
 Use `grep -F TODO: *.py` to see the current list of task items embedded in the source code.
 
 ## Open Tasks
+- [ ] 2025.03.19.07.35 H Protect against "injection attacks": Quote all user-supplied data passed to cloud-init and AutoInstall.
 - [x] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput`: `xrandr |grep eDP|cut -d" " -f1`
 - [ ] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
 - [ ] 2025.03.19.04.53 H KioskForge fails to report an error if completely unable to identify the install image.
