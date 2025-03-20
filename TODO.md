@@ -27,7 +27,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
 - [ ] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput` (requires a touch screen).
-- [ ] 2025.03.15.19.00 H Uninstall the Ubuntu package `needrestart` as the kiosk always reboots after upgrading.
 - [ ] 2025.03.19.22.17 H Always use the name `KioskForge.cfg` for the configuration file so as to not confuse end users.
 - [ ] 2025.03.19.09.47 H Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
@@ -78,6 +77,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.15.19.00 H Uninstall the Ubuntu package `needrestart` as the kiosk always reboots after upgrading.
 - [x] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
                          Not necessary, the user can simply check his or her router UI for this information and even lock the IP.
 - [x] 2025.03.19.04.35 H Investigate if this entry can be used for anything (not very likely):
