@@ -1971,7 +1971,7 @@ class KioskSetup(KioskClass):
 			script += ExternalAction("Allowing SSH through firewall", "ufw allow ssh")
 			script += ExternalAction("Enabling firewall", "ufw --force enable")
 
-			# Remove some packages that we don't need for in kiosk mode to save some memory.
+			# Remove some packages that we don't need in kiosk mode to save some memory.
 			script += PurgePackagesAction("Purging unwanted packages", ["modemmanager", "open-vm-tools", "needrestart"])
 
 			# Update and upgrade the system.
