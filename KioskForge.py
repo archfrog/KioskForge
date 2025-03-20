@@ -2293,7 +2293,7 @@ class KioskStart(KioskClass):
 
 		process = None
 		try:
-			# Disable any form of X screen saver/screen blanking/power management.
+			# Disable all forms of X screen saver/screen blanking/power management.
 			for xset in [ "xset s off", "xset s noblank", "xset -dpms"]:
 				subprocess.check_call(shlex.split(xset), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			del xset
