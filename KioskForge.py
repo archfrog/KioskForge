@@ -1989,7 +1989,12 @@ class KioskSetup(KioskClass):
 
 			# Install Pipewire audio system only if explicitly enabled.
 			if setup.audio.data != 0:
-				script += InstallPackagesNoRecommendsAction("Installing Pipewire audio subsystem", ["pipewire", "wireplumber"])
+				script += InstallPackagesNoRecommendsAction(
+					"Installing Pipewire audio subsystem",
+					["pipewire", "wireplumber", "rtkit"]
+				)
+				# Enable rtkit service to remove some Pipewire errors in syslog.
+				script += ExternalAction("Enabling rtkit service", "systemctl enable rtkit-daemon.service")
 
 			# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
 			script += ExternalAction("Installing Chromium web browser", "snap install chromium")
