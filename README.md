@@ -83,7 +83,7 @@ to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `ki
 
 
 ### Windows
-On Windows, you need to download and install Python from [Python v3.x programming language](https://python.org).
+On Windows, you need to download and install Python from [Python v3.12+ programming language](https://python.org).
 
 After this, you can launch KioskForge directly from Windows Explorer, by double-clicking it, or directly from the command-line.
 
@@ -91,8 +91,8 @@ After this, you can launch KioskForge directly from Windows Explorer, by double-
 ### Linux
 `KioskForge.py` currently **cannot** be run on Linux.  This is work in progress and is expected to be solved pretty soon.
 
-Install a recent version of the [Python v3.x programming language](https://python.org).  On most Linuxes, this can be done with the
-system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.
+Install a recent version of the [Python v3.12+ programming language](https://python.org).  On most Linuxes, this can be done with
+the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
 then you can invoke it using `sudo ./KioskForge.py`.
@@ -111,7 +111,7 @@ The following known issues exist with KioskForge:
 
 
 ## Development
-To develop on KioskForge, install a recent Python v3.x and MyPy, and then set up these environment variables:
+To develop on KioskForge, install a recent Python (v3.12+) and MyPy, and then set up these environment variables:
 
 | Environment Variable      | Value | Explanation                                                                             |
 | ------------------------- | ----- | --------------------------------------------------------------------------------------- |
