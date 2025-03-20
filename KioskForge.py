@@ -68,7 +68,7 @@ STRING_TO_BOOLEAN = {'y' : True, '1' : True, 't' : True, 'true' : True, 'n' : Fa
 def password_crypt(text : str) -> str:
 	assert(len(text) >= 1 and len(text) <= 72)
 	data = text.encode('utf-8')
-	hash = bcrypt.hashpw(data, bcrypt.gensalt(14)).decode('utf-8')
+	hash = bcrypt.hashpw(data, bcrypt.gensalt()).decode('utf-8')
 	return hash
 
 
