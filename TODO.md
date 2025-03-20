@@ -27,7 +27,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 						 [jackdbus syslog error](https://forums.linuxmint.com/viewtopic.php?t=408389)
 - [ ] 2025.03.20.04.07 H Pipewire audio does not appear to work (I don't have any suitable headphones at hand).
 - [ ] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
-- [ ] 2025.03.20.04.04 H Check `syslog` for errors from the installed packages, etc. so as to detect other possible problems.
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code seems okay).
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
@@ -82,6 +81,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.20.04.04 H Check `syslog` for errors from the installed packages, etc. so as to detect other possible problems.
 - [x] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
                          This makes the configuration of a kiosk rather error-prone as the user probably forgets to enable `xinput`
 						 when enabling `xrandr` and vice versa.  For now, they work in unison.
