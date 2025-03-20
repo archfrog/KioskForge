@@ -23,12 +23,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.02.28.01.48 H Always remember to search the KioskForge.py source file for `TODO:` markers.
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code seems okay).
-- [ ] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
 - [ ] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput` (requires a touch screen).
 - [ ] 2025.03.19.22.17 H Always use the name `KioskForge.cfg` for the configuration file so as to not confuse end users.
-- [ ] 2025.03.19.09.47 H Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
 - [ ] 2025.03.19.07.35 H Protect against "injection attacks": Quote all user-supplied data passed to cloud-init and AutoInstall.
 - [ ] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
@@ -39,13 +37,13 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          Only if extra, non-standard packages are used (`bcrypt`), something which I am currently doing.
 - [ ] 2025.03.16.03.31 H GUI: Make the Kiosk configuration reader and writer handle multi-line text lines for the `comment` field.
 - [ ] 2025.03.16.03.31 H GUI: Consider to add purely administrative fields such as `IP address` and possibly others like that.
-- [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking, etc. can be configured.
-- [ ] 2025.03.16.06.07 M GUI: Add option to enable overclocking of RPI4 and RPI5.
 - [ ] 2025.03.09.10.15 H GUI: Consider to use tabs for the different configuration sections (General, Network, ...).
-- [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
 - [ ] 2025.03.09.00.53 H GUI: Make a guide/wizard for the `Edit (guided)` menu item so that any user can configure a kiosk easily.
 - [ ] 2025.03.07.07.43 H GUI: Make a checkbox next to each optional field that disables or enables the input value.
                          This to provide a visual clue on which fields are optional and which are not.
+- [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking, etc. can be configured.
+- [ ] 2025.03.16.06.07 M GUI: Add option to enable overclocking of RPI4 and RPI5.
+- [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
 - [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
@@ -53,6 +51,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
                          install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
+- [ ] 2025.03.19.09.47 M Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
 - [ ] 2024.12.17.xx.xx M Add support for a local NGINX or Apache web server so that the kiosk can serve the web site locally.
 - [ ] 2024.12.17.xx.xx M Write documentation on how to update the files served by the local web server, if any, using `WinSCP`.
@@ -77,6 +76,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
+                         This makes the configuration of a kiosk rather error-prone as the user probably forgets to enable `xinput`
+						 when enabling `xrandr` and vice versa.  For now, they work in unison.
 - [x] 2025.03.15.19.00 H Uninstall the Ubuntu package `needrestart` as the kiosk always reboots after upgrading.
 - [x] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
                          Not necessary, the user can simply check his or her router UI for this information and even lock the IP.
