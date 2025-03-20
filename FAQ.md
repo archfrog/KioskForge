@@ -36,7 +36,7 @@ This section contains various common questions about the development of KioskFor
 ### Will KioskForge support Linux distribution X?
 For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
 
-I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.  Furthermore, Ubuntu supports Raspberry Pi and PCs equally well, which some Linux distros don't do.  It is a hard requirement that both PCs and PIs are equally well supported.
+I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.  Furthermore, Ubuntu supports Raspberry Pi and PCs equally well, something that not all Linux distros do.  It is a hard requirement that both PCs and PIs are equally well supported.
 
 Adding support for a single target platform takes weeks or months, as Linux is a mess when it comes to administration of the operating system.  Almost every distro does things in its own way and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
 
