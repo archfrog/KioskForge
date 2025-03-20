@@ -7,8 +7,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Task Priorities
-1. `U` = Unassigned Priority, not yet assigned a priority.
-2. `H` = High Priority, something that should be worked on right away.
+1. `U` = Urgent Priority, must be fixed as soon as possible.
+2. `H` = High Priority, something that should be worked on after the urgent priority tasks have been closed.
 3. `M` = Medium Priority, something that should be worked on after the high priority tasks have been closed.
 4. `L` = Low Priority, something that should be worked on after the medium priority tasks have been closed.
 5. `D` = Dropped, a task that has been dropped for some reason.
@@ -20,6 +20,13 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
+- [ ] 2025.03.20.03.51 U X11 does not always start up, it repeatedly fails with the error (almost certainly from pipewire):
+                         `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
+						 This is solved by installing and enabling the `rtkit` package and corresponding `systemd` service.
+						 [Translate console error](https://forums.gentoo.org/viewtopic-t-1168313-start-0.html)
+						 [jackdbus syslog error](https://forums.linuxmint.com/viewtopic.php?t=408389)
+- [ ] 2025.03.20.04.07 H Pipewire audio does not appear to work (don't have any suitable headphones at hand).
+- [ ] 2025.03.20.04.04 H Check `syslog` for errors from the installed packages, etc. so as to detect other possible problems.
 - [ ] 2025.02.28.01.48 H Always remember to search the KioskForge.py source file for `TODO:` markers.
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code seems okay).
