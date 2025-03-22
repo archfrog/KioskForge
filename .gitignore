@@ -6,3 +6,6 @@ __pycache__/
 # The original folder for storing kiosk configuration files (this is going to be phased out soon).
 Kiosks/
 
+# Crap from experimenting with cx_freeze.  Postponed for now because of option chaos in cx_freeze (hard to find what you need).
+cxfreeze/
+
