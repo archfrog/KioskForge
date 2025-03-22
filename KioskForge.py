@@ -1580,8 +1580,7 @@ class KioskForge(KioskClass):
 				# Process the requested menu command.
 				if choice == -1:
 					if changed:
-						print("Warning: Kiosk has unsaved changes, please save it before exiting the program")
-						continue
+						raise KioskError("Kiosk has unsaved changes")
 
 					# Exit program.
 					break
@@ -1614,20 +1613,19 @@ class KioskForge(KioskClass):
 				elif choice == 2:
 					# Edit kiosk.
 					# Allow the user to re-edit the kiosk as long as there are errors.
-					errors = []
-					while True:
-						changed |= editor.edit(setup)
+					changed |= editor.edit(setup)
 
-						# Report errors detected after changing the selected kiosk.
-						errors = setup.check()
-						if not errors:
-							break
+					# Report errors detected after changing the selected kiosk.
+					errors = setup.check()
+					if not errors:
+						break
 
-						print()
-						print("Errors(s) detected in kiosk (please correct or fill out all listed fields):")
-						print()
-						for error in errors:
-							print("  " + error)
+					print()
+					print("Errors(s) detected in kiosk (please correct or fill out all listed fields):")
+					print()
+					for error in errors:
+						print("  " + error)
+					print()
 					del errors
 				elif choice == 3:
 					# Save kiosk.
