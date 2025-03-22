@@ -6,3 +6,6 @@ __pycache__/
 # The original folder for storing kiosk configuration files (this is going to be phased out soon).
 Kiosks/
 
+# PyInstaller .spec file(s)
+*.spec
+
