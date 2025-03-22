@@ -45,8 +45,12 @@ if platform.system() == "Windows":
 	try:
 		import bcrypt
 	except ModuleNotFoundError:
-		subprocess.check_call([sys.executable, "-m", "pip", "install", "bcrypt"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-		import bcrypt
+		try:
+			subprocess.check_call([sys.executable, "-m", "pip", "install", "bcrypt"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			import bcrypt
+		except CalledProcessError:
+			print("*** Error: Unable to automatically install 'bcrypt' module.  Please report this issue")
+			input("Press ENTER to continue and close this window")
 
 
 VERSION = "0.12"
