@@ -20,6 +20,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
+- [ ] 2025.02.27.13.59 H Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors and
+                         make KioskForge run as a [PyInstaller(https://pyinstaller.org/en/stable/) stand-alone executable.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
@@ -63,7 +65,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.12.17.xx.xx M Write documentation on how to update the files served by the local web server, if any, using `WinSCP`.
 - [ ] 2025.03.19.23.07 M Write a tool to generate a website from a set of pictures and descriptions of them.
 - [ ] 2025.03.09.06.39 M Make KioskForge check that it is running on a supported Windows such as Windows 10+.
-- [ ] 2025.02.27.13.59 M Split the three Kiosk* classes into separate modules so as to be able to run `PyPi` without errors.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
 - [ ] 2025.03.19.23.08 M Open up the GitHub repository for the public once most of the high priority tasks are completed and a
