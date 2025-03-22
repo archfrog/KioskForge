@@ -1203,7 +1203,6 @@ class KioskClass(object):
 	"""Base class for the multi-script classes that implement the respective script features."""
 
 	def __init__(self, homedir : str) -> None:
-		# Append terminating slash/backslash, if not terminated properly (eases expressions everywhere else).
 		self.__homedir = homedir
 
 	@property
