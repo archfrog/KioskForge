@@ -351,7 +351,7 @@ class TextWriter(object):
 
 	def __enter__(self) -> Any:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
-		self.__stream = open(self.__path, "wt")
+		self.__stream = open(self.__path, "wt", encoding="utf-8")
 		return self
 
 	def __exit__(self, exception_type : type, exception_value : Exception, traceback : types.TracebackType) -> None:
@@ -530,7 +530,7 @@ class ModifyTextAction(InternalAction):
 	def execute(self) -> Result:
 		try:
 			# TODO: Fetch mode and owner from previous file, if any, so that they can be restored.
-			with open(self.__path, self.__mode) as stream:
+			with open(self.__path, self.__mode, encoding="utf-8") as stream:
 				stream.write(self.__text)
 			result = Result()
 		except PermissionError:
@@ -634,7 +634,7 @@ class ReplaceTextAction(InternalAction):
 				raise InternalError("Attempt to replace a string with an identical string")
 
 			# Read in the source text from the source file.
-			with open(path, "rt") as stream:
+			with open(path, "rt", encoding="utf-8") as stream:
 				actual_text = stream.read()
 
 			# Perform the replacement and verify that it did indeed change something.
@@ -643,7 +643,7 @@ class ReplaceTextAction(InternalAction):
 				raise KioskError("Unable to replace string, no occurences of the source string found")
 
 			# Write the result to disk.
-			with open(path, "wt") as stream:
+			with open(path, "wt", encoding="utf-8") as stream:
 				stream.write(output_text)
 
 			# TODO: Fix owner, etc.
@@ -949,10 +949,10 @@ class KernelOptions(object):
 		self.__options.append(option)
 
 	def load(self, path : str) -> None:
-		self.__options = open(path, "rt").read().strip().split(' ')
+		self.__options = open(path, "rt", encoding="utf-8").read().strip().split(' ')
 
 	def save(self, path : str) -> None:
-		open(path, "wt").write(' '.join(self.__options))
+		open(path, "wt", encoding="utf-8").write(' '.join(self.__options))
 
 
 class Setup(Record):
@@ -1010,7 +1010,7 @@ class Setup(Record):
 
 	def load(self, path : str) -> None:
 		# Read in the specified file and split it into individual lines.
-		lines = open(path, "rt").read().split('\n')
+		lines = open(path, "rt", encoding="utf-8").read().split('\n')
 
 		# Process each line in turn.
 		for line in lines:
