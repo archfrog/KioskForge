@@ -53,7 +53,7 @@ if platform.system() == "Windows":
 			input("Press ENTER to continue and close this window")
 
 
-VERSION = "0.12"
+VERSION = "0.13"
 COMPANY = "Vendsyssel Historiske Museum"
 CONTACT = "me@vhm.dk"
 TESTING = True
@@ -989,27 +989,27 @@ class Setup(Record):
 	def check(self) -> List[str]:
 		result = []
 		if self.comment.data == "":
-			result.append("Error: 'comment' value is missing from configuration")
+			result.append("Warning: 'comment' value is missing from configuration")
 		if self.hostname.data == "":
-			result.append("Error: 'hostname' value is missing from configuration")
+			result.append("Warning: 'hostname' value is missing from configuration")
 		if self.timezone.data == "":
-			result.append("Error: 'timezone' value is missing from configuration")
+			result.append("Warning: 'timezone' value is missing from configuration")
 		if self.keyboard.data == "":
-			result.append("Error: 'keyboard' value is missing from configuration")
+			result.append("Warning: 'keyboard' value is missing from configuration")
 		if self.locale.data == "":
-			result.append("Error: 'locale' value is missing from configuration")
+			result.append("Warning: 'locale' value is missing from configuration")
 		if self.website.data == "":
-			result.append("Error: 'website' value is missing from configuration")
+			result.append("Warning: 'website' value is missing from configuration")
 		if self.user_name.data == "":
-			result.append("Error: 'user_name' value is missing from configuration")
+			result.append("Warning: 'user_name' value is missing from configuration")
 		if self.user_code.data == "":
-			result.append("Error: 'user_code' value is missing from configuration")
+			result.append("Warning: 'user_code' value is missing from configuration")
 		if self.ssh_key.data == "":
-			result.append("Error: 'ssh_key' value is missing from configuration")
+			result.append("Warning: 'ssh_key' value is missing from configuration")
 		if self.wifi_name.data != "" and self.wifi_code.data == "":
-			result.append("Error: 'wifi_code' value is missing from configuration")
+			result.append("Warning: 'wifi_code' value is missing from configuration")
 		if self.snap_time.data == "":
-			result.append("Error: 'snap_time' value is missing from configuration")
+			result.append("Warning: 'snap_time' value is missing from configuration")
 		return result
 
 	def load(self, path : str) -> None:
@@ -1131,7 +1131,6 @@ class Editor(object):
 		fields = vars(setup)
 		names = {}
 		while True:
-			print()
 			index = 0
 			for name, field in fields.items():
 				index += 1
@@ -1564,15 +1563,15 @@ class KioskForge(KioskClass):
 		editor = Editor()
 		setup = Setup()
 		changed = False
-		kiosk = ""
+		filename = ""
 		while True:
 			try:
 				# Present a menu of valid choices for the user to make.
 				choices = [
 					"Create new kiosk in memory",
-					"Load existing kiosk from Kiosks folder",
+					"Load existing kiosk from disk",
 					"Edit created or loaded kiosk",
-					"Save kiosk to Kiosks folder",
+					"Save kiosk to disk",
 					"Update Raspberry Pi Imager prepared installation media",
 				]
 				choice = editor.select("Select a menu choice", choices)
@@ -1587,28 +1586,28 @@ class KioskForge(KioskClass):
 				elif choice == 0:
 					# Create new kiosk.
 					setup = Setup()
-					kiosk = ""
+					filename = ""
 					changed = False
+
+					print("New kiosk successfully created in memory.")
+					print()
 				elif choice == 1:
-					# Load existing kiosks.
+					# Load existing kiosk from disk.
+					answer = input("Please enter or paste full path of kiosk file (*.cfg): ").strip()
+					print()
 
-					# Find all kiosks in the Kiosks subfolder.
-					files = glob.glob(self.homedir + os.sep + "Kiosks" + os.sep + "*" + os.sep + self.version.product + ".cfg")
-
-					# Strip off the absolute part of the found path names, if any.
-					# NOTE: MyPy kept reporting errors for perfectly valid 'map' code, so I rewrote it to classic imperative style.
-					kiosks = []
-					for file in files:
-						kiosks.append(file[len(self.homedir + os.sep):])
-					del files
-
-					# Ask UI to let the user pick a kiosk to load.
-					index = editor.select("Select kiosk to load", kiosks)
-					if index == -1:
+					if answer == "":
 						continue
 
-					kiosk = kiosks[index]
-					setup.load(kiosk)
+					try:
+						setup.load(answer)
+						filename = answer
+					except FileNotFoundError:
+						raise KioskError("Unable to load the specified file - is the path correct?")
+
+					print("Kiosk successfully loaded from disk")
+					print()
+
 					changed = False
 				elif choice == 2:
 					# Edit kiosk.
@@ -1618,55 +1617,46 @@ class KioskForge(KioskClass):
 					# Report errors detected after changing the selected kiosk.
 					errors = setup.check()
 					if not errors:
-						break
+						continue
 
 					print()
-					print("Errors(s) detected in kiosk (please correct or fill out all listed fields):")
+					print("Warnings(s) detected in configuration:")
 					print()
 					for error in errors:
-						print("  " + error)
+						print(">>> " + error)
 					print()
 					del errors
 				elif choice == 3:
 					# Save kiosk.
 					# Allow the user to save the kiosk.
 					if changed:
-						folder = ""
 						while True:
-							# Compute default for input of relative path.
-							if kiosk:
-								folder = os.path.dirname(kiosk)
-							else:
-								folder = "Kiosks" + os.sep + setup.hostname.data
+							answer = input("Please enter or paste full path of kiosk file (*.cfg): ").strip()
+							print()
 
-							# Let the user enter his or her choice, ENTER means use default value.
-							answer = input("Enter relative path (ENTER = %s): " % folder).strip()
-							if answer:
-								folder = answer
-							del answer
-
-							# Check that we're writing to a subfolder of 'Kiosks'.
-							if not folder.startswith("Kiosks" + os.sep):
-								print("Error: The relative path MUST start with 'Kiosks%s'" % os.sep)
+							if answer == "":
 								continue
 
-							# Check if the output folder is a subfolder of 'Kiosks'.
-							if len(folder.split(os.sep)) != 2:
-								print("Error: The relative path must be a subdirectory of the 'Kiosks' folder")
-								continue
+							if not answer.endswith(".cfg"):
+								raise KioskError("KioskForge kiosk configuration files MUST end in .cfg")
 
 							# Create new folder, if any, and save the configuration.
+							folder = os.path.split(answer)[0]
 							os.makedirs(folder, exist_ok=True)
-							setup.save(folder + os.sep + self.version.product + ".cfg", self.version)
+							setup.save(answer, self.version)
+							del folder
 							changed = False
 
+							filename = answer
+							del answer
+
+							# Break INNER while loop, don't break the OUTER as that makes the program stop.
 							break
-						del folder
 					else:
 						raise KioskError("Kiosk not changed, no need to save it")
 				elif choice == 4:
 					# Check if a kiosk has been created or loaded.
-					if not kiosk and not changed:
+					if not filename and not changed:
 						raise KioskError("No kiosk defined, cannot forge the kiosk")
 
 					# Update installation media.
@@ -1675,7 +1665,7 @@ class KioskForge(KioskClass):
 
 					# Fail if no target was identified.
 					if not target:
-						raise KioskError("Unable to locate install image - did you select Ubuntu Server?")
+						raise KioskError("Unable to locate or identify install image - did you select Ubuntu Server?")
 
 					# Report the kind of image that was discovered.
 					print(
