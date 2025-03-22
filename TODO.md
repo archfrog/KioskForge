@@ -20,6 +20,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
+- [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
 						 This is partially solved by installing the `rtkit` package and enabling its `systemd` service.
@@ -81,6 +82,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.22.00.24 H Python v3.x (until v3.15) uses Windows' code page, not UTF-8, as the default stream character set...
+                         All streams **must** be opened with `, encoding='utf-8'`.
 - [x] 2025.03.20.04.04 H Check `syslog` for errors from the installed packages, etc. so as to detect other possible problems.
 - [x] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
                          This makes the configuration of a kiosk rather error-prone as the user probably forgets to enable `xinput`
