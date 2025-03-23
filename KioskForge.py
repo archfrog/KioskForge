@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
+# KioskForge - https://kioskforge.org
+# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All Rights Reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
+# conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright notice, this list of conditions and the disclaimer below.
+#     * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided with the distribution.
+#     * Neither the name of Vendsyssel Historiske Museum nor the names of its contributors may be used to endorse or promote
+#       products derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+# BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+# SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
 # Script that converts an Ubuntu Server box into a kiosk machine that displays the specified URL in kiosk mode using Chromium.
 #
 # Notes:
-#   1. This script is in fact THREE scripts!  This to avoid duplicating code and maintaining identical code in three files.
-#      The script is invoked as 'KioskForge.py' and then copies itself to the installation medie and customizes cloud-init in such
-#      a way that the script is automatically invoked as 'KioskSetup.py' very late in the installation process, after which it
-#      creates a symbolic link to itself with the name 'KioskStart.py', which launches Chrome and monitors its execution.
-#	2. This script assumes a clean installation with no modifications whatsoever prior to it being invoked.  As such, it can
+#	1. This script assumes a clean installation with no modifications whatsoever prior to it being invoked.  As such, it can
 #	   "safely" abort upon errors as the user can simply re-flash his system using Raspberry Pi Imager once again.  There are no
 #	   features to safely roll back the changes made during the customization of the system for kiosk mode usage!
 
