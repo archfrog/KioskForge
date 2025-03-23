@@ -33,8 +33,8 @@ from kiosk.logger import Logger
 EXIT_SUCCESS = os.EX_OK
 EXIT_FAILURE = 1
 
-class KioskClass(object):
-	"""Base class for the class that implement the respective script features."""
+class KioskDriver(object):
+	"""Base class for the classes that implement the respective script features."""
 
 	@abc.abstractmethod
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:

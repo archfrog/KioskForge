@@ -44,8 +44,8 @@ import types
 
 from kiosk.builder import TextBuilder
 from kiosk.convert import STRING_TO_BOOLEAN
+from kiosk.driver import KioskDriver
 from kiosk.errors import *
-import kiosk.KioskClass
 from kiosk.logger import Logger, TextWriter
 from kiosk.invoke import Result
 from kiosk.setup import *
@@ -354,11 +354,11 @@ class Editor(object):
 		return choice
 
 
-class KioskForge(kiosk.KioskClass.KioskClass):
+class KioskForge(KioskDriver):
 	"""This class contains the 'KioskForge' code, which prepares a boot image for running 'KioskSetup' on a kiosk machine."""
 
 	def __init__(self) -> None:
-		kiosk.KioskClass.KioskClass.__init__(self)
+		KioskDriver.__init__(self)
 		self.version = Version("KioskForge", VERSION, COMPANY, CONTACT, TESTING)
 
 	def saveCloudInitMetaData(self, setup : Setup, path : str) -> None:

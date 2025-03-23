@@ -32,19 +32,19 @@ import sys
 import time
 
 from kiosk.builder import TextBuilder
+from kiosk.driver import KioskDriver
 from kiosk.errors import *
 from kiosk.invoke import invoke
 from kiosk.logger import Logger
-import kiosk.KioskClass
 from kiosk.setup import *
 from kiosk.version import *
 
 
-class KioskStart(kiosk.KioskClass.KioskClass):
+class KioskStart(KioskDriver):
 	"""This class contains the 'KioskStart' code, which starts Chromium, monitors it, and restarts it if necessary."""
 
 	def __init__(self) -> None:
-		kiosk.KioskClass.KioskClass.__init__(self)
+		KioskDriver.__init__(self)
 		self.version = Version("KioskStart", VERSION, COMPANY, CONTACT, TESTING)
 
 	# Returns the total number of seconds (with a fraction) of idle time since the X server was last busy.

@@ -31,21 +31,21 @@ import time
 
 from kiosk.actions import *
 from kiosk.builder import TextBuilder
+from kiosk.driver import KioskDriver
 from kiosk.errors import *
 from kiosk.internet import internet_active
 from kiosk.invoke import invoke, Result
-import kiosk.KioskClass
 from kiosk.logger import Logger
 from kiosk.setup import Setup
 from kiosk.script import Script
 from kiosk.version import *
 
 
-class KioskSetup(kiosk.KioskClass.KioskClass):
-	"""This class contains the 'KioskSetup' code, which configures an Ubuntu Server 24.04.1 system to become a web kiosk."""
+class KioskSetup(KioskDriver):
+	"""This class contains the 'KioskSetup' code, which configures a supported Ubuntu Server system to become a web kiosk."""
 
 	def __init__(self) -> None:
-		kiosk.KioskClass.KioskClass.__init__(self)
+		KioskDriver.__init__(self)
 		self.version = Version("KioskSetup", VERSION, COMPANY, CONTACT, TESTING)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
