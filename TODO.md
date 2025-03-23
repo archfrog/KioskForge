@@ -53,8 +53,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
-- [ ] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
-                         install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
 - [ ] 2025.03.19.09.47 M Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
 - [ ] 2024.12.17.xx.xx M Add support for a local NGINX or Apache web server so that the kiosk can serve the web site locally.
@@ -78,6 +76,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
+                         install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
+						 Decided to go with [`PyInstaller`](https://pyinstaller.org/en/stable/) instead as `cx_freeze` was way too
+						 difficult to configure and make work as intended.
 - [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
                          (Dropped, no particular need for the above change.)
 - [x] 2025.03.19.22.17 H Always use the name `KioskForge.cfg` for the configuration file so as to not confuse end users.
