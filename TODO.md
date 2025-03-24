@@ -20,6 +20,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
+- [ ] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
+- [ ] 2025.03.24.03.18 H Why is `idle_timeout` written to the configuration file as a string, not as an integer?
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
@@ -76,6 +78,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.24.04.17 H Only modify `/etc/ssh/sshd.conf` to **require** a private key if a public key has been specified.
 - [x] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
                          install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
 						 Decided to go with [`PyInstaller`](https://pyinstaller.org/en/stable/) instead as `cx_freeze` was way too
