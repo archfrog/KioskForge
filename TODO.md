@@ -55,6 +55,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
+- [ ] 2025.03.24.05.49 M Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
+                         https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
 - [ ] 2025.03.19.09.47 M Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
 - [ ] 2024.12.17.xx.xx M Add support for a local NGINX or Apache web server so that the kiosk can serve the web site locally.
