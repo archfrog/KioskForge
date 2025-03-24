@@ -55,7 +55,7 @@ class KioskSetup(KioskDriver):
 
 		# Check that we're running on Linux.
 		if platform.system() != "Linux":
-			raise KioskError("This script is can only be run on a target Linux kiosk machine")
+			raise KioskError("This script is can only be run on a Linux kiosk machine")
 
 		# Check that we've got root privileges (instruct MyPy to ignore the Windows-only error in the next line).
 		if os.name == "posix" and os.geteuid() != 0:		# type: ignore
@@ -219,26 +219,28 @@ class KioskSetup(KioskDriver):
 		#...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server", ["openssh-server"])
 
-		# ...Install SSH public key so that the user can get into the box in case of errors or other issues.
-		script += AppendTextAction(
-			"Installing public SSH key in user's home directory",
-			"%s/.ssh/authorized_keys" % os.path.dirname(origin),
-			setup.ssh_key.data + "\n"
-		)
-		#...Disable root login, if not alreadsy disabled.
-		script += ReplaceTextAction(
-			"Disabling root login using SSH if not already disabled.",
-			"/etc/ssh/sshd_config",
-			"#PermitRootLogin prohibit-password",
-			"PermitRootLogin no"
-		)
-		#...Disable password-only authentication if not already disabled.
-		script += ReplaceTextAction(
-			"Requiring private SSH key to log in",
-			"/etc/ssh/sshd_config",
-			"#PasswordAuthentication yes",
-			"PasswordAuthentication no"
-		)
+		# ...Install SSH public key, if any, so that the user can SSH into the box in case of errors or other issues.
+		if setup.ssh_key.data:
+			script += AppendTextAction(
+				"Installing public SSH key in user's home directory",
+				"%s/.ssh/authorized_keys" % os.path.dirname(origin),
+				setup.ssh_key.data + "\n"
+			)
+			#...Disable root login, if not alreadsy disabled.
+			script += ReplaceTextAction(
+				"Disabling root login using SSH if not already disabled.",
+				"/etc/ssh/sshd_config",
+				"#PermitRootLogin prohibit-password",
+				"PermitRootLogin no"
+			)
+			#...Disable password-only authentication if not already disabled.
+			script += ReplaceTextAction(
+				"Requiring private SSH key to log in",
+				"/etc/ssh/sshd_config",
+				"#PasswordAuthentication yes",
+				"PasswordAuthentication no"
+			)
+
 		#...Disable empty passwords (probably superflous, but it doesn't hurt).
 		script += ReplaceTextAction(
 			"Disabling empty SSH password login",
