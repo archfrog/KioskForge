@@ -33,6 +33,12 @@ If the problem persists, report it as a bug.  It may be some obscure error in Ki
 ## Development Issues
 This section contains various common questions about the development of KioskForge.
 
+### Why is KioskForge not a stand-alone program with an installer?
+This is work in progress.  I have already selected [PyInstaller](https://pyinstaller.org/en/stable/) as the tool to use but am
+quite busy with actual applications of KioskForge to make kiosks with.  Once the dust settles, I'll look into this again.
+
+Also, KioskForge currently iterates so rapidly that I don't like asking people to uinstall and reinstall all the time.
+
 ### Will KioskForge support Linux distribution X?
 For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
 
