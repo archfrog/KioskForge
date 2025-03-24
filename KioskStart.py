@@ -223,9 +223,6 @@ class KioskStart(KioskDriver):
 						process.terminate()
 						process = None
 
-						if TESTING:
-							logger.write("Restarting Chromium after idle timeout: timeout=%f, current=%f." % (timeout, current))
-
 						# Reset X's idle timer to ensure that inaccuracies do not accumulate over time.
 						subprocess.check_call(shlex.split("xset s reset"), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
