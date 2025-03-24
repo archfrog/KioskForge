@@ -83,7 +83,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.03.24.04.17 H Only modify `/etc/ssh/sshd.conf` to **require** a private key if a public key has been specified.
 - [x] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
                          install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
-						 Decided to go with [`PyInstaller`](https://pyinstaller.org/en/stable/) instead as `cx_freeze` was way too
+						 Decided to go with [PyInstaller](https://pyinstaller.org/en/stable/) instead as `cx_freeze` was way too
 						 difficult to configure and make work as intended.
 - [ ] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
                          (Dropped, no particular need for the above change.)
