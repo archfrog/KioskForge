@@ -491,6 +491,14 @@ class KioskForge(KioskDriver):
 			stream.write("runcmd:")
 			stream.indent()
 			stream.write("- cp -pR %s/KioskForge %s" % (source, output))
+
+			# Copy user-supplied data folder to the target, if any.
+			if setup.data_folder.data:
+				data_folder = source + os.sep + os.path.split(setup.data_folder.data)[1]
+				data_folder = data_folder.replace('\\', '/')
+				stream.write("- cp -pR %s %s" % (data_folder, output))
+				del data_folder
+
 			stream.write("- chown -R %s:%s %s/KioskForge" % (setup.user_name.data, setup.user_name.data, output))
 			stream.write("- chmod -R u+x %s/KioskForge" % output)
 			stream.write("- chmod a-x %s/KioskForge/KioskForge.cfg" % output)
@@ -528,7 +536,8 @@ class KioskForge(KioskDriver):
 
 	def saveAutoinstallYaml(self, setup : Setup, target : Target, path : str) -> None:
 		with TextWriter(path) as stream:
-			origin = "/home/%s" % setup.user_name.data
+			source = "/cdrom/"
+			output = "/home/%s" % setup.user_name.data
 
 			# Write header to let the user know who generated this particular file.
 			stream.write("#cloud-config")
@@ -589,9 +598,9 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 			stream.write("error-commands:")
 			stream.indent()
-			stream.write("- mkdir -p %s" % origin)
-			stream.write("- tar -czf %s/installer-logs.tar.gz /var/log/installer/" % origin)
-			stream.write("- journalctl -b > %s/installer-journal.log" % origin)
+			stream.write("- mkdir -p %s" % output)
+			stream.write("- tar -czf %s/installer-logs.tar.gz /var/log/installer/" % output)
+			stream.write("- journalctl -b > %s/installer-journal.log" % output)
 			stream.dedent()
 			stream.write("identity:")
 			stream.indent()
@@ -678,6 +687,21 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 
 			stream.write("updates: all")
+
+			# Copy KioskForge to the target so that it can be invoked.
+			stream.write("late-commands:")
+			stream.indent()
+			stream.write("- curtin in-target -- mkdir -p %s" % output)
+			stream.write("- curtin in-target -- cp -pR %s/KioskForge %s" % (source, output))
+
+			# TODO: Copy user-supplied data folder to the target, if any.
+			if setup.data_folder.data:
+				raise InternalError("data_folder is not yet implemented for PC targets")
+				stream.write("- curtin in-target -- cp -pR %s %s" % (setup.data_folder.data, output))
+
+			# Continue the installation of the kiosk (late-commands is executed just before the system is rebooted).
+			stream.write("- %s/KioskForge/KioskSetup.y" % output)
+			stream.dedent()
 
 			stream.dedent()
 
@@ -855,7 +879,7 @@ class KioskForge(KioskDriver):
 						raise KioskError("Unknown installer type: %s" % target.install)
 
 					# Compute output folder.
-					output = target.basedir + "KioskForge" + os.sep
+					output = target.basedir + "KioskForge"
 
 					# Remove previous KioskForge folder on installation medium, if any.
 					if os.path.isdir(output):
@@ -869,8 +893,14 @@ class KioskForge(KioskDriver):
 
 					# Copy KioskForge files to the installation medium.
 					for file in ["KioskSetup.py", "KioskStart.py"]:
-						shutil.copyfile(origin + os.sep + file, output + file)
-					shutil.copytree(origin + os.sep + "kiosk", output + "kiosk")
+						shutil.copyfile(origin + os.sep + file, output + os.sep + file)
+					shutil.copytree(origin + os.sep + "kiosk", output + os.sep + "kiosk")
+					if setup.data_folder.data:
+						destination = target.basedir + os.sep + os.path.split(setup.data_folder.data)[1]
+						if os.path.isdir(destination):
+							shutil.rmtree(destination)
+						shutil.copytree(setup.data_folder.data, destination)
+						del destination
 
 					# Report success to the log.
 					print("Preparation of boot image successfully completed - please eject/unmount %s safely." % target.basedir)

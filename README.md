@@ -32,9 +32,13 @@ Customization of the target kiosk machine can be done using KioskForge.py or usi
 | APT update time  | `upgrade_time`  | time    | The hour and minute when to perform a global upgrade of packages.           |
 | Shutdown time    | `poweroff_time` | time    | The hour and minute when to automatically shut down the kiosk machine.      |
 | Vacuum time      | `vacuum_time`   | time    | The hour and minute when to automatically compact and clean log files.      |
-| Vacuum retention | `vacuum_days`   | integer | The number of days to retain system logs.                                   |
+| Vacuum retention | `vacuum_days`   | integer | The number of days of retention of system logs.                             |
 | Idle timeout     | `idle_timeout`  | seconds | Seconds of idle time before restarting the web browser (0 = never).         |
 | Screen rotation  | `rotate_screen` | integer | 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right.       |
+| Data folder      | `data_folder`   | string  | A folder to copy to `~` on the kiosk.  Useful for websites.  (blank = none).|
+
+**NOTE**:
+Currently, the interactive TUI editor *cannot* handle blank strings, so you need to edit the configuration file manually.
 
 
 ## Philosophy
