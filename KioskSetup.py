@@ -355,7 +355,7 @@ class KioskSetup(KioskDriver):
 				"Creating X11 configuration file to rotate the touch panel",
 				"/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf",
 				"root",
-				stat.S_IRUSR | stat.S_IWUSR,
+				stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
 				lines.text
 			)
 			del lines
