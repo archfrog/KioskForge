@@ -12,7 +12,7 @@ pause
 rem Prepare distribution archive.
 set image=%RAMDISK%\KioskForge.zip
 if exist "%image%" del "%image%"
-7z a "%image%" Kiosk*.py kiosk FAQ.md README.md LICENSE
+7z a "%image%" Kiosk*.py kiosk FAQ.md README.md LICENSE %*
 
 rem Upload distribution archive to KioskForge.org (temporary solution until a proper page has been made and published there).
 "C:\Program Files\Git\usr\bin\scp.exe" -F u:\.ssh\config -p "%image%" web:web/pub/kioskforge.org/KioskForge.zip
