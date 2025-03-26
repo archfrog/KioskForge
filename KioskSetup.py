@@ -64,18 +64,24 @@ class KioskSetup(KioskDriver):
 		# Check that we have got an active, usable internet connection.
 		index = 0
 		while not internet_active() and index < 6:
-			print("*** NETWORK DOWN: Waiting 5 seconds for the kiosk to come online")
+			logger.write("*** NETWORK DOWN: Waiting 5 seconds for the kiosk to come online")
 			index += 1
 			time.sleep(5)
 		del index
 
 		if not internet_active():
-			print("*" * 78)
-			print("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
-			print("*** (Please check the wifi name and password - both are case-sensitive.)")
-			print("*" * 78)
-
+			logger.error("*" * 50)
+			logger.error("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
+			logger.error("*** (Please check the wifi name and password - both are case-sensitive.)")
+			logger.error("*" * 50)
 			raise KioskError("No active network connections detected")
+
+		# Display LAN IP - not everybody has access to the router in charge of assigning a LAN IP via DHCP.
+		result = invoke_text("hostname -I")
+		if result.status == 0:
+			logger.write("*** LAN IP: %s" % result.output)
+		else:
+			logger.error("*** Error: Could not query LAN IP")
 
 		# Parse command-line arguments.
 		if len(arguments) >= 2:
@@ -104,6 +110,9 @@ class KioskSetup(KioskDriver):
 
 		# Set environment variable to stop dpkg from running interactively.
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
+
+		# Assign hostname (affects logs and journals so we do it as the very first thing).
+		script += ExternalAction("Setting host name", "hostnamectl set-hostname " + setup.hostname.data)
 
 		# Set environment variable on every boot to stop dpkg from running interactively.
 		lines  = TextBuilder()
@@ -254,9 +263,6 @@ class KioskSetup(KioskDriver):
 		script += PurgePackagesAction("Purging package unattended-upgrades", ["unattended-upgrades"])
 		script += RemoveFolderAction("Removing remains of package unattended-upgrades", "/var/log/unattended-upgrades")
 
-		# Assign hostname (affects logs and journals so we do it early on).
-		script += ExternalAction("Setting host name", "hostnamectl set-hostname " + setup.hostname.data)
-
 		# Install US English and user-specified locales (purge all others).
 		script += ExternalAction("Configuring system locales", "locale-gen --purge en_US.UTF-8 %s" % setup.locale.data)
 
@@ -326,12 +332,34 @@ class KioskSetup(KioskDriver):
 			["xprintidle"]
 		)
 
-		# Install 'xinput' used to detect touch panels and rotate them using a transformation matrix.
-		if setup.rotate_screen.data != 0:
-			script += InstallPackagesNoRecommendsAction(
-				"Installing 'xinput' to detect touch panel(s) and configure X11 to rotate them.",
-				["xinput"]
+		# Create X11 configuration file to rotate the TOUCH panel.  This does not affect the display itself (see KioskStart.py).
+		if setup.orientation.data != 0:
+			# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
+			matrices = {
+				0 : '1 0 0 0 1 0 0 0 1',
+				1 : '0 -1 1 1 0 0 0 0 1',
+				2 : '-1 0 1 0 -1 1 0 0 1',
+				3 : '0 1 0 -1 0 1 0 0 1'
+			}
+
+			# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf' to make X11 rotate the touch panel itself.
+			lines  = TextBuilder()
+			lines += 'Section "InputClass"'
+			lines += '\tIdentifier "Coordinate Transformation Matrix"'
+			lines += '\tMatchIsTouchscreen "on"'
+			lines += '\tMatchDevicePath "/dev/input/event*"'
+			lines += '\tMatchDriver "libinput"'
+			lines += '\tOption "CalibrationMatrix" "%s"' % matrices[setup.orientation.data]
+			lines += 'EndSection'
+			script += CreateTextWithUserAndModeAction(
+				"Creating X11 configuration file to rotate the touch panel",
+				"/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
 			)
+			del lines
+			del matrices
 
 		# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 		# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
@@ -360,7 +388,7 @@ class KioskSetup(KioskDriver):
 		lines += "[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- %s" % ("-nocursor" if not setup.mouse.data else "")
 		script += CreateTextWithUserAndModeAction(
 			"Creating Bash startup script",
-			"%s/KioskStartX11.sh" % origin,
+			"%s/KioskLaunchX11.sh" % origin,
 			setup.user_name.data,
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
 			lines.text
@@ -385,7 +413,7 @@ class KioskSetup(KioskDriver):
 		lines  = TextBuilder()
 		lines += ""
 		lines += "# Launch X11 and OpenBox into Kiosk mode."
-		lines += "%s/KioskStartX11.sh" % origin
+		lines += "%s/KioskLaunchX11.sh" % origin
 		script += AppendTextAction(
 			"Starting X11 startup script at automatic login",
 			"%s/.bashrc" % os.path.dirname(origin),

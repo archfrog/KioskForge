@@ -183,7 +183,7 @@ class Setup(Record):
 		self.upgrade_time  = TimeField("The time of day to upgrade the system (blank = never)")
 		self.poweroff_time = TimeField("The time of day to power off the system (blank = never)")
 		self.idle_timeout  = NaturalField("The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
-		self.rotate_screen = NaturalField("0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
+		self.orientation   = NaturalField("Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
 		self.data_folder   = StringField("A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
 
 	def check(self) -> List[str]:
@@ -313,8 +313,8 @@ class Setup(Record):
 			stream.write("# %s" % self.idle_timeout.text)
 			stream.write("idle_timeout=%d" % self.idle_timeout.data)
 
-			stream.write("# %s" % self.rotate_screen.text)
-			stream.write("rotate_screen=%d" % self.rotate_screen.data)
+			stream.write("# %s" % self.orientation.text)
+			stream.write("orientation=%d" % self.orientation.data)
 
 			stream.write("# %s" % self.data_folder.text)
 			stream.write("data_folder=%s" % self.data_folder.data)
