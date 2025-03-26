@@ -82,6 +82,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.26.12.19 H Set host name as the very first operation to avoid two different host names in syslog.
 - [x] 2025.03.26.04.58 H Rename `invoke` to `invoke_text` globally.
 - [x] 2025.03.24.03.18 H Why is `idle_timeout` written to the configuration file as a string, not as an integer?  Typo, fixed.
 - [x] 2025.03.24.04.17 H Only modify `/etc/ssh/sshd.conf` to **require** a private key if a public key has been specified.
