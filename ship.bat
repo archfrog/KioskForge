@@ -21,3 +21,4 @@ rem Clean up the Ram disk after use.
 if exist "%image%" del "%image%"
 
 endlocal
+
