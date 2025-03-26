@@ -34,7 +34,7 @@ import time
 from kiosk.builder import TextBuilder
 from kiosk.driver import KioskDriver
 from kiosk.errors import *
-from kiosk.invoke import invoke
+from kiosk.invoke import invoke, invoke_list
 from kiosk.logger import Logger
 from kiosk.setup import *
 from kiosk.version import *
@@ -65,9 +65,9 @@ class KioskStart(KioskDriver):
 			result += ch
 		return result
 
-	# NOTE: This function returns all xinput touch device ids but a few predefined ids.  I haven't found a better method just yet.
+	# NOTE: This function returns all xinput touch device names and their correspondig ids (except a few irrelevant ids).
 	@staticmethod
-	def xinput_get_pointer_device_ids() -> List[str]:
+	def xinput_get_pointer_device_map() -> Dict[str, int]:
 		# Ask 'xinput' for a list of all known pointing and keyboard devices.
 		result = invoke("xinput list")
 		if result.status != 0:
@@ -80,7 +80,7 @@ class KioskStart(KioskDriver):
 		lines = list(map(KioskStart.utf8_discard, lines))
 
 		# Extract device ids for all relevant devices from the output of 'xinput list'.
-		found = []
+		found = {}
 		store = False
 		for line in lines:
 			# Strip leading whitespace from each line.
@@ -109,7 +109,7 @@ class KioskStart(KioskDriver):
 			elif name[:9] == "vc4-hdmi-":
 				continue
 			elif store:
-				found.append(id)
+				found[name] = int(id)
 
 		# Discard the 'Virtual core XTEST pointer' entry.
 		#found = list(filter(lambda x: x != 'Virtual core XTEST pointer', found))
@@ -153,25 +153,37 @@ class KioskStart(KioskDriver):
 				subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 				del command
 
+				# TODO: Remove deletion of 'xinput-configure.log' and logging statement below.
+				if TESTING:
+					if os.path.isfile("xinput-configure.log"):
+						os.unlink("xinput-configure.log")
+
 				# Identify and configure all non-reserved pointing devices using 'xinput'.
+				# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
 				matrices = {
 					0 : '1 0 0 0 1 0 0 0 1',
 					1 : '0 -1 1 1 0 0 0 0 1',
 					2 : '-1 0 1 0 -1 1 0 0 1',
 					3 : '0 1 0 -1 0 1 0 0 1'
 				}
-				devices = self.xinput_get_pointer_device_ids()
-				for device in devices:
+				devices = self.xinput_get_pointer_device_map()
+				for name, id in devices.items():
 					command  = TextBuilder()
 					command += "xinput"
 					command += "set-prop"
-					command += "'%s'" % device
-					command += "'Coordinate Transformation Matrix'"
-					command += "'%s'" % matrices[orientation]
-					# NOTE: Use 'subprocess.run()' to avoid having to check or process the possibly likely exit code from 'xinput'.
+					command += "%d" % id
+					command += "Coordinate Transformation Matrix"
+					command += "%s" % matrices[orientation]
 					# NOTE: I sort of brute-force attempt to configure all discovered pointing devices, so 'xinput' WILL fail.
-					subprocess.run(command.list)
+					# NOTE: But we don't check the return code, only log the output of 'input'.
+					result = invoke_list(command.list)
+					if TESTING:
+						# TODO: Remove xinput-configure.log write statement after touch screen issues have been resolved.
+						open("xinput-configure.log", "at", encoding="utf-8").write(
+							"%s (id=%d) => %s -> %d %s\n" % (name, id, shlex.join(command.list), result.status, result.output)
+						)
 					del command
+					del result
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
 			# NOTE: Chromium does not complain about any of the options listed below!
