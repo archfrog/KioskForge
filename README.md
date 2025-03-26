@@ -10,6 +10,7 @@ KioskForge currently supports these things:
 * Ethernet and/or WIFI networking.
 
 **NOTE**: Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
+**NOTE**: The PC target is currently partially broken because I don't have a spare PC to test it on.  WIP.
 
 Customization of the target kiosk machine can be done using KioskForge.py or using an editor to create an INI-style file:
 
