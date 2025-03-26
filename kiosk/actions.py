@@ -28,7 +28,7 @@ import stat
 import time
 
 from kiosk.errors import *
-from kiosk.invoke import invoke, Result
+from kiosk.invoke import invoke_text, Result
 
 class Action(object):
 	"""An action is something that must be done during the execution of a script.
@@ -261,7 +261,7 @@ class ExternalAction(Action):
 		return self.__line
 
 	def execute(self) -> Result:
-		return invoke(self.__line)
+		return invoke_text(self.__line)
 
 
 class RebootSystemAction(ExternalAction):
@@ -279,7 +279,7 @@ class ExternalAptAction(ExternalAction):
 
 	def execute(self) -> Result:
 		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' is removed.
-		while invoke("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke("lsof /var/lib/dpkg/lock").status == 0:
+		while invoke_text("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke_text("lsof /var/lib/dpkg/lock").status == 0:
 			print("ALERT: Waiting 5 seconds for 'apt' lock to be released - 'apt' is running in the background...")
 			time.sleep(5)
 

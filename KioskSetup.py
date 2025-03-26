@@ -34,7 +34,7 @@ from kiosk.builder import TextBuilder
 from kiosk.driver import KioskDriver
 from kiosk.errors import *
 from kiosk.internet import internet_active
-from kiosk.invoke import invoke, Result
+from kiosk.invoke import invoke_text, Result
 from kiosk.logger import Logger
 from kiosk.setup import Setup
 from kiosk.script import Script
@@ -86,7 +86,7 @@ class KioskSetup(KioskDriver):
 
 		# This script is launched by a systemd service, so we need to eradicate it and all traces of it (once only).
 		if resume == 0:
-			result = invoke("systemctl disable KioskSetup")
+			result = invoke_text("systemctl disable KioskSetup")
 			if os.path.isfile("/usr/lib/systemd/system/KioskSetup.service"):
 				os.unlink("/usr/lib/systemd/system/KioskSetup.service")
 			if result.status != 0:

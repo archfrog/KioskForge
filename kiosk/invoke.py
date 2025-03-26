@@ -48,6 +48,6 @@ def invoke_list(command : List[str]) -> Result:
 	return Result(result.returncode, output)
 
 # Alias for 'invoke_list' that asks 'shlex.split()' to split a single string command into its equivalent list of tokens.
-def invoke(command : str) -> Result:
+def invoke_text(command : str) -> Result:
 	return invoke_list(shlex.split(command))
 

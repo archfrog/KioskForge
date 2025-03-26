@@ -34,7 +34,7 @@ import time
 from kiosk.builder import TextBuilder
 from kiosk.driver import KioskDriver
 from kiosk.errors import *
-from kiosk.invoke import invoke, invoke_list
+from kiosk.invoke import invoke_list, invoke_text
 from kiosk.logger import Logger
 from kiosk.setup import *
 from kiosk.version import *
@@ -50,7 +50,7 @@ class KioskStart(KioskDriver):
 	# Returns the total number of seconds (with a fraction) of idle time since the X server was last busy.
 	@staticmethod
 	def x_idle_time() -> float:
-		result = invoke("xprintidle")
+		result = invoke_text("xprintidle")
 		if result.status != 0:
 			raise KioskError("Unable to get idle time from X Windows")
 		return int(result.output) / 1000
@@ -69,7 +69,7 @@ class KioskStart(KioskDriver):
 	@staticmethod
 	def xinput_get_pointer_device_map() -> Dict[str, int]:
 		# Ask 'xinput' for a list of all known pointing and keyboard devices.
-		result = invoke("xinput list")
+		result = invoke_text("xinput list")
 		if result.status != 0:
 			raise KioskError("Could not invoke 'xinput'")
 
