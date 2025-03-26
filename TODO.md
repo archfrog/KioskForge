@@ -20,8 +20,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
-- [ ] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
-- [ ] 2025.03.24.03.18 H Why is `idle_timeout` written to the configuration file as a string, not as an integer?
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
@@ -31,6 +29,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.20.04.07 H Pipewire audio does not appear to work (I don't have any suitable headphones at hand).
 - [ ] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
+- [ ] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
+                         The AUTOSTART code is not implemented in the AutoInstall writer, as far as I know, so this is broken.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code seems okay).
 - [ ] 2025.03.15.18.58 H Make the `power_save` feature optional.  Check out if other options need to be optional.
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
@@ -80,6 +80,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.24.03.18 H Why is `idle_timeout` written to the configuration file as a string, not as an integer?  Typo, fixed.
 - [x] 2025.03.24.04.17 H Only modify `/etc/ssh/sshd.conf` to **require** a private key if a public key has been specified.
 - [x] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
                          install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)

@@ -311,7 +311,7 @@ class Setup(Record):
 			stream.write("vacuum_days=%d" % self.vacuum_days.data)
 
 			stream.write("# %s" % self.idle_timeout.text)
-			stream.write("idle_timeout=%s" % self.idle_timeout.data)
+			stream.write("idle_timeout=%d" % self.idle_timeout.data)
 
 			stream.write("# %s" % self.rotate_screen.text)
 			stream.write("rotate_screen=%d" % self.rotate_screen.data)
