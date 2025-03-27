@@ -20,6 +20,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
+- [ ] 2025.03.27.11.19 H Audio *is* broken in Chromium.  This appears to be a common issue with Chromium (Chrome shouldn't
+                         suffer from the same problem).  Mini-Jack is disrecommended by many, only use HDMI.
+- [ ] 2025.03.27.10.19 H Power-saving should **not** be disabled in the `KioskLaunchX11.sh` script but in a systemd service!
 - [ ] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
 						 This is partially solved by installing the `rtkit` package and enabling its `systemd` service.
@@ -67,6 +70,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          kiosk has proven itself for three to six months.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
+- [ ] 2025.03.27.14.05 L Dynamic Reconfiguration: That `KioskSetup.py` is run every configuration change and automatically
+                         installs, removes, and configures packages and the system according to the configuration on every boot.
 - [ ] 2025.03.19.10.07 L Consider to add color support to the TUI version of the script, most noticable red colors for errors.
 - [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
