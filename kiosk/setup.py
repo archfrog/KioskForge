@@ -279,7 +279,6 @@ KEYBOARDS = {
 }
 
 
-
 class Setup(Record):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
