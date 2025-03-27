@@ -36,7 +36,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.27.17.38 H Make the kiosk configuration more flexible: Prepare for doing motion detector + custom script, etc.
 - [ ] 2025.03.27.16.55 H Investigate how to make minijack work even though is not recommended by most (requires an amplifier).
 - [ ] 2025.03.27.10.19 H Power-saving should **not** be disabled in the `KioskLaunchX11.sh` script but in a systemd service!
-- [ ] 2025.03.27.14.22 H New option: `ip_address`, could be used to let KioskForge "deregister" a known host in `known_hosts`.
 - [ ] 2025.03.27.14.09 H Modules: Every module should be an instance of the class `Module` and should provide the following:
 						    1. A textual description, which may be made up of multiple lines of text.
                             2. A default configuration, which is provided as a Python `Dict[str, str]`.
@@ -101,6 +100,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.27.14.22 H New option: `ip_address`, could be used to let KioskForge "deregister" a known host in `known_hosts`.
+                         This should be part of a `build` script or something, KF shouldn't mess around with the hosts' SSH files.
 - [x] 2025.03.27.17.48 H Create `cron` job to clear the apt cache regularly: `apt clean`.  (This is done by the upgrade cron job.)
 - [x] 2025.03.27.11.19 H Audio *is* broken in Chromium and KioskForge.  Works beautifully in Ubuntu Desktop 24.04.2/ARM64.
                          The problem was that the --no-installs-recommends option was given to `apt`.
