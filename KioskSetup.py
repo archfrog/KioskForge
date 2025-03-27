@@ -393,7 +393,6 @@ class KioskSetup(KioskDriver):
 			lines += "sleep 2"
 			lines += ""
 			lines += "# Set default output device to HDMI1."
-			# TODO: The output device should be user-selectable: HDMI1, HDMI2 or Jack.
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
 			lines += "pactl set-default-sink alsa_output.platform-fef00700.hdmi.hdmi-stereo"
 			lines += ""
