@@ -21,6 +21,7 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
 
+import re
 import time
 
 from kiosk.convert import STRING_TO_BOOLEAN
@@ -109,6 +110,23 @@ class StringField(Field):
 		self.__data = data
 
 
+class RegexField(StringField):
+	"""Derived class that implements a string field validated by a regular expression."""
+
+	def __init__(self, text : str, regex : str) -> None:
+		StringField.__init__(self, text)
+		self.__regex = regex
+
+	@property
+	def regex(self) -> str:
+		return self.__regex
+
+	def parse(self, data : str) -> None:
+		if not re.fullmatch(self.__regex, data):
+			raise KioskError("Invalid or incorrect value given: %s" % data)
+		StringField.parse(self, data)
+
+
 class PasswordField(StringField):
 	"""Derived class that checks a Linux password."""
 
@@ -164,7 +182,7 @@ class Setup(Record):
 	def __init__(self) -> None:
 		Record.__init__(self)
 		self.comment       = StringField("A descriptive comment for the kiosk machine.")
-		self.hostname      = StringField("The unqualified host name (e.g., 'kiosk01').")
+		self.hostname      = RegexField("The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
 		self.timezone      = StringField("The time zone (e.g., 'Europe/Copenhagen').")
 		self.keyboard      = StringField("The keyboard layout (e.g., 'dk').")
 		self.locale        = StringField("The locale (e.g., 'da_DK.UTF-8').")
