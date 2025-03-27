@@ -21,6 +21,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.03.27.20.47 H Rewrite 'KioskLaunchX11.sh' Bash script into Python.
+- [ ] 2025.03.27.16.53 H Create `kiosklog` function early on so that the user can SSH in and follow the progress easily.  Document!
+- [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for starting X11 and configuring Pipewire.
+- [ ] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling?
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Testing...
 - [ ] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
                          Auto will only work on PCs, which I cannot develop nor test at this point in time.
@@ -32,8 +36,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          3. HDMI2: `alsa_output.platform-fef05700.hdmi.hdmi-stereo`
                          THE VALUES GIVEN ABOVE ARE PROBABLY DEVICE-SPECIFIC AND MUST BE FETCHED FROM `wpctl`.
 						 The values are very unlikely to be valid for Raspberry Pi 4 and 5 (even if they work on 4B).
-- [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for starting X11 and configuring Pipewire.
-- [ ] 2025.03.27.16.53 H Create `kiosklog` function early on so that the user can SSH in and follow the progress easily.  Document!
 - [ ] 2025.03.27.17.38 H Make the kiosk configuration more flexible: Prepare for doing motion detector + custom script, etc.
 - [ ] 2025.03.27.16.55 H Investigate how to make minijack work even though is not recommended by most (requires an amplifier).
 - [ ] 2025.03.27.10.19 H Power-saving should **not** be disabled in the `KioskLaunchX11.sh` script but in a systemd service!
