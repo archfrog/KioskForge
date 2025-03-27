@@ -298,12 +298,9 @@ class KioskSetup(KioskDriver):
 
 		# Install Pipewire audio system only if explicitly enabled.
 		if setup.audio.data != 0:
-			script += InstallPackagesNoRecommendsAction(
-				"Installing Pipewire audio subsystem",
-				["pipewire", "wireplumber", "rtkit"]
-			)
-			# Enable rtkit service to remove some Pipewire errors in syslog.
-			script += ExternalAction("Enabling rtkit service", "systemctl enable rtkit-daemon.service")
+			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
+			# Install Pipewire AND pulseaudio-utils as the script 'KioskLaunchX11.py' uses 'pactl' from that latter package.
+			script += InstallPackagesAction("Installing Pipewire audio subsystem", ["pipewire", "pulseaudio-utils"])
 
 		# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
 		script += ExternalAction("Installing Chromium web browser", "snap install chromium")
@@ -383,6 +380,8 @@ class KioskSetup(KioskDriver):
 		lines += ""
 		if setup.audio.data != 0:
 			lines += "# Set PipeWire audio level to user-specified percentage on a logarithmic scale."
+			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
+			#lines += "pactl set-default-sink alsa_output.platform-fef00700.hdmi.hdmi-stereo"
 			lines += "wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f" % (setup.audio.data / 100.0)
 			lines += ""
 		lines += "# Launch the X server into kiosk mode."
