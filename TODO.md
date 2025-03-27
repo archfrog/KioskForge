@@ -21,7 +21,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.03.27.16.53 H Create `kiosklog` function early on so that the user can SSH in and follow the progress easily.  Document!
 - [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for starting X11 and configuring Pipewire.
 - [ ] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling?
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Testing...
@@ -103,6 +102,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.27.16.53 H Create `kiosklog` function early on so that the user can SSH in and follow the progress easily.  Document!
 - [x] 2025.03.27.20.47 H Rewrite 'KioskLaunchX11.sh' Bash script into Python.
 - [x] 2025.03.27.14.22 H New option: `ip_address`, could be used to let KioskForge "deregister" a known host in `known_hosts`.
                          This should be part of a `build` script or something, KF shouldn't mess around with the hosts' SSH files.
