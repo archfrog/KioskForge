@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Testing...
 - [ ] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
                          Auto will only work on PCs, which I cannot develop nor test at this point in time.
 - [ ] 2025.03.27.18.25 H Check if the HDMI1-audio-device `alsa_output.platform-fef00700.hdmi.hdmi-stereo` is system dependent:
@@ -45,6 +46,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                             6. A method of committing a configuration (perform the necessary changes to the kiosk system).
                             7. A method of rolling back a configuration.
                             8. A method of diffing any multi-module configuration to determine what needs to be undone.
+                         Furthermore, it would be *awesome* if modules could be tested easily from scripts or the prompt.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
 - [ ] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
