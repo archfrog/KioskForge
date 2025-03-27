@@ -24,6 +24,9 @@ from typing import List
 import shlex
 import subprocess
 
+from kiosk.errors import KioskError
+
+
 class Result(object):
 	"""The result (status code, output) of an action."""
 
@@ -47,7 +50,19 @@ def invoke_list(command : List[str]) -> Result:
 	output = result.stdout.decode('utf-8')
 	return Result(result.returncode, output)
 
+# invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
+def invoke_list_safe(command : List[str]) -> None:
+	result = invoke_list(command)
+	if result.status != 0:
+		raise KioskError(result.output)
+
 # Alias for 'invoke_list' that asks 'shlex.split()' to split a single string command into its equivalent list of tokens.
 def invoke_text(command : str) -> Result:
 	return invoke_list(shlex.split(command))
+
+# invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
+def invoke_text_safe(command : str) -> None:
+	result = invoke_text(command)
+	if result.status != 0:
+		raise KioskError(result.output)
 
