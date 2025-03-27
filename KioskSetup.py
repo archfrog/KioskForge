@@ -377,33 +377,46 @@ class KioskSetup(KioskDriver):
 		# TODO: Rewrite in Python.
 		# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
 		lines  = TextBuilder()
-		lines += "#!/usr/bin/bash"
-		lines += ""
-		lines += "# Enable extended error checking (abort on all errors)."
-		lines += "set -e"
-		lines += ""
-		lines += "# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1."
-		lines += "# Placed up front to avoid waiting (see 'sleep' below) on every SSH login."
-		lines += "if [[ ! -z $DISPLAY || $XDG_VTNR -ne 1 ]]; then"
-		lines += "\texit 1"
-		lines += "fi"
+		lines += '#!/usr/bin/env python3'
+		lines += ''
+		lines += 'import os'
+		lines += 'import sys'
+		lines += 'import time'
+		lines += ''
+		lines += 'from kiosk.errors import KioskError'
+		lines += 'from kiosk.invoke import invoke_text_safe'
+		lines += ''
+		lines += '# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1.'
+		lines += '# Placed up front to avoid waiting (see "time.sleep" below) on every SSH login.'
+		lines += '# If the DISPLAY environment variable is defined then X11 is running.'
+		lines += 'if "DISPLAY" in os.environ or os.environ.get("XDG_VTNR") != "1":'
+		lines += '\tsys.exit(1)'
+		lines += ''
+		lines += '# Handle KioskError exception that MAY be thrown by "invoke_text_safe()"'
+		lines += 'try:'
+
 		if setup.audio.data != 0:
-			lines += ""
-			lines += "# Wait a bit because 'pactl' fails with an error about unknown device if we don't."
-			lines += "sleep 2"
-			lines += ""
-			lines += "# Set default output device to HDMI1."
+			lines += '\t# Wait a bit because "pactl" fails with an error about unknown device if we do not.'
+			lines += '\ttime.sleep(2)'
+			lines += ''
+			lines += '\t# Set default output device to HDMI1.'
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
-			lines += "pactl set-default-sink alsa_output.platform-fef00700.hdmi.hdmi-stereo"
-			lines += ""
-			lines += "# Set the audio level to user-specified percentage on a logarithmic scale."
-			lines += "wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f" % (setup.audio.data / 100.0)
-		lines += ""
-		lines += "# Launch the X server, which launches `.config/openbox/autostart` to eventually launch Chromium in kiosk mode."
-		lines += "startx%s" % (" -- -nocursor" if not setup.mouse.data else "")
+			lines += '\tinvoke_text_safe("pactl set-default-sink alsa_output.platform-fef00700.hdmi.hdmi-stereo")'
+			lines += ''
+			lines += '\t# Set the audio level to user-specified percentage on a logarithmic scale.'
+			lines += '\tinvoke_text_safe("wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f"' % (setup.audio.data / 100.0)
+			lines += ''
+		lines += '\t# Launch the X server, which launches `.config/openbox/autostart` to eventually launch Chromium in kiosk mode.'
+		lines += '\tinvoke_text_safe("startx%s")' % (" -- -nocursor" if not setup.mouse.data else "")
+		lines += 'except KioskError as that:'
+		lines += '\tprint("Error: %s" % that.text)'
+		lines += '\tsys.exit(1)'
+		lines += ''
+		lines += '# Signal success to the caller.'
+		lines += 'sys.exit(0)'
 		script += CreateTextWithUserAndModeAction(
 			"Creating Bash startup script",
-			"%s/KioskLaunchX11.sh" % origin,
+			"%s/KioskLaunchX11.py" % origin,
 			setup.user_name.data,
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
 			lines.text
@@ -428,7 +441,7 @@ class KioskSetup(KioskDriver):
 		lines  = TextBuilder()
 		lines += ""
 		lines += "# Launch X11 and OpenBox into Kiosk mode."
-		lines += "%s/KioskLaunchX11.sh" % origin
+		lines += "%s/KioskLaunchX11.py" % origin
 		script += AppendTextAction(
 			"Starting X11 startup script at automatic login",
 			"%s/.bashrc" % os.path.dirname(origin),
