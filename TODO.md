@@ -20,8 +20,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Open Tasks
-- [ ] 2025.03.26.05.41 H What about the case that there's both a mouse and a touch screen/panel?  `xrandr` only supports mice, but
-                         the coordinate transformation given to `xinput` probably blows both to kingdom come.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
@@ -82,6 +80,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  This make rotating a touch screen difficult.
 
 ## Completed Tasks
+- [x] 2025.03.26.05.41 H What about the case that there's both a mouse and a touch screen/panel?  `xrandr` only supports mice, but
+                         the coordinate transformation given to `xinput` probably blows both to kingdom come.
+						 The touch panel is now rotated using an X11 configuration file which does not apply to the screen.
 - [x] 2025.03.26.12.19 H Set host name as the very first operation to avoid two different host names in syslog.
 - [x] 2025.03.26.04.58 H Rename `invoke` to `invoke_text` globally.
 - [x] 2025.03.24.03.18 H Why is `idle_timeout` written to the configuration file as a string, not as an integer?  Typo, fixed.
