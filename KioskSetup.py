@@ -343,6 +343,7 @@ class KioskSetup(KioskDriver):
 			}
 
 			# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf' to make X11 rotate the touch panel itself.
+			# Source: https://gist.github.com/autofyrsto/6daa5d41c7f742dd16c46c903ba15c8f
 			lines  = TextBuilder()
 			lines += 'Section "InputClass"'
 			lines += '\tIdentifier "Coordinate Transformation Matrix"'
@@ -382,7 +383,7 @@ class KioskSetup(KioskDriver):
 		lines += ""
 		if setup.audio.data != 0:
 			lines += "# Set PipeWire audio level to user-specified percentage on a logarithmic scale."
-			lines += "wpctl set-volume @DEFAULT_AUDIO_SINK@ %f" % (setup.audio.data / 100.0)
+			lines += "wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f" % (setup.audio.data / 100.0)
 			lines += ""
 		lines += "# Launch the X server into kiosk mode."
 		lines += "[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- %s" % ("-nocursor" if not setup.mouse.data else "")
