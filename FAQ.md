@@ -17,11 +17,6 @@ To be honest, I get a bunch of these errors every time I install Ubuntu Server o
 
 Please ignore these errors - as far as I can tell, the WIFI card works as it should and the kiosk runs reliably as it should.
 
-### I get weird `unable to find device 'N'` errors in my `.xsession-errors` file?
-These are artifacts left over from KioskForge's attempt to configure a touch screen to be rotated.  You should only see these if the `rotate_screen` option is non-zero.  They are not harmful and perhaps I can remove the cause of them some day.
-
-Technicallly speaking, they are caused by my attempt to eliminate the need for you to know the exact X11 name of your touch screen.  I simply try to configure almost all pointing devices to rotate and those that can't do this, fail with that error message.
-
 ### The Linux installer fails with an 'apt' error because `apt` is already using a lock file?
 KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.
 
