@@ -30,6 +30,12 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          THE VALUES GIVEN ABOVE ARE PROBABLY DEVICE-SPECIFIC AND MUST BE FETCHED FROM `wpctl`.
 						 The values are very unlikely to be valid for Raspberry Pi 4 and 5 (even if they work on 4B).
 - [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for configuring Pipewire (to give access to the `Setup` instance).
+- [ ] 2025.03.28.13.27 H Finish up the `GUIDE.md` document and make sure to document the more peculiar options such as `snap_time`.
+						 Also, expand the `README.md` guide (perhaps an appendix) to explain each option in detail.
+- [ ] 2025.03.28.13.14 H The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
+                         the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
+						 `KioskForge-m.nn.zip`, the latter for Windows users.  Ideally, there'd only be one executable for each
+						 platform.
 - [ ] 2025.03.28.12.17 H Check out https://thisdavej.com/share-python-scripts-like-a-pro-uv-and-pep-723-for-easy-deployment/ to
 -                        see if this is something of value for the KioskForge project.
 - [ ] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
