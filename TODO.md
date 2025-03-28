@@ -21,7 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for starting X11 and configuring Pipewire.
+- [x] 2025.03.27.18.37 H Make `KioskStart.py` responsible for configuring Pipewire.
 - [ ] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling?
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Testing...
 - [ ] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
