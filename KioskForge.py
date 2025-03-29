@@ -288,36 +288,37 @@ class Editor(object):
 		fields = vars(setup)
 		names = {}
 		while True:
-			index = 0
-			for name, field in fields.items():
-				index += 1
-				names[index] = name
-				print("%2d) %-13s = %s" % (index, name, field.data))
-			print()
-
-			answer = input("Please enter number or ENTER to quit: ").strip()
-			if answer == "":
-				return changed
-
-			if not answer.isdigit():
-				print("Error: Enter a valid number")
-				continue
-
-			choice = int(answer)
-			if choice == 0 or choice > index:
-				print("Error: Enter a valid number in the range 1 through %d" % index)
-				continue
-
-			print("Hint: %s" % getattr(setup, names[choice]).text)
-			value = input("Enter new value (ENTER to leave unchanged): ").strip()
-			if value == "":
-				continue
-
 			try:
+				index = 0
+				for name, field in fields.items():
+					index += 1
+					names[index] = name
+					print("%2d) %-13s = %s" % (index, name, field.data))
+				print()
+
+				answer = input("Please enter number or ENTER to quit: ").strip()
+				if answer == "":
+					return changed
+
+				if not answer.isdigit():
+					raise InputError("Enter a valid number")
+
+				choice = int(answer)
+				if choice == 0 or choice > index:
+					raise InputError("Enter a valid number in the range 1 through %d" % index)
+
+				print("Hint: %s" % getattr(setup, names[choice]).text)
+				value = input("Enter new value (ENTER to leave unchanged): ").strip()
+				if value == "":
+					break
+
+				# Attempt to assign the new field value, this may cause a 'FieldError' exception to be thrown.
 				getattr(setup, names[choice]).parse(value)
 				changed = True
+			except FieldError as that:
+				print("Error: Invalid value entered for field %s: %s" % (that.field, that.text))
 			except InputError as that:
-				print(that.text)
+				print("Error: %s" % that.text)
 
 		return changed
 
@@ -325,31 +326,32 @@ class Editor(object):
 		print(title + ":")
 
 		while True:
-			print()
-			index = 0
-			while index < len(choices):
-				value = choices[index]
-				index += 1
-				print("%2d) %s" % (index, value))
-			print()
-			del index
+			try:
+				print()
+				index = 0
+				while index < len(choices):
+					value = choices[index]
+					index += 1
+					print("%2d) %s" % (index, value))
+				print()
+				del index
 
-			answer = input("Enter choice (ENTER to quit): ").strip()
-			print()
+				answer = input("Enter choice (ENTER to quit): ").strip()
+				print()
 
-			if answer == "":
-				return -1
+				if answer == "":
+					return -1
 
-			if not answer.isdigit():
-				print("Error: Invalid value entered")
-				continue
+				if not answer.isdigit():
+					raise InputError("Please enter an integer between 1 and %d" % len(choices))
 
-			choice = int(answer) - 1
-			if choice < 0 or choice >= len(choices):
-				print("Error: Enter a valid number")
-				continue
+				choice = int(answer) - 1
+				if choice < 0 or choice >= len(choices):
+					raise InputError("Please enter a number between 1 and %d" % len(choices))
 
-			break
+				break
+			except InputError as that:
+				raise KioskError("%s" % that.text)
 
 		return choice
 
@@ -764,17 +766,28 @@ class KioskForge(KioskDriver):
 					try:
 						setup.load(answer)
 						filename = answer
+
+						print("Kiosk successfully loaded from disk")
 					except FileNotFoundError:
 						raise KioskError("Unable to load the specified file - is the path correct?")
-
-					print("Kiosk successfully loaded from disk")
+					except FieldError as that:
+						raise KioskError("Invalid value entered for field %s: %s" % (that.field, that.text))
+					except InputError as that:
+						raise KioskError("%s" % that.text)
 					print()
 
 					changed = False
 				elif choice == 2:
 					# Edit kiosk.
 					# Allow the user to re-edit the kiosk as long as there are errors.
-					changed |= editor.edit(setup)
+					try:
+						changed |= editor.edit(setup)
+					except FieldError as that:
+						print("Error: Invalid value entered for field %s: %s" % (that.field, that.text))
+						continue
+					except InputError as that:
+						print("Error: %s" % that.text)
+						continue
 
 					# Report errors detected after changing the selected kiosk.
 					errors = setup.check()

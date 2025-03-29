@@ -310,8 +310,8 @@ class KioskSetup(KioskDriver):
 			["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
 		)
 
-		# Install Pipewire audio system only if explicitly enabled.
-		if setup.audio.data != 0:
+		# Install audio system (Pipewire) only if explicitly enabled.
+		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
 			# Install Pipewire AND pulseaudio-utils as the script 'KioskLaunchX11.py' uses 'pactl' from that latter package.
 			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
@@ -409,16 +409,22 @@ class KioskSetup(KioskDriver):
 		lines += '# Handle KioskError exception that MAY be thrown by "invoke_text_safe()"'
 		lines += 'try:'
 
-		if setup.audio.data != 0:
+		if setup.sound_card.data != "none":
 			lines += '\t# Wait a bit because "pactl" fails with an error about unknown device if we do not.'
 			lines += '\ttime.sleep(2)'
 			lines += ''
-			lines += '\t# Set default output device to HDMI1.'
+			lines += '\t# Set default output device to %s.' % setup.sound_card.data
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
-			lines += '\tinvoke_text_safe("pactl set-default-sink alsa_output.platform-fef00700.hdmi.hdmi-stereo")'
+			CARDS = {
+				'jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
+				'hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
+				'hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
+			}
+			lines += '\tinvoke_text_safe("pactl set-default-sink %s")' % CARDS[setup.sound_card.data]
+			del CARDS
 			lines += ''
 			lines += '\t# Set the audio level to user-specified percentage on a logarithmic scale.'
-			lines += '\tinvoke_text_safe("wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f"' % (setup.audio.data / 100.0)
+			lines += '\tinvoke_text_safe("wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f"' % (setup.sound_level.data / 100.0)
 			lines += ''
 		lines += '\t# Launch the X server, which launches `.config/openbox/autostart` to eventually launch Chromium in kiosk mode.'
 		lines += '\tinvoke_text_safe("startx%s")' % (" -- -nocursor" if not setup.mouse.data else "")

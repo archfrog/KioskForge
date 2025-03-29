@@ -132,12 +132,25 @@ KEYBOARDS = {
 	"za"    : "English (South Africa)",
 }
 
+# Build the global variable 'KEYBOARD_REGEX', which represents the 'KEYBOARDS' dictionary as a regular expression.
+KEYBOARD_REGEX = ""
+for keyboard in KEYBOARDS:
+	if KEYBOARD_REGEX != "":
+		KEYBOARD_REGEX += "|"
+	KEYBOARD_REGEX += keyboard
+KEYBOARD_REGEX = "(" + KEYBOARD_REGEX + ")"
+
 
 class Field(object):
 	"""Base class for configuration fields; these are title/value pairs."""
 
-	def __init__(self, text : str) -> None:
+	def __init__(self, name : str, text : str) -> None:
+		self.__name = name
 		self.__text = text
+
+	@property
+	def name(self) -> str:
+		return self.__name
 
 	@property
 	def text(self) -> str:
@@ -150,8 +163,8 @@ class Field(object):
 class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
-	def __init__(self, text : str) -> None:
-		Field.__init__(self, text)
+	def __init__(self, name : str, text : str) -> None:
+		Field.__init__(self, name, text)
 		self.__data = False
 
 	@property
@@ -160,21 +173,21 @@ class BooleanField(Field):
 
 	def parse(self, data : str) -> None:
 		if len(data) == 0:
-			raise InputError("Invalid value entered: %s " % data)
+			raise FieldError(self.name, "Field cannot be blank")
 
 		try:
 			self.__data = STRING_TO_BOOLEAN[data.lower()]
 		except KeyError:
-			raise InputError("Invalid value entered")
+			raise FieldError(self.name, "Invalid value entered")
 		except ValueError as that:
-			raise InputError(str(that))
+			raise FieldError(self.name, str(that))
 
 
 class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
-	def __init__(self, text : str, lower : int, upper : int) -> None:
-		Field.__init__(self, text)
+	def __init__(self, name : str, text : str, lower : int, upper : int) -> None:
+		Field.__init__(self, name, text)
 		self.__data = 0
 		self.__lower = lower
 		self.__upper = upper
@@ -185,24 +198,24 @@ class NaturalField(Field):
 
 	def parse(self, data : str) -> None:
 		if not data or data[0] == '-':
-			raise InputError("Invalid value entered: %s " % data)
+			raise FieldError(self.name, "Invalid value entered: %s " % data)
 
 		try:
 			value = int(data)
 
 			if value < self.__lower or value > self.__upper:
-				raise ValueError("Value outside bounds (%d through %d)" % (self.__lower, self.__upper))
+				raise FieldError(self.name, "Value outside bounds (%d through %d)" % (self.__lower, self.__upper))
 
 			self.__data = value
 		except ValueError as that:
-			raise InputError(str(that))
+			raise FieldError(self.name, str(that))
 
 
 class StringField(Field):
 	"""Derived class that implements a string field."""
 
-	def __init__(self, text : str) -> None:
-		Field.__init__(self, text)
+	def __init__(self, name : str, text : str) -> None:
+		Field.__init__(self, name, text)
 		self.__data = ""
 
 	@property
@@ -216,21 +229,21 @@ class StringField(Field):
 class PasswordField(StringField):
 	"""Derived class that checks a Linux password."""
 
-	def __init__(self, text : str) -> None:
-		StringField.__init__(self, text)
+	def __init__(self, name : str, text : str) -> None:
+		StringField.__init__(self, name, text)
 
 	def parse(self, data : str) -> None:
 		# Report error if the password string is empty.
 		if data == "":
-			raise KioskError("Password cannot be empty")
+			raise FieldError(self.name, "Password cannot be empty")
 
 		# Disallow passwords starting with a dollar sign, including encrypted passwords.
 		if data[0] == '$':
-			raise KioskError("Password cannot begin with a dollar sign ($)")
+			raise FieldError(self.name, "Password cannot begin with a dollar sign ($)")
 
 		# Apparently, the maximum length of an input password to 'bcrypt' is 72 characters.
 		if len(data) > 72:
-			raise KioskError("Password too long - cannot exceed 72 characters")
+			raise FieldError(self.name, "Password too long - cannot exceed 72 characters")
 
 		# Finally, store the encrypted password.
 		StringField.parse(self, data)
@@ -239,8 +252,8 @@ class PasswordField(StringField):
 class RegexField(StringField):
 	"""Derived class that implements a string field validated by a regular expression."""
 
-	def __init__(self, text : str, regex : str) -> None:
-		StringField.__init__(self, text)
+	def __init__(self, name : str, text : str, regex : str) -> None:
+		StringField.__init__(self, name, text)
 		self.__regex = regex
 
 	@property
@@ -249,15 +262,15 @@ class RegexField(StringField):
 
 	def parse(self, data : str) -> None:
 		if not re.fullmatch(self.__regex, data):
-			raise KioskError("Invalid or incorrect value given: %s" % data)
+			raise FieldError(self.name, "Value does not match validating regular expression: %s" % data)
 		StringField.parse(self, data)
 
 
 class TimeField(StringField):
 	"""Derived class that implements a time (HH:MM) field."""
 
-	def __init__(self, text : str) -> None:
-		StringField.__init__(self, text)
+	def __init__(self, name : str, text : str) -> None:
+		StringField.__init__(self, name, text)
 
 	def parse(self, data : str) -> None:
 		if data == "":
@@ -269,38 +282,42 @@ class TimeField(StringField):
 			time.strptime(data, "%H:%M")
 			StringField.parse(self, data)
 		except ValueError:
-			raise KioskError("Invalid time specification: %s" % data)
+			raise FieldError(self.name, "Invalid time specification: %s" % data)
 
 
 class Setup(object):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
 	def __init__(self) -> None:
-		self.comment       = StringField("A descriptive comment for the kiosk machine.")
-		self.hostname      = RegexField("The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
-		self.timezone      = StringField("The time zone (e.g., 'Europe/Copenhagen').")
-		self.keyboard      = StringField("The keyboard layout (e.g., 'dk').")
-		self.locale        = StringField("The locale (e.g., 'da_DK.UTF-8').")
-		self.website       = StringField("The URL (e.g., 'https://google.com').")
-		self.audio         = NaturalField("The default audio level (0 through 100, 0 = no audio).", 0, 100)
-		self.mouse         = BooleanField("If the mouse should be enabled (y/n or 1/0).")
-		self.user_name     = StringField("The user name of the non-root administrative user (e.g., 'user').")
-		self.user_code     = PasswordField("The password for the user (e.g., 'dumsey3rumble').")
-		self.ssh_key       = StringField("The public SSH key for accessing the kiosk using the 'ssh' command.")
-		self.wifi_name     = StringField("The WiFi network (case sensitive!) (e.g., 'MyWiFi', blank = no WiFi).")
-		self.wifi_code     = StringField("The password for WiFi access (case sensitive!) (e.g., 'stay4out!', blank = no password).")
-		self.snap_time     = StringField("The daily period of time that snap updates software (e.g., '10:00-10:30').")
-		self.swap_size     = NaturalField("The size in gigabytes of the swap file (0 = none).", 0, 128)
-		self.vacuum_time   = TimeField("The time of day to vacuum system logs (blank = never)")
-		self.vacuum_days   = NaturalField("The number of days to retain system logs for (1 through 365, only used if 'vacuum_time' is set)", 1, 365)
-		self.upgrade_time  = TimeField("The time of day to upgrade the system (blank = never)")
-		self.poweroff_time = TimeField("The time of day to power off the system (blank = never)")
-		self.idle_timeout  = NaturalField("The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
-		self.orientation   = NaturalField("Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
-		self.data_folder   = StringField("A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
+		self.platform      = RegexField("platform", "The target platform type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
+		self.comment       = StringField("comment", "A descriptive comment for the kiosk machine.")
+		self.hostname      = RegexField("hostname", "The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
+		self.timezone      = StringField("timezone", "The time zone (e.g., 'Europe/Copenhagen').")
+		self.keyboard      = RegexField("keyboard", "The keyboard layout (e.g., 'dk').", KEYBOARD_REGEX)
+		self.locale        = StringField("locale", "The locale (e.g., 'da_DK.UTF-8').")
+		self.website       = StringField("website", "The URL (e.g., 'https://google.com').")
+		self.sound_card    = RegexField("sound_card", "The sound card to use (pi4+: none, jack, hdmi1, or hdmi2).", "(none|jack|hdmi1|hdmi2)")
+		self.sound_level   = NaturalField("sound_level", "The logarithmic audio level (0 through 100, only valid if 'sound_card' is not 'none').", 0, 100)
+		self.mouse         = BooleanField("mouse", "If the mouse should be enabled (y/n or 1/0).")
+		self.user_name     = StringField("user_name", "The user name of the non-root administrative user (e.g., 'user').")
+		self.user_code     = PasswordField("user_code", "The password for the user (e.g., 'dumsey3rumble').")
+		self.ssh_key       = StringField("ssh_key", "The public SSH key for accessing the kiosk using the 'ssh' command.")
+		self.wifi_name     = StringField("wifi_name", "The WiFi network (case sensitive!) (e.g., 'MyWiFi', blank = no WiFi).")
+		self.wifi_code     = StringField("wifi_code", "The password for WiFi access (case sensitive!) (e.g., 'stay4out!', blank = no password).")
+		self.snap_time     = StringField("snap_time", "The daily period of time that snap updates software (e.g., '10:00-10:30').")
+		self.swap_size     = NaturalField("swap_time", "The size in gigabytes of the swap file (0 = none).", 0, 128)
+		self.vacuum_time   = TimeField("vacuum_time", "The time of day to vacuum system logs (blank = never)")
+		self.vacuum_days   = NaturalField("vacuum_days", "The number of days to retain system logs for (1 through 365, only used if 'vacuum_time' is set)", 1, 365)
+		self.upgrade_time  = TimeField("upgrade_time", "The time of day to upgrade the system (blank = never)")
+		self.poweroff_time = TimeField("poweroff_time", "The time of day to power off the system (blank = never)")
+		self.idle_timeout  = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
+		self.orientation   = NaturalField("orientation", "Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
+		self.data_folder   = StringField("data_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
 
 	def check(self) -> List[str]:
 		result = []
+		if self.platform.data == "":
+			result.append("Warning: 'platform' value is missing from configuration")
 		if self.comment.data == "":
 			result.append("Warning: 'comment' value is missing from configuration")
 		if self.hostname.data == "":
@@ -313,6 +330,8 @@ class Setup(object):
 			result.append("Warning: 'locale' value is missing from configuration")
 		if self.website.data == "":
 			result.append("Warning: 'website' value is missing from configuration")
+		if self.sound_card.data == "":
+			result.append("Warning: 'sound_card' value is missing from configuration")
 		if self.user_name.data == "":
 			result.append("Warning: 'user_name' value is missing from configuration")
 		if self.user_code.data == "":
@@ -340,19 +359,19 @@ class Setup(object):
 
 			# Process unsupported section marker.
 			if line[0] == '[' and line[-1] == ']':
-				raise KioskError("Sections not supported in configuration (.cfg) file")
+				raise InputError("Sections not supported in configuration (.cfg) file")
 
 			# Parse name/data pair (name=data).
 			index = line.find('=')
 			if index == -1:
-				raise KioskError("Missing delimiter (=) in line: %s" % line)
+				raise InputError("Missing delimiter (=) in line: %s" % line)
 			( name, data ) = ( line[:index].strip(), line[index + 1:].strip() )
 
 			# Store the field.
 			try:
 				getattr(self, name).parse(data)
 			except AttributeError:
-				raise KioskError("Unknown setting in configuration file: %s" % name)
+				raise FieldError(name, "Unknown setting in configuration file: %s" % name)
 
 	def save(self, path : str, version : Version, edit : bool = True) -> None:
 		# Generate KioskSetup.cfg.
@@ -366,6 +385,9 @@ class Setup(object):
 			)
 
 			# Output the list of supported fields.
+			stream.write("# %s" % self.platform.text)
+			stream.write("platform=%s" % self.platform.data)
+
 			stream.write("# %s" % self.comment.text)
 			stream.write("comment=%s" % self.comment.data)
 
@@ -384,8 +406,11 @@ class Setup(object):
 			stream.write("# %s" % self.website.text)
 			stream.write("website=%s" % self.website.data)
 
-			stream.write("# %s" % self.audio.text)
-			stream.write("audio=%d" % self.audio.data)
+			stream.write("# %s" % self.sound_card.text)
+			stream.write("sound_card=%s" % self.sound_card.data)
+
+			stream.write("# %s" % self.sound_level.text)
+			stream.write("sound_level=%d" % self.sound_level.data)
 
 			stream.write("# %s" % self.mouse.text)
 			stream.write("mouse=%s" % ("1" if self.mouse.data else "0"))

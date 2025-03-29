@@ -31,10 +31,22 @@ class Error(Exception):
 
 
 class InputError(Error):
-	"""Exception thrown if the user enters invalid input."""
+	"""Base exception thrown if an error not related to a field occurs during input or output, otherwise a FieldError is thrown."""
 
 	def __init__(self, text : str) -> None:
 		Error.__init__(self, text)
+
+
+class FieldError(InputError):
+	"""Exception thrown if an input/output error is related to a particular option ("field")."""
+
+	def __init__(self, field : str, text : str) -> None:
+		InputError.__init__(self, text)
+		self.__field = field
+
+	@property
+	def field(self) -> str:
+		return self.__field
 
 
 class KioskError(Error):
