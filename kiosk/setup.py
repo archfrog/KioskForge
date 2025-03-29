@@ -30,152 +30,6 @@ from kiosk.logger import TextWriter
 from kiosk.version import Version
 
 
-class Field(object):
-	"""Base class for configuration fields; these are title/value pairs."""
-
-	def __init__(self, text : str) -> None:
-		self.__text = text
-
-	@property
-	def text(self) -> str:
-		return self.__text
-
-	def parse(self, data : str) -> None:
-		raise NotImplementedError("Abstract method called")
-
-
-class BooleanField(Field):
-	"""Derived class that implements a boolean field."""
-
-	def __init__(self, text : str) -> None:
-		Field.__init__(self, text)
-		self.__data = False
-
-	@property
-	def data(self) -> bool:
-		return self.__data
-
-	def parse(self, data : str) -> None:
-		if len(data) == 0:
-			raise InputError("Invalid value entered: %s " % data)
-
-		try:
-			self.__data = STRING_TO_BOOLEAN[data.lower()]
-		except KeyError:
-			raise InputError("Invalid value entered")
-		except ValueError as that:
-			raise InputError(str(that))
-
-
-class NaturalField(Field):
-	"""Derived class that implements a natural (unsigned integer) field."""
-
-	def __init__(self, text : str, lower : int, upper : int) -> None:
-		Field.__init__(self, text)
-		self.__data = 0
-		self.__lower = lower
-		self.__upper = upper
-
-	@property
-	def data(self) -> int:
-		return self.__data
-
-	def parse(self, data : str) -> None:
-		if not data or data[0] == '-':
-			raise InputError("Invalid value entered: %s " % data)
-
-		try:
-			value = int(data)
-
-			if value < self.__lower or value > self.__upper:
-				raise ValueError("Value outside bounds (%d through %d)" % (self.__lower, self.__upper))
-
-			self.__data = value
-		except ValueError as that:
-			raise InputError(str(that))
-
-
-class StringField(Field):
-	"""Derived class that implements a string field."""
-
-	def __init__(self, text : str) -> None:
-		Field.__init__(self, text)
-		self.__data = ""
-
-	@property
-	def data(self) -> str:
-		return self.__data
-
-	def parse(self, data : str) -> None:
-		self.__data = data
-
-
-class RegexField(StringField):
-	"""Derived class that implements a string field validated by a regular expression."""
-
-	def __init__(self, text : str, regex : str) -> None:
-		StringField.__init__(self, text)
-		self.__regex = regex
-
-	@property
-	def regex(self) -> str:
-		return self.__regex
-
-	def parse(self, data : str) -> None:
-		if not re.fullmatch(self.__regex, data):
-			raise KioskError("Invalid or incorrect value given: %s" % data)
-		StringField.parse(self, data)
-
-
-class PasswordField(StringField):
-	"""Derived class that checks a Linux password."""
-
-	def __init__(self, text : str) -> None:
-		StringField.__init__(self, text)
-
-	def parse(self, data : str) -> None:
-		# Report error if the password string is empty.
-		if data == "":
-			raise KioskError("Password cannot be empty")
-
-		# Disallow passwords starting with a dollar sign, including encrypted passwords.
-		if data[0] == '$':
-			raise KioskError("Password cannot begin with a dollar sign ($)")
-
-		# Apparently, the maximum length of an input password to 'bcrypt' is 72 characters.
-		if len(data) > 72:
-			raise KioskError("Password too long - cannot exceed 72 characters")
-
-		# Finally, store the encrypted password.
-		StringField.parse(self, data)
-
-
-class TimeField(StringField):
-	"""Derived class that implements a time (HH:MM) field."""
-
-	def __init__(self, text : str) -> None:
-		StringField.__init__(self, text)
-
-	def parse(self, data : str) -> None:
-		if data == "":
-			StringField.parse(self, data)
-			return
-
-		try:
-			# Let time.strptime() validate the time value.
-			time.strptime(data, "%H:%M")
-			StringField.parse(self, data)
-		except ValueError:
-			raise KioskError("Invalid time specification: %s" % data)
-
-
-class Record(object):
-	"""Simple class that allows constructing a tree of records to represent a configuration file."""
-
-	def __init__(self) -> None:
-		pass
-
-
 # The complete list of layouts supported by Ubuntu Server (from July, 2024).
 KEYBOARDS = {
 	"af"    : "Dari",
@@ -279,11 +133,149 @@ KEYBOARDS = {
 }
 
 
-class Setup(Record):
+class Field(object):
+	"""Base class for configuration fields; these are title/value pairs."""
+
+	def __init__(self, text : str) -> None:
+		self.__text = text
+
+	@property
+	def text(self) -> str:
+		return self.__text
+
+	def parse(self, data : str) -> None:
+		raise NotImplementedError("Abstract method called")
+
+
+class BooleanField(Field):
+	"""Derived class that implements a boolean field."""
+
+	def __init__(self, text : str) -> None:
+		Field.__init__(self, text)
+		self.__data = False
+
+	@property
+	def data(self) -> bool:
+		return self.__data
+
+	def parse(self, data : str) -> None:
+		if len(data) == 0:
+			raise InputError("Invalid value entered: %s " % data)
+
+		try:
+			self.__data = STRING_TO_BOOLEAN[data.lower()]
+		except KeyError:
+			raise InputError("Invalid value entered")
+		except ValueError as that:
+			raise InputError(str(that))
+
+
+class NaturalField(Field):
+	"""Derived class that implements a natural (unsigned integer) field."""
+
+	def __init__(self, text : str, lower : int, upper : int) -> None:
+		Field.__init__(self, text)
+		self.__data = 0
+		self.__lower = lower
+		self.__upper = upper
+
+	@property
+	def data(self) -> int:
+		return self.__data
+
+	def parse(self, data : str) -> None:
+		if not data or data[0] == '-':
+			raise InputError("Invalid value entered: %s " % data)
+
+		try:
+			value = int(data)
+
+			if value < self.__lower or value > self.__upper:
+				raise ValueError("Value outside bounds (%d through %d)" % (self.__lower, self.__upper))
+
+			self.__data = value
+		except ValueError as that:
+			raise InputError(str(that))
+
+
+class StringField(Field):
+	"""Derived class that implements a string field."""
+
+	def __init__(self, text : str) -> None:
+		Field.__init__(self, text)
+		self.__data = ""
+
+	@property
+	def data(self) -> str:
+		return self.__data
+
+	def parse(self, data : str) -> None:
+		self.__data = data
+
+
+class PasswordField(StringField):
+	"""Derived class that checks a Linux password."""
+
+	def __init__(self, text : str) -> None:
+		StringField.__init__(self, text)
+
+	def parse(self, data : str) -> None:
+		# Report error if the password string is empty.
+		if data == "":
+			raise KioskError("Password cannot be empty")
+
+		# Disallow passwords starting with a dollar sign, including encrypted passwords.
+		if data[0] == '$':
+			raise KioskError("Password cannot begin with a dollar sign ($)")
+
+		# Apparently, the maximum length of an input password to 'bcrypt' is 72 characters.
+		if len(data) > 72:
+			raise KioskError("Password too long - cannot exceed 72 characters")
+
+		# Finally, store the encrypted password.
+		StringField.parse(self, data)
+
+
+class RegexField(StringField):
+	"""Derived class that implements a string field validated by a regular expression."""
+
+	def __init__(self, text : str, regex : str) -> None:
+		StringField.__init__(self, text)
+		self.__regex = regex
+
+	@property
+	def regex(self) -> str:
+		return self.__regex
+
+	def parse(self, data : str) -> None:
+		if not re.fullmatch(self.__regex, data):
+			raise KioskError("Invalid or incorrect value given: %s" % data)
+		StringField.parse(self, data)
+
+
+class TimeField(StringField):
+	"""Derived class that implements a time (HH:MM) field."""
+
+	def __init__(self, text : str) -> None:
+		StringField.__init__(self, text)
+
+	def parse(self, data : str) -> None:
+		if data == "":
+			StringField.parse(self, data)
+			return
+
+		try:
+			# Let time.strptime() validate the time value.
+			time.strptime(data, "%H:%M")
+			StringField.parse(self, data)
+		except ValueError:
+			raise KioskError("Invalid time specification: %s" % data)
+
+
+class Setup(object):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
 	def __init__(self) -> None:
-		Record.__init__(self)
 		self.comment       = StringField("A descriptive comment for the kiosk machine.")
 		self.hostname      = RegexField("The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
 		self.timezone      = StringField("The time zone (e.g., 'Europe/Copenhagen').")
