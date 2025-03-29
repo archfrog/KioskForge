@@ -71,6 +71,7 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 
 | Name               | INI Field       | Type    | Description                                                                 |
 | ----------------   | --------------- | ------  | --------------------------------------------------------------------------- |
+| Device type        | `device`        | string  | One of `pi4`, `pi4b`, or `pc`.  NOTE: `pc` is currently broken!             |
 | Host name          | `hostname`      | string  | The unqualified domain name of the kiosk machine.                           |
 | Time zone          | `timezone`      | string  | The Linux-compatible time zone name (`CET` or `Europe/Copenhagen`).         |
 | Locale             | `locale`        | string  | The system locale (`da_DK.UTF-8` or a similar value).                       |
