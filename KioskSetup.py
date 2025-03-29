@@ -416,11 +416,11 @@ class KioskSetup(KioskDriver):
 			lines += '\t# Set default output device to %s.' % setup.sound_card.data
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
 			CARDS = {
-				'jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
-				'hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
-				'hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
+				'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
+				'pi4b.hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
+				'pi4b.hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
 			}
-			lines += '\tinvoke_text_safe("pactl set-default-sink %s")' % CARDS[setup.sound_card.data]
+			lines += '\tinvoke_text_safe("pactl set-default-sink %s")' % CARDS[setup.device.data + "." + setup.sound_card.data]
 			del CARDS
 			lines += ''
 			lines += '\t# Set the audio level to user-specified percentage on a logarithmic scale.'

@@ -289,7 +289,7 @@ class Setup(object):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
 	def __init__(self) -> None:
-		self.platform      = RegexField("platform", "The target platform type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
+		self.device        = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
 		self.comment       = StringField("comment", "A descriptive comment for the kiosk machine.")
 		self.hostname      = RegexField("hostname", "The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
 		self.timezone      = StringField("timezone", "The time zone (e.g., 'Europe/Copenhagen').")
@@ -316,8 +316,8 @@ class Setup(object):
 
 	def check(self) -> List[str]:
 		result = []
-		if self.platform.data == "":
-			result.append("Warning: 'platform' value is missing from configuration")
+		if self.device.data == "":
+			result.append("Warning: 'device' value is missing from configuration")
 		if self.comment.data == "":
 			result.append("Warning: 'comment' value is missing from configuration")
 		if self.hostname.data == "":
@@ -385,8 +385,8 @@ class Setup(object):
 			)
 
 			# Output the list of supported fields.
-			stream.write("# %s" % self.platform.text)
-			stream.write("platform=%s" % self.platform.data)
+			stream.write("# %s" % self.device.text)
+			stream.write("device=%s" % self.device.data)
 
 			stream.write("# %s" % self.comment.text)
 			stream.write("comment=%s" % self.comment.data)
