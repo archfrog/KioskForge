@@ -124,7 +124,7 @@ class Target(object):
 
 
 class Recognizer(object):
-	"""Simple base class that defines the layout of a recognizer that recognizes one or more target systems."""
+	"""Simple base class that defines the layout of a recognizer that identifiers one or more target Linux distributions."""
 
 	def __init__(self) -> None:
 		pass
