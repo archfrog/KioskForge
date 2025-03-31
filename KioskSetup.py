@@ -464,6 +464,7 @@ class KioskSetup(KioskDriver):
 
 				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
+				# NOTE: For this reason, we create a separate Python script, which is launched from OpenBox's autostart file.
 				lines  = TextBuilder()
 				lines += "#!/usr/bin/dash"
 				lines += "%s/KioskStart.py" % origin
@@ -492,6 +493,7 @@ class KioskSetup(KioskDriver):
 
 				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
+				# NOTE: For this reason, we create a separate Python script, which is launched from OpenBox's autostart file.
 				lines  = TextBuilder()
 				lines += "#!/usr/bin/dash"
 				lines += "%s/KioskStart.py" % origin
