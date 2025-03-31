@@ -211,7 +211,8 @@ class KioskSetup(KioskDriver):
 				"Creating systemd unit to disable WiFi power saving on every boot.",
 				"/usr/lib/systemd/system/kiosk-disable-wifi-power-saving.service",
 				"root",
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH,
+				# stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 				lines.text
 			)
 			del lines
@@ -303,50 +304,35 @@ class KioskSetup(KioskDriver):
 		script += UpgradeSystemAction()
 		script += UpgradeSnapsAction()
 
+		# Prepare for building the ad-hoc script KioskRunner.sh, which configures audio, launches X11, etc.
+		runner = TextBuilder()
+		runner += "#!/usr/bin/bash"
+		runner += "# Enable Bash extended error handling."
+		runner += "set -e"
+
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
 			# Install Pipewire AND pulseaudio-utils as the script 'KioskLaunchX11.py' uses 'pactl' from the latter package.
 			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
 
-			# Append lines to .bashrc to configure the Pipewire audio subsystem.
-			lines  = TextBuilder()
-			lines += "#!/usr/bin/env python3"
-			lines += ""
-			lines += "from kiosk.invoke import invoke_text"
-			lines += ''
-			lines += '# Set default output device to %s.' % setup.sound_card.data
+			# Append some lines to the runner script KioskRunner.sh.
+			runner += ""
+			runner += "# Pause for three seconds because pactl otherwise reports spurious errors."
+			runner += "sleep 3"
+			runner += ""
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
 			CARDS = {
 				'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
 				'pi4b.hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
 				'pi4b.hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
 			}
-			lines += "# For some bizarre reason, 'pactl' returns 1 on success (no error message is displayed): Ignore the result."
-			lines += 'invoke_text("pactl set-default-sink %s")' % CARDS[setup.device.data + "." + setup.sound_card.data]
+			runner += '# Set default output device to %s.' % setup.sound_card.data
+			runner += 'pactl set-default-sink %s' % CARDS[setup.device.data + "." + setup.sound_card.data]
 			del CARDS
-			lines += ''
-			lines += '# Set the audio level to user-specified percentage on a logarithmic scale.'
-			lines += 'invoke_text("wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f")' % (setup.sound_level.data / 100.0)
-			lines += ''
-			script += CreateTextWithUserAndModeAction(
-				"Creating KioskSound.py Pipewire configuration script.",
-				"%s/KioskSound.py" % origin,
-				setup.user_name.data,
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-				lines.text
-			)
-			del lines
-
-			lines  = TextBuilder()
-			lines += ""
-			lines += "# Configure Pipewire default device and volume."
-			lines += "%s/KioskSound.py" % origin
-			script += AppendTextAction(
-				"Starting KioskSound.py script configure the Pipewire audio subsystem at every login.",
-				"%s/.bashrc" % os.path.dirname(origin),
-				lines.text
-			)
+			runner += ''
+			runner += '# Set the audio level to user-specified percentage on a logarithmic scale.'
+			runner += 'wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f' % (setup.sound_level.data / 100.0)
 
 		# Configure the kiosk according to its type.
 		if setup.type.data in [ "x11", "web" ]:
@@ -423,17 +409,10 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
-			# Append lines to .bashrc to run the custom startup script at automatic login.
-			lines  = TextBuilder()
-			lines += ""
-			lines += "# Launch X11 and OpenBox into Kiosk mode."
-			lines += "%s/KioskLaunchX11.py" % origin
-			script += AppendTextAction(
-				"Starting X11 startup script at automatic login.",
-				"%s/.bashrc" % os.path.dirname(origin),
-				lines.text
-			)
-			del lines
+			# Append lines to the runner (KioskRunner.sh) to run the custom startup script at automatic login.
+			runner += ""
+			runner += "# Launch X11 and OpenBox into kiosk mode."
+			runner += "%s/KioskLaunchX11.py" % origin
 
 			if setup.type.data == "web":
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
@@ -480,17 +459,10 @@ class KioskSetup(KioskDriver):
 			elif setup.type.data == "x11":
 				raise InternalError("The type=x11 option is not supported yet")
 
-				# Append lines to .bashrc to run the custom startup script at automatic login.
-				lines  = TextBuilder()
-				lines += ""
-				lines += "# Launch the custom command upon starting X11."
-				lines += "%s/KioskLaunchX11.py" % origin
-				script += AppendTextAction(
-					"Starting X11 startup script at automatic login.",
-					"%s/.bashrc" % os.path.dirname(origin),
-					lines.text
-				)
-				del lines
+				# Append lines to the runner script to run the custom startup script at automatic login.
+				runner += ""
+				runner += "# Run custom command upon starting X11."
+				runner += "%s/KioskLaunchX11.py" % origin
 
 				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
@@ -507,40 +479,16 @@ class KioskSetup(KioskDriver):
 				)
 				del lines
 		elif setup.type.data == "cli":
-			# Append custom command to .bashrc.
-			lines  = TextBuilder()
-			lines += ""
-			lines += "# Execute the custom command provided to KioskForge (only if not an SSH connection)."
-			lines += "if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
-			lines += "\t" + setup.user_command.data
-			lines += "fi"
-			script += AppendTextAction(
-				"Appending custom command to .bashrc",
-				"%s/.bashrc" % os.path.dirname(origin),
-				lines.text
-			)
-			del lines
+			# Append custom command to the runner script (KioskRunner.sh).
+			runner += ""
+			runner += "# Execute the custom command provided by the user."
+			runner += setup.user_command.data
 		else:
 			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
 
 		# If the user_packages option is specified, install the extra package(s).
 		if setup.user_packages.data != "":
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
-
-		# Set up automatic login for the named user.
-		lines  = TextBuilder()
-		lines += "[Service]"
-		lines += "ExecStart="
-		lines += "ExecStart=-/sbin/agetty --noissue --autologin %s %%I $TERM" % setup.user_name.data
-		lines += "Type=simple"
-		script += CreateTextWithUserAndModeAction(
-			"Creating systemd auto-login script.",
-			"/etc/systemd/system/getty@tty1.service.d/override.conf",
-			"root",
-			stat.S_IRUSR | stat.S_IWUSR,
-			lines.text
-		)
-		del lines
 
 		# Instruct snap to only upgrade at the user-specified interval.
 		script += ExternalAction(
@@ -609,6 +557,45 @@ class KioskSetup(KioskDriver):
 				"/etc/fstab",
 				"/swapfile\tnone\tswap\tsw\t0\t0"
 			)
+
+		# Create runner script, KioskRunner.sh, from the lines accumulated in 'runner'.
+		script += CreateTextWithUserAndModeAction(
+			"Creating KioskRunner.sh script, which starts the kiosk itself.",
+			"%s/KioskRunner.sh" % origin,
+			setup.user_name.data,
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+			runner.text
+		)
+		del runner
+
+		# Append lines to .bashrc to execute the runner script if and only if we're not connecting using SSH.
+		lines  = TextBuilder()
+		lines += ""
+		lines += "# Execute the custom command provided to KioskForge (only if not connected via SSH)."
+		lines += r"if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
+		lines += "\t" + "%s/KioskRunner.sh" % origin
+		lines += "fi"
+		script += AppendTextAction(
+			"Appending invokation of KioskRunner.sh script to ~/.bashrc",
+			"%s/.bashrc" % os.path.dirname(origin),
+			lines.text
+		)
+		del lines
+
+		# Set up automatic login for the named user (I didn't manage to get a systemd service to work as intended...).
+		lines  = TextBuilder()
+		lines += "[Service]"
+		lines += "ExecStart="
+		lines += "ExecStart=-/sbin/agetty --noissue --autologin %s %%I $TERM" % setup.user_name.data
+		lines += "Type=simple"
+		script += CreateTextWithUserAndModeAction(
+			"Creating systemd auto-login script.",
+			"/etc/systemd/system/getty@tty1.service.d/override.conf",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR,
+			lines.text
+		)
+		del lines
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
