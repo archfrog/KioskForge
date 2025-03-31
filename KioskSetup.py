@@ -302,6 +302,10 @@ class KioskSetup(KioskDriver):
 		script += UpgradeSystemAction()
 		script += UpgradeSnapsAction()
 
+		# If the packages option is specified, install the extra package or packages.
+		if setup.user_packages.data != "":
+			script += InstallPackagesAction("Install user-specified (custom) packages", shlex.split(setup.user_packages.data))
+
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.

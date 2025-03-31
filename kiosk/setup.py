@@ -314,7 +314,8 @@ class Setup(object):
 		self.poweroff_time = TimeField("poweroff_time", "The time of day to power off the system (blank = never)")
 		self.idle_timeout  = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
 		self.orientation   = NaturalField("orientation", "Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
-		self.data_folder   = StringField("data_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
+		self.user_folder   = StringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
+		self.user_packages = StringField("user_packages", "A space-separated list of extra packages to install during the forging of the kiosk (blank = none")
 
 	def check(self) -> List[str]:
 		result = []
@@ -464,6 +465,9 @@ class Setup(object):
 			stream.write("# %s" % self.orientation.text)
 			stream.write("orientation=%d" % self.orientation.data)
 
-			stream.write("# %s" % self.data_folder.text)
-			stream.write("data_folder=%s" % self.data_folder.data)
+			stream.write("# %s" % self.user_folder.text)
+			stream.write("user_folder=%s" % self.user_folder.data)
+
+			stream.write("# %s" % self.user_packages.text)
+			stream.write("user_packages=%s" % self.user_packages.data)
 

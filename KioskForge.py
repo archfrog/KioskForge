@@ -495,11 +495,11 @@ class KioskForge(KioskDriver):
 			stream.write("- cp -pR %s/KioskForge %s" % (source, output))
 
 			# Copy user-supplied data folder to the target, if any.
-			if setup.data_folder.data:
-				data_folder = source + os.sep + os.path.split(setup.data_folder.data)[1]
-				data_folder = data_folder.replace('\\', '/')
-				stream.write("- cp -pR %s %s" % (data_folder, output))
-				del data_folder
+			if setup.user_folder.data:
+				user_folder = source + os.sep + os.path.split(setup.user_folder.data)[1]
+				user_folder = user_folder.replace('\\', '/')
+				stream.write("- cp -pR %s %s" % (user_folder, output))
+				del user_folder
 
 			stream.write("- chown -R %s:%s %s/KioskForge" % (setup.user_name.data, setup.user_name.data, output))
 			stream.write("- chmod -R u+x %s/KioskForge" % output)
@@ -697,9 +697,9 @@ class KioskForge(KioskDriver):
 			stream.write("- curtin in-target -- cp -pR %s/KioskForge %s" % (source, output))
 
 			# TODO: Copy user-supplied data folder to the target, if any.
-			if setup.data_folder.data:
-				raise InternalError("data_folder is not yet implemented for PC targets")
-				stream.write("- curtin in-target -- cp -pR %s %s" % (setup.data_folder.data, output))
+			if setup.user_folder.data:
+				raise InternalError("user_folder is not yet implemented for PC targets")
+				stream.write("- curtin in-target -- cp -pR %s %s" % (setup.user_folder.data, output))
 
 			# Continue the installation of the kiosk (late-commands is executed just before the system is rebooted).
 			stream.write("- %s/KioskForge/KioskSetup.y" % output)
@@ -908,11 +908,11 @@ class KioskForge(KioskDriver):
 					for file in ["KioskForge.py", "KioskSetup.py", "KioskStart.py"]:
 						shutil.copyfile(origin + os.sep + file, output + os.sep + file)
 					shutil.copytree(origin + os.sep + "kiosk", output + os.sep + "kiosk")
-					if setup.data_folder.data:
-						destination = target.basedir + os.sep + os.path.split(setup.data_folder.data)[1]
+					if setup.user_folder.data:
+						destination = target.basedir + os.sep + os.path.split(setup.user_folder.data)[1]
 						if os.path.isdir(destination):
 							shutil.rmtree(destination)
-						shutil.copytree(setup.data_folder.data, destination)
+						shutil.copytree(setup.user_folder.data, destination)
 						del destination
 
 					# Report success to the log.
