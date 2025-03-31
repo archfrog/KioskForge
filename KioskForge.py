@@ -351,7 +351,7 @@ class Editor(object):
 
 				break
 			except InputError as that:
-				raise KioskError("%s" % that.text)
+				raise KioskError(that.text)
 
 		return choice
 
@@ -773,7 +773,7 @@ class KioskForge(KioskDriver):
 					except FieldError as that:
 						raise KioskError("Invalid value entered for field %s: %s" % (that.field, that.text))
 					except InputError as that:
-						raise KioskError("%s" % that.text)
+						raise KioskError(that.text)
 					print()
 
 					changed = False

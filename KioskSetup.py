@@ -302,158 +302,225 @@ class KioskSetup(KioskDriver):
 		script += UpgradeSystemAction()
 		script += UpgradeSnapsAction()
 
-		# Install X Windows server and a window manager.
-		script += InstallPackagesNoRecommendsAction(
-			"Installing X Windows and OpenBox Window Manager.",
-			# NOTE: First element used to be 'xserver-xorg', then '"xserver-xorg-core', and no 'xorg'.
-			# NOTE: Changed because of unmet dependencies; i.e. apt suddenly wouldn't install it anymore.
-			["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
-		)
-
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
-			# Install Pipewire AND pulseaudio-utils as the script 'KioskLaunchX11.py' uses 'pactl' from that latter package.
+			# Install Pipewire AND pulseaudio-utils as the script 'KioskLaunchX11.py' uses 'pactl' from the latter package.
 			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
 
-		# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
-		script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
-
-		# ...Stop and disable the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
-		script += ExternalAction(
-			"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
-			"snap remove --purge cups"
-		)
-
-		# Write almost empty Chromium preferences file to disable translate.
-		lines = TextBuilder()
-		lines += '{"translate":{"enabled":false}}'
-		script += CreateTextWithUserAndModeAction(
-			"Disabling Translate feature in Chromium web browser.",
-			"%s/snap/chromium/common/chromium/Default/Preferences" % os.path.dirname(origin),
-			setup.user_name.data,
-			stat.S_IRUSR | stat.S_IWUSR,
-			lines.text
-		)
-		del lines
-
-		# Install 'xprintidle' used to detect X idle periods and restart the browser.
-		script += InstallPackagesNoRecommendsAction(
-			"Installing 'xprintidle' used to restart browser whenever idle timeout expires.",
-			["xprintidle"]
-		)
-
-		# Create X11 configuration file to rotate the TOUCH panel.  This does not affect the display itself (see KioskStart.py).
-		if setup.orientation.data != 0:
-			# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
-			matrices = {
-				0 : '1 0 0 0 1 0 0 0 1',
-				1 : '0 -1 1 1 0 0 0 0 1',
-				2 : '-1 0 1 0 -1 1 0 0 1',
-				3 : '0 1 0 -1 0 1 0 0 1'
-			}
-
-			# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf' to make X11 rotate the touch panel itself.
-			# Source: https://gist.github.com/autofyrsto/6daa5d41c7f742dd16c46c903ba15c8f
+			# Append lines to .bashrc to configure the Pipewire audio subsystem.
 			lines  = TextBuilder()
-			lines += 'Section "InputClass"'
-			lines += '\tIdentifier "Coordinate Transformation Matrix"'
-			lines += '\tMatchIsTouchscreen "on"'
-			lines += '\tMatchDevicePath "/dev/input/event*"'
-			lines += '\tMatchDriver "libinput"'
-			lines += '\tOption "CalibrationMatrix" "%s"' % matrices[setup.orientation.data]
-			lines += 'EndSection'
-			script += CreateTextWithUserAndModeAction(
-				"Creating X11 configuration file to rotate the touch panel.",
-				"/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf",
-				"root",
-				stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
-				lines.text
-			)
-			del lines
-			del matrices
-
-		# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
-		# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
-		lines  = TextBuilder()
-		lines += "#!/usr/bin/dash"
-		lines += "%s/KioskStart.py" % origin
-		script += CreateTextWithUserAndModeAction(
-			"Creating OpenBox startup script.",
-			"%s/.config/openbox/autostart" % os.path.dirname(origin),
-			setup.user_name.data,
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-			lines.text
-		)
-		del lines
-
-		# Create '~/KioskForge/KioskLaunchX11.sh' script for starting X/Windows and OpenBox.
-		# TODO: Rewrite in Python.
-		# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
-		lines  = TextBuilder()
-		lines += '#!/usr/bin/env python3'
-		lines += ''
-		lines += 'import os'
-		lines += 'import sys'
-		lines += 'import time'
-		lines += ''
-		lines += 'from kiosk.errors import KioskError'
-		lines += 'from kiosk.invoke import invoke_text_safe'
-		lines += ''
-		lines += '# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1.'
-		lines += '# Placed up front to avoid waiting (see "time.sleep" below) on every SSH login.'
-		lines += '# If the DISPLAY environment variable is defined then X11 is running.'
-		lines += 'if "DISPLAY" in os.environ or os.environ.get("XDG_VTNR") != "1":'
-		lines += '\tsys.exit(1)'
-		lines += ''
-		lines += '# Handle KioskError exception that MAY be thrown by "invoke_text_safe()"'
-		lines += 'try:'
-
-		if setup.sound_card.data != "none":
-			lines += '\t# Wait a bit because "pactl" fails with an error about unknown device if we do not.'
-			lines += '\ttime.sleep(2)'
+			lines += "#!/usr/bin/env python3"
+			lines += ""
+			lines += "from kiosk.invoke import invoke_text"
 			lines += ''
-			lines += '\t# Set default output device to %s.' % setup.sound_card.data
+			lines += '# Set default output device to %s.' % setup.sound_card.data
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
 			CARDS = {
 				'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
 				'pi4b.hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
 				'pi4b.hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
 			}
-			lines += '\tinvoke_text_safe("pactl set-default-sink %s")' % CARDS[setup.device.data + "." + setup.sound_card.data]
+			lines += "# For some bizarre reason, 'pactl' returns 1 on success (no error message is displayed): Ignore the result."
+			lines += 'invoke_text("pactl set-default-sink %s")' % CARDS[setup.device.data + "." + setup.sound_card.data]
 			del CARDS
 			lines += ''
-			lines += '\t# Set the audio level to user-specified percentage on a logarithmic scale.'
-			lines += '\tinvoke_text_safe("wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f"' % (setup.sound_level.data / 100.0)
+			lines += '# Set the audio level to user-specified percentage on a logarithmic scale.'
+			lines += 'invoke_text("wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f")' % (setup.sound_level.data / 100.0)
 			lines += ''
-		lines += '\t# Launch the X server, which launches `.config/openbox/autostart` to eventually launch Chromium in kiosk mode.'
-		lines += '\tinvoke_text_safe("startx%s")' % (" -- -nocursor" if not setup.mouse.data else "")
-		lines += 'except KioskError as that:'
-		lines += '\tprint("Error: %s" % that.text)'
-		lines += '\tsys.exit(1)'
-		lines += ''
-		lines += '# Signal success to the caller.'
-		lines += 'sys.exit(0)'
-		script += CreateTextWithUserAndModeAction(
-			"Creating Bash startup script.",
-			"%s/KioskLaunchX11.py" % origin,
-			setup.user_name.data,
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-			lines.text
-		)
-		del lines
+			script += CreateTextWithUserAndModeAction(
+				"Creating KioskSound.py Pipewire configuration script.",
+				"%s/KioskSound.py" % origin,
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+				lines.text
+			)
+			del lines
 
-		# Append lines to .bashrc to run the custom startup script at automatic login.
-		lines  = TextBuilder()
-		lines += ""
-		lines += "# Launch X11 and OpenBox into Kiosk mode."
-		lines += "%s/KioskLaunchX11.py" % origin
-		script += AppendTextAction(
-			"Starting X11 startup script at automatic login.",
-			"%s/.bashrc" % os.path.dirname(origin),
-			lines.text
-		)
-		del lines
+			lines  = TextBuilder()
+			lines += ""
+			lines += "# Configure Pipewire default device and volume."
+			lines += "%s/KioskSound.py" % origin
+			script += AppendTextAction(
+				"Starting KioskSound.py script configure the Pipewire audio subsystem at every login.",
+				"%s/.bashrc" % os.path.dirname(origin),
+				lines.text
+			)
+
+		# Configure the kiosk according to its type.
+		if setup.type.data in [ "x11", "web" ]:
+			# Create X11 configuration file to rotate the TOUCH panel.  This does not affect the display itself (see KioskStart.py).
+			if setup.orientation.data != 0:
+				# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
+				matrices = {
+					0 : '1 0 0 0 1 0 0 0 1',
+					1 : '0 -1 1 1 0 0 0 0 1',
+					2 : '-1 0 1 0 -1 1 0 0 1',
+					3 : '0 1 0 -1 0 1 0 0 1'
+				}
+
+				# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf' to make X11 rotate the touch panel itself.
+				# Source: https://gist.github.com/autofyrsto/6daa5d41c7f742dd16c46c903ba15c8f
+				lines  = TextBuilder()
+				lines += 'Section "InputClass"'
+				lines += '\tIdentifier "Coordinate Transformation Matrix"'
+				lines += '\tMatchIsTouchscreen "on"'
+				lines += '\tMatchDevicePath "/dev/input/event*"'
+				lines += '\tMatchDriver "libinput"'
+				lines += '\tOption "CalibrationMatrix" "%s"' % matrices[setup.orientation.data]
+				lines += 'EndSection'
+				script += CreateTextWithUserAndModeAction(
+					"Creating X11 configuration file to rotate the touch panel.",
+					"/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf",
+					"root",
+					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
+					lines.text
+				)
+				del lines
+				del matrices
+
+			# Install X Windows server and the OpenBox window manager.
+			script += InstallPackagesNoRecommendsAction(
+				"Installing X Windows and OpenBox window manager.",
+				# NOTE: First element used to be 'xserver-xorg', then '"xserver-xorg-core', and no 'xorg'.
+				# NOTE: Changed because of unmet dependencies; i.e. apt suddenly wouldn't install it anymore.
+				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
+			)
+
+			# Create '~/KioskForge/KioskLaunchX11.py' script for starting X/Windows and OpenBox.
+			# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
+			lines  = TextBuilder()
+			lines += '#!/usr/bin/env python3'
+			lines += ''
+			lines += 'import os'
+			lines += 'import sys'
+			lines += 'import time'
+			lines += ''
+			lines += 'from kiosk.errors import KioskError'
+			lines += 'from kiosk.invoke import invoke_text_safe'
+			lines += ''
+			lines += '# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1.'
+			lines += '# Placed up front to avoid waiting (see "time.sleep" below) on every SSH login.'
+			lines += '# If the DISPLAY environment variable is defined then X11 is running.'
+			lines += 'if os.environ.get("DISPLAY") or os.environ.get("XDG_VTNR") != "1":'
+			lines += '\tsys.exit(1)'
+			lines += ''
+			lines += '# Handle KioskError exception that MAY be thrown by "invoke_text_safe()"'
+			lines += 'try:'
+			lines += '\t# Launch the X server, which launches `.config/openbox/autostart` to eventually launch Chromium in kiosk mode.'
+			lines += '\tinvoke_text_safe("startx%s")' % (" -- -nocursor" if not setup.mouse.data else "")
+			lines += 'except KioskError as that:'
+			lines += '\tprint("Error: %s" % that.text)'
+			lines += '\tsys.exit(1)'
+			lines += ''
+			lines += '# Signal success to the caller.'
+			lines += 'sys.exit(0)'
+			script += CreateTextWithUserAndModeAction(
+				"Creating Bash startup script.",
+				"%s/KioskLaunchX11.py" % origin,
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+				lines.text
+			)
+			del lines
+
+			# Append lines to .bashrc to run the custom startup script at automatic login.
+			lines  = TextBuilder()
+			lines += ""
+			lines += "# Launch X11 and OpenBox into Kiosk mode."
+			lines += "%s/KioskLaunchX11.py" % origin
+			script += AppendTextAction(
+				"Starting X11 startup script at automatic login.",
+				"%s/.bashrc" % os.path.dirname(origin),
+				lines.text
+			)
+			del lines
+
+			if setup.type.data == "web":
+				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
+				script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
+
+				# ...Stop and disable the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
+				script += ExternalAction(
+					"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
+					"snap remove --purge cups"
+				)
+
+				# Write almost empty Chromium preferences file to disable translate.
+				lines = TextBuilder()
+				lines += '{"translate":{"enabled":false}}'
+				script += CreateTextWithUserAndModeAction(
+					"Disabling Translate feature in Chromium web browser.",
+					"%s/snap/chromium/common/chromium/Default/Preferences" % os.path.dirname(origin),
+					setup.user_name.data,
+					stat.S_IRUSR | stat.S_IWUSR,
+					lines.text
+				)
+				del lines
+
+				# Install 'xprintidle' used to detect X idle periods and restart the browser (required even if idle_timeout == 0).
+				script += InstallPackagesNoRecommendsAction(
+					"Installing 'xprintidle' used to restart browser whenever idle timeout expires.",
+					["xprintidle"]
+				)
+
+				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
+				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
+				lines  = TextBuilder()
+				lines += "#!/usr/bin/dash"
+				lines += "%s/KioskStart.py" % origin
+				script += CreateTextWithUserAndModeAction(
+					"Creating OpenBox startup script.",
+					"%s/.config/openbox/autostart" % os.path.dirname(origin),
+					setup.user_name.data,
+					stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+					lines.text
+				)
+				del lines
+			elif setup.type.data == "x11":
+				raise InternalError("Untested code")
+
+				# Append lines to .bashrc to run the custom startup script at automatic login.
+				lines  = TextBuilder()
+				lines += ""
+				lines += "# Launch the custom command upon starting X11."
+				lines += "%s/KioskLaunchX11.py" % origin
+				script += AppendTextAction(
+					"Starting X11 startup script at automatic login.",
+					"%s/.bashrc" % os.path.dirname(origin),
+					lines.text
+				)
+				del lines
+
+				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
+				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
+				lines  = TextBuilder()
+				lines += "#!/usr/bin/dash"
+				lines += "%s/KioskStart.py" % origin
+				script += CreateTextWithUserAndModeAction(
+					"Creating OpenBox startup script.",
+					"%s/.config/openbox/autostart" % os.path.dirname(origin),
+					setup.user_name.data,
+					stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+					lines.text
+				)
+				del lines
+		elif setup.type.data == "cli":
+			raise InternalError("Untested code")
+
+			# Append custom command to .bashrc.
+			lines  = TextBuilder()
+			lines += ""
+			lines += "# Execute the custom command provided to KioskForge."
+			lines += setup.command.data
+			script += AppendTextAction(
+				"Appending custom command to .bashrc",
+				"%s/.bashrc" % os.path.dirname(origin),
+				lines.text
+			)
+			del lines
+		else:
+			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
 
 		# Set up automatic login for the named user.
 		lines  = TextBuilder()

@@ -289,6 +289,8 @@ class Setup(object):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
 	def __init__(self) -> None:
+		self.type          = RegexField("type", "The type of kiosk to make: cli, x11 or web.", "(cli|x11|web)")
+		self.command       = StringField("command", "A command to run upon login if the kiosk type is x11 or cli.")
 		self.device        = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
 		self.comment       = StringField("comment", "A descriptive comment for the kiosk machine.")
 		self.hostname      = RegexField("hostname", "The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
@@ -316,32 +318,34 @@ class Setup(object):
 
 	def check(self) -> List[str]:
 		result = []
+		if self.type.data == "":
+			result.append("Warning: 'type' value not specified")
 		if self.device.data == "":
-			result.append("Warning: 'device' value is missing from configuration")
+			result.append("Warning: 'device' value not specified")
 		if self.comment.data == "":
-			result.append("Warning: 'comment' value is missing from configuration")
+			result.append("Warning: 'comment' value not specified")
 		if self.hostname.data == "":
-			result.append("Warning: 'hostname' value is missing from configuration")
+			result.append("Warning: 'hostname' value not specified")
 		if self.timezone.data == "":
-			result.append("Warning: 'timezone' value is missing from configuration")
+			result.append("Warning: 'timezone' value not specified")
 		if self.keyboard.data == "":
-			result.append("Warning: 'keyboard' value is missing from configuration")
+			result.append("Warning: 'keyboard' value not specified")
 		if self.locale.data == "":
-			result.append("Warning: 'locale' value is missing from configuration")
+			result.append("Warning: 'locale' value not specified")
 		if self.website.data == "":
-			result.append("Warning: 'website' value is missing from configuration")
+			result.append("Warning: 'website' value not specified")
 		if self.sound_card.data == "":
-			result.append("Warning: 'sound_card' value is missing from configuration")
+			result.append("Warning: 'sound_card' value not specified")
 		if self.user_name.data == "":
-			result.append("Warning: 'user_name' value is missing from configuration")
+			result.append("Warning: 'user_name' value not specified")
 		if self.user_code.data == "":
-			result.append("Warning: 'user_code' value is missing from configuration")
+			result.append("Warning: 'user_code' value not specified")
 		if self.ssh_key.data == "":
-			result.append("Warning: 'ssh_key' value is missing from configuration")
+			result.append("Warning: 'ssh_key' value not specified")
 		if self.wifi_name.data != "" and self.wifi_code.data == "":
-			result.append("Warning: 'wifi_code' value is missing from configuration")
+			result.append("Warning: 'wifi_code' value not specified")
 		if self.snap_time.data == "":
-			result.append("Warning: 'snap_time' value is missing from configuration")
+			result.append("Warning: 'snap_time' value not specified")
 		return result
 
 	def load(self, path : str) -> None:
@@ -385,11 +389,20 @@ class Setup(object):
 			)
 
 			# Output the list of supported fields.
+			stream.write("# %s" % self.comment.text)
+			stream.write("comment=%s" % self.comment.data)
+
+			stream.write("# %s" % self.type.text)
+			stream.write("type=%s" % self.type.data)
+
 			stream.write("# %s" % self.device.text)
 			stream.write("device=%s" % self.device.data)
 
-			stream.write("# %s" % self.comment.text)
-			stream.write("comment=%s" % self.comment.data)
+			stream.write("# %s" % self.command.text)
+			stream.write("command=%s" % self.command.data)
+
+			stream.write("# %s" % self.website.text)
+			stream.write("website=%s" % self.website.data)
 
 			stream.write("# %s" % self.hostname.text)
 			stream.write("hostname=%s" % self.hostname.data)
@@ -402,9 +415,6 @@ class Setup(object):
 
 			stream.write("# %s" % self.keyboard.text)
 			stream.write("keyboard=%s" % self.keyboard.data)
-
-			stream.write("# %s" % self.website.text)
-			stream.write("website=%s" % self.website.data)
 
 			stream.write("# %s" % self.sound_card.text)
 			stream.write("sound_card=%s" % self.sound_card.data)
