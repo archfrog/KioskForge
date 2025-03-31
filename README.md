@@ -110,6 +110,11 @@ KioskForge is a simple application that allows you to create, load, edit, and sa
 that defines the kiosk and what it is supposed to do.  After that, you can choose to *update* an installation media to apply the
 configuration during installation.
 
+**NOTE**: The kiosk MUST be connected to the internet while it is being forged!
+
+After that, it doesn't have to although it is strongly recommended that it is permanently on the internet so that it can update
+Chromium, etc.
+
 As of now, the procedure is as follows:
 
 1. Create an appropriate `Ubuntu Server 24.04.2` installation media (a USB key or a MicroSD card) using
