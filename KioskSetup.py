@@ -400,8 +400,6 @@ class KioskSetup(KioskDriver):
 			lines += 'from kiosk.invoke import invoke_text_safe'
 			lines += ''
 			lines += '# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1.'
-			lines += '# Placed up front to avoid waiting (see "time.sleep" below) on every SSH login.'
-			lines += '# If the DISPLAY environment variable is defined then X11 is running.'
 			lines += 'if os.environ.get("DISPLAY") or os.environ.get("XDG_VTNR") != "1":'
 			lines += '\tsys.exit(1)'
 			lines += ''
