@@ -510,8 +510,6 @@ class KioskSetup(KioskDriver):
 				)
 				del lines
 		elif setup.type.data == "cli":
-			raise InternalError("Untested code")
-
 			# Append custom command to .bashrc.
 			lines  = TextBuilder()
 			lines += ""
