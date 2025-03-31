@@ -514,7 +514,7 @@ class KioskSetup(KioskDriver):
 			lines  = TextBuilder()
 			lines += ""
 			lines += "# Execute the custom command provided to KioskForge."
-			lines += setup.command.data
+			lines += setup.user_command.data
 			script += AppendTextAction(
 				"Appending custom command to .bashrc",
 				"%s/.bashrc" % os.path.dirname(origin),

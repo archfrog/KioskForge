@@ -290,7 +290,6 @@ class Setup(object):
 
 	def __init__(self) -> None:
 		self.type          = RegexField("type", "The type of kiosk to make: cli, x11 or web.", "(cli|x11|web)")
-		self.command       = StringField("command", "A command to run upon login if the kiosk type is x11 or cli.")
 		self.device        = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
 		self.comment       = StringField("comment", "A descriptive comment for the kiosk machine.")
 		self.hostname      = RegexField("hostname", "The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
@@ -316,6 +315,7 @@ class Setup(object):
 		self.orientation   = NaturalField("orientation", "Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
 		self.user_folder   = StringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
 		self.user_packages = StringField("user_packages", "A space-separated list of extra packages to install during the forging of the kiosk (blank = none")
+		self.user_command  = StringField("user_command", "A command to run upon login if the kiosk type is x11 or cli.")
 
 	def check(self) -> List[str]:
 		result = []
@@ -399,9 +399,6 @@ class Setup(object):
 			stream.write("# %s" % self.device.text)
 			stream.write("device=%s" % self.device.data)
 
-			stream.write("# %s" % self.command.text)
-			stream.write("command=%s" % self.command.data)
-
 			stream.write("# %s" % self.website.text)
 			stream.write("website=%s" % self.website.data)
 
@@ -470,4 +467,8 @@ class Setup(object):
 
 			stream.write("# %s" % self.user_packages.text)
 			stream.write("user_packages=%s" % self.user_packages.data)
+
+			stream.write("# %s" % self.user_command.text)
+			stream.write("user_command=%s" % self.user_command.data)
+
 

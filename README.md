@@ -95,6 +95,7 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Screen orientation | `orientation`   | integer | 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right.         |
 | User folder        | `user_folder`   | string  | A folder to copy to `~` on the kiosk.  Useful for local websites and scripts. |
 | User packages      | `user_packages` | string  | A space-separated list of packages to install while forging the kiosk.        |
+| User command       | `user_command`  | string  | A Bash command to invoke from .bashrc (only for `cli` and `x11` kiosks.)      |
 
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
 basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself.
