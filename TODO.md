@@ -107,8 +107,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
                          https://forums.raspberrypi.com/viewtopic.php?p=1979825#p1979542
 - [ ] 2025.03.09.05.18 L Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.  Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
+                         PyPy cannot easily generate stand-alone executables so `PyInstaller` is better for now.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
-                         This could, perhaps, be done by sawing a list of already performed steps or by adding a feature to undo a
+                         This could, perhaps, be done by saving a list of already performed steps or by adding a feature to undo a
 						 step that has already been done, although this is a more complicated than just skipping successful steps.
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
