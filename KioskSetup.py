@@ -303,10 +303,6 @@ class KioskSetup(KioskDriver):
 		script += UpgradeSystemAction()
 		script += UpgradeSnapsAction()
 
-		# If the packages option is specified, install the extra package or packages.
-		if setup.user_packages.data != "":
-			script += InstallPackagesAction("Install user-specified (custom) packages", shlex.split(setup.user_packages.data))
-
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
@@ -482,7 +478,7 @@ class KioskSetup(KioskDriver):
 				)
 				del lines
 			elif setup.type.data == "x11":
-				raise InternalError("Untested code")
+				raise InternalError("The type=x11 option is not supported yet")
 
 				# Append lines to .bashrc to run the custom startup script at automatic login.
 				lines  = TextBuilder()
@@ -524,6 +520,10 @@ class KioskSetup(KioskDriver):
 			del lines
 		else:
 			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
+
+		# If the user_packages option is specified, install the extra package(s).
+		if setup.user_packages.data != "":
+			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
 
 		# Set up automatic login for the named user.
 		lines  = TextBuilder()
