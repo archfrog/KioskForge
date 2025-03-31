@@ -904,8 +904,8 @@ class KioskForge(KioskDriver):
 					# Write configuration to the target.
 					setup.save(output + os.sep + "KioskForge.cfg", self.version, False)
 
-					# Copy KioskForge files to the installation medium.
-					for file in ["KioskSetup.py", "KioskStart.py"]:
+					# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
+					for file in ["KioskForge.py", "KioskSetup.py", "KioskStart.py"]:
 						shutil.copyfile(origin + os.sep + file, output + os.sep + file)
 					shutil.copytree(origin + os.sep + "kiosk", output + os.sep + "kiosk")
 					if setup.data_folder.data:
