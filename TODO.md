@@ -21,6 +21,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.03.31.22.00 H It may be useful to start the kiosk using a systemd job instead of through `.bashrc`.  This would fix the
+                         problem that the kiosk is started twice if you SSH into the kiosk machine.
 - [ ] 2025.03.31.20.31 H Handle the case that the kiosk has no internet graciously!  Internet is required for the forge process.
                          Check if the cron update jobs fail or what happens.  They should fail with no further ado.
 - [ ] 2025.03.31.16.20 H Rename `KioskStart.py` to something better, `OpenBox-autostart.py` for instance.

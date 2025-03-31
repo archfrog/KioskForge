@@ -510,8 +510,10 @@ class KioskSetup(KioskDriver):
 			# Append custom command to .bashrc.
 			lines  = TextBuilder()
 			lines += ""
-			lines += "# Execute the custom command provided to KioskForge."
-			lines += setup.user_command.data
+			lines += "# Execute the custom command provided to KioskForge (only if not an SSH connection)."
+			lines += "if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
+			lines += "\t" + setup.user_command.data
+			lines += "fi"
 			script += AppendTextAction(
 				"Appending custom command to .bashrc",
 				"%s/.bashrc" % os.path.dirname(origin),
