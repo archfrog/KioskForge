@@ -33,7 +33,7 @@ from kiosk.invoke import invoke_text, Result
 class Action(object):
 	"""An action is something that must be done during the execution of a script.
 
-		A prefix of 'Try' indicates that the command does not fail if it cannot perform the requested operation (rare).
+	   A prefix of 'Try' indicates that the command does not fail if it cannot perform the requested operation (rare).
 	"""
 
 	def __init__(self, title : str) -> None:
