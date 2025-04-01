@@ -106,7 +106,7 @@ class KioskStart(KioskDriver):
 			command += "--disable-restore-session-state"
 			command += "--disable-infobars"
 			command += "--disable-crashpad"
-			command += "'%s'" % setup.command.data
+			command += "%s" % setup.command.data
 			cmdlist  = command.list
 			del command
 
