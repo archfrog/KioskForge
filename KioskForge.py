@@ -43,7 +43,7 @@ import time
 import types
 
 from kiosk.builder import TextBuilder
-from kiosk.convert import STRING_TO_BOOLEAN
+from kiosk.convert import BOOLEANS
 from kiosk.driver import KioskDriver
 from kiosk.errors import *
 from kiosk.logger import Logger, TextWriter
@@ -279,9 +279,9 @@ class Editor(object):
 
 	def confirm(self, question : str) -> bool:
 		answer = ""
-		while answer not in STRING_TO_BOOLEAN:
+		while answer not in BOOLEANS:
 			answer = input(question + " (y/n)? ").strip().lower()
-		return STRING_TO_BOOLEAN[answer]
+		return BOOLEANS[answer]
 
 	def edit(self, setup : Setup) -> bool:
 		changed = False
