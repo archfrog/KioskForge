@@ -178,14 +178,14 @@ class Setup(object):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
 	def __init__(self) -> None:
-		self.type          = RegexField("type", "The type of kiosk to make: cli, x11 or web.", "(cli|x11|web)")
-		self.device        = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
 		self.comment       = StringField("comment", "A descriptive comment for the kiosk machine.")
+		self.device        = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
+		self.type          = RegexField("type", "The type of kiosk to make: cli, x11 or web.", "(cli|x11|web)")
+		self.command       = StringField("command", "An URL to display (type: web) or a command to run upon login (type: cli or x11).")
 		self.hostname      = RegexField("hostname", "The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
 		self.timezone      = StringField("timezone", "The time zone (e.g., 'Europe/Copenhagen').")
 		self.keyboard      = RegexField("keyboard", "The keyboard layout (e.g., 'dk').", KEYBOARD_REGEX)
 		self.locale        = StringField("locale", "The locale (e.g., 'da_DK.UTF-8').")
-		self.website       = StringField("website", "The URL (e.g., 'https://google.com').")
 		self.sound_card    = RegexField("sound_card", "The sound card to use (pi4+: none, jack, hdmi1, or hdmi2).", "(none|jack|hdmi1|hdmi2)")
 		self.sound_level   = NaturalField("sound_level", "The logarithmic audio level (0 through 100, only valid if 'sound_card' is not 'none').", 0, 100)
 		self.mouse         = BooleanField("mouse", "If the mouse should be enabled (y/n or 1/0).")
@@ -203,17 +203,18 @@ class Setup(object):
 		self.idle_timeout  = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
 		self.orientation   = NaturalField("orientation", "Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
 		self.user_folder   = StringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
-		self.user_packages = StringField("user_packages", "A space-separated list of extra packages to install during the forging of the kiosk (blank = none")
-		self.user_command  = StringField("user_command", "A command to run upon login if the kiosk type is x11 or cli.")
+		self.user_packages = StringField("user_packages", "A space-separated list of extra packages to install while forging of the kiosk (blank = none")
 
 	def check(self) -> List[str]:
 		result = []
-		if self.type.data == "":
-			result.append("Warning: 'type' value not specified")
-		if self.device.data == "":
-			result.append("Warning: 'device' value not specified")
 		if self.comment.data == "":
 			result.append("Warning: 'comment' value not specified")
+		if self.device.data == "":
+			result.append("Warning: 'device' value not specified")
+		if self.type.data == "":
+			result.append("Warning: 'type' value not specified")
+		if self.command.data == "":
+			result.append("Warning: 'command' value not specified")
 		if self.hostname.data == "":
 			result.append("Warning: 'hostname' value not specified")
 		if self.timezone.data == "":
@@ -222,8 +223,6 @@ class Setup(object):
 			result.append("Warning: 'keyboard' value not specified")
 		if self.locale.data == "":
 			result.append("Warning: 'locale' value not specified")
-		if self.website.data == "":
-			result.append("Warning: 'website' value not specified")
 		if self.sound_card.data == "":
 			result.append("Warning: 'sound_card' value not specified")
 		if self.user_name.data == "":
@@ -282,14 +281,14 @@ class Setup(object):
 			stream.write("# %s" % self.comment.text)
 			stream.write("comment=%s" % self.comment.data)
 
-			stream.write("# %s" % self.type.text)
-			stream.write("type=%s" % self.type.data)
-
 			stream.write("# %s" % self.device.text)
 			stream.write("device=%s" % self.device.data)
 
-			stream.write("# %s" % self.website.text)
-			stream.write("website=%s" % self.website.data)
+			stream.write("# %s" % self.type.text)
+			stream.write("type=%s" % self.type.data)
+
+			stream.write("# %s" % self.command.text)
+			stream.write("command=%s" % self.command.data)
 
 			stream.write("# %s" % self.hostname.text)
 			stream.write("hostname=%s" % self.hostname.data)
@@ -356,8 +355,4 @@ class Setup(object):
 
 			stream.write("# %s" % self.user_packages.text)
 			stream.write("user_packages=%s" % self.user_packages.data)
-
-			stream.write("# %s" % self.user_command.text)
-			stream.write("user_command=%s" % self.user_command.data)
-
 

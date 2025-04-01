@@ -482,7 +482,7 @@ class KioskSetup(KioskDriver):
 			# Append custom command to the runner script (KioskRunner.sh).
 			runner += ""
 			runner += "# Execute the custom command provided by the user."
-			runner += setup.user_command.data
+			runner += setup.command.data
 		else:
 			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
 
