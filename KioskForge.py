@@ -18,12 +18,12 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# Script that converts an Ubuntu Server box into a kiosk machine that displays the specified URL in kiosk mode using Chromium.
+# The main driver script for configuring and preparing a Linux installation medium for forging a kiosk from scratch.
 #
 # Notes:
-#	1. This script assumes a clean installation with no modifications whatsoever prior to it being invoked.  As such, it can
-#	   "safely" abort upon errors as the user can simply re-flash his system using Raspberry Pi Imager once again.  There are no
-#	   features to safely roll back the changes made during the customization of the system for kiosk mode usage!
+#	1. This script assumes a clean installation medium with no modifications whatsoever prior to it being invoked.  As such, it
+#      can "safely" abort upon errors as the user can simply re-flash his system using Raspberry Pi Imager once again.  There are
+#      no features to safely roll back the changes made during the customization of the system for kiosk mode usage!
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import Any, Dict, List, Optional, TextIO, Tuple
