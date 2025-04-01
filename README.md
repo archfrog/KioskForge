@@ -69,10 +69,12 @@ submit a pull request.  Please make sure that the result generates a valid, reli
 ## Configuration
 Customization of the target kiosk machine can be done using `KioskForge.py` or using an editor to create an INI-style file:
 
-| Name               | INI Field       | Type    | Description                                                                   |
+| Name               | Option name     | Type    | Description                                                                   |
 | ----------------   | --------------- | ------  | ----------------------------------------------------------------------------- |
-| Kiosk type         | `type`          | string  | One of `cli`, `x11`, or `web`.  Only `web` is supported currently.            |
+| Comment            | `comment`       | string  | A string describing the kiosk and its purpose (for your records).             |
 | Device type        | `device`        | string  | One of `pi4`, `pi4b`, or `pc`.  NOTE: `pc` is currently broken!               |
+| Kiosk type         | `type`          | string  | One of `cli`, `x11`, or `web`.  Only `web` is supported currently.            |
+| Command            | `command`       | string  | An URL to open (type: web) or a command to run (type: cli/x11).               |
 | Host name          | `hostname`      | string  | The unqualified domain name of the kiosk machine.                             |
 | Time zone          | `timezone`      | string  | The Linux-compatible time zone name (`CET` or `Europe/Copenhagen`).           |
 | Locale             | `locale`        | string  | The system locale (`da_DK.UTF-8` or a similar value).                         |
@@ -95,7 +97,6 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Screen orientation | `orientation`   | integer | 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right.         |
 | User folder        | `user_folder`   | string  | A folder to copy to `~` on the kiosk.  Useful for local websites and scripts. |
 | User packages      | `user_packages` | string  | A space-separated list of packages to install while forging the kiosk.        |
-| User command       | `user_command`  | string  | A Bash command to invoke from .bashrc (only for `cli` and `x11` kiosks.)      |
 
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
 basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself.
