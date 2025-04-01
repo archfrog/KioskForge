@@ -24,10 +24,10 @@ from typing import List
 import re
 import time
 
-from kiosk.convert import BOOLEANS, KEYBOARD_REGEX
-from kiosk.errors import *
-from kiosk.logger import TextWriter
-from kiosk.version import Version
+from toolbox.convert import BOOLEANS, KEYBOARD_REGEX
+from toolbox.errors import *
+from toolbox.logger import TextWriter
+from toolbox.version import Version
 
 
 class Field(object):

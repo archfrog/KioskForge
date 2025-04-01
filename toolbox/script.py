@@ -19,50 +19,55 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+from typing import Any, List
 
-import shlex
-import subprocess
+from toolbox.actions import Action
+from toolbox.errors import ArgumentError, InternalError, KioskError
+from toolbox.invoke import Result
+from toolbox.logger import Logger
 
-from kiosk.errors import KioskError
+class Script(object):
+	"""Simple abstraction of a sequence of actions that can be resumed from any point in the list of actions."""
+
+	def __init__(self, logger : Logger, resume : int) -> None:
+		self.__actions : List[Action] = []
+		self.__logger = logger
+		self.__resume = resume
+
+	def __iadd__(self, action : Action) -> Any:
+		"""Overload the += operator to make it convenient to add new script actions (cannot use '-> Script' so '-> Any' it is)."""
+
+		# Check that the action hasn't already been added to the script.
+		if action in self.__actions:
+			raise InternalError("Action was added twice: %s" % action)
+
+		# Add the action to the script to be executed.
+		self.__actions.append(action)
+
+		return self
+
+	def execute(self) -> Result:
+		result = Result()
+
+		if self.__resume >= len(self.__actions):
+			raise ArgumentError(0, "Resume offset greater than total number of actions")
+
+		# Execute each action in turn while handling exceptions and failures.
+		index = self.__resume
+		for action in self.__actions[self.__resume:]:
+			try:
+				self.__logger.write("%4d %s" % (index, action.title))
+				index += 1
+
+				result = action.execute()
+				if result.status != 0:
+					self.__logger.error(result.output)
+					self.__logger.error("**** SCRIPT ABORTED DUE TO ABOVE ERROR ****")
+					break
+			except (KioskError, InternalError) as that:
+				result = Result(1, that.text)
+
+		return result
 
 
-class Result(object):
-	"""The result (status code, output) of an action."""
-
-	def __init__(self, status : int = 0, output : str = "") -> None:
-		self.__status = status
-		self.__output = output
-
-	@property
-	def status(self) -> int:
-		return self.__status
-
-	@property
-	def output(self) -> str:
-		return self.__output
-
-
-# Global function to invoke an external program and return a 'Result' instance with the program's exit code and output.
-def invoke_list(command : List[str]) -> Result:
-	# Capture stderr and stdout interleaved in the same output string by using stderr=...STDOUT and stdout=...PIPE.
-	result = subprocess.run(command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, check=False, shell=False, text=False)
-	output = result.stdout.decode('utf-8')
-	return Result(result.returncode, output)
-
-# invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
-def invoke_list_safe(command : List[str]) -> None:
-	result = invoke_list(command)
-	if result.status != 0:
-		raise KioskError(result.output)
-
-# Alias for 'invoke_list' that asks 'shlex.split()' to split a single string command into its equivalent list of tokens.
-def invoke_text(command : str) -> Result:
-	return invoke_list(shlex.split(command))
-
-# invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
-def invoke_text_safe(command : str) -> None:
-	result = invoke_text(command)
-	if result.status != 0:
-		raise KioskError(result.output)
 

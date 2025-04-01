@@ -42,16 +42,15 @@ import sys
 import time
 import types
 
-from kiosk.builder import TextBuilder
-from kiosk.convert import BOOLEANS
-from kiosk.driver import KioskDriver
-from kiosk.errors import *
-from kiosk.logger import Logger, TextWriter
-from kiosk.invoke import Result
-from kiosk.setup import *
+from toolbox.builder import TextBuilder
+from toolbox.convert import BOOLEANS
+from toolbox.driver import KioskDriver
+from toolbox.errors import *
+from toolbox.logger import Logger, TextWriter
+from toolbox.invoke import Result
+from toolbox.setup import *
 # Import COMPANY, CONTACT, TESTING, and VERSION global constants.
-# TODO: Make the 'kiosk.version.*' "constants" readonly somehow.
-from kiosk.version import *
+from toolbox.version import *
 
 
 # Try to import bcrypt.  If not found, try to silently install it and try to import it once more.
@@ -905,9 +904,12 @@ class KioskForge(KioskDriver):
 					setup.save(output + os.sep + "KioskForge.cfg", self.version, False)
 
 					# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-					for file in ["KioskForge.py", "KioskSetup.py", "KioskStart.py"]:
-						shutil.copyfile(origin + os.sep + file, output + os.sep + file)
-					shutil.copytree(origin + os.sep + "kiosk", output + os.sep + "kiosk")
+					for name in ["KioskForge.py", "KioskSetup.py", "KioskStart.py", "toolbox"]:
+						if os.path.isfile(origin + os.sep + name):
+							shutil.copyfile(origin + os.sep + name, output + os.sep + name)
+						else:
+							shutil.copytree(origin + os.sep + name, output + os.sep + name)
+
 					if setup.user_folder.data:
 						destination = target.basedir + os.sep + os.path.split(setup.user_folder.data)[1]
 						if os.path.isdir(destination):

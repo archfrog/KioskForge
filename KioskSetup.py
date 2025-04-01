@@ -30,16 +30,16 @@ import stat
 import sys
 import time
 
-from kiosk.actions import *
-from kiosk.builder import TextBuilder
-from kiosk.driver import KioskDriver
-from kiosk.errors import *
-from kiosk.internet import internet_active
-from kiosk.invoke import invoke_text, Result
-from kiosk.logger import Logger
-from kiosk.setup import Setup
-from kiosk.script import Script
-from kiosk.version import *
+from toolbox.actions import *
+from toolbox.builder import TextBuilder
+from toolbox.driver import KioskDriver
+from toolbox.errors import *
+from toolbox.internet import internet_active
+from toolbox.invoke import invoke_text, Result
+from toolbox.logger import Logger
+from toolbox.setup import Setup
+from toolbox.script import Script
+from toolbox.version import *
 
 
 class KioskSetup(KioskDriver):
@@ -383,8 +383,8 @@ class KioskSetup(KioskDriver):
 			lines += 'import sys'
 			lines += 'import time'
 			lines += ''
-			lines += 'from kiosk.errors import KioskError'
-			lines += 'from kiosk.invoke import invoke_text_safe'
+			lines += 'from toolbox.errors import KioskError'
+			lines += 'from toolbox.invoke import invoke_text_safe'
 			lines += ''
 			lines += '# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1.'
 			lines += 'if os.environ.get("DISPLAY") or os.environ.get("XDG_VTNR") != "1":'

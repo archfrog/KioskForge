@@ -27,8 +27,9 @@ import shutil
 import stat
 import time
 
-from kiosk.errors import *
-from kiosk.invoke import invoke_text, Result
+from toolbox.errors import *
+from toolbox.invoke import invoke_text, Result
+
 
 class Action(object):
 	"""An action is something that must be done during the execution of a script.

@@ -31,13 +31,13 @@ import subprocess
 import sys
 import time
 
-from kiosk.builder import TextBuilder
-from kiosk.driver import KioskDriver
-from kiosk.errors import *
-from kiosk.invoke import invoke_text
-from kiosk.logger import Logger
-from kiosk.setup import *
-from kiosk.version import *
+from toolbox.builder import TextBuilder
+from toolbox.driver import KioskDriver
+from toolbox.errors import *
+from toolbox.invoke import invoke_text
+from toolbox.logger import Logger
+from toolbox.setup import *
+from toolbox.version import *
 
 
 class KioskStart(KioskDriver):

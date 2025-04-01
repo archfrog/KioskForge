@@ -26,8 +26,8 @@ import os
 import platform
 import sys
 
-from kiosk.errors import *
-from kiosk.logger import Logger
+from toolbox.errors import *
+from toolbox.logger import Logger
 
 # Standard, C-like exit code definitions.
 EXIT_SUCCESS = os.EX_OK
