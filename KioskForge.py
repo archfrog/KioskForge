@@ -306,7 +306,7 @@ class Editor(object):
 				if choice == 0 or choice > index:
 					raise InputError("Enter a valid number in the range 1 through %d" % index)
 
-				print("Hint: %s" % getattr(setup, names[choice]).text)
+				print("Hint: %s" % getattr(setup, names[choice]).hint)
 				value = input("Enter new value (ENTER to leave unchanged): ").strip()
 				if value == "":
 					break

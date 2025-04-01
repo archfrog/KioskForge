@@ -31,19 +31,19 @@ from toolbox.version import Version
 
 
 class Field(object):
-	"""Base class for configuration fields; these are title/value pairs."""
+	"""Base class for configuration fields; these are name/data pairs."""
 
-	def __init__(self, name : str, text : str) -> None:
+	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
-		self.__text = text
+		self.__hint = hint
+
+	@property
+	def hint(self) -> str:
+		return self.__hint
 
 	@property
 	def name(self) -> str:
 		return self.__name
-
-	@property
-	def text(self) -> str:
-		return self.__text
 
 	def parse(self, data : str) -> None:
 		raise NotImplementedError("Abstract method called")
@@ -52,8 +52,8 @@ class Field(object):
 class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
-	def __init__(self, name : str, text : str) -> None:
-		Field.__init__(self, name, text)
+	def __init__(self, name : str, hint : str) -> None:
+		Field.__init__(self, name, hint)
 		self.__data = False
 
 	@property
@@ -75,8 +75,8 @@ class BooleanField(Field):
 class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
-	def __init__(self, name : str, text : str, lower : int, upper : int) -> None:
-		Field.__init__(self, name, text)
+	def __init__(self, name : str, hint : str, lower : int, upper : int) -> None:
+		Field.__init__(self, name, hint)
 		self.__data = 0
 		self.__lower = lower
 		self.__upper = upper
@@ -103,8 +103,8 @@ class NaturalField(Field):
 class StringField(Field):
 	"""Derived class that implements a string field."""
 
-	def __init__(self, name : str, text : str) -> None:
-		Field.__init__(self, name, text)
+	def __init__(self, name : str, hint : str) -> None:
+		Field.__init__(self, name, hint)
 		self.__data = ""
 
 	@property
@@ -118,8 +118,8 @@ class StringField(Field):
 class PasswordField(StringField):
 	"""Derived class that checks a Linux password."""
 
-	def __init__(self, name : str, text : str) -> None:
-		StringField.__init__(self, name, text)
+	def __init__(self, name : str, hint : str) -> None:
+		StringField.__init__(self, name, hint)
 
 	def parse(self, data : str) -> None:
 		# Report error if the password string is empty.
@@ -141,8 +141,8 @@ class PasswordField(StringField):
 class RegexField(StringField):
 	"""Derived class that implements a string field validated by a regular expression."""
 
-	def __init__(self, name : str, text : str, regex : str) -> None:
-		StringField.__init__(self, name, text)
+	def __init__(self, name : str, hint : str, regex : str) -> None:
+		StringField.__init__(self, name, hint)
 		self.__regex = regex
 
 	@property
@@ -158,8 +158,8 @@ class RegexField(StringField):
 class TimeField(StringField):
 	"""Derived class that implements a time (HH:MM) field."""
 
-	def __init__(self, name : str, text : str) -> None:
-		StringField.__init__(self, name, text)
+	def __init__(self, name : str, hint : str) -> None:
+		StringField.__init__(self, name, hint)
 
 	def parse(self, data : str) -> None:
 		if data == "":
@@ -195,7 +195,7 @@ class Setup(object):
 		self.wifi_name     = StringField("wifi_name", "The WiFi network (case sensitive!) (e.g., 'MyWiFi', blank = no WiFi).")
 		self.wifi_code     = StringField("wifi_code", "The password for WiFi access (case sensitive!) (e.g., 'stay4out!', blank = no password).")
 		self.snap_time     = StringField("snap_time", "The daily period of time that snap updates software (e.g., '10:00-10:30').")
-		self.swap_size     = NaturalField("swap_time", "The size in gigabytes of the swap file (0 = none).", 0, 128)
+		self.swap_size     = NaturalField("swap_size", "The size in gigabytes of the swap file (0 = none).", 0, 128)
 		self.vacuum_time   = TimeField("vacuum_time", "The time of day to vacuum system logs (blank = never)")
 		self.vacuum_days   = NaturalField("vacuum_days", "The number of days to retain system logs for (1 through 365, only used if 'vacuum_time' is set)", 1, 365)
 		self.upgrade_time  = TimeField("upgrade_time", "The time of day to upgrade the system (blank = never)")
@@ -203,7 +203,7 @@ class Setup(object):
 		self.idle_timeout  = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
 		self.orientation   = NaturalField("orientation", "Screen orientation: 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right", 0, 3)
 		self.user_folder   = StringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
-		self.user_packages = StringField("user_packages", "A space-separated list of extra packages to install while forging of the kiosk (blank = none")
+		self.user_packages = StringField("user_packages", "A space-separated list of extra packages to install while forging of the kiosk (blank = none)")
 
 	def check(self) -> List[str]:
 		result = []
@@ -277,82 +277,8 @@ class Setup(object):
 				)
 			)
 
-			# Output the list of supported fields.
-			stream.write("# %s" % self.comment.text)
-			stream.write("comment=%s" % self.comment.data)
-
-			stream.write("# %s" % self.device.text)
-			stream.write("device=%s" % self.device.data)
-
-			stream.write("# %s" % self.type.text)
-			stream.write("type=%s" % self.type.data)
-
-			stream.write("# %s" % self.command.text)
-			stream.write("command=%s" % self.command.data)
-
-			stream.write("# %s" % self.hostname.text)
-			stream.write("hostname=%s" % self.hostname.data)
-
-			stream.write("# %s" % self.timezone.text)
-			stream.write("timezone=%s" % self.timezone.data)
-
-			stream.write("# %s" % self.locale.text)
-			stream.write("locale=%s" % self.locale.data)
-
-			stream.write("# %s" % self.keyboard.text)
-			stream.write("keyboard=%s" % self.keyboard.data)
-
-			stream.write("# %s" % self.sound_card.text)
-			stream.write("sound_card=%s" % self.sound_card.data)
-
-			stream.write("# %s" % self.sound_level.text)
-			stream.write("sound_level=%d" % self.sound_level.data)
-
-			stream.write("# %s" % self.mouse.text)
-			stream.write("mouse=%s" % ("1" if self.mouse.data else "0"))
-
-			stream.write("# %s" % self.user_name.text)
-			stream.write("user_name=%s" % self.user_name.data)
-
-			stream.write("# %s" % self.user_code.text)
-			stream.write("user_code=%s" % self.user_code.data)
-
-			stream.write("# %s" % self.ssh_key.text)
-			stream.write("ssh_key=%s" % self.ssh_key.data)
-
-			stream.write("# %s" % self.wifi_name.text)
-			stream.write("wifi_name=%s" % self.wifi_name.data)
-
-			stream.write("# %s" % self.wifi_code.text)
-			stream.write("wifi_code=%s" % self.wifi_code.data)
-
-			stream.write("# %s" % self.snap_time.text)
-			stream.write("snap_time=%s" % self.snap_time.data)
-
-			stream.write("# %s" % self.swap_size.text)
-			stream.write("swap_size=%d" % self.swap_size.data)
-
-			stream.write("# %s" % self.upgrade_time.text)
-			stream.write("upgrade_time=%s" % self.upgrade_time.data)
-
-			stream.write("# %s" % self.poweroff_time.text)
-			stream.write("poweroff_time=%s" % self.poweroff_time.data)
-
-			stream.write("# %s" % self.vacuum_time.text)
-			stream.write("vacuum_time=%s" % self.vacuum_time.data)
-
-			stream.write("# %s" % self.vacuum_days.text)
-			stream.write("vacuum_days=%d" % self.vacuum_days.data)
-
-			stream.write("# %s" % self.idle_timeout.text)
-			stream.write("idle_timeout=%d" % self.idle_timeout.data)
-
-			stream.write("# %s" % self.orientation.text)
-			stream.write("orientation=%d" % self.orientation.data)
-
-			stream.write("# %s" % self.user_folder.text)
-			stream.write("user_folder=%s" % self.user_folder.data)
-
-			stream.write("# %s" % self.user_packages.text)
-			stream.write("user_packages=%s" % self.user_packages.data)
+			for name in vars(self):
+				field = getattr(self, name)
+				stream.write("# %s" % field.hint)
+				stream.write("%s=%s" % (field.name, field.data))
 
