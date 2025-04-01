@@ -106,7 +106,7 @@ class KioskStart(KioskDriver):
 			command += "--disable-restore-session-state"
 			command += "--disable-infobars"
 			command += "--disable-crashpad"
-			command += "%s" % setup.command.data
+			command += setup.command.data
 			cmdlist  = command.list
 			del command
 
@@ -134,8 +134,7 @@ class KioskStart(KioskDriver):
 						break
 
 					# If X has been idle for more than N seconds, terminate Chromium and exit to outer loop to restart it.
-					current = self.x_idle_time()
-					if timeout and current >= timeout:
+					if timeout and self.x_idle_time() >= timeout:
 						process.terminate()
 						process = None
 
@@ -147,6 +146,7 @@ class KioskStart(KioskDriver):
 			# Terminate Chromium if it is still running.
 			if process and not process.poll():
 				process.terminate()
+				del process
 
 
 if __name__ == "__main__":
