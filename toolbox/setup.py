@@ -207,6 +207,12 @@ class Setup(object):
 
 	def check(self) -> List[str]:
 		result = []
+
+		if False:
+			for name in vars(self):
+				field = getattr(self, name)
+				result += field.check()
+
 		if self.comment.data == "":
 			result.append("Warning: 'comment' value not specified")
 		if self.device.data == "":
