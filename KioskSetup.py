@@ -73,7 +73,7 @@ class KioskSetup(KioskDriver):
 		if not internet_active():
 			logger.error("*" * 50)
 			logger.error("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
-			logger.error("*** (Please check the wifi name and password - both are case-sensitive.)")
+			logger.error("*** (Please check the Wi-Fi name and password - both are case-sensitive.)")
 			logger.error("*" * 50)
 			raise KioskError("No active network connections detected")
 
@@ -175,19 +175,19 @@ class KioskSetup(KioskDriver):
 		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
 		script += ExternalAction("Enabling Network Time Protocol (NTP).", "timedatectl set-ntp on")
 
-		if setup.wifi_name.data != "":
-			# Disable WIFI power-saving mode, which can cause WIFI instability and slow down the WIFI network a lot.
+		if setup.wifi_boost.data and setup.wifi_name.data != "":
+			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
 			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
 			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
 			# NOTE: Package 'net-tools' contains the 'netstat' utility.
-			script += InstallPackagesAction("Installing network tools to disable WiFi power-saving mode.", ["iw", "net-tools"])
+			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 			lines  = TextBuilder()
 			lines += "#!/usr/bin/bash"
 			lines += "for netcard in `netstat -i | tail +3 | awk '{ print $1; }' | fgrep w`; do"
 			lines += "    /sbin/iw $netcard set power_save off"
 			lines += "done"
 			script += CreateTextWithUserAndModeAction(
-				"Creating script to disable power-saving on WiFi card.",
+				"Creating script to disable power-saving on Wi-Fi card.",
 				"%s/kiosk-disable-wifi-power-saving.sh" % origin,
 				setup.user_name.data,
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
@@ -196,9 +196,9 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-			script += ExternalAction("Disabling WiFi power-saving mode.", "%s/kiosk-disable-wifi-power-saving.sh" % origin)
+			script += ExternalAction("Disabling Wi-Fi power-saving mode.", "%s/kiosk-disable-wifi-power-saving.sh" % origin)
 
-			# Create a systemd service to disable WiFi power saving on every boot.
+			# Create a systemd service to disable Wi-Fi power saving on every boot.
 			lines  = TextBuilder()
 			lines += "[Unit]"
 			lines += "Wants=network-online.target"
@@ -208,7 +208,7 @@ class KioskSetup(KioskDriver):
 			lines += "Type=simple"
 			lines += "ExecStart=%s/kiosk-disable-wifi-power-saving.sh" % origin
 			script += CreateTextWithUserAndModeAction(
-				"Creating systemd unit to disable WiFi power saving on every boot.",
+				"Creating systemd unit to disable Wi-Fi power saving on every boot.",
 				"/usr/lib/systemd/system/kiosk-disable-wifi-power-saving.service",
 				"root",
 				# stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH,
@@ -219,7 +219,7 @@ class KioskSetup(KioskDriver):
 
 			# Enable the new systemd unit.
 			script += ExternalAction(
-				"Enabling systemd service to disable WiFi power saving.",
+				"Enabling systemd service to disable Wi-Fi power saving.",
 				"systemctl enable kiosk-disable-wifi-power-saving"
 			)
 

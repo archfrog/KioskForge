@@ -9,13 +9,17 @@ The developer is named *Mikael Egevig* and can be contacted directly by mail at 
 ## Technical Issues
 This section contains various common questions about technical issues with KioskForge.
 
-### I am unable to connect to my WIFI network?
-This is most likely because you have misspelled the WIFI network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
+### I am unable to connect to my Wi-Fi network?
+This is most likely because you have misspelled the Wi-Fi network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
+
+A tip is to try to create a new connection with your phone to see if that works.  Most likely, it will fail too.
 
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
-To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the WIFI network card by Broadcomm, but I have no idea what they mean and why they pop up.
+To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcomm, but I have no idea what they mean and why they pop up.
 
-Please ignore these errors - as far as I can tell, the WIFI card works as it should and the kiosk runs reliably as it should.
+This *may* be caused by the code that disables the Wi-Fi power saving feature.  This feature is called `wifi_boost`.
+
+Please ignore these errors - as far as I can tell, the Wi-Fi card works as it should and the kiosk runs reliably as it should.
 
 ### The Linux installer fails with an 'apt' error because `apt` is already using a lock file?
 KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.

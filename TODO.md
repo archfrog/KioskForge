@@ -21,7 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.03.31.22.28 H Add option (`online`?) to let the user specify whether the system is expected to be online or not.
+- [ ] 2025.03.31.22.28 H Add option (`offline`?) to let the user specify whether the system is expected to be online or not.
                          I think it is better to make KioskForge so that a forged kiosk can work in both states.
 - [ ] 2025.03.31.22.00 H It may be useful to start the kiosk using a systemd job instead of through `.bashrc`.  This would fix the
                          problem that the kiosk is started twice if you SSH into the kiosk machine.
