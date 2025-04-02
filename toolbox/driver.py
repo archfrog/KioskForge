@@ -25,6 +25,7 @@ import abc
 import os
 import platform
 import sys
+import traceback
 
 from toolbox.errors import *
 from toolbox.logger import Logger
@@ -71,15 +72,17 @@ class KioskDriver(object):
 			except KioskError as that:
 				logger.error("Error: %s" % that.text)
 			except Exception as that:
-				text = ""
+				# Attempt to get the exception text, if any, through a number of Python-supported means.
 				if hasattr(that, "message"):
 					text = that.message
 				elif hasattr(that, "strerror"):
 					text = that.strerror
-				if text == "":
+				elif hasattr(that, "text"):
+					text = that.text
+				else:
 					text = str(that)
-				logger.error("Unknown Error: %s" % text)
-				raise
+				logger.error("Fatal error: %s" % text)
+				logger.print(traceback.format_exc())
 
 		# If not running from a console, wait for a keypress so that the user can read the output.
 		if platform.system() == "Windows" and not "PROMPT" in os.environ:
