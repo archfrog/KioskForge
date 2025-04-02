@@ -153,7 +153,7 @@ class KioskSetup(KioskDriver):
 			"Creating 'apt' configuration file to keep existing configuration files during upgrades.",
 			"/etc/apt/apt.conf.d/00local",
 			"root",
-			stat.S_IRUSR | stat.S_IWUSR,
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			lines.text
 		)
 		del lines
@@ -190,9 +190,7 @@ class KioskSetup(KioskDriver):
 				"Creating script to disable power-saving on Wi-Fi card.",
 				"%s/kiosk-disable-wifi-power-saving.sh" % origin,
 				setup.user_name.data,
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-				stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP |
-				stat.S_IROTH | stat.S_IWOTH | stat.S_IXOTH,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH,
 				lines.text
 			)
 			del lines
@@ -211,7 +209,6 @@ class KioskSetup(KioskDriver):
 				"Creating systemd unit to disable Wi-Fi power saving on every boot.",
 				"/usr/lib/systemd/system/kiosk-disable-wifi-power-saving.service",
 				"root",
-				# stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH,
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 				lines.text
 			)
@@ -401,7 +398,7 @@ class KioskSetup(KioskDriver):
 			lines += '# Signal success to the caller.'
 			lines += 'sys.exit(0)'
 			script += CreateTextWithUserAndModeAction(
-				"Creating Bash startup script.",
+				"Creating X11 startup script.",
 				"%s/KioskLaunchX11.py" % origin,
 				setup.user_name.data,
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
@@ -567,34 +564,61 @@ class KioskSetup(KioskDriver):
 		)
 		del runner
 
-		# Append lines to .bashrc to execute the runner script if and only if we're not connecting using SSH.
-		lines  = TextBuilder()
-		lines += ""
-		lines += "# Execute the custom command provided to KioskForge (only if not connected via SSH)."
-		lines += r"if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
-		lines += "\t" + "%s/KioskRunner.sh" % origin
-		lines += "fi"
-		script += AppendTextAction(
-			"Appending invokation of KioskRunner.sh script to ~/.bashrc",
-			"%s/.bashrc" % os.path.dirname(origin),
-			lines.text
-		)
-		del lines
+		if True:
+			# Append lines to .bashrc to execute the runner script if and only if we're not connecting using SSH.
+			lines  = TextBuilder()
+			lines += ""
+			lines += "# Execute the custom command provided to KioskForge (HACK: only if not connected via SSH)."
+			lines += r"if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
+			lines += "\t" + "%s/KioskRunner.sh" % origin
+			lines += "fi"
+			script += AppendTextAction(
+				"Appending invokation of KioskRunner.sh script to ~/.bashrc",
+				"%s/.bashrc" % os.path.dirname(origin),
+				lines.text
+			)
+			del lines
 
-		# Set up automatic login for the named user (I didn't manage to get a systemd service to work as intended...).
-		lines  = TextBuilder()
-		lines += "[Service]"
-		lines += "ExecStart="
-		lines += "ExecStart=-/sbin/agetty --noissue --autologin %s %%I $TERM" % setup.user_name.data
-		lines += "Type=simple"
-		script += CreateTextWithUserAndModeAction(
-			"Creating systemd auto-login script.",
-			"/etc/systemd/system/getty@tty1.service.d/override.conf",
-			"root",
-			stat.S_IRUSR | stat.S_IWUSR,
-			lines.text
-		)
-		del lines
+			# Set up automatic login for the named user (I didn't manage to get a systemd service to work as intended...).
+			lines  = TextBuilder()
+			lines += "[Service]"
+			lines += "ExecStart="
+			lines += "ExecStart=-/sbin/agetty --noissue --autologin %s %%I $TERM" % setup.user_name.data
+			lines += "Type=simple"
+			script += CreateTextWithUserAndModeAction(
+				"Creating systemd auto-login override.",
+				"/etc/systemd/system/getty@tty1.service.d/override.conf",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
+			)
+			del lines
+		else:
+			lines  = TextBuilder()
+			lines += "[Unit]"
+			lines += "Description=KioskForge runner."
+			lines += "After=network-online.target"
+			lines += "After=cloud-init.target"
+			lines += "After=multi-user.target"
+			lines += ""
+			lines += "[Service]"
+			lines += "Type=simple"
+			lines += "ExecStart=%s/KioskRunner.sh" % origin
+			lines += "StandardOutput=tty"
+			lines += "StandardError=tty"
+			lines += ""
+			lines += "[Install]"
+			lines += "WantedBy=cloud-init.target"
+			script += CreateTextWithUserAndModeAction(
+				"Creating systemd app runner service.",
+				"/usr/lib/systemd/system/kiosk.service",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+				lines.text
+			)
+
+			# Enable the new systemd unit.
+			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
