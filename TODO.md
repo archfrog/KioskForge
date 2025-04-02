@@ -21,8 +21,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.03.31.22.28 H Add option (`offline`?) to let the user specify whether the system is expected to be online or not.
-                         I think it is better to make KioskForge so that a forged kiosk can work in both states.
 - [ ] 2025.03.31.22.00 H It may be useful to start the kiosk using a systemd job instead of through `.bashrc`.  This would fix the
                          problem that the kiosk is started twice if you SSH into the kiosk machine.
 - [ ] 2025.03.31.20.31 H Handle the case that the kiosk has no internet graciously!  Internet is required for the forge process.
@@ -120,6 +118,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.31.22.28 H Add option (`offline`?) to let the user specify whether the system is expected to be online or not.
+                         I think it is better to make KioskForge so that a forged kiosk can work in both states.
 - [x] 2025.03.29.21.31 H Rename `data_folder` to `user_folder`?
 - [x] 2025.03.29.22.38 H Rename `platform` to `device`.
 - [x] 2025.03.29.20.53 H It still isn't possible to exit `KioskForge.py` if there are errors in the configuration.
