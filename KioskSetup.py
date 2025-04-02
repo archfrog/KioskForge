@@ -515,9 +515,7 @@ class KioskSetup(KioskDriver):
 		if setup.upgrade_time.data != "":
 			lines  = TextBuilder()
 			lines += "# Cron job to upgrade, clean, and reboot the system every day at %s." % setup.upgrade_time.data
-			lines += '%s %s * * *\troot\tapt-get update; apt-get upgrade -y > %s/apt-upgrade.log; apt-get clean; reboot' % (
-				setup.upgrade_time.data[3:5], setup.upgrade_time.data[0:2], origin
-			)
+			lines += '%s %s * * *\troot\t%s/KioskUpdate.py' % (setup.upgrade_time.data[3:5], setup.upgrade_time.data[0:2], origin)
 			lines += ""
 			script += CreateTextAction(
 				"Creating cron job to upgrade system every day.",
