@@ -109,25 +109,11 @@ class KioskSetup(KioskDriver):
 		logger.write("STEP ACTION")
 		script = Script(logger, resume)
 
-		# Set environment variable to stop dpkg from running interactively.
-		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
-
 		# Assign hostname (affects logs and journals so we do it as the very first thing).
 		script += ExternalAction("Setting host name.", "hostnamectl set-hostname " + setup.hostname.data)
 
-		# Append lines to .bashrc to create 'kiosklog' function used for quickly viewing the Kiosk*.py log entries.
-		lines  = TextBuilder()
-		lines += ""
-		lines += "# Function that displays all syslog entries made by Kiosk*.py."
-		lines += "kiosklog() {"
-		lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors, instead of all messages."
-		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk"
-		lines += "}"
-		script += AppendTextAction(
-			"Creating 'kiosklog' Bash function for easier debugging, and bug and status reporting.",
-			"%s/.bashrc" % os.path.dirname(origin),
-			lines.text
-		)
+		# Set environment variable to stop dpkg from running interactively.
+		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 
 		# Set environment variable on every boot to stop dpkg from running interactively.
 		lines  = TextBuilder()
@@ -171,6 +157,20 @@ class KioskSetup(KioskDriver):
 			lines.text
 		)
 		del lines
+
+		# Append lines to .bashrc to create 'kiosklog' function used for quickly viewing the Kiosk*.py log entries.
+		lines  = TextBuilder()
+		lines += ""
+		lines += "# Function that displays all syslog entries made by Kiosk*.py."
+		lines += "kiosklog() {"
+		lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors, instead of all messages."
+		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk"
+		lines += "}"
+		script += AppendTextAction(
+			"Creating 'kiosklog' Bash function for easier debugging, and bug and status reporting.",
+			"%s/.bashrc" % os.path.dirname(origin),
+			lines.text
+		)
 
 		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
 		script += ExternalAction("Enabling Network Time Protocol (NTP).", "timedatectl set-ntp on")
@@ -240,7 +240,7 @@ class KioskSetup(KioskDriver):
 				unset -v TARGET
 			"""
 
-		# Install and configure SSH server to require a key and disallow root access.
+		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 		#...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
 
@@ -251,7 +251,7 @@ class KioskSetup(KioskDriver):
 				"%s/.ssh/authorized_keys" % os.path.dirname(origin),
 				setup.ssh_key.data + "\n"
 			)
-			#...Disable root login, if not alreadsy disabled.
+			#...Disable root login, if not already disabled.
 			script += ReplaceTextAction(
 				"Disabling root login using SSH if not already disabled.",
 				"/etc/ssh/sshd_config",
@@ -490,11 +490,12 @@ class KioskSetup(KioskDriver):
 		if setup.user_packages.data != "":
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
 
-		# Instruct snap to only upgrade at the user-specified interval.
-		script += ExternalAction(
-			"Instruct 'snap' to update every day at configured time.",
-			"snap set system refresh.timer=%s" % setup.snap_time.data,
-		)
+		# Instruct snap to only upgrade at the user-specified interval (by default it can run pretty much any time).
+		if setup.snap_time.data != "":
+			script += ExternalAction(
+				"Instruct 'snap' to update every day at configured time.",
+				"snap set system refresh.timer=%s" % setup.snap_time.data,
+			)
 
 		# Create cron job to vacuum/compact the system logs every N days.
 		if setup.vacuum_time.data != "":
