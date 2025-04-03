@@ -70,7 +70,7 @@ class KioskBuild(KioskDriver):
 		words += "."
 
 		words += "--workpath"
-		words += "R:\\KioskForge\PyInstaller"
+		words += "R:\\KioskForge\\PyInstaller"
 
 		words += "--upx-exclude"
 		words += "python3.dll"
