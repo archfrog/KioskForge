@@ -49,6 +49,10 @@ class KioskDriver(object):
 			# Compute full path of this script.
 			(origin, filename) = os.path.split(os.path.abspath(argv[0]))
 
+			# NOTE: Handle the temporary working directory created by PyInstaller in a transparent fashion for all scripts.
+			if hasattr(sys, "_MEIPASS"):
+				origin = sys._MEIPASS
+
 			# Extract the base name and extension (the latter can be '.py' or '.exe').
 			(basename, extension) = os.path.splitext(filename)
 
