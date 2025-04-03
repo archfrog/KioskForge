@@ -593,7 +593,7 @@ class KioskSetup(KioskDriver):
 		)
 
 		# Free disk space by purging unused packages.
-		script += PurgePackagesAction("Purge all unused packages to free disk space.", [])
+		script += PurgePackagesAction("Purging all unused packages to free disk space.", [])
 
 		# Free disk space by cleaning the apt cache.
 		script += CleanPackageCacheAction()
