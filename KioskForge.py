@@ -42,6 +42,8 @@ import sys
 import time
 import types
 
+import bcrypt
+
 from toolbox.builder import TextBuilder
 from toolbox.convert import BOOLEANS
 from toolbox.driver import KioskDriver
@@ -51,21 +53,6 @@ from toolbox.invoke import Result
 from toolbox.setup import *
 # Import COMPANY, CONTACT, TESTING, and VERSION global constants.
 from toolbox.version import *
-
-
-# Try to import bcrypt.  If not found, try to silently install it and try to import it once more.
-if platform.system() == "Windows":
-	try:
-		import bcrypt
-	except ModuleNotFoundError:
-		try:
-			subprocess.check_call([sys.executable, "-m", "pip", "install", "bcrypt"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-			import bcrypt
-		except subprocess.CalledProcessError:
-			print("*** Error: Unable to automatically install 'bcrypt' module.  Please report this issue.")
-			if platform.system() == "Windows" and not "PROMPT" in os.environ:
-				input("Press ENTER to continue and close this window")
-			sys.exit(1)
 
 
 def password_crypt(text : str) -> str:
