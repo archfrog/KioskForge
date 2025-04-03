@@ -48,11 +48,11 @@ Then navigate to your desktop and create a folder named `KioskForge`.  Open this
 on the blank screen area in the right side of Windows Explorer and select `Paste`, or hit `Ctrl-V` on your keyboard.
 
 After this, you can launch KioskForge directly from Windows Explorer, by double-clicking it, or directly from the command-line by
-invoking the `KioskForge.py` command.
+invoking the `KioskForge.exe` command.
 
 
 ### Linux
-**NOTE:** `KioskForge.py` currently **cannot** be run on Linux.  This is work in progress and is expected to be solved pretty soon.
+**NOTE:** `KioskForge.exe` currently **cannot** be run on Linux.  This is a planned feature and is expected to be solved soon.
 
 Install a recent version of the [Python v3.12+ programming language](https://python.org).  On most Linuxes, this can be done with
 the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.12+.
@@ -101,7 +101,8 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | CPU overclocking   | `cpu_boost`     | boolean | 0 = disable default overclocking, 1 = enable default overclocking.            |
 
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
-basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself.
+basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself,
+which is a very good idea, anyway, as you don't want to port scan and stuff if the kiosk suddenly goes down and needs fixing.
 
 **NOTE**:
 Currently, the interactive TUI editor *cannot* handle blank strings, so you may need to edit the configuration file manually using
@@ -148,19 +149,36 @@ to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `ki
 
 
 ## Development
-To develop on KioskForge, install a recent Python (v3.12+) and MyPy, and then set up these environment variables:
+To contribute to KioskForge, install these things first:
+
+```batch
+rem Install Python v3.12 from https://python.org.
+rem ...
+
+rem Install MyPy using Pip:
+pip install mypy
+
+rem Install bcrypt using Pip:
+pip install bcrypt
+
+rem Install PyInstaller using Pip:
+pip install pyinstaller
+```
+
+Then set up these environment variables:
 
 | Environment Variable      | Value | Explanation                                                                             |
 | ------------------------- | ----- | --------------------------------------------------------------------------------------- |
 | `PYTHONDONTWRITEBYTECODE` | `1`   | Disable the generation of needless Python byte-code files everywhere.                   |
-| `RAMDISK` 				| path  | A temporary folder, preferably on a ram disk.  This is used for caching MyPy data, etc. |
+| `RAMDISK` 				| path  | A temporary folder, preferably on a RAM disk.  This is used for caching tool data, etc. |
 
 Run the script `test.bat` (Windows only) or `test.sh` (Linux only) to make MyPy test the code and report any errors.
 
-*Currently, the MyPy test is a bit broken because the script uses both Windows-only and Linux-only features, something which
-MyPy isn't all that happy about.  This will be fixed in not too long by splitting the single script into its logical parts.*
+**NOTE:** Please notice that some scripts contain Linux-specific parts, which make MyPy whine.  They'll be fixed soon.
 
-Development currently takes place on a Windows 11 Pro desktop computer, but I'll setup a Linux development environment soon.
+Run the script `build.py` (all platforms) to build the `KioskForge.exe` standalone executable, which is shipped with documentation.
+
+Development currently takes place on a Windows 11 Pro desktop computer, but I'll set up a Linux development environment soon.
 
 
 ## Bugs and Ideas
