@@ -18,7 +18,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# This script is responsible for launching X11, which leads to Openbox being loaded, which causes KioskOpenbox.py to run.
+# This script is responsible for building a stand-alone .exe file (KioskForge.exe) using PyInstaller.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
@@ -37,9 +37,6 @@ from toolbox.setup import *
 from toolbox.version import *
 
 
-# TODO: Figure out how to make the Linux scripts, and the 'kiosk' module, available to the KioskForge.exe program.
-# https://stackoverflow.com/questions/11322538/including-a-directory-using-pyinstaller provides tips.
-
 class KioskBuild(KioskDriver):
 	"""Defines the build.py script, which is responsible for building a platform-dependent executable using PyInstaller."""
 
@@ -51,10 +48,6 @@ class KioskBuild(KioskDriver):
 		# Parse command-line arguments.
 		if len(arguments) != 0:
 			raise SyntaxError('"build.py"')
-
-		# Remove .spec file from previous run, if any.
-		#if os.path.isfile("KioskForge.spec"):
-		#	os.unlink("KioskForge.spec")
 
 		# Build the (pretty long) command line for PyInstaller.
 		words  = TextBuilder()
