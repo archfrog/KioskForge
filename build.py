@@ -82,7 +82,6 @@ class KioskBuild(KioskDriver):
 			else:
 				words += item + ":" + item
 
-		#words += "PyInsTest.py"
 		words += "KioskForge.py"
 
 		invoke_list_safe(words.list)
