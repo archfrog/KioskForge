@@ -10,7 +10,7 @@ KioskForge currently supports these things:
 * Ethernet and/or Wi-Fi networking.
 
 **NOTE**: Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
-**NOTE**: The PC target is currently partially broken because I don't have a spare PC to test it on.  WIP.
+**NOTE**: The PC target is currently likely broken because I don't have a spare PC to test it on.  WIP.
 
 
 ## Philosophy
@@ -98,6 +98,7 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Screen orientation | `orientation`   | integer | 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right.         |
 | User folder        | `user_folder`   | string  | A folder to copy to `~` on the kiosk.  Useful for local websites and scripts. |
 | User packages      | `user_packages` | string  | A space-separated list of packages to install while forging the kiosk.        |
+| CPU overclocking   | `cpu_boost`     | boolean | 0 = disable default overclocking, 1 = enable default overclocking.            |
 
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
 basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself.
@@ -112,10 +113,9 @@ KioskForge is a simple application that allows you to create, load, edit, and sa
 that defines the kiosk and what it is supposed to do.  After that, you can choose to *update* an installation media to apply the
 configuration during installation.
 
-**NOTE**: The kiosk MUST be connected to the internet while it is being forged!  After this, it can safely stay offline forever.
+**NOTE**: The kiosk MUST be connected to the internet while it is being forged!  After this, it can stay offline forever.
 
-After that, it doesn't have to although it is strongly recommended that it is permanently on the internet so that it can update
-Chromium, etc.
+It is always best that the kiosk is permanently on the internet so that it can update Chromium, etc.  But it can work without.
 
 As of now, the procedure is as follows:
 
