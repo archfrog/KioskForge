@@ -15,7 +15,7 @@ This is most likely because you have misspelled the Wi-Fi network name or are us
 A tip is to try to create a new connection with your phone to see if that works.  Most likely, it will fail too.
 
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
-To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcomm, but I have no idea what they mean and why they pop up.
+To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcomm, but I have no idea what they mean or why they pop up.
 
 This *may* be caused by the code that disables the Wi-Fi power saving feature.  This feature is called `wifi_boost`.
 
@@ -32,11 +32,8 @@ If the problem persists, report it as a bug.  It may be some obscure error in Ki
 ## Development Issues
 This section contains various common questions about the development of KioskForge.
 
-### Why is KioskForge not a stand-alone program with an installer?
-This is work in progress.  I have already selected [PyInstaller](https://pyinstaller.org/en/stable/) as the tool to use but am
-quite busy with actual applications of KioskForge to make kiosks with.  Once the dust settles, I'll look into this again.
-
-Also, KioskForge currently iterates so rapidly that I don't like asking people to uinstall and reinstall all the time.
+### Why does KioskForge not have an installer?
+KioskForge is now distributed as a Windows `.exe` file.  At this time, however, KioskForge iterates so rapidly that I don't like asking people to uinstall and reinstall all the time.  In time, when the dust begins to settle, there will likely be an installer.
 
 ### Will KioskForge support Linux distribution X?
 For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
@@ -59,10 +56,10 @@ This is work in progress, pretty soon you will be able to use KioskForge on both
 ### Why can't you use KioskForge on Apple?
 I don't have any Apple gear and don't feel like spending a fortune on adding support for a platform that I don't use myself.
 
-### Will KioskForge invoke 'Raspberry Pi Imager' (RPI) directly?
+### Will KioskForge ever invoke 'Raspberry Pi Imager' (RPI) directly?
 Not likely.
 
-It could do this by using the `wmi` package for Python (as RPI requires a physical drive to be specified), but this requires the user to install packages before they can use KioskForge.  And I am much more focused on making a Linux newbie friendly solution than offering all sorts of gimmicks.  It is important to me, and most users, that they can launch KioskForge simply by double-clicking it without having any technical knowledge of Python, Linux, and kiosks as such.
+It could do this by using the `wmi` package for Python (as RPI requires a physical drive to be specified).  But I am much more focused on making a Linux newbie friendly solution than offering all sorts of gimmicks.  It is important to me, and most users, that they can launch KioskForge simply by double-clicking it without having any technical knowledge of Python, Linux, and kiosks as such, so I won't be exploring this path anytime soon.
 
 Also, I sleep better knowing that people can't accidentally erase important data using KioskForge.
 
