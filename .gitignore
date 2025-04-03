@@ -6,6 +6,7 @@ __pycache__/
 # The folder for storing kiosk configuration files (this name is no longer mandated by KioskForge.py).
 Setup/
 
-# PyInstaller .spec file(s)
+# PyInstaller .exe and .spec file(s)
+KioskForge.exe
 *.spec
 
