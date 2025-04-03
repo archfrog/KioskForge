@@ -279,7 +279,7 @@ class ExternalAptAction(ExternalAction):
 		ExternalAction.__init__(self, title, line)
 
 	def execute(self) -> Result:
-		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' is removed.
+		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' has been removed.
 		while invoke_text("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke_text("lsof /var/lib/dpkg/lock").status == 0:
 			print("ALERT: Waiting 5 seconds for 'apt' lock to be released - 'apt' is running in the background...")
 			time.sleep(5)
