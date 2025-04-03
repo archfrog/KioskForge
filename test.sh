@@ -7,5 +7,5 @@ if [ -z "$RAMDISK" ]; then
 fi
 
 project=KioskForge
-mypy --cache-dir $RAMDISK/$project --strict KioskForge.py KioskSetup.py KioskStart.py
+mypy --cache-dir $RAMDISK/$project --strict KioskForge.py KioskOpenbox.py KioskSetup.py KioskUpdate.py
 

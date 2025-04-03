@@ -4,7 +4,7 @@ setlocal
 if "%RAMDISK%" == "" goto ErrorRamdisk
 
 set project=KioskForge
-mypy --cache-dir %RAMDISK%\%project% --strict KioskForge.py KioskSetup.py KioskStart.py KioskUpdate.py
+mypy --cache-dir %RAMDISK%\%project% --strict KioskForge.py KioskOpenbox.py KioskSetup.py KioskUpdate.py
 
 goto Epilogue
 

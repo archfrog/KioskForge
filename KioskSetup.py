@@ -333,7 +333,7 @@ class KioskSetup(KioskDriver):
 
 		# Configure the kiosk according to its type.
 		if setup.type.data in [ "x11", "web" ]:
-			# Create X11 configuration file to rotate the TOUCH panel.  This does not affect the display itself (see KioskStart.py).
+			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskOpenbox.py).
 			if setup.orientation.data != 0:
 				# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
 				matrices = {
@@ -444,7 +444,7 @@ class KioskSetup(KioskDriver):
 				# NOTE: For this reason, we create a separate Python script, which is launched from OpenBox's autostart file.
 				lines  = TextBuilder()
 				lines += "#!/usr/bin/dash"
-				lines += "%s/KioskStart.py" % origin
+				lines += "%s/KioskOpenbox.py" % origin
 				script += CreateTextWithUserAndModeAction(
 					"Creating OpenBox startup script.",
 					"%s/.config/openbox/autostart" % os.path.dirname(origin),
@@ -466,7 +466,7 @@ class KioskSetup(KioskDriver):
 				# NOTE: For this reason, we create a separate Python script, which is launched from OpenBox's autostart file.
 				lines  = TextBuilder()
 				lines += "#!/usr/bin/dash"
-				lines += "%s/KioskStart.py" % origin
+				lines += "%s/KioskOpenbox.py" % origin
 				script += CreateTextWithUserAndModeAction(
 					"Creating OpenBox startup script.",
 					"%s/.config/openbox/autostart" % os.path.dirname(origin),
