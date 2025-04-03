@@ -104,7 +104,7 @@ class KioskSetup(KioskDriver):
 		setup.load(origin + os.sep + "KioskForge.cfg")
 
 		# Build the script to execute.
-		logger.write("Starting installation of kiosk system:")
+		logger.write("Forging kiosk (this will take 5-15 minutes):")
 		logger.write()
 		logger.write("STEP ACTION")
 		script = Script(logger, resume)
