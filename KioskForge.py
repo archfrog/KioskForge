@@ -868,6 +868,11 @@ class KioskForge(KioskDriver):
 						#...Ask systemd to shut up.
 						kernel_options.append("systemd.show_status=auto")
 						kernel_options.save(target.basedir + "cmdline.txt")
+
+						# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
+						text = open(target.basedir + "config.txt", "rt").read()
+						text = text.replace("arm_boost=1", "#arm_boost=1")
+						open(target.basedir + "config.txt", "wt").write(text)
 					elif target.kind == "PC":
 						# TODO: Figure out a way to provide kernel command-line options when targeting a PC (not done easily).
 						pass

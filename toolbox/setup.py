@@ -195,6 +195,7 @@ class Setup(object):
 		self.wifi_name      = StringField("wifi_name", "The Wi-Fi network name (case sensitive!) (e.g., 'MyWiFi', blank = no Wi-Fi).")
 		self.wifi_code      = StringField("wifi_code", "The password to the Wi-Fi network (case sensitive!) (e.g., 'stay4out!', blank = no password).")
 		self.wifi_boost     = BooleanField("wifi_boost", "If enabled, Wi-Fi power saving is disabled in the kiosk (y/n).")
+		self.cpu_boost      = BooleanField("cpu_boost", "If enabled, the CPU is overclocked to run slightly faster.")
 		self.snap_time      = StringField("snap_time", "The daily period of time that snap updates software (e.g., '10:00-10:30') (blank = any time).")
 		self.swap_size      = NaturalField("swap_size", "The size in gigabytes of the swap file (0 = none).", 0, 128)
 		self.vacuum_time    = TimeField("vacuum_time", "The time of day to vacuum system logs (blank = never)")
