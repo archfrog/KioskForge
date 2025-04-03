@@ -5,7 +5,7 @@ This document presents a number of supported scenarios for how to use KioskForge
 This is the simplest case, the one that KioskForge was originally made for.  With this scenario, you'll get a finished kiosk ready
 to deploy using a Raspberry Pi 4B with at least 2 gigabytes of RAM and your choice of storage medium.
 
-**Hint:** The website to be displayed should support any resolution that your touch screen supports.
+**Hint:** The website to be displayed should support the default resolution that your (touch) screen supports.
 
 Please read the `README.md` file for instructions on how to install KioskForge, Python and Raspberry Pi Imager, and how to use
 KioskForge together with these tools.  Expect to redeploy a few times until all settings are at their correct values.
