@@ -310,10 +310,11 @@ class KioskSetup(KioskDriver):
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
-			# Install Pipewire AND pulseaudio-utils as the script 'KioskLaunchX11.py' uses 'pactl' from the latter package.
+			# Install Pipewire AND pulseaudio-utils as the script 'KioskRunner.sh' uses 'pactl' from the latter package.
 			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
 
 			# Append some lines to the runner script KioskRunner.sh.
+			# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
 			runner += ""
 			runner += "# Pause for three seconds because pactl otherwise reports spurious errors."
 			runner += "sleep 3"
@@ -371,45 +372,10 @@ class KioskSetup(KioskDriver):
 				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
 			)
 
-			# Create '~/KioskForge/KioskLaunchX11.py' script for starting X/Windows and OpenBox.
-			# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
-			lines  = TextBuilder()
-			lines += '#!/usr/bin/env python3'
-			lines += ''
-			lines += 'import os'
-			lines += 'import sys'
-			lines += 'import time'
-			lines += ''
-			lines += 'from toolbox.errors import KioskError'
-			lines += 'from toolbox.invoke import invoke_text_safe'
-			lines += ''
-			lines += '# Abort the script if $DISPLAY is defined or $XDG_VTNR is not equal to 1.'
-			lines += 'if os.environ.get("DISPLAY") or os.environ.get("XDG_VTNR") != "1":'
-			lines += '\tsys.exit(1)'
-			lines += ''
-			lines += '# Handle KioskError exception that MAY be thrown by "invoke_text_safe()"'
-			lines += 'try:'
-			lines += '\t# Launch the X server, which launches `.config/openbox/autostart` to eventually launch Chromium in kiosk mode.'
-			lines += '\tinvoke_text_safe("startx%s")' % (" -- -nocursor" if not setup.mouse.data else "")
-			lines += 'except KioskError as that:'
-			lines += '\tprint("Error: %s" % that.text)'
-			lines += '\tsys.exit(1)'
-			lines += ''
-			lines += '# Signal success to the caller.'
-			lines += 'sys.exit(0)'
-			script += CreateTextWithUserAndModeAction(
-				"Creating X11 startup script.",
-				"%s/KioskLaunchX11.py" % origin,
-				setup.user_name.data,
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-				lines.text
-			)
-			del lines
-
 			# Append lines to the runner (KioskRunner.sh) to run the custom startup script at automatic login.
 			runner += ""
 			runner += "# Launch X11 and OpenBox into kiosk mode."
-			runner += "%s/KioskLaunchX11.py" % origin
+			runner += "%s/KioskStartX11.py" % origin
 
 			if setup.type.data == "web":
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
@@ -459,7 +425,7 @@ class KioskSetup(KioskDriver):
 				# Append lines to the runner script to run the custom startup script at automatic login.
 				runner += ""
 				runner += "# Run custom command upon starting X11."
-				runner += "%s/KioskLaunchX11.py" % origin
+				runner += "%s/KioskStartX11.py" % origin
 
 				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
