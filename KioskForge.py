@@ -909,7 +909,7 @@ class KioskForge(KioskDriver):
 					setup.save(output + os.sep + "KioskForge.cfg", self.version, False)
 
 					# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-					for name in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "toolbox"]:
+					for name in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
 						if os.path.isfile(origin + os.sep + name):
 							shutil.copyfile(origin + os.sep + name, output + os.sep + name)
 						else:
