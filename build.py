@@ -18,7 +18,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# This script is responsible for building a stand-alone .exe file (KioskForge.exe) using PyInstaller.
+# This script builds an installer file (KioskForge-x.yy-Setup.exe) using "Inno Setup" and publishes it on the web.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
@@ -65,15 +65,25 @@ class KioskBuild(KioskDriver):
 		elif len(arguments) != 0:
 			raise SyntaxError('"build.py" [--clean]')
 
+		# Check that Inno Setup v6+ is in its expected location.
+		innopath = r"c:\Program Files (x86)\Inno Setup 6\Compil32.exe"
+		if not os.path.isfile(innopath):
+			raise KioskError("Cannot find Inno Setup 6 (Compil32.exe) on this PC")
+
 		RAMDISK = os.environ.get("RAMDISK")
 		if not RAMDISK:
 			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
 
 		rootpath = RAMDISK + os.sep + "KioskForge"
-		distpath = rootpath + os.sep + "Inno Setup"
+		distpath = "../tmp"
 		os.makedirs(distpath, mode=0o664, exist_ok=True)
 		workpath = rootpath + os.sep + "PyInstaller"
 		os.makedirs(workpath, mode=0o664, exist_ok=True)
+
+		# Make sure we don't accidentally ship artifacts from earlier builds.
+		folder_delete_contents(distpath)
+
+		#************************** Create 'version.txt' (consumed by PyInstaller) ***********************************************
 
 		# Write 'version.txt' needed to fill out the details that can be viewed in Windows Explorer.
 		pyinstaller_versionfile.create_versionfile(
@@ -87,6 +97,8 @@ class KioskBuild(KioskDriver):
 			product_name=PRODUCT,
 			#translations=[1033, 437]			# TODO: 65001]
 		)
+
+		#************************** Create 'KioskForge.exe' (created by PyInstaller, consumed by Inno Setup 6+) ******************
 
 		# Build the (pretty long) command line for PyInstaller.
 		words  = TextBuilder()
@@ -128,6 +140,40 @@ class KioskBuild(KioskDriver):
 		words += "KioskForge.py"
 
 		invoke_list_safe(words.list)
+
+		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
+		for file in ["FAQ.md", "GUIDE.md", "README.md"]:
+			words = TextBuilder()
+			words += "pandoc"
+
+			words += "-i"
+			words += file
+
+			words += "-o"
+			words += distpath + os.sep + os.path.splitext(file)[0] + ".html"
+
+			invoke_list_safe(words.list)
+
+		shutil.copyfile("LICENSE", distpath + os.sep + "LICENSE.txt")
+
+		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
+
+		# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
+		words  = TextBuilder()
+		words += innopath
+		words += "/cc"
+		words += "../bld/KioskForge.iss"
+		invoke_list_safe(words.list)
+
+		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (kioskforge.org/downloads).
+
+		words  = TextBuilder()
+		words += "C:\Program Files\Git\usr\bin\scp.exe"
+		words += "-F"
+		words += "u:\.ssh\config"
+		words += "-p"
+		words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
+		words += "web:web/pub/kioskforge.org/downloads/"
 
 
 if __name__ == "__main__":
