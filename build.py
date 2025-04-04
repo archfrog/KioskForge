@@ -173,7 +173,9 @@ class KioskBuild(KioskDriver):
 		words += r"u:\.ssh\config"
 		words += "-p"
 		words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
-		words += "web:web/pub/kioskforge.org/downloads/"
+		# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
+		words += "web:web/pub/kioskforge.org/"
+		invoke_list_safe(words.list)
 
 
 if __name__ == "__main__":
