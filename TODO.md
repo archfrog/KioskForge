@@ -252,7 +252,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.02.26.xx.xx H Create a new GitHub user `vhmdk`.
 - [x] 2026.02.27.14.10 H Create a new repository `KioskForge` on GitHub for the user `vhmdk`.
 - [x] 2025.02.21.17.43 H Ask Darren and Rune what their expectations and wishes for KioskForge v2.x are.
-- [x] 2025.02.22.13.58 H Rename the `KioskForge` project to something else - the name is already taken by an Italian entity.
+- [x] 2025.02.22.13.58 H Rename the `KioskMaker` project to something else - the name is already taken by an Italian entity.
                          Names such as `KioskBuilder`, `KioskSetup`, `OpenKiosk`, `Kiosk Master` were all taken but `KioskForge`
 						 turned out to be free, according to Google, so I chose that and have registered the .org domain already.
 - [x] 2025.02.26.11.54 M Investigate [Open Kiosk](https://openkiosk.mozdevgroup.com/).  It might be worth a try!  Too complex!
