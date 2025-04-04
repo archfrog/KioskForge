@@ -100,6 +100,10 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | User packages      | `user_packages` | string  | A space-separated list of packages to install while forging the kiosk.        |
 | CPU overclocking   | `cpu_boost`     | boolean | 0 = disable default overclocking, 1 = enable default overclocking.            |
 
+The format of the value specified in the `snap_time` option is documented at this link:
+
+* [Snap: timer string format](https://snapcraft.io/docs/timer-string-format)
+
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
 basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself,
 which is a very good idea, anyway, as you don't want to port scan and stuff if the kiosk suddenly goes down and needs fixing.
