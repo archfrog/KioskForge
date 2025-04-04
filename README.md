@@ -162,6 +162,9 @@ pip install bcrypt
 
 rem Install PyInstaller using Pip:
 pip install pyinstaller
+
+rem Install pyinstaller-versionfile using Pip:
+pip install pyinstaller-versionfile
 ```
 
 Then set up these environment variables:
