@@ -168,9 +168,9 @@ class KioskBuild(KioskDriver):
 		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (kioskforge.org/downloads).
 
 		words  = TextBuilder()
-		words += "C:\Program Files\Git\usr\bin\scp.exe"
+		words += r"C:\Program Files\Git\usr\bin\scp.exe"
 		words += "-F"
-		words += "u:\.ssh\config"
+		words += r"u:\.ssh\config"
 		words += "-p"
 		words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
 		words += "web:web/pub/kioskforge.org/downloads/"
