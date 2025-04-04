@@ -257,7 +257,7 @@ class KioskSetup(KioskDriver):
 			)
 			#...Disable password-only authentication if not already disabled.
 			script += ReplaceTextAction(
-				"Requiring private SSH key to log in.",
+				"Disabling password authentication (requiring private SSH key to log in).",
 				"/etc/ssh/sshd_config",
 				"#PasswordAuthentication yes",
 				"PasswordAuthentication no"
