@@ -10,3 +10,6 @@ Setup/
 KioskForge.exe
 *.spec
 
+# Inno Setup configuration file
+*.iss
+
