@@ -21,6 +21,13 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.04.17.23 H Snaps ought to be updated in the `KioskUpgrade.py` script, to make things simpler for the end-user.
+- [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
+- [ ] 2025.04.04.16.13 H Add option `network` to allow disabling network completely, after forging is complete.  This should imply
+                         `snap_time=`, `update_time=`, `wifi_name=`, etc.
+- [ ] 2025.04.04.16.10 H Support disabling snap updates using the `snap refresh --hold` command (need Chromium updated...).
+- [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  Will probably break things after a while.
+- [ ] 2025.04.04.15.42 H Add option `python_extras` to install one or more packages with `pip`.  Rename `user_packages` to `system_extras`.
 - [ ] 2025.04.03.06.51 H Figure out what to do about the `ship.bat` script; it really shouldn't be part of the public GitHub repo.
 - [ ] 2025.04.03.06.09 H Rewrite all build batch scripts into Python.
 - [ ] 2025.03.31.22.00 H It may be useful to start the kiosk using a systemd job instead of through `.bashrc`.  This would fix the
