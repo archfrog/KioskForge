@@ -31,16 +31,16 @@ class Result(object):
 	"""The result (status code, output) of an action."""
 
 	def __init__(self, status : int = 0, output : str = "") -> None:
-		self.__status = status
 		self.__output = output
-
-	@property
-	def status(self) -> int:
-		return self.__status
+		self.__status = status
 
 	@property
 	def output(self) -> str:
 		return self.__output
+
+	@property
+	def status(self) -> int:
+		return self.__status
 
 
 # Global function to invoke an external program and return a 'Result' instance with the program's exit code and output.
