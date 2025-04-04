@@ -23,10 +23,14 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
 
+import glob
 import os
 import platform
+import shutil
 import sys
 import time
+
+import pyinstaller_versionfile
 
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
@@ -35,6 +39,15 @@ from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
 from toolbox.setup import *
 from toolbox.version import *
+
+
+# Delete all items IN the specified folder, without removing or altering the folder itself.
+def folder_delete_contents(path : str) -> None:
+	for item in glob.glob(path + os.sep + "*"):
+		if os.path.isdir(item):
+			shutil.rmtree(item)
+		else:
+			os.unlink(item)
 
 
 class KioskBuild(KioskDriver):
@@ -46,27 +59,64 @@ class KioskBuild(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Parse command-line arguments.
-		if len(arguments) != 0:
-			raise SyntaxError('"build.py"')
+		clean = False
+		if len(arguments) >= 1 and arguments[0] == "--clean":
+			clean = True
+		elif len(arguments) != 0:
+			raise SyntaxError('"build.py" [--clean]')
+
+		RAMDISK = os.environ.get("RAMDISK")
+		if not RAMDISK:
+			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
+
+		rootpath = RAMDISK + os.sep + "KioskForge"
+		distpath = rootpath + os.sep + "Inno Setup"
+		os.makedirs(distpath, mode=0o664, exist_ok=True)
+		workpath = rootpath + os.sep + "PyInstaller"
+		os.makedirs(workpath, mode=0o664, exist_ok=True)
+
+		# Write 'version.txt' needed to fill out the details that can be viewed in Windows Explorer.
+		pyinstaller_versionfile.create_versionfile(
+			output_file=rootpath + os.sep + "version.txt",
+			version=VERSION,
+			company_name=COMPANY,
+			file_description="Tool to forge a complete Linux kiosk machine from scratch.",
+			internal_name=PRODUCT,
+			legal_copyright="Copyright © " + COMPANY + ". All Rights Reserved.",
+			original_filename=PRODUCT + ".exe",
+			product_name=PRODUCT,
+			#translations=[1033, 437]			# TODO: 65001]
+		)
 
 		# Build the (pretty long) command line for PyInstaller.
 		words  = TextBuilder()
 		words += "pyinstaller"
 
-		#words += "--clean"
+		if False:
+			words += "--debug"
+			words += "all"
+
+		if clean:
+			words += "--clean"
 
 		words += "--console"
 		words += "--noupx"
 		words += "--onefile"
 
 		words += "--distpath"
-		words += "."
+		words += distpath
 
 		words += "--workpath"
-		words += "R:\\KioskForge\\PyInstaller"
+		words += workpath
 
 		words += "--upx-exclude"
 		words += "python3.dll"
+
+		words += "--icon"
+		words += "../pic/logo.ico"
+
+		words += "--version-file"
+		words += rootpath + os.sep + "version.txt"
 
 		for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
 			words += "--add-data"
