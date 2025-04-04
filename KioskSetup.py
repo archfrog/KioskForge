@@ -296,10 +296,16 @@ class KioskSetup(KioskDriver):
 		# Remove some packages that we don't need in kiosk mode to save some memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
-		# Update and upgrade the system.
+		# Update and upgrade the system, including snaps (everything).
+		script += UpgradeSnapsAction()
 		script += UpdateSystemAction()
 		script += UpgradeSystemAction()
-		script += UpgradeSnapsAction()
+
+		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
+		script += ExternalAction(
+			"Instruct 'snap' to only update when KioskUpdate.py is being launched by cron.",
+			"snap refresh --hold"
+		)
 
 		# Prepare for building the ad-hoc script KioskRunner.sh, which configures audio, launches X11, etc.
 		runner = TextBuilder()
@@ -453,13 +459,6 @@ class KioskSetup(KioskDriver):
 		if setup.user_packages.data != "":
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
 
-		# Instruct snap to only upgrade at the user-specified interval (by default it can run pretty much any time).
-		if setup.snap_time.data != "":
-			script += ExternalAction(
-				"Instruct 'snap' to update every day at configured time.",
-				"snap set system refresh.timer=%s" % setup.snap_time.data,
-			)
-
 		# Create cron job to vacuum/compact the system logs every N days.
 		if setup.vacuum_time.data != "":
 			lines  = TextBuilder()
@@ -545,7 +544,7 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
-			# Set up automatic login for the named user (I didn't manage to get a systemd service to work as intended...).
+			# Set up automatic login for the named user.
 			lines  = TextBuilder()
 			lines += "[Service]"
 			lines += "ExecStart="
@@ -560,6 +559,7 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 		else:
+			# NOTE: I never did manage to get the systemd service to even start up (I've stopped playing with it for now).
 			lines  = TextBuilder()
 			lines += "[Unit]"
 			lines += "Description=KioskForge runner."
@@ -568,6 +568,8 @@ class KioskSetup(KioskDriver):
 			lines += "After=multi-user.target"
 			lines += ""
 			lines += "[Service]"
+			lines += "User=%s" % setup.user_name.data
+			lines += "Group=%s" % setup.user_name.data
 			lines += "Type=simple"
 			lines += "ExecStart=%s/KioskRunner.sh" % origin
 			lines += "StandardOutput=tty"
@@ -598,6 +600,9 @@ class KioskSetup(KioskDriver):
 		# Free disk space by cleaning the apt cache.
 		script += CleanPackageCacheAction()
 
+		# Empty snap cache.
+		script += ExternalAction("Purging snap cache to free disk space", "rm -fr /var/lib/snapd/cache/*")
+
 		# Synchronize all changes to disk (may take a while on microSD cards).
 		script += ExternalAction(
 			"Flushing disk buffers before rebooting (may take a while on microSD cards).",
@@ -609,7 +614,7 @@ class KioskSetup(KioskDriver):
 		if result.status != 0:
 			raise KioskError(result.output)
 
-		# NOTE: The reboot takes place immediately, control probably never returns from the 'execute()' method below!
+		# NOTE: The reboot takes place immediately, control never returns from the 'execute()' method below!
 		logger.write("**** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
 		RebootSystemAction().execute()
 

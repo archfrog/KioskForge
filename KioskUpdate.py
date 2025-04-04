@@ -55,13 +55,30 @@ class KioskUpdate(KioskDriver):
 			logger.write("Not connected to the internet: Skipping system update, upgrade, and clean task.")
 			return
 
-		invoke_text_safe("apt-get update")
+		try:
+			# Allow snap to update (don't know if this is necessary or not, but err on the side of caution).
+			invoke_text_safe("snap refresh --unhold")
 
-		invoke_text_safe("apt-get upgrade -y")
+			# Refresh all snaps.
+			invoke_text_safe("snap refresh")
 
-		invoke_text_safe("apt-get clean")
+			# Purge the snap cache, this may grow to 5+ gigabytes over time.
+			invoke_text_safe("rm -fr /var/lib/snapd/cache/*")
+		finally:
+			# Stop snapd from upgrading automatically (also done in 'KioskSetup.py').
+			invoke_text_safe("snap refresh --hold")
 
-		logger.write("Successfully updated, upgraded, and cleaned system.  Will reboot now.")
+		try:
+			# Update apt package indices.
+			invoke_text_safe("apt-get update")
+
+			# Perform system-wide upgrade of all packages.
+			invoke_text_safe("apt-get upgrade -y")
+		finally:
+			# Clean up the apt cache, this may grow to gigabytes in size over time.
+			invoke_text_safe("apt-get clean")
+
+		logger.write("Successfully updated, upgraded, and cleaned snaps and packages.  Commencing reboot!")
 
 		invoke_text_safe("reboot")
 

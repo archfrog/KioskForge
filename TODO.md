@@ -21,11 +21,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.04.17.23 H Snaps ought to be updated in the `KioskUpgrade.py` script, to make things simpler for the end-user.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
 - [ ] 2025.04.04.16.13 H Add option `network` to allow disabling network completely, after forging is complete.  This should imply
                          `snap_time=`, `update_time=`, `wifi_name=`, etc.
-- [ ] 2025.04.04.16.10 H Support disabling snap updates using the `snap refresh --hold` command (need Chromium updated...).
 - [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  Will probably break things after a while.
 - [ ] 2025.04.04.15.42 H Add option `python_extras` to install one or more packages with `pip`.  Rename `user_packages` to `system_extras`.
 - [ ] 2025.04.03.06.51 H Figure out what to do about the `ship.bat` script; it really shouldn't be part of the public GitHub repo.
@@ -54,10 +52,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
 - [ ] 2025.03.09.00.04 H As KioskForge grows, the need for it to run in a virtual environment probably does too.
                          Only if extra, non-standard packages are used such as `bcrypt`, which KioskForge uses.
-- [ ] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling?
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Testing...
-- [ ] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
-                         Auto will only work on PCs, which I cannot develop nor test at this point in time.
 - [ ] 2025.03.27.17.38 H Make the kiosk configuration more flexible: Prepare for doing motion detector + custom script, etc.
 - [ ] 2025.03.27.16.55 H Investigate how to make minijack work even though is not recommended by most (requires an amplifier).
 - [ ] 2025.03.27.14.09 H Modules: Every module should be an instance of the class `Module` and should provide the following:
@@ -124,6 +119,12 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [ ] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
+                         `auto` will only work on PCs, which I cannot develop nor test at this point in time.
+						 This was done with the update that introduced `sound_card` and renamed `audio` to `sound_level`.
+- [ ] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling? No.
+- [x] 2025.04.04.16.10 H Support disabling snap updates using the `snap refresh --hold` command (let `KioskUpdate.py` do it).
+- [x] 2025.04.04.17.23 H Snaps ought to be updated in the `KioskUpgrade.py` script, to make things simpler for the end-user.
 - [x] 2025.03.31.16.20 H Rename `KioskStart.py` to something better, `KioskOpenBox.py` for instance.
 - [x] 2025.03.31.20.31 H Handle the case that the kiosk has no internet graciously!  Internet is required for the forge process.
                          Check if the cron update jobs fail or what happens.  The update cron job now check if there is internet.

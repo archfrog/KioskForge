@@ -89,9 +89,8 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Wi-Fi network      | `wifi_name`     | string  | The name of the Wi-Fi network to connect to (blank = disable Wi-Fi).          |
 | Wi-Fi password     | `wifi_code`     | string  | The password, if any, to the Wi-Fi network (blank = don't use a password).    |
 | Wi-Fi boost        | `wifi_boost`    | boolean | If enabled, the Wi-Fi card's power saving feature will be disabled.           |
-| Snap update time   | `snap_time`     | period  | A period of time, from start to end, when the Snap update process may run.    |
 | Swap file size     | `swap_size`     | integer | The size of the swap file in gigabytes (0 = disable swap, not recommended).   |
-| APT update time    | `upgrade_time`  | time    | The hour and minute when to perform a global upgrade of packages.             |
+| System update time | `upgrade_time`  | time    | The hour and minute when to perform a global upgrade of packages and snaps.   |
 | Shutdown time      | `poweroff_time` | time    | The hour and minute when to automatically shut down the kiosk machine.        |
 | Vacuum time        | `vacuum_time`   | time    | The hour and minute when to automatically compact and clean log files.        |
 | Vacuum retention   | `vacuum_days`   | integer | The number of days of retention of system logs.                               |
@@ -99,10 +98,6 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | User folder        | `user_folder`   | string  | A folder to copy to `~` on the kiosk.  Useful for local websites and scripts. |
 | User packages      | `user_packages` | string  | A space-separated list of packages to install while forging the kiosk.        |
 | CPU overclocking   | `cpu_boost`     | boolean | 0 = disable default overclocking, 1 = enable default overclocking.            |
-
-The format of the value specified in the `snap_time` option is documented at this link:
-
-* [Snap: timer string format](https://snapcraft.io/docs/timer-string-format)
 
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
 basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself,
