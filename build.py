@@ -74,6 +74,20 @@ class KioskBuild(KioskDriver):
 		if not RAMDISK:
 			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
 
+
+		#*************************** Make a Git release tag for the target version ***********************************************
+
+		words  = TextBuilder()
+		words += "git"
+		words += "tag"
+		words += "-a"
+		words += VERSION
+		words += "-m"
+		words += "Release v" + VERSION + "."
+		invoke_list_safe(words.list)
+
+		#************************** Set up paths and clean out distribution path *************************************************
+
 		rootpath = RAMDISK + os.sep + "KioskForge"
 		distpath = "../tmp"
 		os.makedirs(distpath, mode=0o664, exist_ok=True)
