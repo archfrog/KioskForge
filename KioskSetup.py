@@ -340,6 +340,19 @@ class KioskSetup(KioskDriver):
 
 		# Configure the kiosk according to its type.
 		if setup.type.data in [ "x11", "web" ]:
+			# Install X Windows server and the OpenBox window manager.
+			script += InstallPackagesNoRecommendsAction(
+				"Installing X Windows and OpenBox window manager.",
+				# NOTE: First element used to be 'xserver-xorg', then '"xserver-xorg-core', and no 'xorg'.
+				# NOTE: Changed because of unmet dependencies; i.e. apt suddenly wouldn't install it anymore.
+				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
+			)
+
+			# Append lines to the runner (KioskRunner.sh) to run the custom startup script at automatic login.
+			runner += ""
+			runner += "# Launch X11 and OpenBox into kiosk mode."
+			runner += "%s/KioskStartX11.py" % origin
+
 			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskOpenbox.py).
 			# NOTE: This file is always created, when the screen is rotated, but has no effect on non-touch displays.
 			if setup.screen_rotation.data != "none":
@@ -370,19 +383,6 @@ class KioskSetup(KioskDriver):
 				)
 				del lines
 				del matrices
-
-			# Install X Windows server and the OpenBox window manager.
-			script += InstallPackagesNoRecommendsAction(
-				"Installing X Windows and OpenBox window manager.",
-				# NOTE: First element used to be 'xserver-xorg', then '"xserver-xorg-core', and no 'xorg'.
-				# NOTE: Changed because of unmet dependencies; i.e. apt suddenly wouldn't install it anymore.
-				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
-			)
-
-			# Append lines to the runner (KioskRunner.sh) to run the custom startup script at automatic login.
-			runner += ""
-			runner += "# Launch X11 and OpenBox into kiosk mode."
-			runner += "%s/KioskStartX11.py" % origin
 
 			if setup.type.data == "web":
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
