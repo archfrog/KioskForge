@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggests to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
 - [ ] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [ ] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
