@@ -341,16 +341,17 @@ class KioskSetup(KioskDriver):
 		# Configure the kiosk according to its type.
 		if setup.type.data in [ "x11", "web" ]:
 			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskOpenbox.py).
-			if setup.orientation.data != 0:
+			# NOTE: This file is always created, when the screen is rotated, but has no effect on non-touch displays.
+			if setup.screen_rotation.data != "none":
 				# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
 				matrices = {
-					0 : '1 0 0 0 1 0 0 0 1',
-					1 : '0 -1 1 1 0 0 0 0 1',
-					2 : '-1 0 1 0 -1 1 0 0 1',
-					3 : '0 1 0 -1 0 1 0 0 1'
+					'none'  : '1 0 0 0 1 0 0 0 1',
+					'left'  : '0 -1 1 1 0 0 0 0 1',
+					'flip'  : '-1 0 1 0 -1 1 0 0 1',
+					'right' : '0 1 0 -1 0 1 0 0 1'
 				}
 
-				# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf' to make X11 rotate the touch panel itself.
+				# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-rotation.conf' to make X11 rotate the touch panel itself.
 				# Source: https://gist.github.com/autofyrsto/6daa5d41c7f742dd16c46c903ba15c8f
 				lines  = TextBuilder()
 				lines += 'Section "InputClass"'
@@ -358,11 +359,11 @@ class KioskSetup(KioskDriver):
 				lines += '\tMatchIsTouchscreen "on"'
 				lines += '\tMatchDevicePath "/dev/input/event*"'
 				lines += '\tMatchDriver "libinput"'
-				lines += '\tOption "CalibrationMatrix" "%s"' % matrices[setup.orientation.data]
+				lines += '\tOption "CalibrationMatrix" "%s"' % matrices[setup.screen_rotation.data]
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
 					"Creating X11 configuration file to rotate the touch panel.",
-					"/etc/X11/xorg.conf.d/99-kiosk-set-touch-orientation.conf",
+					"/etc/X11/xorg.conf.d/99-kiosk-set-touch-rotation.conf",
 					"root",
 					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
 					lines.text

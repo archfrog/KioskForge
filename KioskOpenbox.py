@@ -78,16 +78,23 @@ class KioskOpenbox(KioskDriver):
 				subprocess.check_call(shlex.split(xset), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			del xset
 
-			if setup.orientation.data != 0:
-				# Ask 'xrandr' to change screen orientation (rotate the screen).
+			if setup.screen_rotation.data != "none":
+				KIOSKFORGE_TO_XRANDR_ROTATIONS = {
+					'none'  : 'normal',
+					'left'  : 'left',
+					'flip'  : 'inverted',
+					'right' : 'right'
+				}
+				# Ask 'xrandr' to rotate the screen as per the `screen_rotation` setting.
 				command  = TextBuilder()
 				command += "xrandr"
 				command += "--output"
 				command += "HDMI-1"
 				command += "--rotate"
-				command += { 0 : 'normal', 1 : 'left', 2 : 'inverted', 3 : 'right' }[setup.orientation.data]
+				command += KIOSKFORGE_TO_XRANDR_ROTATIONS[setup.screen_rotation.data]
 				subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 				del command
+				del KIOSKFORGE_TO_XRANDR_ROTATIONS
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
 			# NOTE: Chromium does not complain about any of the options listed below!

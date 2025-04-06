@@ -36,7 +36,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.29.21.11 H Go through all options and create a two-level "hierarchy" for them.  Rename `orientation` to `display.rotation`.
 - [ ] 2025.03.29.22.14 H Update `README.md`, `FAQ.md`, and `GUIDE.md` with the new names of the options in the new "hierarchy".
 - [ ] 2025.03.29.21.17 H Consider to pass in a list of parent options to each option: `sound_card` depends on `platform`, etc.
-- [ ] 2025.03.29.21.12 H Introduce symbolic names for the four screen rotations: `none`, `left`, `right`, and `flip` (upside-down).
 - [ ] 2025.03.29.21.00 H Rewrite `Setup.save()` to use a new `???` method, which returns the *external* representation for `.cfg`.
 - [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for configuring Pipewire (to give access to the `Setup` instance).
                          This should be done by the login shell, if possible, as people may want audio for non-browser-kiosks.
@@ -119,10 +118,11 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
-- [ ] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
+- [x] 2025.03.29.21.12 H Introduce symbolic names for the four screen rotations: `none`, `left`, `right`, and `flip` (upside-down).
+- [x] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
                          `auto` will only work on PCs, which I cannot develop nor test at this point in time.
 						 This was done with the update that introduced `sound_card` and renamed `audio` to `sound_level`.
-- [ ] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling? No.
+- [x] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling? No.
 - [x] 2025.04.04.16.10 H Support disabling snap updates using the `snap refresh --hold` command (let `KioskUpdate.py` do it).
 - [x] 2025.04.04.17.23 H Snaps ought to be updated in the `KioskUpgrade.py` script, to make things simpler for the end-user.
 - [x] 2025.03.31.16.20 H Rename `KioskStart.py` to something better, `KioskOpenBox.py` for instance.

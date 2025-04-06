@@ -12,18 +12,18 @@ KioskForge together with these tools.  Expect to redeploy a few times until all 
 
 When you want to display a website using your new kiosk, you especially have to be aware of these options:
 
-| Name               | Option name     | Comment                                                                                  |
-| ----------------   | --------------- | ---------------------------------------------------------------------------------------- |
-| Comment            | `comment`       | A string describing the kiosk and its purpose (for your records).                        |
-| Device type        | `device`        | `pi4` for a plain Raspberry Pi 4, `pi4b` for a 4B model, and `pc` for a standard PC.     |
-| Kiosk type         | `type`          | This should be `web` to launch Chromium in X11.                                          |
-| Command            | `command`       | The URL of the starting page of the website that you want the kiosk to browse.           |
-| Sound card         | `sound_card`    | One of `none`, `jack`, `hdmi1`, or `hdmi2`.  Jack requires an amplifier!                 |
-| Sound volume       | `sound_level`   | The logarithmic audio volume from 0 through 100 (`80` is typically a good choice).       |
-| Mouse cursor       | `mouse`         | This should be disabled (`0`) when using a touch panel, to avoid showing a mouse cursor. |
-| Idle timeout       | `idle_timeout`  | This should be set to a non-zero number of seconds, say `300`, between restarts [^1].    |
-| Screen orientation | `orientation`   | 0 = default, 1 = rotate left, 2 = flip upside-down, 3 = rotate right.                    |
-| User folder        | `user_folder`   | This value should be left blank unless you want to display a local file-based website.   |
+| Name             | Option name       | Comment                                                                                  |
+| ---------------- | ----------------- | ---------------------------------------------------------------------------------------- |
+| Comment          | `comment`         | A string describing the kiosk and its purpose (for your records).                        |
+| Device type      | `device`          | `pi4` for a plain Raspberry Pi 4, `pi4b` for a 4B model, and `pc` for a standard PC.     |
+| Kiosk type       | `type`            | This should be `web` to launch Chromium in X11.                                          |
+| Command          | `command`         | The URL of the starting page of the website that you want the kiosk to browse.           |
+| Sound card       | `sound_card`      | One of `none`, `jack`, `hdmi1`, or `hdmi2`.  Jack requires an amplifier!                 |
+| Sound volume     | `sound_level`     | The logarithmic audio volume from 0 through 100 (`80` is typically a good choice).       |
+| Mouse cursor     | `mouse`           | This should be disabled (`0`) when using a touch panel, to hide the mouse cursor.        |
+| Idle timeout     | `idle_timeout`    | This should be set to a non-zero number of seconds, say `300`, between restarts [^1].    |
+| Screen rotation  | `screen_rotation` | none = default, left = rotate left, flip = flip upside-down, right = rotate right.       |
+| User folder      | `user_folder`     | This value should be left blank unless you want to display a local file-based website.   |
 
 [^1]: Rude customers may sabotage the kiosk; the restart of the browser resets such sabotage (young people often do this).
 
