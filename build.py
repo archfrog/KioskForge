@@ -60,7 +60,7 @@ class KioskBuild(KioskDriver):
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Parse command-line arguments.
 		clean = False
-		if len(arguments) >= 1 and arguments[0] == "--clean":
+		if len(arguments) == 1 and arguments[0] == "--clean":
 			clean = True
 		elif len(arguments) != 0:
 			raise SyntaxError('"build.py" [--clean]')
