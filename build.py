@@ -115,50 +115,55 @@ class KioskBuild(KioskDriver):
 		#************************** Create 'KioskForge.exe' (created by PyInstaller, consumed by Inno Setup 6+) ******************
 
 		# Build the (pretty long) command line for PyInstaller.
-		words  = TextBuilder()
-		words += "pyinstaller"
+		try:
+			words  = TextBuilder()
+			words += "pyinstaller"
 
-		if False:
-			words += "--debug"
-			words += "all"
+			if False:
+				words += "--debug"
+				words += "all"
 
-		if clean:
-			words += "--clean"
+			if clean:
+				words += "--clean"
 
-		words += "--console"
-		words += "--noupx"
-		words += "--onefile"
+			words += "--console"
+			words += "--noupx"
+			words += "--onefile"
 
-		words += "--distpath"
-		words += distpath
-
-		words += "--workpath"
-		words += workpath
-
-		# NOTE: The --specpath option also affects the default location of data files, something I think is pretty bizarre.
-		if False:
-			words += "--specpath"
+			words += "--distpath"
 			words += distpath
 
-		words += "--upx-exclude"
-		words += "python3.dll"
+			words += "--workpath"
+			words += workpath
 
-		words += "--icon"
-		words += "../pic/logo.ico"
+			# NOTE: The --specpath option also affects the default location of data files, something I think is pretty bizarre.
+			if False:
+				words += "--specpath"
+				words += distpath
 
-		words += "--version-file"
-		words += rootpath + os.sep + "version.txt"
+			words += "--upx-exclude"
+			words += "python3.dll"
 
-		for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
-			words += "--add-data"
-			if os.path.isfile(item):
-				words += item + ":."
-			else:
-				words += item + ":" + item
+			words += "--icon"
+			words += "../pic/logo.ico"
 
-		words += "KioskForge.py"
+			words += "--version-file"
+			words += rootpath + os.sep + "version.txt"
 
-		invoke_list_safe(words.list)
+			for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
+				words += "--add-data"
+				if os.path.isfile(item):
+					words += item + ":."
+				else:
+					words += item + ":" + item
+
+			words += "KioskForge.py"
+
+			invoke_list_safe(words.list)
+		finally:
+			# Remove the 'KioskForge.spec' file as it is automatically re-generated whenever PyInstaller is invoked.
+			if os.path.isfile("KioskForge.spec"):
+				os.unlink("KioskForge.spec"
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		for file in ["FAQ.md", "GUIDE.md", "README.md"]:
