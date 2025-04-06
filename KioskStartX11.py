@@ -64,7 +64,7 @@ class KioskStartX11(KioskDriver):
 		# Launch the X server, which launches '.config/openbox/autostart' to eventually launch Chromium in kiosk mode.
 		words  = TextBuilder()
 		words += "startx"
-		if setup.mouse.data:
+		if not setup.mouse.data:
 			words += "--"
 			words += "-nocursor"
 		invoke_list_safe(words.list)
