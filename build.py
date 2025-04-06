@@ -181,15 +181,17 @@ class KioskBuild(KioskDriver):
 
 		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (kioskforge.org/downloads).
 
-		words  = TextBuilder()
-		words += r"C:\Program Files\Git\usr\bin\scp.exe"
-		words += "-F"
-		words += r"u:\.ssh\config"
-		words += "-p"
-		words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
-		# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
-		words += "web:web/pub/kioskforge.org/"
-		invoke_list_safe(words.list)
+		# NOTE: Ignore request to ship to kioskforge.org if building on a system that does not have access to it.
+		if os.path.isfile(r"C:\Program Files\Git\usr\bin\scp.exe") and os.path.isfile(r"u:\.ssh\config"):
+			words  = TextBuilder()
+			words += r"C:\Program Files\Git\usr\bin\scp.exe"
+			words += "-F"
+			words += r"u:\.ssh\config"
+			words += "-p"
+			words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
+			# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
+			words += "web:web/pub/kioskforge.org/"
+			invoke_list_safe(words.list)
 
 
 if __name__ == "__main__":
