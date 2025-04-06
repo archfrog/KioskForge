@@ -202,7 +202,7 @@ class Setup(object):
 		self.upgrade_time    = TimeField("upgrade_time", "The time of day to upgrade the system (blank = never)")
 		self.poweroff_time   = TimeField("poweroff_time", "The time of day to power off the system (blank = never)")
 		self.idle_timeout    = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
-		self.screen_rotation = StringField("screen_rotation", "Screen and touchpad rotation: (none, left, flip, or right).", "(none|left|flip|right)")
+		self.screen_rotation = RegexField("screen_rotation", "Screen and touchpad rotation: (none, left, flip, or right).", "(none|left|flip|right)")
 		self.user_folder     = StringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
 		self.user_packages   = StringField("user_packages", "A space-separated list of extra packages to install while forging of the kiosk (blank = none)")
 
