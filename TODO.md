@@ -21,8 +21,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
+- [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
 - [ ] 2025.04.07.02.31 H Consider to rename `upgrade_time` to `maintenance` or something like that.  It is now a generic task.
-- [ ] 2025.04.07.01.30 H How does `user_folder` work with the new installer?  I guess will be completely broken...
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
 - [ ] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
@@ -77,6 +78,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.07.07.43 H GUI: Make a checkbox next to each optional field that disables or enables the input value.
                          This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
+- [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
 - [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking, etc. can be configured.
 - [ ] 2025.03.16.06.07 M GUI: Add option to control overclocking of RPI4 and RPI5.
 - [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
@@ -114,6 +116,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.07.01.30 H How does `user_folder` work with the new installer?  I guess will be completely broken...
+                         The solution is to work relative to the '.kiosk' file in `KioskForge.py`, allowing `user_folder=.`.
 - [x] 2025.04.07.02.17 H Add support for the user double-clicking a `.kiosk` file in Windows Explorer (i.e. an argument).
 - [x] 2025.04.07.02.03 H Use `.kiosk` as the extension of KioskForge configuration files instead of `.cfg`.
 - [x] 2025.04.07.01.53 H Eliminate the `vacuum_time` option, this should be done as part `KioskUpdate.py` to keep things simple.

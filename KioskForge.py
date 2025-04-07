@@ -480,11 +480,12 @@ class KioskForge(KioskDriver):
 			stream.indent()
 			stream.write("- cp -pR %s/KioskForge %s" % (source, output))
 
-			# Copy user-supplied data folder to the target, if any.
+			# Copy user-supplied data folder on install medium to the target, if any and make them owned by the configured user.
 			if setup.user_folder.data:
-				user_folder = source + os.sep + os.path.split(setup.user_folder.data)[1]
-				user_folder = user_folder.replace('\\', '/')
+				basename = os.path.basename(os.path.abspath(setup.user_folder.data))
+				user_folder = source + '/' + basename
 				stream.write("- cp -pR %s %s" % (user_folder, output))
+				stream.write("- chown -R %s:%s %s" % (setup.user_name.data, setup.user_name.data, output + '/' + basename))
 				del user_folder
 
 			stream.write("- chown -R %s:%s %s/KioskForge" % (setup.user_name.data, setup.user_name.data, output))
@@ -922,10 +923,21 @@ class KioskForge(KioskDriver):
 
 					# Copy user folder, if any, to the install medium so that it can be copied onto the target.
 					if setup.user_folder.data:
-						destination = target.basedir + os.sep + os.path.split(setup.user_folder.data)[1]
+						if setup.user_folder.data == "KioskForge":
+							raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
+
+						# Use 'abspath' to the handle the case that the user folder is identical to '.'.
+						source = os.path.abspath(os.path.join(os.path.dirname(filename), setup.user_folder.data))
+						# Extract the last portion of the source's full path to get the name of the folder on the install medium.
+						basename = os.path.basename(source)
+						destination = target.basedir + os.sep + basename
+						del basename
+
 						if os.path.isdir(destination):
 							shutil.rmtree(destination)
-						shutil.copytree(setup.user_folder.data, destination)
+
+						shutil.copytree(source, destination)
+						del source
 						del destination
 
 					# Report success to the log.
