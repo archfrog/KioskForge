@@ -47,7 +47,11 @@ class Result(object):
 def invoke_list(command : List[str]) -> Result:
 	# Capture stderr and stdout interleaved in the same output string by using stderr=...STDOUT and stdout=...PIPE.
 	result = subprocess.run(command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, check=False, shell=False, text=False)
-	output = result.stdout.decode('utf-8')
+	try:
+		output = result.stdout.decode('utf-8')
+	except UnicodeDecodeError:
+		print(result.stdout)
+		raise
 	return Result(result.returncode, output)
 
 # invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
