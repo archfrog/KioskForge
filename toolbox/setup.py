@@ -31,7 +31,7 @@ from toolbox.version import Version
 
 
 class Field(object):
-	"""Base class for configuration fields; these are name/data pairs."""
+	"""Base class for configuration fields; these are hint/name/data triplets."""
 
 	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
@@ -112,6 +112,24 @@ class StringField(Field):
 		return self.__data
 
 	def parse(self, data : str) -> None:
+		if data == "":
+			raise FieldError(self.name, "Field cannot be blank")
+
+		self.__data = data
+
+
+class OptionalStringField(Field):
+	"""Derived class that implements an optional string field (a string field that may be empty)."""
+
+	def __init__(self, name : str, hint : str) -> None:
+		Field.__init__(self, name, hint)
+		self.__data = ""
+
+	@property
+	def data(self) -> str:
+		return self.__data
+
+	def parse(self, data : str) -> None:
 		self.__data = data
 
 
@@ -130,7 +148,7 @@ class PasswordField(StringField):
 		if data[0] == '$':
 			raise FieldError(self.name, "Password cannot begin with a dollar sign ($)")
 
-		# Apparently, the maximum length of an input password to 'bcrypt' is 72 characters.
+		# Apparently, the maximum length of a password input to 'bcrypt' is 72 characters.
 		if len(data) > 72:
 			raise FieldError(self.name, "Password too long - cannot exceed 72 characters")
 
@@ -178,6 +196,7 @@ class Setup(object):
 	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
 
 	def __init__(self) -> None:
+		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be blank.  All other fields must be set.
 		self.comment         = StringField("comment", "A descriptive comment for the kiosk machine.")
 		self.device          = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
 		self.type            = RegexField("type", "The type of kiosk to make: cli, x11 or web.", "(cli|x11|web)")
@@ -192,8 +211,8 @@ class Setup(object):
 		self.user_name       = StringField("user_name", "The user name of the non-root administrative user (e.g., 'user').")
 		self.user_code       = PasswordField("user_code", "The password for the user (e.g., 'dumsey3rumble').")
 		self.ssh_key         = StringField("ssh_key", "The public SSH key for accessing the kiosk using the 'ssh' command.")
-		self.wifi_name       = StringField("wifi_name", "The Wi-Fi network name (case sensitive!) (e.g., 'MyWiFi', blank = no Wi-Fi).")
-		self.wifi_code       = StringField("wifi_code", "The password to the Wi-Fi network (case sensitive!) (e.g., 'stay4out!', blank = no password).")
+		self.wifi_name       = OptionalStringField("wifi_name", "The Wi-Fi network name (case sensitive!) (e.g., 'MyWiFi', blank = no Wi-Fi).")
+		self.wifi_code       = OptionalStringField("wifi_code", "The password to the Wi-Fi network (case sensitive!) (e.g., 'stay4out!', blank = no password).")
 		self.wifi_boost      = BooleanField("wifi_boost", "If enabled, Wi-Fi power saving is disabled in the kiosk (y/n).")
 		self.cpu_boost       = BooleanField("cpu_boost", "If enabled, the CPU is overclocked to run slightly faster.")
 		self.swap_size       = NaturalField("swap_size", "The size in gigabytes of the swap file (0 = none).", 0, 128)
@@ -203,8 +222,8 @@ class Setup(object):
 		self.poweroff_time   = TimeField("poweroff_time", "The time of day to power off the system (blank = never)")
 		self.idle_timeout    = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
 		self.screen_rotation = RegexField("screen_rotation", "Screen and touchpad rotation: (none, left, flip, or right).", "(none|left|flip|right)")
-		self.user_folder     = StringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
-		self.user_packages   = StringField("user_packages", "A space-separated list of extra packages to install while forging of the kiosk (blank = none)")
+		self.user_folder     = OptionalStringField("user_folder", "A folder that is copied to ~ on the kiosk (for websites, etc.) (blank = none)")
+		self.user_packages   = OptionalStringField("user_packages", "A space-separated list of extra packages to install while forging of the kiosk (blank = none)")
 
 	def check(self) -> List[str]:
 		result = []
@@ -213,33 +232,33 @@ class Setup(object):
 			for name in vars(self):
 				field = getattr(self, name)
 				result += field.check()
-
-		if self.comment.data == "":
-			result.append("Warning: 'comment' value not specified")
-		if self.device.data == "":
-			result.append("Warning: 'device' value not specified")
-		if self.type.data == "":
-			result.append("Warning: 'type' value not specified")
-		if self.command.data == "":
-			result.append("Warning: 'command' value not specified")
-		if self.hostname.data == "":
-			result.append("Warning: 'hostname' value not specified")
-		if self.timezone.data == "":
-			result.append("Warning: 'timezone' value not specified")
-		if self.keyboard.data == "":
-			result.append("Warning: 'keyboard' value not specified")
-		if self.locale.data == "":
-			result.append("Warning: 'locale' value not specified")
-		if self.sound_card.data == "":
-			result.append("Warning: 'sound_card' value not specified")
-		if self.user_name.data == "":
-			result.append("Warning: 'user_name' value not specified")
-		if self.user_code.data == "":
-			result.append("Warning: 'user_code' value not specified")
-		if self.ssh_key.data == "":
-			result.append("Warning: 'ssh_key' value not specified")
-		if self.wifi_name.data != "" and self.wifi_code.data == "":
-			result.append("Warning: 'wifi_code' value not specified")
+		else:
+			if self.comment.data == "":
+				result.append("Warning: 'comment' value not specified")
+			if self.device.data == "":
+				result.append("Warning: 'device' value not specified")
+			if self.type.data == "":
+				result.append("Warning: 'type' value not specified")
+			if self.command.data == "":
+				result.append("Warning: 'command' value not specified")
+			if self.hostname.data == "":
+				result.append("Warning: 'hostname' value not specified")
+			if self.timezone.data == "":
+				result.append("Warning: 'timezone' value not specified")
+			if self.keyboard.data == "":
+				result.append("Warning: 'keyboard' value not specified")
+			if self.locale.data == "":
+				result.append("Warning: 'locale' value not specified")
+			if self.sound_card.data == "":
+				result.append("Warning: 'sound_card' value not specified")
+			if self.user_name.data == "":
+				result.append("Warning: 'user_name' value not specified")
+			if self.user_code.data == "":
+				result.append("Warning: 'user_code' value not specified")
+			if self.ssh_key.data == "":
+				result.append("Warning: 'ssh_key' value not specified")
+			if self.wifi_name.data != "" and self.wifi_code.data == "":
+				result.append("Warning: 'wifi_code' value not specified")
 
 		return result
 

@@ -489,7 +489,7 @@ class KioskForge(KioskDriver):
 
 			stream.write("- chown -R %s:%s %s/KioskForge" % (setup.user_name.data, setup.user_name.data, output))
 			stream.write("- chmod -R u+x %s/KioskForge" % output)
-			stream.write("- chmod a-x %s/KioskForge/KioskForge.cfg" % output)
+			stream.write("- chmod a-x %s/KioskForge/KioskForge.kiosk" % output)
 			stream.write("- systemctl daemon-reload")
 			stream.write("- systemctl enable KioskSetup")
 			stream.dedent()
@@ -743,7 +743,7 @@ class KioskForge(KioskDriver):
 					print()
 				elif choice == 1:
 					# Load existing kiosk from disk.
-					answer = input("Please enter or paste full path of kiosk file (*.cfg): ").strip()
+					answer = input("Please enter or paste full path of kiosk file (*.kiosk): ").strip()
 					print()
 
 					if answer == "":
@@ -792,14 +792,14 @@ class KioskForge(KioskDriver):
 					# Allow the user to save the kiosk.
 					if changed:
 						while True:
-							answer = input("Please enter or paste full path of kiosk file (*.cfg): ").strip()
+							answer = input("Please enter or paste full path of kiosk file (*.kiosk): ").strip()
 							print()
 
 							if answer == "":
 								continue
 
-							if not answer.endswith(".cfg"):
-								raise KioskError("KioskForge kiosk configuration files MUST end in .cfg")
+							if not answer.endswith(".kiosk"):
+								raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
 
 							# Create new folder, if any, and save the configuration.
 							folder = os.path.split(answer)[0]
@@ -893,7 +893,7 @@ class KioskForge(KioskDriver):
 					os.makedirs(output)
 
 					# Write configuration to the target.
-					setup.save(output + os.sep + "KioskForge.cfg", self.version, False)
+					setup.save(output + os.sep + "KioskForge.kiosk", self.version, False)
 
 					# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
 					for name in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
