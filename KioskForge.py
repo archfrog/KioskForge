@@ -920,6 +920,7 @@ class KioskForge(KioskDriver):
 						else:
 							shutil.copytree(origin + os.sep + name, output + os.sep + name)
 
+					# Copy user folder, if any, to the install medium so that it can be copied onto the target.
 					if setup.user_folder.data:
 						destination = target.basedir + os.sep + os.path.split(setup.user_folder.data)[1]
 						if os.path.isdir(destination):
