@@ -479,18 +479,22 @@ class KioskForge(KioskDriver):
 			stream.write("runcmd:")
 			stream.indent()
 			stream.write("- cp -pR %s/KioskForge %s" % (source, output))
-
-			# Copy user-supplied data folder on install medium to the target, if any and make them owned by the configured user.
-			if setup.user_folder.data:
-				basename = os.path.basename(os.path.abspath(setup.user_folder.data))
-				user_folder = source + '/' + basename
-				stream.write("- cp -pR %s %s" % (user_folder, output))
-				stream.write("- chown -R %s:%s %s" % (setup.user_name.data, setup.user_name.data, output + '/' + basename))
-				del user_folder
-
 			stream.write("- chown -R %s:%s %s/KioskForge" % (setup.user_name.data, setup.user_name.data, output))
 			stream.write("- chmod -R u+x %s/KioskForge" % output)
 			stream.write("- chmod a-x %s/KioskForge/KioskForge.kiosk" % output)
+
+			# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
+			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
+			if setup.user_folder.data:
+				basename = os.path.basename(os.path.abspath(setup.user_source.data))
+				user_source = source + '/' + basename
+				user_target = output + '/' + basename
+				stream.write("- cp -pR %s %s" % (user_source, output))
+				stream.write("- chown -R %s:%s %s" % (setup.user_name.data, setup.user_name.data, user_target))
+				stream.write("- chmod -R u+x %s" % (output, user_target))
+				del user_source
+				del user_target
+
 			stream.write("- systemctl daemon-reload")
 			stream.write("- systemctl enable KioskSetup")
 			stream.dedent()
