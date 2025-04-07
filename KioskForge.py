@@ -491,7 +491,7 @@ class KioskForge(KioskDriver):
 				user_target = output + '/' + basename
 				stream.write("- cp -pR %s %s" % (user_source, output))
 				stream.write("- chown -R %s:%s %s" % (setup.user_name.data, setup.user_name.data, user_target))
-				stream.write("- chmod -R u+x %s" % (output, user_target))
+				stream.write("- chmod -R u+x %s" % user_target)
 				del user_source
 				del user_target
 
