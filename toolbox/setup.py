@@ -173,21 +173,21 @@ class RegexField(StringField):
 		StringField.parse(self, data)
 
 
-class TimeField(StringField):
+class TimeField(OptionalStringField):
 	"""Derived class that implements a time (HH:MM) field."""
 
 	def __init__(self, name : str, hint : str) -> None:
-		StringField.__init__(self, name, hint)
+		OptionalStringField.__init__(self, name, hint)
 
 	def parse(self, data : str) -> None:
 		if data == "":
-			StringField.parse(self, data)
+			OptionalStringField.parse(self, data)
 			return
 
 		try:
 			# Let time.strptime() validate the time value.
 			time.strptime(data, "%H:%M")
-			StringField.parse(self, data)
+			OptionalStringField.parse(self, data)
 		except ValueError:
 			raise FieldError(self.name, "Invalid time specification: %s" % data)
 
