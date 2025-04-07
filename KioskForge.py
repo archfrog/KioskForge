@@ -486,7 +486,7 @@ class KioskForge(KioskDriver):
 			# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
 			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
 			if setup.user_folder.data:
-				basename = os.path.basename(os.path.abspath(setup.user_source.data))
+				basename = os.path.basename(os.path.abspath(setup.user_folder.data))
 				user_source = source + '/' + basename
 				user_target = output + '/' + basename
 				stream.write("- cp -pR %s %s" % (user_source, output))
