@@ -813,31 +813,24 @@ class KioskForge(KioskDriver):
 				elif choice == 3:
 					# Save kiosk.
 					# Allow the user to save the kiosk.
-					if changed:
-						while True:
-							answer = input("Please enter/paste full path: (blank = %s): " % filename).strip()
-							print()
+					answer = input("Please enter/paste full path: (blank = %s): " % filename).strip()
+					print()
 
-							if answer == "":
-								answer = filename
+					if answer == "":
+						answer = filename
 
-							if not answer.endswith(".kiosk"):
-								raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
+					if not answer.endswith(".kiosk"):
+						raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
 
-							# Create new folder, if any, and save the configuration.
-							folder = os.path.split(answer)[0]
-							os.makedirs(folder, exist_ok=True)
-							setup.save(answer, self.version)
-							del folder
-							changed = False
+					# Create new folder, if any, and save the configuration.
+					folder = os.path.dirname(answer)
+					os.makedirs(folder, exist_ok=True)
+					setup.save(answer, self.version)
+					del folder
+					changed = False
 
-							filename = answer
-							del answer
-
-							# Break INNER while loop, don't break the OUTER as that makes the program stop.
-							break
-					else:
-						raise KioskError("Kiosk not changed, no need to save it")
+					filename = answer
+					del answer
 				elif choice == 4:
 					# Check if a kiosk has been created or loaded.
 					if not filename and not changed:
