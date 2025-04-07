@@ -276,7 +276,7 @@ class Setup(object):
 
 			# Process unsupported section marker.
 			if line[0] == '[' and line[-1] == ']':
-				raise InputError("Sections not supported in configuration (.cfg) file")
+				raise InputError("Sections not supported in kiosk files")
 
 			# Parse name/data pair (name=data).
 			index = line.find('=')
