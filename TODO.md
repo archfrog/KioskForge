@@ -21,7 +21,11 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggests to not use it.
+- [ ] 2025.04.07.02.17 H Add support for the user double-clicking a `.kiosk` file in Windows Explorer (i.e. an argument).
+- [ ] 2025.04.07.02.03 H Use `.kiosk` as the extension of KioskForge configuration files instead of `.cfg`.
+- [ ] 2025.04.07.01.53 H Eliminate the `vacuum_time` option, this should be done as part `KioskUpdate.py` to keep things simple.
+- [ ] 2025.04.07.01.30 H How does `user_folder` work with the new installer?  I guess will be completely broken...
+- [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
 - [ ] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [ ] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
