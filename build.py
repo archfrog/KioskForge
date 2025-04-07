@@ -163,7 +163,7 @@ class KioskBuild(KioskDriver):
 		finally:
 			# Remove the 'KioskForge.spec' file as it is automatically re-generated whenever PyInstaller is invoked.
 			if os.path.isfile("KioskForge.spec"):
-				os.unlink("KioskForge.spec"
+				os.unlink("KioskForge.spec")
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		for file in ["FAQ.md", "GUIDE.md", "README.md"]:
