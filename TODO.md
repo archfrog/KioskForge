@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.07.03.50 H Would be nifty the the `command` option worked relative to `~`.  I think it does, but am not sure.
 - [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
 - [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
 - [ ] 2025.04.07.02.31 H Consider to rename `upgrade_time` to `maintenance` or something like that.  It is now a generic task.
