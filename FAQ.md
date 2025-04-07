@@ -14,6 +14,13 @@ This is most likely because you have misspelled the Wi-Fi network name or are us
 
 A tip is to try to create a new connection with your phone to see if that works.  Most likely, it will fail too.
 
+### How much space does KioskForge take up on the kiosk machine?
+As of this writing, less than half a megabyte.  This is negible and should not cause any concern on your part.
+
+All files created by and used by KioskForge are located in `~/KioskForge`.  Please do **not** remove this folder as it is required.
+
+The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
+
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
 To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcomm, but I have no idea what they mean or why they pop up.
 
@@ -25,7 +32,9 @@ Please ignore these errors - as far as I can tell, the Wi-Fi card works as it sh
 KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.
 
 ### I get spurious errors while the Linux installer ('KioskSetup.py') is running?
-The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Try with another installation media (USB key or another MicroSD card), and the errors should disappear.
+The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Another possibility is that your USB key is too hot, this happens quite often.
+
+Try with another installation media (USB key or another MicroSD card), and the error(s) should disappear.
 
 If the problem persists, report it as a bug.  It may be some obscure error in KioskForge.
 
