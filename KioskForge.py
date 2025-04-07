@@ -705,17 +705,32 @@ class KioskForge(KioskDriver):
 			raise KioskError("This script can currently only be run on a Windows machine")
 
 		# Parse command-line arguments.
-		if len(arguments) != 0:
+		if len(arguments) > 1:
 			raise SyntaxError("\"KioskForge.py\"")
+
+		# Bloody hack to support double-clicking on a '.kiosk' file in Windows Explorer follows...
+		if len(arguments) == 1:
+			first_path = arguments[0]
+		else:
+			first_path = ""
 
 		# Show the main menu.
 		# TODO: Warn the user against saving if the kiosk is blank.
-		editor = Editor()
 		setup = Setup()
+		editor = Editor()
 		changed = False
 		filename = ""
 		while True:
 			try:
+				if first_path:
+					setup.load(first_path)
+					filename = first_path
+					changed = False
+					first_path = ""
+
+				print("Kiosk file: %s" % (filename if filename != "" else "(none)"))
+				print()
+
 				# Present a menu of valid choices for the user to make.
 				choices = [
 					"Create new kiosk in memory",
@@ -734,6 +749,9 @@ class KioskForge(KioskDriver):
 					# Exit program.
 					break
 				elif choice == 0:
+					if changed:
+						raise KioskError("Kiosk has unsaved changes")
+
 					# Create new kiosk.
 					setup = Setup()
 					filename = ""
@@ -792,11 +810,11 @@ class KioskForge(KioskDriver):
 					# Allow the user to save the kiosk.
 					if changed:
 						while True:
-							answer = input("Please enter or paste full path of kiosk file (*.kiosk): ").strip()
+							answer = input("Please enter/paste full path: (blank = %s): " % filename).strip()
 							print()
 
 							if answer == "":
-								continue
+								answer = filename
 
 							if not answer.endswith(".kiosk"):
 								raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
