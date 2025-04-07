@@ -65,15 +65,20 @@ class KioskBuild(KioskDriver):
 		elif len(arguments) != 0:
 			raise SyntaxError('"build.py" [--clean]')
 
+		# Check that the user has set up the RAMDISK environment variable.
+		RAMDISK = os.environ.get("RAMDISK")
+		if not RAMDISK:
+			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
+
 		# Check that Inno Setup v6+ is in its expected location.
 		innopath = r"c:\Program Files (x86)\Inno Setup 6\Compil32.exe"
 		if not os.path.isfile(innopath):
 			raise KioskError("Cannot find Inno Setup 6 (Compil32.exe) on this PC")
 
-		RAMDISK = os.environ.get("RAMDISK")
-		if not RAMDISK:
-			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
-
+		# Check that all required tools are installed and accessible.
+		for tool in ["git", "pyinstaller", "pandoc"]:
+			if not shutil.which(tool):
+				raise KioskError("Unable to locate '%s' in PATH" % tool)
 
 		#*************************** Make a Git release tag for the target version ***********************************************
 
@@ -115,55 +120,54 @@ class KioskBuild(KioskDriver):
 		#************************** Create 'KioskForge.exe' (created by PyInstaller, consumed by Inno Setup 6+) ******************
 
 		# Build the (pretty long) command line for PyInstaller.
-		try:
-			words  = TextBuilder()
-			words += "pyinstaller"
+		words  = TextBuilder()
+		words += "pyinstaller"
 
-			if False:
-				words += "--debug"
-				words += "all"
+		if False:
+			words += "--debug"
+			words += "all"
 
-			if clean:
-				words += "--clean"
+		if clean:
+			words += "--clean"
 
-			words += "--console"
-			words += "--noupx"
-			words += "--onefile"
+		words += "--console"
+		words += "--noupx"
+		words += "--onefile"
 
-			words += "--distpath"
+		words += "--distpath"
+		words += distpath
+
+		words += "--workpath"
+		words += workpath
+
+		# NOTE: The --specpath option also affects the default location of data files, something I think is pretty bizarre.
+		if False:
+			words += "--specpath"
 			words += distpath
 
-			words += "--workpath"
-			words += workpath
+		words += "--upx-exclude"
+		words += "python3.dll"
 
-			# NOTE: The --specpath option also affects the default location of data files, something I think is pretty bizarre.
-			if False:
-				words += "--specpath"
-				words += distpath
+		words += "--icon"
+		words += "../pic/logo.ico"
 
-			words += "--upx-exclude"
-			words += "python3.dll"
+		words += "--version-file"
+		words += rootpath + os.sep + "version.txt"
 
-			words += "--icon"
-			words += "../pic/logo.ico"
+		for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
+			words += "--add-data"
+			if os.path.isfile(item):
+				words += item + ":."
+			else:
+				words += item + ":" + item
 
-			words += "--version-file"
-			words += rootpath + os.sep + "version.txt"
+		words += "KioskForge.py"
 
-			for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
-				words += "--add-data"
-				if os.path.isfile(item):
-					words += item + ":."
-				else:
-					words += item + ":" + item
+		invoke_list_safe(words.list)
 
-			words += "KioskForge.py"
-
-			invoke_list_safe(words.list)
-		finally:
-			# Remove the 'KioskForge.spec' file as it is automatically re-generated whenever PyInstaller is invoked.
-			if os.path.isfile("KioskForge.spec"):
-				os.unlink("KioskForge.spec")
+		# Remove the 'KioskForge.spec' file as it is automatically re-generated whenever PyInstaller is invoked.
+		if os.path.isfile("KioskForge.spec"):
+			os.unlink("KioskForge.spec")
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		for file in ["FAQ.md", "GUIDE.md", "README.md"]:
