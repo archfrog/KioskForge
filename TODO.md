@@ -22,7 +22,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 ## Open Tasks
 # TODO:
 - [ ] 2025.04.07.02.31 H Consider to rename `upgrade_time` to `maintenance` or something like that.  It is now a generic task.
-- [ ] 2025.04.07.02.17 H Add support for the user double-clicking a `.kiosk` file in Windows Explorer (i.e. an argument).
 - [ ] 2025.04.07.01.30 H How does `user_folder` work with the new installer?  I guess will be completely broken...
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
@@ -115,6 +114,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.07.02.17 H Add support for the user double-clicking a `.kiosk` file in Windows Explorer (i.e. an argument).
 - [x] 2025.04.07.02.03 H Use `.kiosk` as the extension of KioskForge configuration files instead of `.cfg`.
 - [x] 2025.04.07.01.53 H Eliminate the `vacuum_time` option, this should be done as part `KioskUpdate.py` to keep things simple.
 - [x] 2025.03.15.18.58 H Make the `wifi_boost` setting optional.
