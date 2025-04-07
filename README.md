@@ -92,7 +92,6 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Swap file size     | `swap_size`       | integer | The size of the swap file in gigabytes (0 = disable swap, not recommended). |
 | System update time | `upgrade_time`    | time    | The hour and minute when to perform a global upgrade of packages and snaps. |
 | Shutdown time      | `poweroff_time`   | time    | The hour and minute when to automatically shut down the kiosk machine.      |
-| Vacuum time        | `vacuum_time`     | time    | The hour and minute when to automatically compact and clean log files.      |
 | Vacuum retention   | `vacuum_days`     | integer | The number of days to keep system logs before discarding them.              |
 | Screen rotation    | `screen_rotation` | integer | The screen and touch panel rotation: none, left, flip, or right.            |
 | User folder        | `user_folder`     | string  | A folder to copy to `~` on the kiosk.  Useful for local websites, etc.      |

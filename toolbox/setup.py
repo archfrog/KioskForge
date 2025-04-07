@@ -216,7 +216,6 @@ class Setup(object):
 		self.wifi_boost      = BooleanField("wifi_boost", "If enabled, Wi-Fi power saving is disabled in the kiosk (y/n).")
 		self.cpu_boost       = BooleanField("cpu_boost", "If enabled, the CPU is overclocked to run slightly faster.")
 		self.swap_size       = NaturalField("swap_size", "The size in gigabytes of the swap file (0 = none).", 0, 128)
-		self.vacuum_time     = TimeField("vacuum_time", "The time of day to vacuum system logs (blank = never)")
 		self.vacuum_days     = NaturalField("vacuum_days", "The number of days to retain system logs for (1 through 365, only used if 'vacuum_time' is set)", 1, 365)
 		self.upgrade_time    = TimeField("upgrade_time", "The time of day to upgrade the system (blank = never)")
 		self.poweroff_time   = TimeField("poweroff_time", "The time of day to power off the system (blank = never)")

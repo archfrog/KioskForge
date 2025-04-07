@@ -457,23 +457,8 @@ class KioskSetup(KioskDriver):
 			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
 
 		# If the user_packages option is specified, install the extra package(s).
-		if setup.user_packages.data != "":
+		if setup.user_packages.data:
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
-
-		# Create cron job to vacuum/compact the system logs every N days.
-		if setup.vacuum_time.data != "":
-			lines  = TextBuilder()
-			lines += "# Cron job to vacuum (compact) the server logs every day so as to avoid the disk becoming full after years of use."
-			lines += "%s %s * * *\troot\tjournalctl --vacuum-time=%dd" % (
-				setup.vacuum_time.data[3:5], setup.vacuum_time.data[0:2], setup.vacuum_days.data
-			)
-			lines += ""
-			script += CreateTextAction(
-				"Creating cron job to vacuum/compact system at configured interval.",
-				"/etc/cron.d/kiosk-vacuum-logs",
-				lines.text
-			)
-			del lines
 
 		# Create cron job to update, upgrade, clean, and reboot the system every day at a given time.
 		if setup.upgrade_time.data != "":
