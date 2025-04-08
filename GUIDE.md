@@ -15,7 +15,7 @@ When you want to display a website using your new kiosk, you especially have to 
 | Name             | Option name       | Comment                                                                                  |
 | ---------------- | ----------------- | ---------------------------------------------------------------------------------------- |
 | Comment          | `comment`         | A string describing the kiosk and its purpose (for your records).                        |
-| Device type      | `device`          | `pi4` for a plain Raspberry Pi 4, `pi4b` for a 4B model, and `pc` for a standard PC.     |
+| Device type      | `device`          | `pi4b` for a 4B model, and `pc` for a standard PC (the latter is currently broken).      |
 | Kiosk type       | `type`            | This should be `web` to launch Chromium in X11.                                          |
 | Command          | `command`         | The URL of the starting page of the website that you want the kiosk to browse.           |
 | Sound card       | `sound_card`      | One of `none`, `jack`, `hdmi1`, or `hdmi2`.  Jack requires an amplifier!                 |
@@ -25,7 +25,7 @@ When you want to display a website using your new kiosk, you especially have to 
 | Screen rotation  | `screen_rotation` | none = default, left = rotate left, flip = flip upside-down, right = rotate right.       |
 | User folder      | `user_folder`     | This value should be left blank unless you want to display a local file-based website.   |
 
-[^1]: Rude customers may sabotage the kiosk; the restart of the browser resets such sabotage (young people often do this).
+[^1]: Rude customers may sabotage the kiosk (young people often do this); the restart of the browser resets such sabotage.
 
 **NOTE**: The current method of reloading the starting page, by terminating the web browser gracefully and restarting it, is far
 from optimal, a better solution may come up some day, but until then, this is, unfortunately, all that KioskForge offers.

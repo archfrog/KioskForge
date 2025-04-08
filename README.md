@@ -4,13 +4,14 @@ intended to be used by somewhat non-technical users to set up a kiosk machine fo
 
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.2 on Raspberry Pi 4/4B (2+ GB RAM) ARM64 (aarch64) and PC x64/AMD64 machines.
+* Ubuntu Server 24.04.2 on Raspberry Pi 4B (2+ GB RAM) ARM64 (aarch64) and PC x64/AMD64 machines.
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or Wi-Fi networking.
 
 **NOTE**: Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
 **NOTE**: The PC target is currently likely broken because I don't have a spare PC to test it on.  WIP.
+**NOTE**: I don't currently have a PI5, so I cannot test and develop against it.
 
 
 ## Philosophy
@@ -72,7 +73,7 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Name               | Option name       | Type    | Description                                                                 |
 | ----------------   | ----------------- | ------  | --------------------------------------------------------------------------- |
 | Comment            | `comment`         | string  | A string describing the kiosk and its purpose (for your records).           |
-| Device type        | `device`          | string  | One of `pi4`, `pi4b`, or `pc`.  NOTE: `pc` is currently broken!             |
+| Device type        | `device`          | string  | One of `pi4b`, or `pc`.  NOTE: `pc` is currently broken!                    |
 | Kiosk type         | `type`            | string  | One of `cli`, `x11`, or `web`.  Only `web` is supported currently.          |
 | Command            | `command`         | string  | An URL to open (type: web) or a command to run (type: cli/x11).             |
 | Host name          | `hostname`        | string  | The unqualified domain name of the kiosk machine.                           |

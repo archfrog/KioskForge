@@ -198,7 +198,7 @@ class Setup(object):
 	def __init__(self) -> None:
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be blank.  All other fields must be set.
 		self.comment         = StringField("comment", "A descriptive comment for the kiosk machine.")
-		self.device          = RegexField("device", "The target device type (pi4, pi4b, pc).", "(pi4|pi4b|pc)")
+		self.device          = RegexField("device", "The target device type (pi4b, pc).", "(pi4b|pc)")
 		self.type            = RegexField("type", "The type of kiosk to make: cli, x11 or web.", "(cli|x11|web)")
 		self.command         = StringField("command", "An URL to display (type: web) or a command to run upon login (type: cli or x11).")
 		self.hostname        = RegexField("hostname", "The unqualified host name (e.g., 'kiosk01').", r"[A-Za-z0-9-]{1,63}")
