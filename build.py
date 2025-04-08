@@ -186,12 +186,20 @@ class KioskBuild(KioskDriver):
 
 		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
 
+		# Expand "$$VERSION$$ macro in source .iss file and store the output in ../tmp.
+		script = open("../bld/KioskForge.iss", "rt").read()
+		script = script.replace("$$VERSION$$", VERSION)
+		open("../tmp/KioskForge.iss", "wt").write(script)
+
 		# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
 		words  = TextBuilder()
 		words += innopath
 		words += "/cc"
-		words += "../bld/KioskForge.iss"
+		words += "../tmp/KioskForge.iss"
 		invoke_list_safe(words.list)
+
+		# Copy output to RAMDISK to local work tree (Inno fails to add icons to the file because Dropbox is busy synchronizing).
+		shutil.copyfile("R:\\KioskForge-" + VERSION + "-Setup.exe", "../bin/KioskForge-" + VERSION + "-Setup.exe")
 
 		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (kioskforge.org/downloads).
 

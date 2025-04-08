@@ -22,7 +22,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 ## Open Tasks
 # TODO:
 - [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...
-- [ ] 2025.04.07.09.24 H Make `build.py` export the correct version number to the Inno Setup compiler.
 - [ ] 2025.04.07.03.50 H Would be nifty the the `command` option worked relative to `~`.  I think it does, but am not sure.
 - [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
 - [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
@@ -119,7 +118,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
-- [ ] 2025.04.07.10.19 H Fix bogus hint about `vacuum_time` being set: that option no longer exists.
+- [x] 2025.04.07.09.24 H Make `build.py` export the correct version number to the Inno Setup compiler.
+- [x] 2025.04.07.10.19 H Fix bogus hint about `vacuum_time` being set: that option no longer exists.
 - [x] 2025.04.07.01.30 H How does `user_folder` work with the new installer?  I guess will be completely broken...
                          The solution is to work relative to the '.kiosk' file in `KioskForge.py`, allowing `user_folder=.`.
 - [x] 2025.04.07.02.17 H Add support for the user double-clicking a `.kiosk` file in Windows Explorer (i.e. an argument).
