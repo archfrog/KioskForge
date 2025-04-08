@@ -17,7 +17,7 @@ A tip is to try to create a new connection with your phone to see if that works.
 ### How much space does KioskForge take up on the kiosk machine?
 As of this writing, less than half a megabyte.  This is negible and should not cause any concern on your part.
 
-All files created by and used by KioskForge are located in `~/KioskForge`.  Please do **not** remove this folder as it is required.
+All files created by and used by KioskForge are located in `~/KioskForge`.  Please do *not* remove this folder as it is required.
 
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
@@ -28,11 +28,11 @@ This *may* be caused by the code that disables the Wi-Fi power saving feature.  
 
 Please ignore these errors - as far as I can tell, the Wi-Fi card works as it should and the kiosk runs reliably as it should.
 
-### The Linux installer fails with an 'apt' error because `apt` is already using a lock file?
+### The forge process on Linux fails because `apt` is already using a lock file?
 KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.
 
 ### I get spurious errors while the Linux installer ('KioskSetup.py') is running?
-The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Another possibility is that your USB key is too hot, this happens quite often.
+The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
 
 Try with another installation media (USB key or another MicroSD card), and the error(s) should disappear.
 
@@ -40,9 +40,6 @@ If the problem persists, report it as a bug.  It may be some obscure error in Ki
 
 ## Development Issues
 This section contains various common questions about the development of KioskForge.
-
-### Why does KioskForge not have an installer?
-KioskForge is now distributed as a Windows `.exe` file.  At this time, however, KioskForge iterates so rapidly that I don't like asking people to uinstall and reinstall all the time.  In time, when the dust begins to settle, there will likely be an installer.
 
 ### Will KioskForge support Linux distribution X?
 For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
