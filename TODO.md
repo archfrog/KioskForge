@@ -21,6 +21,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
+- [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
+- [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
 - [ ] 2025.04.09.11.00 H Test the absense of a network connection by using a cable while forging the box and an invalid Wi-Fi.
@@ -29,31 +32,23 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          one in the package repository.  Either repeat upgrading until there are no upgrades left or use CloudInit
 						 to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
 - [ ] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
-                         Also consider to add an option, `network=always|forge` to make the kiosk forget its network before use.
-- [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...
+                         Also consider to add an option, `network=always|install` to make the kiosk forget its network after use.
+- [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...  Inno setup is to
+                         blame.  Apparently, it doesn't support a localized `Program Files` name.  Perhaps a `.msi` installer is
+                         needed to handle the intricacies of Windows path names.  For now, the Inno solution is acceptable, though.
 - [ ] 2025.04.07.03.50 H Would be nifty the the `command` option worked relative to `~`.  I think it does, but am not sure.
 - [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
 - [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
-- [ ] 2025.04.07.02.31 H Consider to rename `upgrade_time` to `maintenance` or something like that.  It is now a generic task.
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
-- [ ] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [ ] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
 - [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  This will probably break things after a while.
-- [ ] 2025.04.04.15.42 H Add option `python_extras` to install one or more packages with `pip`.  Rename `user_packages` to `system_extras`.
-- [ ] 2025.03.29.21.11 H Go through all options and create a two-level "hierarchy" for them.  Rename `orientation` to `display.rotation`.
+- [ ] 2025.04.04.15.42 H Add option `user_modules` to install Python modules with `pip`.
+- [ ] 2025.03.29.21.11 H Go through all options and create a two-level "hierarchy" of options: `target.*`, `system.*`, `user`, etc.
 - [ ] 2025.03.29.22.14 H Update `README.md`, `FAQ.md`, and `GUIDE.md` with the new names of the options in the new "hierarchy".
-- [ ] 2025.03.29.21.17 H Consider to pass in a list of parent options to each option: `sound_card` depends on `platform`, etc.
+- [ ] 2025.03.29.21.17 H Consider to pass in the `Setup` instance to each option: `sound_card` depends on `device`, etc.
 - [ ] 2025.03.29.21.00 H Rewrite `Setup.save()` to use a new `???` method, which returns the *external* representation for `.cfg`.
-- [ ] 2025.03.27.18.37 H Make `KioskStart.py` responsible for configuring Pipewire (to give access to the `Setup` instance).
-                         This should be done by the login shell, if possible, as people may want audio for non-browser-kiosks.
-						 Create a new script, `KioskSound.py`, which handles the configuration of Pipewire.
-						 This is currently done by the type-agnostic `KioskRunner.sh` script.  Should be done in Python, though.
-- [ ] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
-- [ ] 2025.03.09.00.04 H As KioskForge grows, the need for it to run in a virtual environment probably does too.
-                         Only if extra, non-standard packages are used such as `bcrypt`, which KioskForge uses.
-- [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Testing...
 - [ ] 2025.03.27.17.38 H Make the kiosk configuration more flexible: Prepare for doing motion detector + custom script, etc.
 - [ ] 2025.03.27.16.55 H Investigate how to make minijack work even though is not recommended by most (requires an amplifier).
 - [ ] 2025.03.27.14.09 H Modules: Every module should be an instance of the class `Module` and should provide the following:
@@ -66,14 +61,12 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                             7. A method of rolling back a configuration.
                             8. A method of diffing any multi-module configuration to determine what needs to be undone.
                          Furthermore, it would be *awesome* if modules could be tested easily from scripts or the prompt.
-- [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall.
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
 - [ ] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
                          The AUTOSTART code is not implemented in the AutoInstall writer, as far as I know, so this is broken.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
-- [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
+- [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled (???).
 - [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
-- [ ] 2025.03.19.07.35 H Protect against "injection attacks": Quote all user-supplied data passed to cloud-init and AutoInstall.
 - [ ] 2025.03.16.06.03 H Rewrite all Bash scripts generated by KioskForge into Python3 scripts so as to allow access to the
                          configuration file (`KioskForge.cfg`) on the target kiosk so that the user *can* change a setting
 						 simply by logging in, preferably using SSH, editing `KioskForge.cfg`, and then rebooting the kiosk.
@@ -88,20 +81,22 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
-- [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking, etc. can be configured.
+- [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking (wifi, cpu) can be configured.
 - [ ] 2025.03.16.06.07 M GUI: Add option to control overclocking of RPI4 and RPI5.
 - [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
 - [ ] 2025.03.24.05.49 M Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
                          https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
+                         The purpose of this task is to finally eliminate MyPy's constant whining over Linux-specific logging code.
 - [ ] 2025.03.19.09.47 M Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
-- [ ] 2024.12.17.xx.xx M Add support for a local NGINX or Apache web server so that the kiosk can serve the web site locally.
+- [ ] 2024.12.17.xx.xx M Add support for a local NGINX/Apache web server so that the kiosk can serve a PHP web site locally, it
+                         should also be possible to specify a .sql file to import into MariaDB, etc., after installation.
 - [ ] 2024.12.17.xx.xx M Write documentation on how to update the files served by the local web server, if any, using `WinSCP`.
 - [ ] 2025.03.09.06.39 M Make KioskForge check that it is running on a supported Windows such as Windows 10+.
 - [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
 - [ ] 2025.03.19.23.08 M Open up the GitHub repository for the public once most of the high priority tasks are completed and a
-                         kiosk has proven itself for a while.
+                         kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
@@ -125,6 +120,18 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
+                         `bcrypt` is now bundled as part of the PyInstaller `.exe` file so this is no longer an issue.
+- [x] 2025.03.29.21.11 H Rename `orientation` to `display_rotation`.
+- [x] 2025.03.09.00.04 H As KioskForge grows, the need for it to run in a virtual environment probably does too.
+                         Only if extra, non-standard packages are used such as `bcrypt`, which KioskForge uses.
+                         As of 2025.04.09, `KioskForge` is bundled a single executable using `PyInstaller`.  No need for venvs.
+- [x] 2025.03.19.07.35 H Protect against "injection attacks": Quote all user-supplied data passed to cloud-init, etc.  Bah.
+- [x] 2025.03.27.18.37 H Make `KioskStart.py` responsible for configuring Pipewire (to give access to the `Setup` instance).
+                         This should be done by the login shell, if possible, as people may want audio for non-browser-kiosks.
+						 Create a new script, `KioskSound.py`, which handles the configuration of Pipewire.
+						 This is done by the `KioskStart.py` script which doesn't have root priveleges (it works...).
+- [x] 2025.04.07.02.31 H Consider to rename `upgrade_time` to `maintenance` or something like that.  Nope, it only does upgrades.
 - [x] 2025.04.09.12.56 H Move `journalctl vacuum` to `KioskStart.py` so that is invoked on every boot, not on a preset time.
                          This is a good way to solve the problem that some kiosks never have network and thus no upgrades are done.
                          Nope, this is not a usable way as `KioskStart.py` runs as the created user, not as root.  Moved to its
