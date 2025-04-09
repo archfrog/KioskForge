@@ -291,7 +291,7 @@ class CleanPackageCacheAction(ExternalAptAction):
 	"""Apt action to clean the package cache (which can easily grow to gigabytes in size)."""
 
 	def __init__(self) -> None:
-		ExternalAptAction.__init__(self, "Cleaning package cache", "apt-get clean")
+		ExternalAptAction.__init__(self, "Cleaning package cache.", "apt-get clean")
 
 
 class InstallPackagesAction(ExternalAptAction):
@@ -322,19 +322,19 @@ class UpdateSystemAction(ExternalAptAction):
 	"""Apt action to update the system-wide package indices."""
 
 	def __init__(self) -> None:
-		ExternalAptAction.__init__(self, "Updating system package indices", "apt-get update")
+		ExternalAptAction.__init__(self, "Updating system package indices.", "apt-get update")
 
 
 class UpgradeSystemAction(ExternalAptAction):
 	"""Apt action to upgrade all packages in the system."""
 
 	def __init__(self) -> None:
-		ExternalAptAction.__init__(self, "Upgrading all installed packages", "apt-get upgrade -y")
+		ExternalAptAction.__init__(self, "Upgrading all installed packages.", "apt-get upgrade -y")
 
 
 class UpgradeSnapsAction(ExternalAction):
 	"""Snap action to upgrade all snaps in the system."""
 
 	def __init__(self) -> None:
-		ExternalAction.__init__(self, "Upgrading snaps", "snap refresh")
+		ExternalAction.__init__(self, "Upgrading all snaps.", "snap refresh")
 
