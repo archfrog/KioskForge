@@ -21,6 +21,11 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.09.05.45 H Fix the annoying problem that the kernel is not always updated completely, because there may be more than
+                         one in the package repository.  Either repeat upgrading until there are no upgrades left or use CloudInit
+						 to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
+- [ ] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
+                         Also consider to add an option, `network=always|forge` to make the kiosk forget its network before use.
 - [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...
 - [ ] 2025.04.07.03.50 H Would be nifty the the `command` option worked relative to `~`.  I think it does, but am not sure.
 - [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
