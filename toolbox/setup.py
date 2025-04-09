@@ -205,7 +205,7 @@ class Setup(object):
 		self.timezone        = StringField("timezone", "The time zone (e.g., 'Europe/Copenhagen').")
 		self.keyboard        = RegexField("keyboard", "The keyboard layout (e.g., 'dk').", KEYBOARD_REGEX)
 		self.locale          = StringField("locale", "The locale (e.g., 'da_DK.UTF-8').")
-		self.sound_card      = RegexField("sound_card", "The sound card to use (pi4+: none, jack, hdmi1, or hdmi2).", "(none|jack|hdmi1|hdmi2)")
+		self.sound_card      = RegexField("sound_card", "The sound card to use (pi4b: none, jack, hdmi1, or hdmi2).", "(none|jack|hdmi1|hdmi2)")
 		self.sound_level     = NaturalField("sound_level", "The logarithmic audio level (0 through 100, only valid if 'sound_card' is not 'none').", 0, 100)
 		self.mouse           = BooleanField("mouse", "If the mouse should be enabled (y/n or 1/0).")
 		self.user_name       = StringField("user_name", "The user name of the non-root administrative user (e.g., 'user').")
