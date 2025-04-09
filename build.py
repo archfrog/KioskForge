@@ -37,7 +37,6 @@ from toolbox.driver import KioskDriver
 from toolbox.errors import *
 from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
-from toolbox.setup import *
 from toolbox.version import *
 
 
