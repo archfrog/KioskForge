@@ -50,10 +50,29 @@ def folder_delete_contents(path : str) -> None:
 			os.unlink(item)
 
 
-class Record(object):
-	"""Used to create a simple 'record' (object with named members)."""
+class Settings(object):
+	"""Used parse and query the command-line options given to the script when invoked."""
 
-	pass
+	def __init__(self) -> None:
+		self.__clean = False
+		self.__ship = False
+
+	@property
+	def clean(self) -> bool:
+		return self.__clean
+
+	@property
+	def ship(self) -> bool:
+		return self.__ship
+
+	def parse(self, arguments : List[str]) -> None:
+		for argument in arguments:
+			if argument == "--clean":
+				self.__clean = True
+			elif argument == "--ship":
+				self.__ship = True
+			else:
+				raise SyntaxError('"build.py" [--clean] [--ship]')
 
 
 class KioskBuild(KioskDriver):
@@ -69,16 +88,8 @@ class KioskBuild(KioskDriver):
 		del origin
 
 		# Parse command-line arguments.
-		setup = Record()
-		setup.clean = False
-		setup.ship  = False
-		for argument in arguments:
-			if argument == "--clean":
-				setup.clean = True
-			elif argument == "--ship":
-				setup.ship = True
-			else:
-				raise SyntaxError('"build.py" [--clean] [--ship]')
+		settings = Settings()
+		settings.parse(arguments)
 
 		# Check that the user has set up the RAMDISK environment variable.
 		RAMDISK = os.environ.get("RAMDISK")
@@ -142,7 +153,7 @@ class KioskBuild(KioskDriver):
 			words += "--debug"
 			words += "all"
 
-		if setup.clean:
+		if settings.clean:
 			words += "--clean"
 
 		words += "--console"
@@ -220,7 +231,7 @@ class KioskBuild(KioskDriver):
 
 		# Only ship if explicitly requested as this will fail on all systems but my own PCs.
 		home_env = os.environ.get("HOME")
-		if setup.ship and home_env:
+		if settings.ship and home_env:
 			words  = TextBuilder()
 			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version.
 			words += r"C:\Program Files\Git\usr\bin\scp.exe"
