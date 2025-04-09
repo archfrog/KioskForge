@@ -179,7 +179,7 @@ class KioskBuild(KioskDriver):
 		words += "--version-file"
 		words += rootpath + os.sep + "version.txt"
 
-		for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStartX11.py", "KioskUpdate.py", "toolbox"]:
+		for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]:
 			words += "--add-data"
 			if os.path.isfile(item):
 				words += item + ":."

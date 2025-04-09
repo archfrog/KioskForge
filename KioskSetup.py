@@ -307,36 +307,11 @@ class KioskSetup(KioskDriver):
 			"snap refresh --hold"
 		)
 
-		# Prepare for building the ad-hoc script KioskRunner.sh, which configures audio, launches X11, etc.
-		runner = TextBuilder()
-		runner += "#!/usr/bin/bash"
-		runner += "# Enable Bash extended error handling."
-		runner += "set -e"
-
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
-			# Install Pipewire AND pulseaudio-utils as the script 'KioskRunner.sh' uses 'pactl' from the latter package.
+			# Install Pipewire AND pulseaudio-utils as the script 'KioskStart.py' uses 'pactl' from the latter package.
 			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
-
-			# Append some lines to the runner script KioskRunner.sh.
-			# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
-			runner += ""
-			runner += "# Pause for three seconds because pactl otherwise reports spurious errors."
-			runner += "sleep 3"
-			runner += ""
-			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
-			CARDS = {
-				'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
-				'pi4b.hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
-				'pi4b.hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
-			}
-			runner += '# Set default output device to %s.' % setup.sound_card.data
-			runner += 'pactl set-default-sink %s' % CARDS[setup.device.data + "." + setup.sound_card.data]
-			del CARDS
-			runner += ''
-			runner += '# Set the audio level to user-specified percentage on a logarithmic scale.'
-			runner += 'wpctl set-volume @DEFAULT_AUDIO_SINK@ %.2f' % (setup.sound_level.data / 100.0)
 
 		# Configure the kiosk according to its type.
 		if setup.type.data in [ "x11", "web" ]:
@@ -348,13 +323,9 @@ class KioskSetup(KioskDriver):
 				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
 			)
 
-			# Append lines to the runner (KioskRunner.sh) to run the custom startup script at automatic login.
-			runner += ""
-			runner += "# Launch X11 and OpenBox into kiosk mode."
-			runner += "%s/KioskStartX11.py" % origin
-
 			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskOpenbox.py).
 			# NOTE: This file is always created, when the screen is rotated, but has no effect on non-touch displays.
+			# NOTE: I'd love to create this file in 'KioskStart.py', but it runs as the created user, not as root.
 			if setup.screen_rotation.data != "none":
 				# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
 				matrices = {
@@ -384,6 +355,21 @@ class KioskSetup(KioskDriver):
 				del lines
 				del matrices
 
+			# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
+			# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
+			# NOTE: For this reason, we start the Python script indirectly through an-hoc Dash script.
+			lines  = TextBuilder()
+			lines += "#!/usr/bin/dash"
+			lines += "%s/KioskOpenbox.py" % origin
+			script += CreateTextWithUserAndModeAction(
+				"Creating OpenBox startup script.",
+				"%s/.config/openbox/autostart" % os.path.dirname(origin),
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+				lines.text
+			)
+			del lines
+
 			if setup.type.data == "web":
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
 				script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
@@ -411,48 +397,11 @@ class KioskSetup(KioskDriver):
 					"Installing 'xprintidle' used to restart browser whenever idle timeout expires.",
 					["xprintidle"]
 				)
-
-				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
-				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
-				# NOTE: For this reason, we create a separate Python script, which is launched from OpenBox's autostart file.
-				lines  = TextBuilder()
-				lines += "#!/usr/bin/dash"
-				lines += "%s/KioskOpenbox.py" % origin
-				script += CreateTextWithUserAndModeAction(
-					"Creating OpenBox startup script.",
-					"%s/.config/openbox/autostart" % os.path.dirname(origin),
-					setup.user_name.data,
-					stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-					lines.text
-				)
-				del lines
 			elif setup.type.data == "x11":
 				raise InternalError("The type=x11 option is not supported yet")
-
-				# Append lines to the runner script to run the custom startup script at automatic login.
-				runner += ""
-				runner += "# Run custom command upon starting X11."
-				runner += "%s/KioskStartX11.py" % origin
-
-				# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
-				# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
-				# NOTE: For this reason, we create a separate Python script, which is launched from OpenBox's autostart file.
-				lines  = TextBuilder()
-				lines += "#!/usr/bin/dash"
-				lines += "%s/KioskOpenbox.py" % origin
-				script += CreateTextWithUserAndModeAction(
-					"Creating OpenBox startup script.",
-					"%s/.config/openbox/autostart" % os.path.dirname(origin),
-					setup.user_name.data,
-					stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-					lines.text
-				)
-				del lines
 		elif setup.type.data == "cli":
-			# Append custom command to the runner script (KioskRunner.sh).
-			runner += ""
-			runner += "# Execute the custom command provided by the user."
-			runner += setup.command.data
+			# Currently nothing to do, KioskStart.py handles this case completely.
+			pass
 		else:
 			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
 
@@ -467,7 +416,7 @@ class KioskSetup(KioskDriver):
 			lines += '%s %s * * *\troot\t%s/KioskUpdate.py' % (setup.upgrade_time.data[3:5], setup.upgrade_time.data[0:2], origin)
 			lines += ""
 			script += CreateTextAction(
-				"Creating cron job to upgrade system every day.",
+				"Creating cron job to upgrade system once a day at the configured time.",
 				"/etc/cron.d/kiosk-upgrade-system",
 				lines.text
 			)
@@ -505,26 +454,16 @@ class KioskSetup(KioskDriver):
 				"/swapfile\tnone\tswap\tsw\t0\t0"
 			)
 
-		# Create runner script, KioskRunner.sh, from the lines accumulated in 'runner'.
-		script += CreateTextWithUserAndModeAction(
-			"Creating KioskRunner.sh script, which starts the kiosk itself.",
-			"%s/KioskRunner.sh" % origin,
-			setup.user_name.data,
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
-			runner.text
-		)
-		del runner
-
 		if True:
-			# Append lines to .bashrc to execute the runner script if and only if we're not connecting using SSH.
+			# Append lines to .bashrc to execute the startup script (only if we're not connecting using SSH).
 			lines  = TextBuilder()
 			lines += ""
-			lines += "# Execute the custom command provided to KioskForge (HACK: only if not connected via SSH)."
+			lines += "# Execute the startup script 'KioskStart.py' (HACK: only if not connected via SSH)."
 			lines += r"if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
-			lines += "\t" + "%s/KioskRunner.sh" % origin
+			lines += "\t" + ("%s/KioskStart.py" % origin)
 			lines += "fi"
 			script += AppendTextAction(
-				"Appending invokation of KioskRunner.sh script to ~/.bashrc",
+				"Appending lines to ~/.bashrc to start up the kiosk.",
 				"%s/.bashrc" % os.path.dirname(origin),
 				lines.text
 			)
@@ -548,7 +487,7 @@ class KioskSetup(KioskDriver):
 			# NOTE: I never did manage to get the systemd service to even start up (I've stopped playing with it for now).
 			lines  = TextBuilder()
 			lines += "[Unit]"
-			lines += "Description=KioskForge runner."
+			lines += "Description=KioskForge kiosk service."
 			lines += "After=network-online.target"
 			lines += "After=cloud-init.target"
 			lines += "After=multi-user.target"
@@ -557,14 +496,15 @@ class KioskSetup(KioskDriver):
 			lines += "User=%s" % setup.user_name.data
 			lines += "Group=%s" % setup.user_name.data
 			lines += "Type=simple"
-			lines += "ExecStart=%s/KioskRunner.sh" % origin
+			lines += "ExecStart="
+			lines += "ExecStart=%s/KioskStart.py" % origin
 			lines += "StandardOutput=tty"
 			lines += "StandardError=tty"
 			lines += ""
 			lines += "[Install]"
 			lines += "WantedBy=cloud-init.target"
 			script += CreateTextWithUserAndModeAction(
-				"Creating systemd app runner service.",
+				"Creating systemd kiosk service.",
 				"/usr/lib/systemd/system/kiosk.service",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
