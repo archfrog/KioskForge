@@ -414,7 +414,7 @@ class KioskSetup(KioskDriver):
 		if setup.vacuum_days.data != 0:
 			lines  = TextBuilder()
 			lines += "# Cron job to vacuum (clean) system logs."
-			lines += "@reboot\troot\tjournalctl --vacuum-time=%dd" % setup.vacuum_days.data
+			lines += "@reboot\troot\t/usr/bin/journalctl --vacuum-time=%dd" % setup.vacuum_days.data
 			script += CreateTextAction(
 				"Creating cron job to vacuum logs at every boot.",
 				"/etc/cron.d/kiosk-vacuum-logs",
