@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.09.09.52 H Consider to add "stages": Stage 1 is host, stage 2 is first run, stage 3 is second run, stage 4 = poweroff.
 - [ ] 2025.04.09.05.45 H Fix the annoying problem that the kernel is not always updated completely, because there may be more than
                          one in the package repository.  Either repeat upgrading until there are no upgrades left or use CloudInit
 						 to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
