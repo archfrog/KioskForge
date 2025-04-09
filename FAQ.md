@@ -12,7 +12,7 @@ This section contains various common questions about technical issues with Kiosk
 ### I am unable to connect to my Wi-Fi network?
 This is most likely because you have misspelled the Wi-Fi network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
 
-A tip is to try to create a new connection with your phone to see if that works.  Most likely, it will fail too.
+A tip is to try to create a new connection with your phone to see if that works.  If either the Wi-Fi network name or the password is incorrect, it will fail too.
 
 ### How much space does KioskForge take up on the kiosk machine?
 As of this writing, less than half a megabyte.  This is negible and should not cause any concern on your part.
@@ -29,9 +29,11 @@ This *may* be caused by the code that disables the Wi-Fi power saving feature.  
 Please ignore these errors - as far as I can tell, the Wi-Fi card works as it should and the kiosk runs reliably as it should.
 
 ### The forge process on Linux fails because `apt` is already using a lock file?
-KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.  If you run into this issue, please feel free to report it.
+KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.
 
-### I get spurious errors while the Linux installer ('KioskSetup.py') is running?
+If you run into this issue, please report it.
+
+### I get spurious errors while the kiosk is being forged?
 The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
 
 Try with another installation media (USB key or another MicroSD card), and the error(s) should disappear.
