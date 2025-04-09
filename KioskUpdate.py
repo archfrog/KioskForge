@@ -56,12 +56,6 @@ class KioskUpdate(KioskDriver):
 		setup = Setup()
 		setup.load(origin + os.sep + "KioskForge.kiosk")
 
-		# ******************** Perform tasks that do not require an internet connection. *****************************************
-
-		# Vacuum system logs if a number of days of retention has been specified.
-		if setup.vacuum_days.data != 0:
-			invoke_text_safe("journalctl --vacuum-time=%dd" % setup.vacuum_days.data)
-
 		# ******************** Perform tasks that do require an internet connection. *********************************************
 
 		if not internet_active():

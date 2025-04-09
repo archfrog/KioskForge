@@ -21,8 +21,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.09.12.56 H Move `journalctl vacuum` to `KioskStart.py` so that is invoked on every boot, not on a preset time.
-                         This is a good way to solve the problem that some kiosks never have network and thus no upgrades are done.
 - [ ] 2025.04.09.12.20 H Rename `type` option to `mode` to indicate that it is an operating mode, not a type of kiosk.
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
@@ -128,6 +126,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.09.12.56 H Move `journalctl vacuum` to `KioskStart.py` so that is invoked on every boot, not on a preset time.
+                         This is a good way to solve the problem that some kiosks never have network and thus no upgrades are done.
+                         Nope, this is not a usable way as `KioskStart.py` runs as the created user, not as root.  Moved to its
+                         own `@reboot` cron job.  This should ensure it is run whether or not there is any internet or not.
 - [x] 2025.04.09.10.34 H Display the LAN IP on every boot, not just when forging the kiosk.  In some places, DHCP is volatile.
 - [x] 2025.04.09.11.15 H Merge `KioskStartX11.py` and `KioskRunner.py` into one script called - ... - `KioskStart.py`.
                          Remember to update code that copies KioskForge around: `KioskForge.py` and `KioskSetup.py`.

@@ -409,12 +409,24 @@ class KioskSetup(KioskDriver):
 		if setup.user_packages.data:
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
 
+		# Create @reboot cron job to vacuum logs, if a number of days to keep logs have been specified.
+		# Vacuum system logs if a number of days of retention has been specified.
+		if setup.vacuum_days.data != 0:
+			lines  = TextBuilder()
+			lines += "# Cron job to vacuum (clean) system logs."
+			lines += "@reboot\troot\tjournalctl --vacuum-time=%dd" % setup.vacuum_days.data
+			script += CreateTextAction(
+				"Creating cron job to vacuum logs at every boot.",
+				"/etc/cron.d/kiosk-vacuum-logs",
+				lines.text
+			)
+			del lines
+
 		# Create cron job to update, upgrade, clean, and reboot the system every day at a given time.
 		if setup.upgrade_time.data != "":
 			lines  = TextBuilder()
 			lines += "# Cron job to upgrade, clean, and reboot the system every day at %s." % setup.upgrade_time.data
 			lines += '%s %s * * *\troot\t%s/KioskUpdate.py' % (setup.upgrade_time.data[3:5], setup.upgrade_time.data[0:2], origin)
-			lines += ""
 			script += CreateTextAction(
 				"Creating cron job to upgrade system once a day at the configured time.",
 				"/etc/cron.d/kiosk-upgrade-system",
