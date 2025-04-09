@@ -50,6 +50,12 @@ def folder_delete_contents(path : str) -> None:
 			os.unlink(item)
 
 
+class Record(object):
+	"""Used to create a simple 'record' (object with named members)."""
+
+	pass
+
+
 class KioskBuild(KioskDriver):
 	"""Defines the build.py script, which is responsible for building a platform-dependent executable using PyInstaller."""
 
@@ -58,12 +64,21 @@ class KioskBuild(KioskDriver):
 		self.version = Version("build", VERSION, COMPANY, CONTACT, TESTING)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
+		# Delete two standard arguments that we don't currently use for anything.
+		del logger
+		del origin
+
 		# Parse command-line arguments.
-		clean = False
-		if len(arguments) == 1 and arguments[0] == "--clean":
-			clean = True
-		elif len(arguments) != 0:
-			raise SyntaxError('"build.py" [--clean]')
+		setup = Record()
+		setup.clean = False
+		setup.ship  = False
+		for argument in arguments:
+			if argument == "--clean":
+				setup.clean = True
+			elif argument == "--ship":
+				setup.ship = True
+			else:
+				raise SyntaxError('"build.py" [--clean] [--ship]')
 
 		# Check that the user has set up the RAMDISK environment variable.
 		RAMDISK = os.environ.get("RAMDISK")
@@ -127,7 +142,7 @@ class KioskBuild(KioskDriver):
 			words += "--debug"
 			words += "all"
 
-		if clean:
+		if setup.clean:
 			words += "--clean"
 
 		words += "--console"
@@ -203,17 +218,20 @@ class KioskBuild(KioskDriver):
 
 		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (kioskforge.org/downloads).
 
-		# NOTE: Ignore request to ship to kioskforge.org if building on a system that does not have access to it.
-		if os.path.isfile(r"C:\Program Files\Git\usr\bin\scp.exe") and os.path.isfile(r"u:\.ssh\config"):
+		# Only ship if explicitly requested as this will fail on all systems but my own PCs.
+		home_env = os.environ.get("HOME")
+		if setup.ship and home_env:
 			words  = TextBuilder()
+			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version.
 			words += r"C:\Program Files\Git\usr\bin\scp.exe"
 			words += "-F"
-			words += r"u:\.ssh\config"
+			words += home_env + ".ssh/config"
 			words += "-p"
 			words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
 			# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
 			words += "web:web/pub/kioskforge.org/"
 			invoke_list_safe(words.list)
+		del home_env
 
 
 if __name__ == "__main__":
