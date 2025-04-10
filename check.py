@@ -30,7 +30,7 @@ import sys
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import KioskError, SyntaxError
-from toolbox.invoke import invoke_list_safe
+from toolbox.invoke import invoke_list
 from toolbox.logger import Logger
 from toolbox.version import *
 
@@ -76,7 +76,13 @@ class KioskCheck(KioskDriver):
 		words += "KioskUpdate.py"
 		words += "build.py"
 		words += "check.py"
-		invoke_list_safe(words.list)
+
+		result = invoke_list(words.list)
+		if result.status != 0:
+			print(result.output)
+			raise KioskError("MyPy failed its static checks")
+		del result
+		del words
 
 
 if __name__ == "__main__":
