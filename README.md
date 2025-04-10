@@ -123,6 +123,7 @@ As of now, the procedure is as follows:
    [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
    When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
    Also, be sure to **not** select `Ubuntu Desktop` as this won't work (KioskForge will detect this, though, and report an error).
+   Please notice that we recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and then unreliable.
 2. Launch KioskForge as described below.
 3. Create a new configuration using menu item `1` or load an existing configuration using menu item `2`.
 4. Edit the configuration to ensure that the configuration is correct using menu item `3` or use an external editor.  See the
