@@ -21,7 +21,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
@@ -120,6 +119,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [x] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
                          `bcrypt` is now bundled as part of the PyInstaller `.exe` file so this is no longer an issue.
 - [x] 2025.03.29.21.11 H Rename `orientation` to `display_rotation`.
