@@ -28,7 +28,7 @@ This *may* be caused by the code that disables the Wi-Fi power saving feature.  
 
 Please ignore these errors - as far as I can tell, the Wi-Fi card works as it should and the kiosk runs reliably as it should.
 
-### The forge process on Linux fails because `apt` is already using a lock file?
+### The kiosk fails because `apt` is already using a lock file?
 KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.
 
 If you run into this issue, please report it.
