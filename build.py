@@ -226,7 +226,7 @@ class KioskBuild(KioskDriver):
 		# Copy output to RAMDISK to local work tree (Inno fails to add icons to the file because Dropbox is busy synchronizing).
 		shutil.copyfile("R:\\KioskForge-" + VERSION + "-Setup.exe", "../bin/KioskForge-" + VERSION + "-Setup.exe")
 
-		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (kioskforge.org/downloads).
+		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (hosting kioskforge.org).
 
 		# Only ship if explicitly requested as this will fail on all systems but my own PCs.
 		home_env = os.environ.get("HOME")
