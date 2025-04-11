@@ -51,7 +51,7 @@ I could theoretically add support for a host of Linux distributions, but I don't
 Adding support for a single target platform takes weeks or months, as Linux is a mess when it comes to administration of the operating system.  Almost every distro does things in its own way and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
 
 ### Why was KioskForge written in Python v3.x?
-I originally wrote the first version of KioskForge in Bash, because it was very simple in the beginning, but soon came to rediscover that Bash *is* a pain to use if things go wrong.  The `set -e` command does not make a script truly reliable and I demand reliability of my tools.
+I originally wrote the first version of KioskForge in Bash, because it was very simple in the beginning, but soon missed Python and its way more intuitive and logical environment.
 
 In short: Because Python v3.x is preinstalled on many Linux distributions and because Python is a great scripting language.
 
