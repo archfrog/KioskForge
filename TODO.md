@@ -121,6 +121,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.11.03.40 H Make MyPy check everything without any warnings or errors.  Finally, this worked with MyPy v1.15.
 - [x] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [x] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
                          `bcrypt` is now bundled as part of the PyInstaller `.exe` file so this is no longer an issue.
