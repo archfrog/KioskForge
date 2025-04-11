@@ -125,7 +125,7 @@ class KioskOpenbox(KioskDriver):
 				except subprocess.SubprocessError:
 					raise KioskError("Unable to launch Chromium")
 				except OSError as that:
-					raise KioskError(that.strerror)
+					raise KioskError(that.strerror or "Unknown OSError")
 
 				# Let Chromium start before we begin to check if it has been idle for too long.
 				time.sleep(15)

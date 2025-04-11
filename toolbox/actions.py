@@ -71,6 +71,7 @@ class DeleteFileAction(InternalAction):
 		try:
 			os.unlink(self.path)
 		except OSError as that:
+			assert(that.strerror)
 			return Result(1, that.strerror)
 
 		return Result()
@@ -106,6 +107,7 @@ class RemoveFolderAction(InternalAction):
 			shutil.rmtree(self.path)
 			result = Result()
 		except FileNotFoundError as that:
+			assert(that.strerror)
 			result = Result(1, that.strerror)
 		return result
 
@@ -245,6 +247,7 @@ class ReplaceTextAction(InternalAction):
 			# TODO: Fix owner, etc.
 
 		except OSError as that:
+			assert(that.strerror)
 			result = Result(1, that.strerror)
 
 		return result
