@@ -69,7 +69,8 @@ class KioskCheck(KioskDriver):
 		words += "--cache-dir"
 		words += RAMDISK + os.sep + PRODUCT + os.sep + "MyPy"
 		words += "--strict"
-		words += "--follow-untyped-imports"
+		# NOTE: This option is no longer necessary as PyInstaller-VersionFile has been updated to provide type hints.
+		#words += "--follow-untyped-imports"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
 		words += "KioskSetup.py"
