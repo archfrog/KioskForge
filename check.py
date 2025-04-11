@@ -69,6 +69,7 @@ class KioskCheck(KioskDriver):
 		words += "--cache-dir"
 		words += RAMDISK + os.sep + PRODUCT + os.sep + "MyPy"
 		words += "--strict"
+		words += "--follow-untyped-imports"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
 		words += "KioskSetup.py"
