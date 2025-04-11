@@ -25,13 +25,13 @@ import os
 import sys
 import types
 
-# Try to import syslog (non-Windows platforms) or create a dummy stub.
-try:
+# Try to import syslog (Linux only).
+if sys.platform == "linux":
 	import syslog
 	SYSLOG_LOG_ERR = syslog.LOG_ERR
 	SYSLOG_LOG_INFO = syslog.LOG_INFO
-except ModuleNotFoundError:
-	# NOTE: Dummy values used to make the code simpler (and MyPy choke a bit less).
+else:
+	# NOTE: Dummy values used to make the code simpler on Windows and MyPy stop choking.
 	SYSLOG_LOG_ERR = 1
 	SYSLOG_LOG_INFO = 2
 
@@ -79,9 +79,9 @@ class TextWriter(object):
 class Logger(object):
 	"""Class that implements the multi-line logging functionality required by the script (Linux only)."""
 
-	def __init__(self) -> None:
+	def __init__(self, project : str) -> None:
 		# Prepare syslog() for our messages.
-		if 'syslog' in sys.modules:
+		if sys.platform == "linux":
 			syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL0)
 
 	def __enter__(self) -> Any:
@@ -96,10 +96,10 @@ class Logger(object):
 		"""Writes one or more lines to the output device."""
 		lines = text.split(os.linesep)
 		for line in lines:
-			# NOTE: Always output status to the console, even when AUTOSTART is True, to allow the user to see what is happening.
+			# NOTE: Always output status to the console to allow the user to see what is happening.
 			print(line)
 
-			if 'syslog' in sys.modules:
+			if sys.platform == "linux":
 				syslog.syslog(kind, line)
 
 	def error(self, text : str = "") -> None:
