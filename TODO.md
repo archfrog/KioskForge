@@ -83,8 +83,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking (wifi, cpu) can be configured.
 - [ ] 2025.03.16.06.07 M GUI: Add option to control overclocking of RPI4 and RPI5.
 - [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
-- [ ] 2025.03.24.05.49 M Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
-                         https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
                          The purpose of this task is to finally eliminate MyPy's constant whining over Linux-specific logging code.
 - [ ] 2025.03.19.09.47 M Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
@@ -98,6 +96,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
+- [ ] 2025.03.24.05.49 M Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
+                         https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
+						 2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
+						 Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
                          `KioskForge-m.nn.zip`, the latter for Windows users.  Ideally, there'd only be one executable for each
