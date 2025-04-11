@@ -700,6 +700,7 @@ class KioskForge(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# NOTE: No need for a logger in KioskForge as it does very few things and some of them interactively.
+		del logger
 
 		# Output copyright information, etc.
 		print(self.version.banner())
