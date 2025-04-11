@@ -45,7 +45,7 @@ class KioskOpenbox(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version("KioskOpenbox", VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version(self.project, VERSION, COMPANY, CONTACT, TESTING)
 
 	# Returns the total number of seconds (with a fraction) of idle time since the X server was last busy.
 	@staticmethod

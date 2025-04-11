@@ -41,7 +41,7 @@ class KioskUpdate(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version("KioskUpdate", VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version(self.project, VERSION, COMPANY, CONTACT, TESTING)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.

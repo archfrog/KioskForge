@@ -35,7 +35,7 @@ from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import *
 from toolbox.internet import internet_active
-from toolbox.invoke import invoke_text, Result
+from toolbox.invoke import invoke_text, invoke_text_safe, Result
 from toolbox.logger import Logger
 from toolbox.setup import Setup
 from toolbox.script import Script
@@ -47,9 +47,12 @@ class KioskSetup(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version("KioskSetup", VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version(self.project, VERSION, COMPANY, CONTACT, TESTING)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
+		# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).
+		invoke_text_safe("clear")
+
 		# Output program banner and an empty line.
 		logger.write(self.version.banner())
 		logger.write()

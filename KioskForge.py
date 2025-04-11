@@ -347,7 +347,7 @@ class KioskForge(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version("KioskForge", VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version(self.project, VERSION, COMPANY, CONTACT, TESTING)
 
 	def saveCloudInitMetaData(self, setup : Setup, path : str) -> None:
 		with TextWriter(path) as stream:

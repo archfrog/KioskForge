@@ -37,6 +37,11 @@ EXIT_FAILURE = 1
 class KioskDriver(object):
 	"""Base class for the classes that implement the respective script features."""
 
+	@property
+	def project(self) -> str:
+		"""Returns the class name of an instance of 'KioskDriver'."""
+		return type(self).__name__
+
 	@abc.abstractmethod
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		raise InternalError("Abstract method called")
@@ -45,7 +50,7 @@ class KioskDriver(object):
 		# Assume failure until success has been achieved.
 		status = EXIT_FAILURE
 
-		with Logger() as logger:
+		with Logger(self.project) as logger:
 			# Compute full path of this script.
 			(origin, filename) = os.path.split(os.path.abspath(argv[0]))
 
