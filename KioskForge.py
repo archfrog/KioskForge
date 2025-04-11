@@ -131,6 +131,8 @@ class Recognizer(object):
 			elif platform.system() == "Linux":
 				raise InternalError("Feature not finished")
 				mounts = 'df -a -T -h -t vfat | grep -Fv "/boot/efi" | grep -Fv "Use%"'
+			else:
+				raise InternalError("Unknown target platform: %s" % platform.system())
 
 			# Check each mount point/Windows drive for a recognizable installation media.
 			for mount in mounts:

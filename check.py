@@ -58,7 +58,7 @@ class KioskCheck(KioskDriver):
 			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
 
 		# Check that all required tools are installed and accessible.
-		for tool in ["mypy"]:
+		for tool in ["mypy", "pylint"]:
 			if not shutil.which(tool):
 				raise KioskError("Unable to locate '%s' in PATH" % tool)
 
@@ -83,6 +83,28 @@ class KioskCheck(KioskDriver):
 		if result.status != 0:
 			print(result.output)
 			raise KioskError("MyPy failed its static checks")
+		del result
+		del words
+
+		#************************* Ask pylint to statically check all Python source files in the current folder. *****************
+
+		words  = TextBuilder()
+		words += "pylint"
+		# TODO: Remove --errors-only option once the errors have been fixed.
+		words += "--errors-only"
+		words += "KioskForge.py"
+		words += "KioskOpenbox.py"
+		words += "KioskSetup.py"
+		words += "KioskStart.py"
+		words += "KioskUpdate.py"
+		words += "build.py"
+		words += "check.py"
+		words += "toolbox"
+
+		result = invoke_list(words.list)
+		if result.status != 0:
+			print(result.output)
+			raise KioskError("Pylint failed its static checks")
 		del result
 		del words
 

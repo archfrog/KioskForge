@@ -130,7 +130,7 @@ class KioskBuild(KioskDriver):
 		#************************** Create 'version.txt' (consumed by PyInstaller) ***********************************************
 
 		# Write 'version.txt' needed to fill out the details that can be viewed in Windows Explorer.
-		pyinstaller_versionfile.create_versionfile(      # type: ignore
+		pyinstaller_versionfile.create_versionfile(
 			output_file=rootpath + os.sep + "version.txt",
 			version=VERSION,
 			company_name=COMPANY,

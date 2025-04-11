@@ -27,7 +27,7 @@ import types
 
 # Try to import syslog (Linux only).
 if sys.platform == "linux":
-	import syslog
+	import syslog				# pylint: disable=E0401
 	SYSLOG_LOG_ERR = syslog.LOG_ERR
 	SYSLOG_LOG_INFO = syslog.LOG_INFO
 else:
