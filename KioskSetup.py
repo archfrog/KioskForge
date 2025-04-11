@@ -55,11 +55,11 @@ class KioskSetup(KioskDriver):
 		logger.write()
 
 		# Check that we're running on Linux.
-		if platform.system() != "Linux":
+		if sys.platform != "linux":
 			raise KioskError("This script is can only be run on a Linux kiosk machine")
 
-		# Check that we've got root privileges (instruct MyPy to ignore the Windows-only error in the next line).
-		if os.name == "posix" and os.geteuid() != 0:		# type: ignore
+		# Check that we've got root privileges.
+		if os.geteuid() != 0:
 			raise KioskError("You must be root (use 'sudo') to run this script")
 
 		# Check that we have got an active, usable internet connection.
