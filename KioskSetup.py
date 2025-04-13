@@ -174,7 +174,7 @@ class KioskSetup(KioskDriver):
 		lines += "# Function that displays all syslog entries made by Kiosk*.py."
 		lines += "kiosklog() {"
 		lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors, instead of all messages."
-		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk | grep -Fv systemd\["
+		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk | grep -Fv systemd\\["
 		lines += "}"
 		script += AppendTextAction(
 			"Creating 'kiosklog' Bash function for easier debugging, and bug and status reporting.",
@@ -402,12 +402,11 @@ class KioskSetup(KioskDriver):
 		if setup.user_packages.data:
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
 
-		# Create @reboot cron job to vacuum logs, if a number of days to keep logs have been specified.
-		# Vacuum system logs if a number of days of retention has been specified.
-		if setup.vacuum_days.data != 0:
+		# Vacuum system logs every boot if a maximum log size has been specified.
+		if setup.vacuum_size.data != 0:
 			lines  = TextBuilder()
 			lines += "# Cron job to vacuum (clean) system logs."
-			lines += f"@reboot\troot\t/usr/bin/journalctl --vacuum-time={setup.vacuum_days.data}d"
+			lines += f"@reboot\troot\t/usr/bin/journalctl --vacuum-size={setup.vacuum_size.data}m"
 			script += CreateTextAction(
 				"Creating cron job to vacuum logs at every boot.",
 				"/etc/cron.d/kiosk-vacuum-logs",

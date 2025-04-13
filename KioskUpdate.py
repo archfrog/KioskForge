@@ -24,7 +24,6 @@
 from typing import List
 
 import os
-import platform
 import sys
 
 from toolbox.actions import AptAction
@@ -46,7 +45,7 @@ class KioskUpdate(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.
-		if platform.system() != "Linux":
+		if sys.platform != "linux":
 			raise KioskError("This script is can only be run on a Linux kiosk machine")
 
 		# Check that we've got root privileges.

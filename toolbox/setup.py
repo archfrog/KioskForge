@@ -216,7 +216,7 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 		self.wifi_boost      = BooleanField("wifi_boost", "If enabled, Wi-Fi power saving is disabled in the kiosk (y/n).")
 		self.cpu_boost       = BooleanField("cpu_boost", "If enabled, the CPU is overclocked to run slightly faster.")
 		self.swap_size       = NaturalField("swap_size", "The size in gigabytes of the swap file (0 = none).", 0, 128)
-		self.vacuum_days     = NaturalField("vacuum_days", "The number of days to retain system logs for (0 through 365)", 0, 365)
+		self.vacuum_size     = NaturalField("vacuum_size", "The maximum size of system logs in megabytes (0 through 4096, 0 = unlimited, 250 is good).", 0, 4096)
 		self.upgrade_time    = TimeField("upgrade_time", "The time of day to upgrade the system (blank = never)")
 		self.poweroff_time   = TimeField("poweroff_time", "The time of day to power off the system (blank = never)")
 		self.idle_timeout    = NaturalField("idle_timeout", "The number of seconds of idle time before Chromium is restarted (0 = never)", 0, 24 * 60 * 60)
