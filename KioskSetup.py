@@ -118,7 +118,6 @@ class KioskSetup(KioskDriver):
 		# Build the script to execute.
 		logger.write("Forging kiosk (this will take 10-30 minutes):")
 		logger.write()
-		logger.write("STEP ACTION")
 		script = Script(logger, resume)
 
 		# Assign hostname (affects logs and journals so we do it as the very first thing).
@@ -553,7 +552,7 @@ class KioskSetup(KioskDriver):
 			raise KioskError(result.output)
 
 		# NOTE: The reboot takes place immediately, control never returns from the 'execute()' method below!
-		logger.write("**** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
+		logger.write("*** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
 		RebootSystemAction().execute()
 
 

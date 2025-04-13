@@ -21,6 +21,8 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import Any, List
 
+import timeit
+
 from toolbox.actions import Action
 from toolbox.errors import InternalError, KioskError
 from toolbox.invoke import Result
@@ -53,16 +55,23 @@ class Script:
 			raise KioskError("Resume offset greater than or equal to the total number of actions")
 
 		# Execute each action in turn while handling exceptions and failures.
+		self.__logger.write("STEP ELAPSED  ACTION")
 		index = self.__resume
+		start = timeit.default_timer()
 		for action in self.__actions[self.__resume:]:
 			try:
-				self.__logger.write(f"{index:4d} {action.title}")
+				# Compute and display total running time until now.
+				total = int(timeit.default_timer() - start)
+				(minutes, seconds) = divmod(total, 60)
+				(hours, minutes)   = divmod(minutes, 60)
+
+				self.__logger.write(f"{index:4d} {hours:02d}:{minutes:02d}:{seconds:02d} {action.title}")
 				index += 1
 
 				result = action.execute()
 				if result.status != 0:
 					self.__logger.error(result.output)
-					self.__logger.error("**** SCRIPT ABORTED DUE TO ABOVE ERROR ****")
+					self.__logger.error("*** SCRIPT ABORTED DUE TO ABOVE ERROR")
 					break
 			except (KioskError, InternalError) as that:
 				result = Result(1, that.text)
