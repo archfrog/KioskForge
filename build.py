@@ -246,7 +246,7 @@ class KioskBuild(KioskDriver):
 			shutil.copyfile(ramdisk + exename, "../bin/" + exename)
 			del exename
 
-		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (hosting kioskforge.org).
+		#************************** Copy the new 'KioskForge-x.yy-Setup.exe' via SSH to the web server hosting kioskforge.org.
 
 		# Only ship if explicitly requested as this will fail on all systems but my own PCs.
 		home_env = os.environ.get("HOME")
@@ -259,8 +259,7 @@ class KioskBuild(KioskDriver):
 			words += home_env + ".ssh/config"
 			words += "-p"
 			words += ramdisk + f"KioskForge-{self.version.version}-Setup.exe"
-			# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
-			words += "web:web/pub/kioskforge.org/"
+			words += "web:web/pub/kioskforge.org/downloads"
 			invoke_list_safe(words.list)
 		del home_env
 
