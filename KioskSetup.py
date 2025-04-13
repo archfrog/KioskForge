@@ -38,7 +38,7 @@ from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.internet import internet_active, lan_ip_address
-from toolbox.invoke import invoke_text, invoke_text_safe
+from toolbox.invoke import invoke_text
 from toolbox.logger import Logger
 from toolbox.setup import Setup
 from toolbox.script import Script
