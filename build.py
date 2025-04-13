@@ -110,17 +110,6 @@ class KioskBuild(KioskDriver):
 			if not shutil.which(tool):
 				raise KioskError(f"Unable to locate '{tool}' in PATH")
 
-		#*************************** Make a Git release tag for the target version ***********************************************
-
-		words  = TextBuilder()
-		words += "git"
-		words += "tag"
-		words += "-a"
-		words += self.version.version
-		words += "-m"
-		words += "Release v" + self.version.version + "."
-		invoke_list_safe(words.list)
-
 		#************************** Set up paths and clean out distribution path *************************************************
 
 		rootpath = ramdisk + os.sep + "KioskForge"
@@ -131,6 +120,24 @@ class KioskBuild(KioskDriver):
 
 		# Make sure we don't accidentally ship artifacts from earlier builds.
 		folder_delete_contents(distpath)
+
+		# Check that MyPy and pylint believe that the product is ready for distrubution.
+		# NOTE: Check.py fails if MyPy or pylint reports ERRORS, not if pylint only reports warnings.
+		words  = TextBuilder()
+		words += "python"
+		words += "check.py"
+		invoke_list_safe(words.list)
+
+		#*************************** Make a Git release tag for the target version ***********************************************
+
+		words  = TextBuilder()
+		words += "git"
+		words += "tag"
+		words += "-a"
+		words += self.version.version
+		words += "-m"
+		words += "Release v" + self.version.version + "."
+		invoke_list_safe(words.list)
 
 		#************************** Create 'version.txt' (consumed by PyInstaller) ***********************************************
 
