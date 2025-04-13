@@ -33,30 +33,20 @@ experience for you.  You are free to try with other versions of these tools, but
 
 ### Windows
 
-#### Download and Install the Python Programming Language
-On Windows, you need to download and install Python first:
+### Download the KioskForge Program
+Download the most recent version of [KioskForge.exe](https://kioskforge.org/downloads/).
 
-Open this link: [Python.org](https://www.python.org/ftp/python/3.13.2/python-3.13.2-amd64.exe) and save the `python-...exe` file to
-your `Downloads` folder.  Then double-click the `python-...exe` file and let it install using its default settings.
+Navigate to the `Downloads` folder and double-click on the `KioskForge-x.yy-Setup.exe` file.  Follow the prompts to install.
 
-### Download and Unpack the KioskForge Program
-Download and open the current `KioskForge.zip` archive from the [KioskForge website](https://kioskforge.org/KioskForge.zip).
-
-Navigate to the `Downloads` folder and double-click on the `KioskForge.zip` file.  Mark all files in the archive by right-clicking
-on the marked files and selecting `Copy`, or by hitting `Ctrl-A` on your keyboard.
-
-Then navigate to your desktop and create a folder named `KioskForge`.  Open this folder by double-clicking it and then right-click
-on the blank screen area in the right side of Windows Explorer and select `Paste`, or hit `Ctrl-V` on your keyboard.
-
-After this, you can launch KioskForge directly from Windows Explorer, by double-clicking it, or directly from the command-line by
-invoking the `KioskForge.exe` command.
+After this, you can launch KioskForge directly from Windows Explorer, by double-clicking a `.kiosk` file, or from the Start menu
+clicking on the `KioskForge` command.
 
 
 ### Linux
-**NOTE:** `KioskForge.exe` currently **cannot** be run on Linux.  This is a planned feature and is expected to be solved soon.
+**NOTE:** `KioskForge` currently **cannot** be run on Linux.  This is a planned feature and is expected to be solved soon.
 
-Install a recent version of the [Python v3.12+ programming language](https://python.org).  On most Linuxes, this can be done with
-the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.12+.
+Install a recent version of the [Python v3.13+ programming language](https://python.org).  On most Linuxes, this can be done with
+the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.13+.
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
 then you can invoke it using `./KioskForge.py`.
@@ -152,11 +142,14 @@ to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `ki
 To contribute to KioskForge, install these things first:
 
 ```batch
-rem Install Python v3.12+ from https://python.org.
+rem Install Python v3.13+ from https://python.org.
 rem ...
 
 rem Install MyPy using Pip:
 pip install mypy
+
+rem Install pylint using Pip:
+pip install pylint
 
 rem Install bcrypt using Pip:
 pip install bcrypt
