@@ -553,7 +553,7 @@ class KioskSetup(KioskDriver):
 
 		# NOTE: The reboot takes place immediately, control never returns from the 'execute()' method below!
 		logger.write("*** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
-		ExternalAction().execute("Rebooting system NOW!", "reboot")
+		ExternalAction("Rebooting system NOW!", "reboot").execute()
 
 
 if __name__ == "__main__":
