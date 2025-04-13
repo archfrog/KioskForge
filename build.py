@@ -35,6 +35,7 @@ from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
+from toolbox.various import ramdisk_get
 from toolbox.version import Version
 
 
@@ -95,16 +96,6 @@ class KioskBuild(KioskDriver):
 		settings = Settings()
 		settings.parse(arguments)
 
-		# Check that the user has set up the RAMDISK environment variable.
-		ramdisk = os.environ.get("RAMDISK")
-		if not ramdisk:
-			raise KioskError("No RAMDISK environment variable found.")
-
-		# Ensure the ramdisk variable is terminated by a directory separator, this simplifies the code below.
-		# NOTE: Adding a directory separator here also helps to eliminate double directory separators in generated paths.
-		if ramdisk[-1] != os.sep:
-			ramdisk += os.sep
-
 		# Check that all required tools are installed and accessible.
 		for tool in ["git", "pyinstaller", "pandoc"]:
 			if not shutil.which(tool):
@@ -115,6 +106,9 @@ class KioskBuild(KioskDriver):
 			innopath = r"c:\Program Files (x86)\Inno Setup 6\Compil32.exe"
 			if not os.path.isfile(innopath):
 				raise KioskError("Cannot find Inno Setup 6 (Compil32.exe) on this PC")
+
+		# Check that the user has set up the RAMDISK environment variable and make sure it is normalized while we're at it.
+		ramdisk = ramdisk_get()
 
 		#************************** Set up paths and clean out distribution path *************************************************
 
@@ -127,7 +121,8 @@ class KioskBuild(KioskDriver):
 		# Make sure we don't accidentally ship artifacts from earlier builds.
 		folder_delete_contents(distpath)
 
-		# Check that MyPy and pylint believe that the product is ready for distrubution.
+		#*************************** Ask MyPy and pylint if the product is ready for distribution ********************************
+
 		# NOTE: Check.py fails if MyPy or pylint reports ERRORS, not if pylint only reports warnings.
 		words  = TextBuilder()
 		words += "python"

@@ -32,6 +32,7 @@ from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list
 from toolbox.logger import Logger
+from toolbox.various import ramdisk_get
 from toolbox.version import Version
 
 
@@ -52,22 +53,20 @@ class KioskCheck(KioskDriver):
 			raise CommandError('"check.py"')
 		del arguments
 
-		# Check that the user has set up the RAMDISK environment variable.
-		ramdisk = os.environ.get("RAMDISK")
-		if not ramdisk:
-			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
-
 		# Check that all required tools are installed and accessible.
 		for tool in ["mypy", "pylint"]:
 			if not shutil.which(tool):
 				raise KioskError(f"Unable to locate '{tool}' in PATH")
+
+		# Check that the user has set up the RAMDISK environment variable and make sure it is normalized while we're at it.
+		ramdisk = ramdisk_get()
 
 		#*************************** Ask MyPy to statically check all Python source files in the current folder. *****************
 
 		words  = TextBuilder()
 		words += "mypy"
 		words += "--cache-dir"
-		words += ramdisk + os.sep + self.version.product + os.sep + "MyPy"
+		words += ramdisk + self.version.product + os.sep + "MyPy"
 		words += "--strict"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
@@ -88,6 +87,8 @@ class KioskCheck(KioskDriver):
 
 		words  = TextBuilder()
 		words += "pylint"
+		words += "-j"
+		words += "0"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
 		words += "KioskSetup.py"
@@ -97,7 +98,12 @@ class KioskCheck(KioskDriver):
 		words += "check.py"
 		words += "toolbox"
 
-		result = invoke_list(words.list)
+		# Create PYLINTHOME environment variable as this seems the only to move the pylint persistent data to my RAM disk.
+		# A command-line option to specify the persistent directory path would have been pretty nifty.
+		# NOTE: Yes, I do prefer that my tools' persistent files are rebuilt once in a while (whenever I reboot).
+		environment = os.environ | {"PYLINTHOME" : ramdisk + self.version.product + os.sep + "pylint"}
+
+		result = invoke_list(words.list, environment)
 		output = result.output.strip()
 		if output:
 			print("pylint messages:")
@@ -107,6 +113,7 @@ class KioskCheck(KioskDriver):
 		# If any fatal errors (1) or any errors (2), fail the 'check.py' script entirely.
 		if result.status & 3:
 			raise KioskError("Pylint failed its static checks")
+		del environment
 		del result
 		del words
 
