@@ -21,7 +21,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.13.06.45 H Make visual guide (with pictures) of how to make an installation medium using Raspberry Pi Imager.
 - [ ] 2025.04.12.06.14 H `../bld/KioskForge.iss` - the RAMDISK path should be configured by `build.py`, not hard-coded.
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
@@ -120,6 +119,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.13.06.45 H Make visual guide (with pictures) of how to make an installation medium using Raspberry Pi Imager.
+                         Found one in the documentation for Raspberry Pi Imager, I've linked to it in the `README.md` file.
 - [x] 2025.04.13.08.04 H Why does `journalctl --vacuum-time=30d` vacuum everything?  Probably NTP not synced time yet.
                          Change KioskForge to use `vacuum_size` instead of `vacuum_days`, the former does not need an RTC.
 - [x] 2025.04.09.05.45 H Fix the annoying problem that the kernel is not always updated completely, because there may be more than
