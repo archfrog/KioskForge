@@ -30,9 +30,9 @@ import sys
 import time
 
 # pylint: disable-next:wildcard-import
-from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction
-from toolbox.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
-from toolbox.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, RebootSystemAction
+from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, ExternalAction
+from toolbox.actions import InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction, RemoveFolderAction
+from toolbox.actions import ReplaceTextAction
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
@@ -534,7 +534,7 @@ class KioskSetup(KioskDriver):
 		)
 
 		# Free disk space by purging unused packages.
-		script += PurgePackagesAction("Purging all unused packages to free disk space.", [])
+		script += AptAction("Purging all unused packages to free disk space.", "apt-get autoremove --purge -y")
 
 		# Free disk space by cleaning the apt cache.
 		script += AptAction("Cleaning package cache.", "apt-get clean")
@@ -555,7 +555,7 @@ class KioskSetup(KioskDriver):
 
 		# NOTE: The reboot takes place immediately, control never returns from the 'execute()' method below!
 		logger.write("*** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
-		RebootSystemAction().execute()
+		ExternalAction().execute("Rebooting system NOW!", "reboot")
 
 
 if __name__ == "__main__":

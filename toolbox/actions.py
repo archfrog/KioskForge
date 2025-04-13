@@ -275,13 +275,6 @@ class ExternalAction(Action):
 		return invoke_text(self.__line)
 
 
-class RebootSystemAction(ExternalAction):
-	"""Action to IMMEDIATELY reboot the system."""
-
-	def __init__(self) -> None:
-		ExternalAction.__init__(self, "Rebooting system NOW!", "reboot")
-
-
 class AptAction(ExternalAction):
 	"""Base class for 'apt' actions."""
 
@@ -314,9 +307,8 @@ class InstallPackagesNoRecommendsAction(AptAction):
 
 
 class PurgePackagesAction(AptAction):
-	"""Apt action to purge all unused/useless packages in the system."""
+	"""Apt action to purge all the specified packages from the system."""
 
 	def __init__(self, title : str, packages : List[str]) -> None:
-		names = ' '.join(packages)
-		AptAction.__init__(self, title, "apt-get autoremove --purge -y " + names)
+		AptAction.__init__(self, title, "apt-get autoremove --purge -y " + ' '.join(packages))
 
