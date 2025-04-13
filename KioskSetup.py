@@ -307,9 +307,7 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("Upgrading all snaps.", "snap refresh")
 		# NOTE: Use 'AptAction' to automatically wait for apt's lock to be released if in use.
 		script += AptAction("Updating system package indices.", "apt-get update")
-		script += AptAction("Upgrading all installed packages - first pass.", "apt-get upgrade -y")
-		# NOTE: The two passes are necessary to ensure that the kernel has been fully updated (sometimes there are two kernels).
-		script += AptAction("Upgrading all installed packages - second pass.", "apt-get upgrade -y")
+		script += AptAction("Upgrading all installed packages.", "apt-get upgrade -y")
 
 		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
 		script += ExternalAction(
