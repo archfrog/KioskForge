@@ -98,21 +98,27 @@ class KioskBuild(KioskDriver):
 		# Check that the user has set up the RAMDISK environment variable.
 		ramdisk = os.environ.get("RAMDISK")
 		if not ramdisk:
-			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
+			raise KioskError("No RAMDISK environment variable found.")
 
-		# Check that Inno Setup v6+ is in its expected location.
-		innopath = r"c:\Program Files (x86)\Inno Setup 6\Compil32.exe"
-		if not os.path.isfile(innopath):
-			raise KioskError("Cannot find Inno Setup 6 (Compil32.exe) on this PC")
+		# Ensure the ramdisk variable is terminated by a directory separator, this simplifies the code below.
+		# NOTE: Adding a directory separator here also helps to eliminate double directory separators in generated paths.
+		if ramdisk[-1] != os.sep:
+			ramdisk += os.sep
 
 		# Check that all required tools are installed and accessible.
 		for tool in ["git", "pyinstaller", "pandoc"]:
 			if not shutil.which(tool):
 				raise KioskError(f"Unable to locate '{tool}' in PATH")
 
+		# Check that Inno Setup v6.x is in its expected location.
+		if sys.platform == "win32:
+			innopath = r"c:\Program Files (x86)\Inno Setup 6\Compil32.exe"
+			if not os.path.isfile(innopath):
+				raise KioskError("Cannot find Inno Setup 6 (Compil32.exe) on this PC")
+
 		#************************** Set up paths and clean out distribution path *************************************************
 
-		rootpath = ramdisk + os.sep + "KioskForge"
+		rootpath = ramdisk + "KioskForge"
 		distpath = "../tmp"
 		os.makedirs(distpath, mode=0o664, exist_ok=True)
 		workpath = rootpath + os.sep + "PyInstaller"
@@ -223,22 +229,27 @@ class KioskBuild(KioskDriver):
 
 		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
 
-		# Expand "$$VERSION$$ macro in source .iss file and store the output in ../tmp.
-		with open("../bld/KioskForge.iss", "rt", encoding="utf8") as stream:
-			script = stream.read()
-		script = script.replace("$$VERSION$$", self.version.version)
-		with open("../tmp/KioskForge.iss", "wt", encoding="utf8") as stream:
-			stream.write(script)
+		# Only build the Windows setup program on Windows as Inno Setup v6 does not run on Linux.
+		if sys.platform == "win32":
+			# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
+			with open("../bld/KioskForge.iss", "rt", encoding="utf8") as stream:
+				script = stream.read()
+			script = script.replace("$$RAMDISK$$", ramdisk)
+			script = script.replace("$$VERSION$$", self.version.version)
+			with open("../tmp/KioskForge.iss", "wt", encoding="utf8") as stream:
+				stream.write(script)
 
-		# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
-		words  = TextBuilder()
-		words += innopath
-		words += "/cc"
-		words += "../tmp/KioskForge.iss"
-		invoke_list_safe(words.list)
+			# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
+			words  = TextBuilder()
+			words += innopath
+			words += "/cc"
+			words += "../tmp/KioskForge.iss"
+			invoke_list_safe(words.list)
 
-		# Copy output to RAMDISK to local work tree (Inno fails to add icons to the file because Dropbox is busy synchronizing).
-		shutil.copyfile(f"R:\\KioskForge-{self.version.version}-Setup.exe", f"../bin/KioskForge-{self.version.version}-Setup.exe")
+			# Copy output to RAMDISK to local work tree (Inno fails to add icons to the file because Dropbox is busy synchronizing).
+			exename = f"KioskForge-{self.version.version}-Setup.exe"
+			shutil.copyfile(ramdisk + exename, "../bin/" + exename)
+			del exename
 
 		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (hosting kioskforge.org).
 
@@ -246,12 +257,13 @@ class KioskBuild(KioskDriver):
 		home_env = os.environ.get("HOME")
 		if settings.ship and home_env:
 			words  = TextBuilder()
-			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version.
+			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version because
+			# Microsoft's version does not honor the HOME environment variable, something which the Git version does.
 			words += r"C:\Program Files\Git\usr\bin\scp.exe"
 			words += "-F"
 			words += home_env + ".ssh/config"
 			words += "-p"
-			words += ramdisk + os.sep + f"KioskForge-{self.version.version}-Setup.exe"
+			words += ramdisk + f"KioskForge-{self.version.version}-Setup.exe"
 			# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
 			words += "web:web/pub/kioskforge.org/"
 			invoke_list_safe(words.list)
