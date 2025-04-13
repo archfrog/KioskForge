@@ -63,7 +63,8 @@ class KioskSetup(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).
-		invoke_text_safe("clear")
+		# NOTE: The 'clear' command has no effect for reasons unknown to me so I resorted to using an 'xterm' escape sequence.
+		print("\033[2J", end="")
 
 		# Output program banner and an empty line.
 		logger.write(self.version.banner())
