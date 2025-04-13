@@ -29,10 +29,10 @@ import sys
 
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
-from toolbox.errors import KioskError, SyntaxError
+from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list
 from toolbox.logger import Logger
-from toolbox.version import *
+from toolbox.version import Version
 
 
 class KioskCheck(KioskDriver):
@@ -40,7 +40,7 @@ class KioskCheck(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version("check", VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version("check")
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Delete two standard arguments that we don't currently use for anything.
@@ -49,25 +49,25 @@ class KioskCheck(KioskDriver):
 
 		# Parse command-line arguments.
 		if arguments:
-			raise SyntaxError('"check.py"')
+			raise CommandError('"check.py"')
 		del arguments
 
 		# Check that the user has set up the RAMDISK environment variable.
-		RAMDISK = os.environ.get("RAMDISK")
-		if not RAMDISK:
+		ramdisk = os.environ.get("RAMDISK")
+		if not ramdisk:
 			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
 
 		# Check that all required tools are installed and accessible.
 		for tool in ["mypy", "pylint"]:
 			if not shutil.which(tool):
-				raise KioskError("Unable to locate '%s' in PATH" % tool)
+				raise KioskError(f"Unable to locate '{tool}' in PATH")
 
 		#*************************** Ask MyPy to statically check all Python source files in the current folder. *****************
 
 		words  = TextBuilder()
 		words += "mypy"
 		words += "--cache-dir"
-		words += RAMDISK + os.sep + PRODUCT + os.sep + "MyPy"
+		words += ramdisk + os.sep + self.version.product + os.sep + "MyPy"
 		words += "--strict"
 		# NOTE: This option is no longer necessary as PyInstaller-VersionFile has been updated to provide type hints.
 		#words += "--follow-untyped-imports"
@@ -90,8 +90,8 @@ class KioskCheck(KioskDriver):
 
 		words  = TextBuilder()
 		words += "pylint"
-		# TODO: Remove --errors-only option once the errors have been fixed.
-		words += "--errors-only"
+		# TODO: Remove --errors-only option once the warnings have been fixed.
+		#words += "--errors-only"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
 		words += "KioskSetup.py"
@@ -102,15 +102,17 @@ class KioskCheck(KioskDriver):
 		words += "toolbox"
 
 		result = invoke_list(words.list)
-		if result.status != 0:
-			print(result.output)
+		output = result.output.strip()
+		if output:
+			print(output)
+		del output
+		# If any fatal errors (1) or any errors (2), fail the 'check.py' script entirely.
+		if result.status & 3:
 			raise KioskError("Pylint failed its static checks")
 		del result
 		del words
 
 
 if __name__ == "__main__":
-	app = KioskCheck()
-	code = app.main(sys.argv)
-	sys.exit(code)
+	sys.exit(KioskCheck().main(sys.argv))
 

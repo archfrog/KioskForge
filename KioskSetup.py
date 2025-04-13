@@ -24,22 +24,34 @@
 from typing import List
 
 import os
-import platform
 import shlex
 import stat
 import sys
 import time
 
-from toolbox.actions import *
+# pylint: disable-next:wildcard-import
+from toolbox.actions import AppendTextAction, CleanPackageCacheAction, CreateTextAction, CreateTextWithUserAndModeAction
+from toolbox.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
+from toolbox.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, RebootSystemAction, UpgradeSnapsAction
+from toolbox.actions import UpdateSystemAction, UpgradeSystemAction
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
-from toolbox.errors import *
-from toolbox.internet import internet_active
-from toolbox.invoke import invoke_text, invoke_text_safe, Result
+from toolbox.errors import CommandError, InternalError, KioskError
+from toolbox.internet import internet_active, lan_ip_address
+from toolbox.invoke import invoke_text, invoke_text_safe
 from toolbox.logger import Logger
 from toolbox.setup import Setup
 from toolbox.script import Script
-from toolbox.version import *
+from toolbox.version import Version
+
+
+# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
+MATRICES = {
+	'none'  : '1 0 0 0 1 0 0 0 1',
+	'left'  : '0 -1 1 1 0 0 0 0 1',
+	'flip'  : '-1 0 1 0 -1 1 0 0 1',
+	'right' : '0 1 0 -1 0 1 0 0 1'
+}
 
 
 class KioskSetup(KioskDriver):
@@ -47,7 +59,7 @@ class KioskSetup(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project, VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version(self.project)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).
@@ -81,15 +93,11 @@ class KioskSetup(KioskDriver):
 			raise KioskError("No active network connections detected")
 
 		# Display LAN IP - not everybody has access to the router in charge of assigning a LAN IP via DHCP.
-		result = invoke_text("hostname -I")
-		if result.status == 0:
-			logger.write("*** LAN IP: %s" % result.output)
-		else:
-			logger.error("*** Error: Could not query LAN IP")
+		logger.write(lan_ip_address())
 
 		# Parse command-line arguments.
 		if len(arguments) >= 2:
-			raise SyntaxError("\"KioskSetup.py\" ?step\nWhere 'step' is an optional resume step from the log.")
+			raise CommandError("\"KioskSetup.py\" ?step\nWhere 'step' is an optional resume step from the log.")
 		resume = 0
 		if len(arguments) == 1:
 			resume = int(arguments[0])
@@ -171,7 +179,7 @@ class KioskSetup(KioskDriver):
 		lines += "}"
 		script += AppendTextAction(
 			"Creating 'kiosklog' Bash function for easier debugging, and bug and status reporting.",
-			"%s/.bashrc" % os.path.dirname(origin),
+			f"{os.path.dirname(origin)}/.bashrc",
 			lines.text
 		)
 
@@ -191,13 +199,13 @@ class KioskSetup(KioskDriver):
 			lines += "done"
 			script += CreateTextWithUserAndModeAction(
 				"Creating script to disable power-saving on Wi-Fi card.",
-				"%s/kiosk-disable-wifi-power-saving.sh" % origin,
+				f"{origin}/kiosk-disable-wifi-power-saving.sh",
 				setup.user_name.data,
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH,
 				lines.text
 			)
 			del lines
-			script += ExternalAction("Disabling Wi-Fi power-saving mode.", "%s/kiosk-disable-wifi-power-saving.sh" % origin)
+			script += ExternalAction("Disabling Wi-Fi power-saving mode.", f"{origin}/kiosk-disable-wifi-power-saving.sh")
 
 			# Create a systemd service to disable Wi-Fi power saving on every boot.
 			lines  = TextBuilder()
@@ -207,7 +215,7 @@ class KioskSetup(KioskDriver):
 			lines += ""
 			lines += "[Service]"
 			lines += "Type=simple"
-			lines += "ExecStart=%s/kiosk-disable-wifi-power-saving.sh" % origin
+			lines += f"ExecStart={origin}/kiosk-disable-wifi-power-saving.sh"
 			script += CreateTextWithUserAndModeAction(
 				"Creating systemd unit to disable Wi-Fi power saving on every boot.",
 				"/usr/lib/systemd/system/kiosk-disable-wifi-power-saving.service",
@@ -225,7 +233,7 @@ class KioskSetup(KioskDriver):
 
 		# TODO: Disable IPv6 as it apparently slows down Internet communication and is claimed to make the network stack unstable.
 		if False:
-			"""
+			dummy = """
 				apt-get install -y net-tools
 				TARGET=/etc/rc.local
 				echo "#!/usr/bin/bash" >> $TARGET
@@ -248,7 +256,7 @@ class KioskSetup(KioskDriver):
 		if setup.ssh_key.data:
 			script += AppendTextAction(
 				"Installing public SSH key in user's home directory.",
-				"%s/.ssh/authorized_keys" % os.path.dirname(origin),
+				f"{os.path.dirname(origin)}/.ssh/authorized_keys",
 				setup.ssh_key.data + "\n"
 			)
 			#...Disable root login, if not already disabled.
@@ -280,13 +288,10 @@ class KioskSetup(KioskDriver):
 		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
 
 		# Install US English and user-specified locales (purge all others).
-		script += ExternalAction("Configuring system locales.", "locale-gen --purge en_US.UTF-8 %s" % setup.locale.data)
+		script += ExternalAction("Configuring system locales.", f"locale-gen --purge en_US.UTF-8 {setup.locale.data}")
 
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
-		script += ExternalAction(
-			"Setting system locale.",
-			"update-locale LANG=%s LC_MESSAGES=en_US.UTF-8" % setup.locale.data
-		)
+		script += ExternalAction("Setting system locale.", f"update-locale LANG={setup.locale.data} LC_MESSAGES=en_US.UTF-8")
 
 		# Set timezone to use user's choice.
 		script += ExternalAction("Setting timezone.", "timedatectl set-timezone " + setup.timezone.data)
@@ -330,14 +335,6 @@ class KioskSetup(KioskDriver):
 			# NOTE: This file is always created, when the screen is rotated, but has no effect on non-touch displays.
 			# NOTE: I'd love to create this file in 'KioskStart.py', but it runs as the created user, not as root.
 			if setup.screen_rotation.data != "none":
-				# NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
-				matrices = {
-					'none'  : '1 0 0 0 1 0 0 0 1',
-					'left'  : '0 -1 1 1 0 0 0 0 1',
-					'flip'  : '-1 0 1 0 -1 1 0 0 1',
-					'right' : '0 1 0 -1 0 1 0 0 1'
-				}
-
 				# Write '/etc/X11/xorg.conf.d/99-kiosk-set-touch-rotation.conf' to make X11 rotate the touch panel itself.
 				# Source: https://gist.github.com/autofyrsto/6daa5d41c7f742dd16c46c903ba15c8f
 				lines  = TextBuilder()
@@ -346,7 +343,7 @@ class KioskSetup(KioskDriver):
 				lines += '\tMatchIsTouchscreen "on"'
 				lines += '\tMatchDevicePath "/dev/input/event*"'
 				lines += '\tMatchDriver "libinput"'
-				lines += '\tOption "CalibrationMatrix" "%s"' % matrices[setup.screen_rotation.data]
+				lines += f'\tOption "CalibrationMatrix" "{MATRICES[setup.screen_rotation.data]}"'
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
 					"Creating X11 configuration file to rotate the touch panel.",
@@ -356,17 +353,16 @@ class KioskSetup(KioskDriver):
 					lines.text
 				)
 				del lines
-				del matrices
 
 			# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
 			# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
 			# NOTE: For this reason, we start the Python script indirectly through an-hoc Dash script.
 			lines  = TextBuilder()
 			lines += "#!/usr/bin/dash"
-			lines += "%s/KioskOpenbox.py" % origin
+			lines += f"{origin}/KioskOpenbox.py"
 			script += CreateTextWithUserAndModeAction(
 				"Creating OpenBox startup script.",
-				"%s/.config/openbox/autostart" % os.path.dirname(origin),
+				f"{os.path.dirname(origin)}/.config/openbox/autostart",
 				setup.user_name.data,
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
 				lines.text
@@ -388,7 +384,7 @@ class KioskSetup(KioskDriver):
 				lines += '{"translate":{"enabled":false}}'
 				script += CreateTextWithUserAndModeAction(
 					"Disabling Translate feature in Chromium web browser.",
-					"%s/snap/chromium/common/chromium/Default/Preferences" % os.path.dirname(origin),
+					f"{os.path.dirname(origin)}/snap/chromium/common/chromium/Default/Preferences",
 					setup.user_name.data,
 					stat.S_IRUSR | stat.S_IWUSR,
 					lines.text
@@ -406,7 +402,7 @@ class KioskSetup(KioskDriver):
 			# Currently nothing to do, KioskStart.py handles this case completely.
 			pass
 		else:
-			raise KioskError("Unknown kiosk type: %s" % setup.type.data)
+			raise KioskError(f"Unknown kiosk type: {setup.type.data}")
 
 		# If the user_packages option is specified, install the extra package(s).
 		if setup.user_packages.data:
@@ -417,7 +413,7 @@ class KioskSetup(KioskDriver):
 		if setup.vacuum_days.data != 0:
 			lines  = TextBuilder()
 			lines += "# Cron job to vacuum (clean) system logs."
-			lines += "@reboot\troot\t/usr/bin/journalctl --vacuum-time=%dd" % setup.vacuum_days.data
+			lines += f"@reboot\troot\t/usr/bin/journalctl --vacuum-time={setup.vacuum_days.data}d"
 			script += CreateTextAction(
 				"Creating cron job to vacuum logs at every boot.",
 				"/etc/cron.d/kiosk-vacuum-logs",
@@ -428,8 +424,8 @@ class KioskSetup(KioskDriver):
 		# Create cron job to update, upgrade, clean, and reboot the system every day at a given time.
 		if setup.upgrade_time.data != "":
 			lines  = TextBuilder()
-			lines += "# Cron job to upgrade, clean, and reboot the system every day at %s." % setup.upgrade_time.data
-			lines += '%s %s * * *\troot\t%s/KioskUpdate.py' % (setup.upgrade_time.data[3:5], setup.upgrade_time.data[0:2], origin)
+			lines += "# Cron job to upgrade, clean, and reboot the system every day."
+			lines += f'{setup.upgrade_time.data[3:5]} {setup.upgrade_time.data[0:2]} * * *\troot\t{origin}/KioskUpdate.py'
 			script += CreateTextAction(
 				"Creating cron job to upgrade system once a day at the configured time.",
 				"/etc/cron.d/kiosk-upgrade-system",
@@ -440,8 +436,8 @@ class KioskSetup(KioskDriver):
 		# Create cron job to power off the system at a given time (only usable when it is manually turned on again).
 		if setup.poweroff_time.data != "":
 			lines  = TextBuilder()
-			lines += "# Cron job to shut down the kiosk machine nicely every day at %s." % setup.poweroff_time.data
-			lines += "%s %s * * *\troot\tpoweroff" % (setup.poweroff_time.data[3:5], setup.poweroff_time.data[0:2])
+			lines += "# Cron job to shut down the kiosk machine nicely every day."
+			lines += f"{setup.poweroff_time.data[3:5]} {setup.poweroff_time.data[0:2]} * * *\troot\tpoweroff"
 			script += CreateTextAction(
 				"Creating cron job to power off the system every day at the configured time.",
 				"/etc/cron.d/kiosk-power-off",
@@ -453,7 +449,7 @@ class KioskSetup(KioskDriver):
 		if setup.swap_size.data > 0:
 			script += ExternalAction(
 				"Allocating swap file.",
-				"fallocate -l %dG /swapfile" % setup.swap_size.data,
+				f"fallocate -l {setup.swap_size.data}G /swapfile",
 			)
 			script += ExternalAction(
 				"Setting permissions on new swap file.",
@@ -475,11 +471,11 @@ class KioskSetup(KioskDriver):
 			lines += ""
 			lines += "# Execute the startup script 'KioskStart.py' (HACK: only if not connected via SSH)."
 			lines += r"if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
-			lines += "\t" + ("%s/KioskStart.py" % origin)
+			lines += f"\t{origin}/KioskStart.py"
 			lines += "fi"
 			script += AppendTextAction(
 				"Appending lines to ~/.bashrc to start up the kiosk.",
-				"%s/.bashrc" % os.path.dirname(origin),
+				f"{os.path.dirname(origin)}/.bashrc",
 				lines.text
 			)
 			del lines
@@ -488,7 +484,7 @@ class KioskSetup(KioskDriver):
 			lines  = TextBuilder()
 			lines += "[Service]"
 			lines += "ExecStart="
-			lines += "ExecStart=-/sbin/agetty --noissue --autologin %s %%I $TERM" % setup.user_name.data
+			lines += f"ExecStart=-/sbin/agetty --noissue --autologin {setup.user_name.data} %I $TERM"
 			lines += "Type=simple"
 			script += CreateTextWithUserAndModeAction(
 				"Creating systemd auto-login override.",
@@ -508,11 +504,11 @@ class KioskSetup(KioskDriver):
 			lines += "After=multi-user.target"
 			lines += ""
 			lines += "[Service]"
-			lines += "User=%s" % setup.user_name.data
-			lines += "Group=%s" % setup.user_name.data
+			lines += f"User={setup.user_name.data}"
+			lines += f"Group={setup.user_name.data}"
 			lines += "Type=simple"
 			lines += "ExecStart="
-			lines += "ExecStart=%s/KioskStart.py" % origin
+			lines += f"ExecStart={origin}/KioskStart.py"
 			lines += "StandardOutput=tty"
 			lines += "StandardError=tty"
 			lines += ""
@@ -532,7 +528,7 @@ class KioskSetup(KioskDriver):
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
 			"Setting ownership of all files in user's home directory to that user.",
-			"chown -R %s:%s %s" % (setup.user_name.data, setup.user_name.data, os.path.dirname(origin))
+			f"chown -R {setup.user_name.data}:{setup.user_name.data} {os.path.dirname(origin)}"
 		)
 
 		# Free disk space by purging unused packages.
@@ -561,7 +557,5 @@ class KioskSetup(KioskDriver):
 
 
 if __name__ == "__main__":
-	app = KioskSetup()
-	code = app.main(sys.argv)
-	sys.exit(code)
+	sys.exit(KioskSetup().main(sys.argv))
 

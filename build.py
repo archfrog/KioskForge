@@ -25,19 +25,17 @@ from typing import List
 
 import glob
 import os
-import platform
 import shutil
 import sys
-import time
 
 import pyinstaller_versionfile
 
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
-from toolbox.errors import *
+from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
-from toolbox.version import *
+from toolbox.version import Version
 
 
 # Delete all items IN the specified folder, without removing or altering the folder itself.
@@ -49,16 +47,21 @@ def folder_delete_contents(path : str) -> None:
 			os.unlink(item)
 
 
-class Settings(object):
+class Settings:
 	"""Used parse and query the command-line options given to the script when invoked."""
 
 	def __init__(self) -> None:
 		self.__clean = False
+		self.__debug = False
 		self.__ship = False
 
 	@property
 	def clean(self) -> bool:
 		return self.__clean
+
+	@property
+	def debug(self) -> bool:
+		return self.__debug
 
 	@property
 	def ship(self) -> bool:
@@ -68,10 +71,12 @@ class Settings(object):
 		for argument in arguments:
 			if argument == "--clean":
 				self.__clean = True
+			elif argument == "--debug":
+				self.__debug = True
 			elif argument == "--ship":
 				self.__ship = True
 			else:
-				raise SyntaxError('"build.py" [--clean] [--ship]')
+				raise CommandError('"build.py" [--clean] [--debug] [--ship]')
 
 
 class KioskBuild(KioskDriver):
@@ -79,7 +84,7 @@ class KioskBuild(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version("build", VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version("build")
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Delete two standard arguments that we don't currently use for anything.
@@ -91,8 +96,8 @@ class KioskBuild(KioskDriver):
 		settings.parse(arguments)
 
 		# Check that the user has set up the RAMDISK environment variable.
-		RAMDISK = os.environ.get("RAMDISK")
-		if not RAMDISK:
+		ramdisk = os.environ.get("RAMDISK")
+		if not ramdisk:
 			raise KioskError("No RAMDISK environment variable found.  Please define it and rerun this script.")
 
 		# Check that Inno Setup v6+ is in its expected location.
@@ -103,7 +108,7 @@ class KioskBuild(KioskDriver):
 		# Check that all required tools are installed and accessible.
 		for tool in ["git", "pyinstaller", "pandoc"]:
 			if not shutil.which(tool):
-				raise KioskError("Unable to locate '%s' in PATH" % tool)
+				raise KioskError(f"Unable to locate '{tool}' in PATH")
 
 		#*************************** Make a Git release tag for the target version ***********************************************
 
@@ -111,14 +116,14 @@ class KioskBuild(KioskDriver):
 		words += "git"
 		words += "tag"
 		words += "-a"
-		words += VERSION
+		words += self.version.version
 		words += "-m"
-		words += "Release v" + VERSION + "."
+		words += "Release v" + self.version.version + "."
 		invoke_list_safe(words.list)
 
 		#************************** Set up paths and clean out distribution path *************************************************
 
-		rootpath = RAMDISK + os.sep + "KioskForge"
+		rootpath = ramdisk + os.sep + "KioskForge"
 		distpath = "../tmp"
 		os.makedirs(distpath, mode=0o664, exist_ok=True)
 		workpath = rootpath + os.sep + "PyInstaller"
@@ -132,13 +137,13 @@ class KioskBuild(KioskDriver):
 		# Write 'version.txt' needed to fill out the details that can be viewed in Windows Explorer.
 		pyinstaller_versionfile.create_versionfile(
 			output_file=rootpath + os.sep + "version.txt",
-			version=VERSION,
-			company_name=COMPANY,
+			version=self.version.version,
+			company_name=self.version.company,
 			file_description="Tool to forge a complete Linux kiosk machine from scratch.",
-			internal_name=PRODUCT,
-			legal_copyright="Copyright © " + COMPANY + ". All Rights Reserved.",
-			original_filename=PRODUCT + ".exe",
-			product_name=PRODUCT,
+			internal_name=self.version.product,
+			legal_copyright="Copyright © " + self.version.company + ". All Rights Reserved.",
+			original_filename=self.version.product + ".exe",
+			product_name=self.version.product,
 			#translations=[1033, 437]			# TODO: 65001]
 		)
 
@@ -148,7 +153,7 @@ class KioskBuild(KioskDriver):
 		words  = TextBuilder()
 		words += "pyinstaller"
 
-		if False:
+		if settings.debug:
 			words += "--debug"
 			words += "all"
 
@@ -212,9 +217,11 @@ class KioskBuild(KioskDriver):
 		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
 
 		# Expand "$$VERSION$$ macro in source .iss file and store the output in ../tmp.
-		script = open("../bld/KioskForge.iss", "rt").read()
-		script = script.replace("$$VERSION$$", VERSION)
-		open("../tmp/KioskForge.iss", "wt").write(script)
+		with open("../bld/KioskForge.iss", "rt", encoding="utf8") as stream:
+			script = stream.read()
+		script = script.replace("$$VERSION$$", self.version.version)
+		with open("../tmp/KioskForge.iss", "wt", encoding="utf8") as stream:
+			stream.write(script)
 
 		# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
 		words  = TextBuilder()
@@ -224,7 +231,7 @@ class KioskBuild(KioskDriver):
 		invoke_list_safe(words.list)
 
 		# Copy output to RAMDISK to local work tree (Inno fails to add icons to the file because Dropbox is busy synchronizing).
-		shutil.copyfile("R:\\KioskForge-" + VERSION + "-Setup.exe", "../bin/KioskForge-" + VERSION + "-Setup.exe")
+		shutil.copyfile(f"R:\\KioskForge-{self.version.version}-Setup.exe", f"../bin/KioskForge-{self.version.version}-Setup.exe")
 
 		#************************** Copy-via-SSH 'KioskForge-x.yy-Setup.exe' to my personal web server (hosting kioskforge.org).
 
@@ -237,7 +244,7 @@ class KioskBuild(KioskDriver):
 			words += "-F"
 			words += home_env + ".ssh/config"
 			words += "-p"
-			words += RAMDISK + os.sep + "KioskForge-%s-Setup.exe" % VERSION
+			words += ramdisk + os.sep + f"KioskForge-{self.version.version}-Setup.exe"
 			# NOTE: DON'T put the setup program in the downloads folder just yet, wait until we open up for public use!
 			words += "web:web/pub/kioskforge.org/"
 			invoke_list_safe(words.list)
@@ -245,7 +252,5 @@ class KioskBuild(KioskDriver):
 
 
 if __name__ == "__main__":
-	app = KioskBuild()
-	code = app.main(sys.argv)
-	sys.exit(code)
+	sys.exit(KioskBuild().main(sys.argv))
 

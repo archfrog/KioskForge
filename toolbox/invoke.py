@@ -27,7 +27,7 @@ import subprocess
 from toolbox.errors import KioskError
 
 
-class Result(object):
+class Result:
 	"""The result (status code, output) of an action."""
 
 	def __init__(self, status : int = 0, output : str = "") -> None:

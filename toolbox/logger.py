@@ -19,11 +19,13 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import Any, Dict, List, Optional, TextIO, Tuple
+from typing import Any
 
 import os
 import sys
 import types
+
+from toolbox.errors import InternalError
 
 # Try to import syslog (Linux only).
 if sys.platform == "linux":
@@ -35,13 +37,15 @@ else:
 	SYSLOG_LOG_ERR = 1
 	SYSLOG_LOG_INFO = 2
 
-class TextWriter(object):
+class TextWriter:
 	"""Simple text stream writer class that supports 'with' and indentation."""
 
 	def __init__(self, path : str, tabs : str = "  ") -> None:
 		self.__path = path
 		# The size, in levels, of the indentation.
 		self.__size = 0
+		# The output stream.
+		self.__stream = open(self.__path, "wt", encoding="utf-8")		# pylint: disable=consider-using-with
 		# The string that makes up one level of indentation.
 		self.__tabs = tabs
 
@@ -51,7 +55,6 @@ class TextWriter(object):
 
 	def __enter__(self) -> Any:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
-		self.__stream = open(self.__path, "wt", encoding="utf-8")
 		return self
 
 	def __exit__(self, exception_type : type, exception_value : Exception, traceback : types.TracebackType) -> None:
@@ -62,7 +65,8 @@ class TextWriter(object):
 		self.__size += size
 
 	def dedent(self, size : int = 1) -> None:
-		assert(self.__size - size >= 0)
+		if self.__size - size < 0:
+			raise InternalError("Attempt to dedent below level of indent")
 		self.__size -= size
 
 	def _write(self, text : str) -> None:
@@ -76,10 +80,10 @@ class TextWriter(object):
 			self._write(self.__size * self.__tabs + line)
 
 
-class Logger(object):
+class Logger:
 	"""Class that implements the multi-line logging functionality required by the script (Linux only)."""
 
-	def __init__(self, project : str) -> None:
+	def __init__(self) -> None:
 		# Prepare syslog() for our messages.
 		if sys.platform == "linux":
 			syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL0)
@@ -90,7 +94,7 @@ class Logger(object):
 
 	def __exit__(self, exception_type : type, exception_value : Exception, traceback : types.TracebackType) -> None:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
-		pass
+		pass							# pylint: disable=unnecessary-pass
 
 	def _write(self, kind : int, text : str) -> None:
 		"""Writes one or more lines to the output device."""

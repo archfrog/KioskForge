@@ -22,11 +22,11 @@
 from typing import Any, List
 
 from toolbox.actions import Action
-from toolbox.errors import ArgumentError, InternalError, KioskError
+from toolbox.errors import InternalError, KioskError
 from toolbox.invoke import Result
 from toolbox.logger import Logger
 
-class Script(object):
+class Script:
 	"""Simple abstraction of a sequence of actions that can be resumed from any point in the list of actions."""
 
 	def __init__(self, logger : Logger, resume : int) -> None:
@@ -39,7 +39,7 @@ class Script(object):
 
 		# Check that the action hasn't already been added to the script.
 		if action in self.__actions:
-			raise InternalError("Action was added twice: %s" % action)
+			raise InternalError(f"Action was added twice: {action}")
 
 		# Add the action to the script to be executed.
 		self.__actions.append(action)
@@ -50,13 +50,13 @@ class Script(object):
 		result = Result()
 
 		if self.__resume >= len(self.__actions):
-			raise ArgumentError(0, "Resume offset greater than total number of actions")
+			raise KioskError("Resume offset greater than or equal to the total number of actions")
 
 		# Execute each action in turn while handling exceptions and failures.
 		index = self.__resume
 		for action in self.__actions[self.__resume:]:
 			try:
-				self.__logger.write("%4d %s" % (index, action.title))
+				self.__logger.write(f"{index:4d} {action.title}")
 				index += 1
 
 				result = action.execute()

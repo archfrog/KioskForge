@@ -22,7 +22,7 @@
 from typing import Any, List
 
 
-class TextBuilder(object):
+class TextBuilder:
 	"""Used to build a multi-line text concatened from individual lines using += or a list of tokens concatenated using +=."""
 
 	def __init__(self) -> None:
@@ -39,6 +39,4 @@ class TextBuilder(object):
 	def __iadd__(self, line : str) -> Any:
 		self.__lines.append(line)
 		return self
-
-
 

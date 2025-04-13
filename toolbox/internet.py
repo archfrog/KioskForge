@@ -20,14 +20,22 @@
 
 import http.client as httplib
 
+from toolbox.invoke import invoke_text
+
+
 # Source: https://stackoverflow.com/questions/3764291/how-can-i-see-if-theres-an-available-and-active-network-connection-in-python
 def internet_active() -> bool:
 	connection = httplib.HTTPSConnection("8.8.8.8", timeout=5)
 	try:
 		connection.request("HEAD", "/")
 		return True
-	except Exception:
+	except httplib.HTTPException:
 		return False
 	finally:
 		connection.close()
+
+
+def lan_ip_address() -> str:
+	result = invoke_text("hostname -I")
+	return f"*** LAN IP: {result.output if result.status == 0 else '(none)'}"
 

@@ -27,11 +27,11 @@ import shutil
 import stat
 import time
 
-from toolbox.errors import *
+from toolbox.errors import InternalError, KioskError
 from toolbox.invoke import invoke_text, Result
 
 
-class Action(object):
+class Action:
 	"""An action is something that must be done during the execution of a script.
 
 	   A prefix of 'Try' indicates that the command does not fail if it cannot perform the requested operation (rare).
@@ -55,6 +55,10 @@ class InternalAction(Action):
 	def __init__(self, title : str) -> None:
 		Action.__init__(self, title)
 
+	@abc.abstractmethod
+	def execute(self) -> Result:
+		raise NotImplementedError("Abstract method called")
+
 
 class DeleteFileAction(InternalAction):
 	"""Deletes an external file and return a failure status if unsuccessful."""
@@ -71,7 +75,8 @@ class DeleteFileAction(InternalAction):
 		try:
 			os.unlink(self.path)
 		except OSError as that:
-			assert(that.strerror)
+			if not that.strerror:
+				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
 			return Result(1, that.strerror)
 
 		return Result()
@@ -107,7 +112,8 @@ class RemoveFolderAction(InternalAction):
 			shutil.rmtree(self.path)
 			result = Result()
 		except FileNotFoundError as that:
-			assert(that.strerror)
+			if not that.strerror:
+				raise InternalError("Attribute 'strerror' of FileNotFoundError instance is empty") from that
 			result = Result(1, that.strerror)
 		return result
 
@@ -132,7 +138,7 @@ class ModifyTextAction(InternalAction):
 				stream.write(self.__text)
 			result = Result()
 		except PermissionError:
-			result = Result(1, "Unable to modify file: %s" % self.__path)
+			result = Result(1, f"Unable to modify file: {self.__path}")
 		return result
 
 
@@ -220,7 +226,7 @@ class ReplaceTextAction(InternalAction):
 			# Check that the path designates a file and that it is readable and writable.
 			st_mode = stats.st_mode
 			if not stat.S_ISREG(st_mode):
-				raise KioskError("Disk item '%s' is not a file" % path)
+				raise KioskError(f"Disk item '{path}' is not a file")
 			#if not st_mode & stat.S_IROTH:
 			#	raise KioskError("File '%s' is not readable" % path)
 			#if not st_mode & stat.S_IWOTH:
@@ -247,7 +253,8 @@ class ReplaceTextAction(InternalAction):
 			# TODO: Fix owner, etc.
 
 		except OSError as that:
-			assert(that.strerror)
+			if not that.strerror:
+				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
 			result = Result(1, that.strerror)
 
 		return result

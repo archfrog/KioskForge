@@ -26,50 +26,45 @@
 #      no features to safely roll back the changes made during the customization of the system for kiosk mode usage!
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import Any, Dict, List, Optional, TextIO, Tuple
+from typing import List, Optional
 
-import abc
-import glob
 import hashlib
 import os
 import platform
 import shlex
 import shutil
-import stat
-import string
-import subprocess
 import sys
 import time
-import types
 
 import bcrypt
 
-from toolbox.builder import TextBuilder
 from toolbox.convert import BOOLEANS
 from toolbox.driver import KioskDriver
-from toolbox.errors import *
+from toolbox.errors import CommandError, FieldError, InputError, InternalError, KioskError
 from toolbox.logger import Logger, TextWriter
-from toolbox.invoke import Result
-from toolbox.setup import *
-# Import COMPANY, CONTACT, TESTING, and VERSION global constants.
-from toolbox.version import *
+from toolbox.setup import Setup
+from toolbox.version import Version
 
 
 def password_crypt(text : str) -> str:
-	assert(len(text) >= 1 and len(text) <= 72)
+	if len(text) < 1 or len(text) > 72:
+		raise ValueError("Argument 'text' must be between 1 and 72 charaters in length")
+
 	data = text.encode('utf-8')
-	hash = bcrypt.hashpw(data, bcrypt.gensalt()).decode('utf-8')
-	return hash
+	return bcrypt.hashpw(data, bcrypt.gensalt()).decode('utf-8')
 
 
-class Target(object):
+class Target:
 	"""Simple class that encapsulates all information about the target system."""
 
 	def __init__(self, kind : str, basedir : str, product : str, edition : str, version : str, cpukind : str, install : str) -> None:
 		# Check arguments (mostly for the sake of documenting the valid values).
-		assert(kind in ["PC", "PI"])
-		assert(cpukind in ["amd64", "arm64"])
-		assert(install in ["cloud-init", "subiquity"])
+		if kind not in ["PC", "PI"]:
+			raise ValueError("Argument 'kind' must be either 'PC' or 'PI'")
+		if cpukind not in ["amd64", "arm64"]:
+			raise ValueError("Argument 'cpukind' must be either 'amd64' or 'arm64'")
+		if install not in ["cloud-init", "subiquity"]:
+			raise ValueError("Argument 'install' must be either 'cloud-init' or 'subiquity'")
 
 		# Initialize instance.
 		self.__kind = kind
@@ -109,7 +104,7 @@ class Target(object):
 		return self.__version
 
 
-class Recognizer(object):
+class Recognizer:
 	"""Simple base class that defines the layout of a recognizer that identifiers one or more target Linux distributions."""
 
 	def __init__(self) -> None:
@@ -129,10 +124,10 @@ class Recognizer(object):
 			if platform.system() == "Windows":
 				mounts = os.listdrives()
 			elif platform.system() == "Linux":
+				# TODO: mounts = 'df -a -T -h -t vfat | grep -Fv "/boot/efi" | grep -Fv "Use%"'
 				raise InternalError("Feature not finished")
-				mounts = 'df -a -T -h -t vfat | grep -Fv "/boot/efi" | grep -Fv "Use%"'
 			else:
-				raise InternalError("Unknown target platform: %s" % platform.system())
+				raise InternalError(f"Unknown target platform: {platform.system()}")
 
 			# Check each mount point/Windows drive for a recognizable installation media.
 			for mount in mounts:
@@ -161,7 +156,8 @@ class Recognizer(object):
 
 			break
 
-		assert(len(targets) == 1)
+		if len(targets) != 1:
+			raise InternalError("Unexpected number of found targets: There should only be one")
 		return targets[0]
 
 
@@ -178,27 +174,32 @@ class PcRecognizer(Recognizer):
 			return None
 
 		# Parse the /.disk/info file to get the information we're looking for.
-		info_data = open(info_name, "rt").read().strip()
-		fields = shlex.split(info_data)
-		if len(fields) != 8:
-			return None
-		(product, version, support, codename, dash, release, cpukind, date_num) = fields
+		with open(info_name, "rt", encoding="utf8") as stream:
+			info_data = stream.read().strip()
+			fields = shlex.split(info_data)
+			if len(fields) != 8:
+				return None
+			(product, version, support, codename, dash, release, cpukind, date_num) = fields
+			del codename
+			del dash
+			del release
+			del date_num
 
 		# Check the info file and report one or more errors if we don't support the found target.
 		errors = []
 		if product != "Ubuntu-Server":
-			errors.append("Error: Unsupported operating system: %s" % product)
+			errors.append(f"Error: Unsupported operating system: {product}")
 		if version != "24.04.1":
-			errors.append("Error: Unsupported version: %s" % version)
+			errors.append(f"Error: Unsupported version: {version}")
 		if support != "LTS":
-			errors.append("Error: Unsupported support lifetime: %s" % support)
+			errors.append(f"Error: Unsupported support lifetime: {support}")
 		if cpukind != "amd64":
-			errors.append("Error: Unsupported CPU kind: %s" % cpukind)
+			errors.append(f"Error: Unsupported CPU kind: {cpukind}")
 
 		# If one or more errors were found, report them and don't recognize this target.
 		if errors:
 			for error in errors:
-				print("%s: %s" % (path, error))
+				print(f"{path}: {error}")
 			return None
 
 		return Target("PC", path, "Ubuntu", "Server", "24.04.1", "amd64", "subiquity")
@@ -222,17 +223,19 @@ class PiRecognizer(Recognizer):
 		if not os.path.isfile(path + "initrd.img"):
 			return None
 
-		hash = hashlib.sha512(open(path + "initrd.img", "rb").read()).hexdigest()
-		if hash == SHA512_UBUNTU_SERVER_24_04_1_ARM64:
-			return Target("PI", path, "Ubuntu", "Server", "24.04.1", "arm64", "cloud-init")
-		elif hash == SHA512_UBUNTU_SERVER_24_04_2_ARM64:
-			return Target("PI", path, "Ubuntu", "Server", "24.04.2", "arm64", "cloud-init")
-		elif hash == SHA512_UBUNTU_DESKTOP_24_04_1_ARM64:
-			return Target("PI", path, "Ubuntu", "Desktop", "24.04.1", "arm64", "cloud-init")
-		elif hash == SHA512_UBUNTU_DESKTOP_24_04_2_ARM64:
-			return Target("PI", path, "Ubuntu", "Desktop", "24.04.2", "arm64", "cloud-init")
+		with open(path + "initrd.img", "rb") as stream:
+			sha512 = hashlib.sha512(stream.read()).hexdigest()
+		result = None
+		if sha512 == SHA512_UBUNTU_SERVER_24_04_1_ARM64:
+			result = Target("PI", path, "Ubuntu", "Server", "24.04.1", "arm64", "cloud-init")
+		elif sha512 == SHA512_UBUNTU_SERVER_24_04_2_ARM64:
+			result = Target("PI", path, "Ubuntu", "Server", "24.04.2", "arm64", "cloud-init")
+		elif sha512 == SHA512_UBUNTU_DESKTOP_24_04_1_ARM64:
+			result = Target("PI", path, "Ubuntu", "Desktop", "24.04.1", "arm64", "cloud-init")
+		elif sha512 == SHA512_UBUNTU_DESKTOP_24_04_2_ARM64:
+			result = Target("PI", path, "Ubuntu", "Desktop", "24.04.2", "arm64", "cloud-init")
 
-		return None
+		return result
 
 
 # List of systems that can be recognized and thus are supported.
@@ -242,7 +245,7 @@ RECOGNIZERS = [
 ]
 
 
-class KernelOptions(object):
+class KernelOptions:
 	"""Small class that handles adding kernel options to the Raspberry PI 'cmdline.txt' file."""
 
 	def __init__(self) -> None:
@@ -256,13 +259,15 @@ class KernelOptions(object):
 		self.__options.append(option)
 
 	def load(self, path : str) -> None:
-		self.__options = open(path, "rt", encoding="utf-8").read().strip().split(' ')
+		with open(path, "rt", encoding="utf-8") as stream:
+			self.__options = stream.read().strip().split(' ')
 
 	def save(self, path : str) -> None:
-		open(path, "wt", encoding="utf-8").write(' '.join(self.__options))
+		with open(path, "wt", encoding="utf-8") as stream:
+			stream.write(' '.join(self.__options))
 
 
-class Editor(object):
+class Editor:
 	"""Very simple editor for selecting choices and editing configurations."""
 
 	def confirm(self, question : str) -> bool:
@@ -281,7 +286,7 @@ class Editor(object):
 				for name, field in fields.items():
 					index += 1
 					names[index] = name
-					print("%2d) %-13s = %s" % (index, name, field.data))
+					print(f"{index:2d}) %{name:-13s} = {field.data}")
 				print()
 
 				answer = input("Please enter number or ENTER to quit: ").strip()
@@ -293,9 +298,11 @@ class Editor(object):
 
 				choice = int(answer)
 				if choice == 0 or choice > index:
-					raise InputError("Enter a valid number in the range 1 through %d" % index)
+					raise InputError(f"Enter a valid number in the range 1 through {index}")
 
-				print("Hint: %s" % getattr(setup, names[choice]).hint)
+				hint = getattr(setup, names[choice]).hint
+				print(f"Hint: {hint}")
+				del hint
 				value = input("Enter new value (ENTER to leave unchanged): ").strip()
 				if value == "":
 					break
@@ -304,9 +311,9 @@ class Editor(object):
 				getattr(setup, names[choice]).parse(value)
 				changed = True
 			except FieldError as that:
-				print("Error: Invalid value entered for field %s: %s" % (that.field, that.text))
+				print(f"Error: Invalid value entered for field {that.field}: {that.text}")
 			except InputError as that:
-				print("Error: %s" % that.text)
+				print(f"Error: {that.text}")
 
 		return changed
 
@@ -320,7 +327,7 @@ class Editor(object):
 				while index < len(choices):
 					value = choices[index]
 					index += 1
-					print("%2d) %s" % (index, value))
+					print(f"{index:2d}) {value}")
 				print()
 				del index
 
@@ -331,15 +338,15 @@ class Editor(object):
 					return -1
 
 				if not answer.isdigit():
-					raise InputError("Please enter an integer between 1 and %d" % len(choices))
+					raise InputError(f"Please enter an integer between 1 and {len(choices)}")
 
 				choice = int(answer) - 1
 				if choice < 0 or choice >= len(choices):
-					raise InputError("Please enter a number between 1 and %d" % len(choices))
+					raise InputError(f"Please enter a number between 1 and {len(choices)}")
 
 				break
 			except InputError as that:
-				raise KioskError(that.text)
+				raise KioskError(that.text) from that
 
 		return choice
 
@@ -349,28 +356,25 @@ class KioskForge(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project, VERSION, COMPANY, CONTACT, TESTING)
+		self.version = Version(self.project)
 
-	def saveCloudInitMetaData(self, setup : Setup, path : str) -> None:
+	def save_cloudinit_metadata(self, setup : Setup, path : str) -> None:
+		del setup
+
 		with TextWriter(path) as stream:
 			# Write header to let the user know who generated this particular file.
-			stream.write(
-				"# Cloud-init meta-data file generated by %s v%s.  DO NOT EDIT!" % (self.version.program, self.version.version)
-			)
+			stream.write(f"# Cloud-init meta-data file generated by {self.version.product} v{self.version.version}.  DO NOT EDIT!")
 			stream.write()
 
 			# Write network-config values, copied verbatim from the Raspberry Pi 4B setup written by Raspberry Pi Imager.
 			stream.write("dsmode: local")
 			stream.write("instance_id: cloud-image")
 
-	def saveCloudInitNetworkConfig(self, setup : Setup, path : str) -> None:
+	def save_cloudinit_network_config(self, setup : Setup, path : str) -> None:
 		with TextWriter(path) as stream:
 			# Write header to let the user know who generated this particular file.
 			stream.write(
-				"# Cloud-init network-config file generated by %s v%s.  DO NOT EDIT!" % (
-					self.version.program,
-					self.version.version
-				)
+				f"# Cloud-init network-config file generated by {self.version.product} v{self.version.version}.  DO NOT EDIT!"
 			)
 			stream.write()
 
@@ -384,7 +388,7 @@ class KioskForge(KioskDriver):
 			stream.write("eth0:")
 			stream.indent()
 			stream.write("dhcp4: true")
-			stream.write("optional: %s" % ("true" if setup.wifi_name.data else "false"))
+			stream.write(f"optional: {'true' if setup.wifi_name.data else 'false'}")
 			stream.write()
 			stream.dedent(3)
 
@@ -399,32 +403,32 @@ class KioskForge(KioskDriver):
 				stream.write("optional: false")
 				stream.write("access-points:")
 				stream.indent()
-				stream.write('"%s":' % setup.wifi_name.data)
+				stream.write(f'"{setup.wifi_name.data}":')
 				stream.indent()
-				stream.write('password: "%s"' % setup.wifi_code.data)
+				stream.write(f'password: "{setup.wifi_code.data}"')
 				stream.dedent(5)
 
-	def saveCloudInitUserData(self, setup : Setup, target : Target, path : str) -> None:
+	def save_cloudinit_userdata(self, setup : Setup, target : Target, path : str) -> None:
 		with TextWriter(path) as stream:
-			output = "/home/%s" % setup.user_name.data
+			output = f"/home/{setup.user_name.data}"
 
 			# Write header to let the user know who generated this particular file.
 			stream.write("#cloud-config")
 			stream.write(
-				"# Cloud-init user-data file generated by %s v%s.  DO NOT EDIT!" % (self.version.program, self.version.version)
+				f"# Cloud-init user-data file generated by {self.version.product} v{self.version.version}.  DO NOT EDIT!"
 			)
 			stream.write()
 
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
 			stream.indent()
-			stream.write("- name: %s" % setup.user_name.data)
+			stream.write(f"- name: {setup.user_name.data}")
 			stream.indent()
 			stream.write("gecos: Administrator")
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			stream.write('passwd: "%s"' % password_crypt(setup.user_code.data))
+			stream.write(f'passwd: "{password_crypt(setup.user_code.data)}"')
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
@@ -432,13 +436,13 @@ class KioskForge(KioskDriver):
 			stream.write()
 
 			# Write timezone (to get date and time in logs correct).
-			stream.write("timezone: %s" % setup.timezone.data)
+			stream.write(f"timezone: {setup.timezone.data}")
 			stream.write()
 
 			# Write keyboard layout (I haven't found a reliable way to do this in any other way).
 			stream.write("keyboard:")
 			stream.indent()
-			stream.write("layout: %s" % setup.keyboard.data)
+			stream.write(f"layout: {setup.keyboard.data}")
 			stream.write("model: pc105")
 			stream.dedent()
 			stream.write()
@@ -457,7 +461,7 @@ class KioskForge(KioskDriver):
 			stream.write()
 			stream.write("[Service]")
 			stream.write("Type=simple")
-			stream.write("ExecStart=%s/KioskForge/KioskSetup.py" % output)
+			stream.write(f"ExecStart={output}/KioskForge/KioskSetup.py")
 			stream.write("StandardOutput=tty")
 			stream.write("StandardError=tty")
 			stream.write()
@@ -475,15 +479,15 @@ class KioskForge(KioskDriver):
 			elif target.kind == "PC":
 				source = "/cdrom"
 			else:
-				raise InternalError("Unknown kiosk machine kind: %s" % target.kind)
+				raise InternalError(f"Unknown kiosk machine kind: {target.kind}")
 
 			# Write commands to copy and then make this script executable (this is done late in the boot process).
 			stream.write("runcmd:")
 			stream.indent()
-			stream.write("- cp -pR %s/KioskForge %s" % (source, output))
-			stream.write("- chown -R %s:%s %s/KioskForge" % (setup.user_name.data, setup.user_name.data, output))
-			stream.write("- chmod -R u+x %s/KioskForge" % output)
-			stream.write("- chmod a-x %s/KioskForge/KioskForge.kiosk" % output)
+			stream.write(f"- cp -pR {source}/KioskForge {output}")
+			stream.write(f"- chown -R {setup.user_name.data}:{setup.user_name.data} {output}/KioskForge")
+			stream.write(f"- chmod -R u+x {output}/KioskForge")
+			stream.write(f"- chmod a-x {output}/KioskForge/KioskForge.kiosk")
 
 			# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
 			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
@@ -491,9 +495,9 @@ class KioskForge(KioskDriver):
 				basename = os.path.basename(os.path.abspath(setup.user_folder.data))
 				user_source = source + '/' + basename
 				user_target = output + '/' + basename
-				stream.write("- cp -pR %s %s" % (user_source, output))
-				stream.write("- chown -R %s:%s %s" % (setup.user_name.data, setup.user_name.data, user_target))
-				stream.write("- chmod -R u+x %s" % user_target)
+				stream.write(f"- cp -pR {user_source} {output}")
+				stream.write(f"- chown -R {setup.user_name.data}:{setup.user_name.data} {user_target}")
+				stream.write(f"- chmod -R u+x {user_target}")
 				del user_source
 				del user_target
 
@@ -529,16 +533,16 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 			stream.write()
 
-	def saveAutoinstallYaml(self, setup : Setup, target : Target, path : str) -> None:
+	def save_subiquity_yaml(self, setup : Setup, target : Target, path : str) -> None:
+		del target
+
 		with TextWriter(path) as stream:
 			source = "/cdrom/"
-			output = "/home/%s" % setup.user_name.data
+			output = f"/home/{setup.user_name.data}"
 
 			# Write header to let the user know who generated this particular file.
 			stream.write("#cloud-config")
-			stream.write(
-				"# Cloud-init user-data file generated by %s v%s.  DO NOT EDIT!" % (self.version.program, self.version.version)
-			)
+			stream.write(f"# Cloud-init user-data file generated by {self.version.product} v{self.version.version}.  DO NOT EDIT!")
 			stream.write()
 
 			# Write autoinstall.yaml opening tag and version info.
@@ -593,16 +597,16 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 			stream.write("error-commands:")
 			stream.indent()
-			stream.write("- mkdir -p %s" % output)
-			stream.write("- tar -czf %s/installer-logs.tar.gz /var/log/installer/" % output)
-			stream.write("- journalctl -b > %s/installer-journal.log" % output)
+			stream.write(f"- mkdir -p {output}")
+			stream.write(f"- tar -czf {output}/installer-logs.tar.gz /var/log/installer/")
+			stream.write(f"- journalctl -b > {output}/installer-journal.log")
 			stream.dedent()
 			stream.write("identity:")
 			stream.indent()
-			stream.write("hostname: %s" % setup.hostname.data)
-			stream.write("realname: %s" % "Kiosk")
-			stream.write("username: %s" % setup.user_name.data)
-			stream.write('password: "%s"' % password_crypt(setup.user_code.data))
+			stream.write(f"hostname: {setup.hostname.data}")
+			stream.write("realname: Kiosk")
+			stream.write(f"username: {setup.user_name.data}")
+			stream.write(f'password: "{password_crypt(setup.user_code.data)}"')
 			stream.dedent()
 			stream.write("kernel:")
 			stream.indent()
@@ -612,13 +616,13 @@ class KioskForge(KioskDriver):
 			# Write keyboard configuration.
 			stream.write("keyboard:")
 			stream.indent()
-			stream.write("layout: %s" % setup.keyboard.data)
+			stream.write(f"layout: {setup.keyboard.data}")
 			stream.write("toggle: null")
 			stream.write("variant: ''")
 			stream.dedent()
 
 			# Write locale information.
-			stream.write("locale: %s" % setup.locale.data)
+			stream.write(f"locale: {setup.locale.data}")
 
 			# Write network configuration.
 			stream.write("network:")
@@ -642,9 +646,9 @@ class KioskForge(KioskDriver):
 				stream.write("optional: false")
 				stream.write("access-points:")
 				stream.indent()
-				stream.write('"%s":' % setup.wifi_name.data)
+				stream.write(f'"{setup.wifi_name.data}":')
 				stream.indent()
-				stream.write('password: "%s"' % setup.wifi_code.data)
+				stream.write(f'password: "{setup.wifi_code.data}"')
 				stream.dedent(4)
 
 			stream.dedent()
@@ -670,7 +674,7 @@ class KioskForge(KioskDriver):
 			stream.write("allow-pw: false")
 			stream.write("install-server: true")
 			stream.write("authorized-keys:")
-			stream.write("- '%s'" % setup.ssh_key.data)
+			stream.write(f"- '{setup.ssh_key.data}'")
 			stream.dedent()
 
 			stream.write("storage:")
@@ -686,16 +690,16 @@ class KioskForge(KioskDriver):
 			# Copy KioskForge to the target so that it can be invoked.
 			stream.write("late-commands:")
 			stream.indent()
-			stream.write("- curtin in-target -- mkdir -p %s" % output)
-			stream.write("- curtin in-target -- cp -pR %s/KioskForge %s" % (source, output))
+			stream.write(f"- curtin in-target -- mkdir -p {output}")
+			stream.write(f"- curtin in-target -- cp -pR {source}/KioskForge {output}")
 
 			# TODO: Copy user-supplied data folder to the target, if any.
 			if setup.user_folder.data:
+				stream.write(f"- curtin in-target -- cp -pR {setup.user_folder.data} {output}")
 				raise InternalError("user_folder is not yet implemented for PC targets")
-				stream.write("- curtin in-target -- cp -pR %s %s" % (setup.user_folder.data, output))
 
 			# Continue the installation of the kiosk (late-commands is executed just before the system is rebooted).
-			stream.write("- %s/KioskForge/KioskSetup.y" % output)
+			stream.write(f"- {output}/KioskForge/KioskSetup.py")
 			stream.dedent()
 
 			stream.dedent()
@@ -714,7 +718,7 @@ class KioskForge(KioskDriver):
 
 		# Parse command-line arguments.
 		if len(arguments) > 1:
-			raise SyntaxError("\"KioskForge.py\"")
+			raise CommandError("\"KioskForge.py\"")
 
 		# Bloody hack to support double-clicking on a '.kiosk' file in Windows Explorer follows...
 		if len(arguments) == 1:
@@ -736,7 +740,7 @@ class KioskForge(KioskDriver):
 					changed = False
 					first_path = ""
 
-				print("Kiosk file: %s" % (filename if filename != "" else "(none)"))
+				print(f"Kiosk file: {filename if filename != '' else '(none)'}")
 				print()
 
 				# Present a menu of valid choices for the user to make.
@@ -750,207 +754,209 @@ class KioskForge(KioskDriver):
 				choice = editor.select("Select a menu choice", choices)
 
 				# Process the requested menu command.
-				if choice == -1:
-					if changed:
-						raise KioskError("Kiosk has unsaved changes")
+				match choice:
+					case -1:
+						if changed:
+							raise KioskError("Kiosk has unsaved changes")
 
-					# Exit program.
-					break
-				elif choice == 0:
-					if changed:
-						raise KioskError("Kiosk has unsaved changes")
+						# Exit program.
+						break
+					case 0:
+						if changed:
+							raise KioskError("Kiosk has unsaved changes")
 
-					# Create new kiosk.
-					setup = Setup()
-					filename = ""
-					changed = False
+						# Create new kiosk.
+						setup = Setup()
+						filename = ""
+						changed = False
 
-					print("New kiosk successfully created in memory.")
-					print()
-				elif choice == 1:
-					# Load existing kiosk from disk.
-					answer = input("Please enter or paste full path of kiosk file (*.kiosk): ").strip()
-					print()
+						print("New kiosk successfully created in memory.")
+						print()
+					case 1:
+						# Load existing kiosk from disk.
+						answer = input("Please enter or paste full path of kiosk file (*.kiosk): ").strip()
+						print()
 
-					if answer == "":
-						continue
+						if answer == "":
+							continue
 
-					try:
-						setup.load(answer)
+						try:
+							setup.load(answer)
+							filename = answer
+
+							print("Kiosk successfully loaded from disk")
+						except FileNotFoundError as that:
+							raise KioskError("Unable to load the specified file - is the path correct?") from that
+						except FieldError as that:
+							raise KioskError(f"Invalid value entered for field {that.field}: {that.text}") from that
+						except InputError as that:
+							raise KioskError(that.text) from that
+						print()
+
+						changed = False
+					case 2:
+						# Edit kiosk.
+						# Allow the user to re-edit the kiosk as long as there are errors.
+						try:
+							changed |= editor.edit(setup)
+						except FieldError as that:
+							print(f"Error: Invalid value entered for field {that.field}: {that.text}")
+							continue
+						except InputError as that:
+							print(f"Error: {that.text}")
+							continue
+
+						# Report errors detected after changing the selected kiosk.
+						errors = setup.check()
+						if not errors:
+							continue
+
+						print()
+						print("Warnings(s) detected in configuration:")
+						print()
+						for error in errors:
+							print(">>> " + error)
+						print()
+						del errors
+					case 3:
+						# Save kiosk.
+						# Allow the user to save the kiosk.
+						answer = input(f"Please enter/paste full path: (blank = {filename}): ").strip()
+						print()
+
+						if answer == "":
+							answer = filename
+
+						if not answer.endswith(".kiosk"):
+							raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
+
+						# Create new folder, if any, and save the configuration.
+						folder = os.path.dirname(answer)
+						os.makedirs(folder, exist_ok=True)
+						setup.save(answer, self.version)
+						del folder
+						changed = False
+
 						filename = answer
+						del answer
+					case 4:
+						# Check if a kiosk has been created or loaded.
+						if not filename and not changed:
+							raise KioskError("No kiosk defined, cannot forge the kiosk")
 
-						print("Kiosk successfully loaded from disk")
-					except FileNotFoundError:
-						raise KioskError("Unable to load the specified file - is the path correct?")
-					except FieldError as that:
-						raise KioskError("Invalid value entered for field %s: %s" % (that.field, that.text))
-					except InputError as that:
-						raise KioskError(that.text)
-					print()
+						# Update installation media.
+						# Identify the kind and path of the kiosk machine image (currently only works on Windows).
+						target = Recognizer().identify()
 
-					changed = False
-				elif choice == 2:
-					# Edit kiosk.
-					# Allow the user to re-edit the kiosk as long as there are errors.
-					try:
-						changed |= editor.edit(setup)
-					except FieldError as that:
-						print("Error: Invalid value entered for field %s: %s" % (that.field, that.text))
-						continue
-					except InputError as that:
-						print("Error: %s" % that.text)
-						continue
+						# Fail if no target was identified.
+						if not target:
+							raise KioskError("Unable to locate or identify install image - did you select Ubuntu Server?")
 
-					# Report errors detected after changing the selected kiosk.
-					errors = setup.check()
-					if not errors:
-						continue
-
-					print()
-					print("Warnings(s) detected in configuration:")
-					print()
-					for error in errors:
-						print(">>> " + error)
-					print()
-					del errors
-				elif choice == 3:
-					# Save kiosk.
-					# Allow the user to save the kiosk.
-					answer = input("Please enter/paste full path: (blank = %s): " % filename).strip()
-					print()
-
-					if answer == "":
-						answer = filename
-
-					if not answer.endswith(".kiosk"):
-						raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
-
-					# Create new folder, if any, and save the configuration.
-					folder = os.path.dirname(answer)
-					os.makedirs(folder, exist_ok=True)
-					setup.save(answer, self.version)
-					del folder
-					changed = False
-
-					filename = answer
-					del answer
-				elif choice == 4:
-					# Check if a kiosk has been created or loaded.
-					if not filename and not changed:
-						raise KioskError("No kiosk defined, cannot forge the kiosk")
-
-					# Update installation media.
-					# Identify the kind and path of the kiosk machine image (currently only works on Windows).
-					target = Recognizer().identify()
-
-					# Fail if no target was identified.
-					if not target:
-						raise KioskError("Unable to locate or identify install image - did you select Ubuntu Server?")
-
-					# Report the kind of image that was discovered.
-					print(
-						"Discovered %s kiosk %s %s v%s (%s) install image at %s." %
-						(
-							target.kind, target.product, target.edition, target.version, target.cpukind, target.basedir
+						# Report the kind of image that was discovered.
+						print(
+							f"Discovered {target.kind} kiosk {target.product} {target.edition} v{target.version}" +
+							f" ({target.cpukind}) install image at {target.basedir}."
 						)
-					)
-					print()
+						print()
 
-					# Only accept Server images for now.
-					if target.edition != "Server":
-						raise KioskError("Only Ubuntu Server 24.04.x images are supported")
+						# Only accept Server images for now.
+						if target.edition != "Server":
+							raise KioskError("Only Ubuntu Server 24.04.x images are supported")
 
-					print("Preparing kiosk image for first boot.")
-					print()
+						print("Preparing kiosk image for first boot.")
+						print()
 
-					# Append options to quiet both the kernel and systemd.
-					if target.kind == "PI":
-						kernel_options = KernelOptions()
-						kernel_options.load(target.basedir + "cmdline.txt")
-						#...Ask the kernel to shut up.
-						kernel_options.append("quiet")
-						#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
-						kernel_options.append("log_level=3")
-						#...Ask systemd to shut up.
-						kernel_options.append("systemd.show_status=auto")
-						kernel_options.save(target.basedir + "cmdline.txt")
+						# Append options to quiet both the kernel and systemd.
+						if target.kind == "PI":
+							kernel_options = KernelOptions()
+							kernel_options.load(target.basedir + "cmdline.txt")
+							#...Ask the kernel to shut up.
+							kernel_options.append("quiet")
+							#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
+							kernel_options.append("log_level=3")
+							#...Ask systemd to shut up.
+							kernel_options.append("systemd.show_status=auto")
+							kernel_options.save(target.basedir + "cmdline.txt")
 
-						# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-						text = open(target.basedir + "config.txt", "rt").read()
-						text = text.replace("arm_boost=1", "#arm_boost=1")
-						open(target.basedir + "config.txt", "wt").write(text)
-					elif target.kind == "PC":
-						# TODO: Figure out a way to provide kernel command-line options when targeting a PC (not done easily).
-						pass
-					else:
-						raise InternalError("Unknown target kind: %s" % target.kind)
-
-					# Write cloud-init or Subiquity configuration files to automate install completely.
-					if target.install == "cloud-init":
-						# Generate cloud-init's meta-data file from scratch (to be sure of what's in it).
-						self.saveCloudInitMetaData(setup, target.basedir + "meta-data")
-
-						# Generate cloud-init's network-config file from scratch (to be sure of what's in it).
-						self.saveCloudInitNetworkConfig(setup, target.basedir + "network-config")
-
-						# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
-						self.saveCloudInitUserData(setup, target, target.basedir + "user-data")
-					elif target.install == "subiquity":
-						# Generate Subiquity's autoinstall.yaml file.
-						self.saveAutoinstallYaml(setup, target, target.basedir + "autoinstall.yaml")
-					else:
-						raise KioskError("Unknown installer type: %s" % target.install)
-
-					# Compute output folder.
-					output = target.basedir + "KioskForge"
-
-					# Remove previous KioskForge folder on installation medium, if any.
-					if os.path.isdir(output):
-						shutil.rmtree(output)
-
-					# Create KioskForge folder on the installation medium.
-					os.makedirs(output)
-
-					# Write configuration to the target.
-					setup.save(output + os.sep + "KioskForge.kiosk", self.version, False)
-
-					# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-					for name in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]:
-						if os.path.isfile(origin + os.sep + name):
-							shutil.copyfile(origin + os.sep + name, output + os.sep + name)
+							# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
+							with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
+								text = stream.read()
+							text = text.replace("arm_boost=1", "#arm_boost=1")
+							with open(target.basedir + "config.txt", "wt", encoding="utf8") as stream:
+								stream.write(text)
+						elif target.kind == "PC":
+							# TODO: Figure out a way to provide kernel command-line options when targeting a PC (not done easily).
+							pass
 						else:
-							shutil.copytree(origin + os.sep + name, output + os.sep + name)
+							raise InternalError(f"Unknown target kind: {target.kind}")
 
-					# Copy user folder, if any, to the install medium so that it can be copied onto the target.
-					if setup.user_folder.data:
-						if setup.user_folder.data == "KioskForge":
-							raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
+						# Write cloud-init or Subiquity configuration files to automate install completely.
+						if target.install == "cloud-init":
+							# Generate cloud-init's meta-data file from scratch (to be sure of what's in it).
+							self.save_cloudinit_metadata(setup, target.basedir + "meta-data")
 
-						# Use 'abspath' to the handle the case that the user folder is identical to '.'.
-						source = os.path.abspath(os.path.join(os.path.dirname(filename), setup.user_folder.data))
-						# Extract the last portion of the source's full path to get the name of the folder on the install medium.
-						basename = os.path.basename(source)
-						destination = target.basedir + os.sep + basename
-						del basename
+							# Generate cloud-init's network-config file from scratch (to be sure of what's in it).
+							self.save_cloudinit_network_config(setup, target.basedir + "network-config")
 
-						if os.path.isdir(destination):
-							shutil.rmtree(destination)
+							# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
+							self.save_cloudinit_userdata(setup, target, target.basedir + "user-data")
+						elif target.install == "subiquity":
+							# Generate Subiquity's autoinstall.yaml file.
+							self.save_subiquity_yaml(setup, target, target.basedir + "autoinstall.yaml")
+						else:
+							raise KioskError(f"Unknown installer type: {target.install}")
 
-						shutil.copytree(source, destination)
-						del source
-						del destination
+						# Compute output folder.
+						output = target.basedir + "KioskForge"
 
-					# Report success to the log.
-					print("Preparation of boot image successfully completed - please eject/unmount %s safely." % target.basedir)
-					print()
-				else:
-					raise KioskError("Unknown main menu choice: %d" % choice)
+						# Remove previous KioskForge folder on installation medium, if any.
+						if os.path.isdir(output):
+							shutil.rmtree(output)
+
+						# Create KioskForge folder on the installation medium.
+						os.makedirs(output)
+
+						# Write configuration to the target.
+						setup.save(output + os.sep + "KioskForge.kiosk", self.version)
+
+						# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
+						names = ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]
+						for name in names:
+							if os.path.isfile(origin + os.sep + name):
+								shutil.copyfile(origin + os.sep + name, output + os.sep + name)
+							else:
+								shutil.copytree(origin + os.sep + name, output + os.sep + name)
+						del names
+
+						# Copy user folder, if any, to the install medium so that it can be copied onto the target.
+						if setup.user_folder.data:
+							if setup.user_folder.data == "KioskForge":
+								raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
+
+							# Use 'abspath' to the handle the case that the user folder is identical to '.'.
+							source = os.path.abspath(os.path.join(os.path.dirname(filename), setup.user_folder.data))
+							# Extract the last portion of the source's full path to get the name of the folder on the install medium.
+							basename = os.path.basename(source)
+							destination = target.basedir + os.sep + basename
+							del basename
+
+							if os.path.isdir(destination):
+								shutil.rmtree(destination)
+
+							shutil.copytree(source, destination)
+							del source
+							del destination
+
+						# Report success to the log.
+						print(f"Preparation of boot image successfully completed - please eject/unmount {target.basedir} safely.")
+						print()
+					case _:
+						raise KioskError(f"Unknown main menu choice: {choice}")
 			except KioskError as that:
-				print("*** Error: %s" % that.text)
+				print(f"*** Error: {that.text}")
 				print()
 
+
 if __name__ == "__main__":
-	app = KioskForge()
-	code = app.main(sys.argv)
-	sys.exit(code)
+	sys.exit(KioskForge().main(sys.argv))
 

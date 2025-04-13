@@ -19,7 +19,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import Any, Dict, List, Optional, TextIO, Tuple
+from typing import List
 
 import abc
 import os
@@ -27,14 +27,14 @@ import platform
 import sys
 import traceback
 
-from toolbox.errors import *
+from toolbox.errors import CommandError, Error, InternalError, KioskError
 from toolbox.logger import Logger
 
 # Standard, C-like exit code definitions.
 EXIT_SUCCESS = os.EX_OK
 EXIT_FAILURE = 1
 
-class KioskDriver(object):
+class KioskDriver:
 	"""Base class for the classes that implement the respective script features."""
 
 	@property
@@ -50,16 +50,13 @@ class KioskDriver(object):
 		# Assume failure until success has been achieved.
 		status = EXIT_FAILURE
 
-		with Logger(self.project) as logger:
+		with Logger() as logger:
 			# Compute full path of this script.
-			(origin, filename) = os.path.split(os.path.abspath(argv[0]))
+			origin = os.path.dirname(os.path.abspath(argv[0]))
 
 			# NOTE: Handle the temporary working directory created by PyInstaller in a transparent fashion for all scripts.
 			if hasattr(sys, "_MEIPASS"):
 				origin = sys._MEIPASS
-
-			# Extract the base name and extension (the latter can be '.py' or '.exe').
-			(basename, extension) = os.path.splitext(filename)
 
 			try:
 				# Call the derived class' _main() function.
@@ -67,20 +64,15 @@ class KioskDriver(object):
 
 				# Signal success to the client (caller).
 				status = EXIT_SUCCESS
-			except ArgumentError as that:
-				text = ""
-				if that.index != -1:
-					text += "(#%d) " % that.index
-				text += "Error: "
-				text += that.text
-				logger.error("%s" % text)
-			except SyntaxError as that:
-				logger.error("Syntax: %s" % that.text)
+			except CommandError as that:
+				logger.error(f"Syntax: {that.text}")
 			except InternalError as that:
-				logger.error("Internal Error: %s" % that.text)
+				logger.error(f"Internal error: {that.text}")
 			except KioskError as that:
-				logger.error("Error: %s" % that.text)
-			except Exception as that:
+				logger.error(f"Error: {that.text}")
+			except Error as that:
+				logger.error(f"Unknown error: {that.text}")
+			except Exception as that:				# pylint: disable=broad-exception-caught
 				# Attempt to get the exception text, if any, through a number of Python-supported means.
 				if hasattr(that, "message"):
 					text = that.message
@@ -90,7 +82,7 @@ class KioskDriver(object):
 					text = that.text
 				else:
 					text = str(that)
-				logger.error("Fatal error: %s" % text)
+				logger.error(f"Fatal error: {text}")
 				logger.write(traceback.format_exc())
 
 		# If not running from a console, wait for a keypress so that the user can read the output.

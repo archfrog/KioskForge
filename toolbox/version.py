@@ -24,23 +24,20 @@ COMPANY = "Vendsyssel Historiske Museum"
 CONTACT = "me@vhm.dk"
 TESTING = True
 
-class Version(object):
+class Version:
 	"""A simple wrapper around everything related to version information about the running script."""
 
-	def __init__(self, product : str, version : str, company : str, contact : str, testing : bool) -> None:
-		self.product = product
-		self.program = product + ".py"
-		self.version = version
-		self.company = company
-		self.contact = contact
-		self.testing = testing
+	def __init__(self, basename : str) -> None:
+		self.product = PRODUCT
+		self.program = basename + ".py"
+		self.version = VERSION
+		self.company = COMPANY
+		self.contact = CONTACT
+		self.testing = TESTING
 
 	def banner(self) -> str:
-		return "%s v%s%s - Copyright (c) 2024-2025 %s (%s).  All Rights Reserved." % (
-			self.program,
-			self.version,
-			" (TEST)" if self.testing else "",
-			self.company,
-			self.contact
-		)
+		result  = f"{self.program} v{self.version}{' (TEST)' if self.testing else ''}"
+		result += f" - Copyright (c) 2024-2025 {self.company} ({self.contact}).  All Rights Reserved."
+		return result
+
 
