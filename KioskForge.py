@@ -124,7 +124,7 @@ class Recognizer:
 			if platform.system() == "Windows":
 				mounts = os.listdrives()
 			elif platform.system() == "Linux":
-				# TODO: mounts = 'df -a -T -h -t vfat | grep -Fv "/boot/efi" | grep -Fv "Use%"'
+				# TODO: mounts = 'df -a -T -h -t vfat'; grep -Fv "/boot/efi"'
 				raise InternalError("Feature not finished")
 			else:
 				raise InternalError(f"Unknown target platform: {platform.system()}")
