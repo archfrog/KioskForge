@@ -34,19 +34,20 @@ experience for you.  You are free to try with other versions of these tools, but
 ### Windows
 
 ### Download the KioskForge Program
-Download the most recent version of [KioskForge.exe](https://kioskforge.org/downloads/).
+Download the most recent version of `KioskForge-x.yy-Setup.exe` from [KioskForge.org](https://kioskforge.org/downloads/).
 
 Navigate to the `Downloads` folder and double-click on the `KioskForge-x.yy-Setup.exe` file.  Follow the prompts to install.
 
 After this, you can launch KioskForge directly from Windows Explorer, by double-clicking a `.kiosk` file, or from the Start menu
-clicking on the `KioskForge` command.
+by clicking on the `KioskForge` command.
 
 
 ### Linux
-**NOTE:** `KioskForge` currently **cannot** be run on Linux.  This is a planned feature and is expected to be solved soon.
+**NOTE:** `KioskForge` currently **cannot** be run on Linux.  This is a planned feature and is expected to be fixed soon.
 
 Install a recent version of the [Python v3.13+ programming language](https://python.org).  On most Linuxes, this can be done with
-the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.13+.
+the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.13+.  Earlier versions
+should work fine, especially v3.10+, but I don't test against these and don't use older versions of Python during development.
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
 then you can invoke it using `./KioskForge.py`.
@@ -97,6 +98,10 @@ which is a very good idea, anyway, as you don't want to port scan and stuff if t
 Currently, the interactive TUI editor *cannot* handle blank strings, so you may need to edit the configuration file manually using
 your favorite editor such as `Notepad` (you cannot use a word processor such as Word to edit KioskForge configuration files!).
 
+The easiest way to create a new `.kiosk` file is to launch KioskForge, select `4`, and save to the desired location and file name.
+After this, you can edit the `.kiosk` file using your favorite editor (such as `Notepad`).  After you have verified or modified the
+`.kiosk` file, you can simply double-click it in Windows Explorer to open it in KioskForge.  After this, you just hit `5`.
+
 
 ## Usage
 KioskForge is a simple application that allows you to create, load, edit, and save a *kiosk configuration* - an INI-style file
@@ -109,15 +114,17 @@ It is always best that the kiosk is permanently on the internet so that it can u
 
 As of now, the procedure is as follows:
 
-1. Create an appropriate `Ubuntu Server 24.04.2` installation media (a USB key or a MicroSD card) using
-   [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
-   When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
-   Also, be sure to **not** select `Ubuntu Desktop` as this won't work (KioskForge will detect this, though, and report an error).
-   Please notice that we recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and then unreliable.
+1. Create an `Ubuntu Server 24.04.2` installation media for Raspberry Pi 4B (ARM64) using a USB key or a MicroSD card:
+	a. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
+	b. [Raspberry Pi Imager Guide](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager).
+	c. When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
+	d. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
+	e. Please notice that we recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
 2. Launch KioskForge as described below.
 3. Create a new configuration using menu item `1` or load an existing configuration using menu item `2`.
-4. Edit the configuration to ensure that the configuration is correct using menu item `3` or use an external editor.  See the
-   chapter `Configuration` above for detailed information each of the options that KioskForge supports.
+4. Edit the configuration to ensure that the configuration is correct using menu item `3` or use an external editor (an external
+   editor is the recommended way of modifying a `.kiosk` configuration file.  See the chapter `Configuration` above for detailed
+   information each of the options that KioskForge supports.
 5. Save the changed configuration, if it has been modified, using menu item `4`.
 6. Select the `Update Raspberry Pi Imager prepared installation media` (`5`) to have KioskForge modify the install media so that
    it installs and launches an actual Linux kiosk with the Chromium web browser pointing to whatever URL you have configured.
@@ -129,7 +136,7 @@ As of now, the procedure is as follows:
     which is shown by the kiosk rebooting into kiosk mode showing the requested URL.
 12. Try out and test the new kiosk.  If you find issues, please report them (see the section `Bugs` below).
 13. You can either attach a keyboard or SSH into the box (if you know its LAN IP address) to power it off.
-14. Mount the Raspberry Pi in whatever enclosure you are using for your kiosk.
+14. Mount the Raspberry Pi in whatever enclosure you are using for your kiosk.  This is typically custom made by carpenters.
 
 After that, the kiosk should *theoretically* run nicely and reliably for years and years.  However, you may want to log into it,
 using SSH, once in a while to verify that logs are being rotated, that there is sufficient disk space available, and so on.
