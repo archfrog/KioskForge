@@ -21,6 +21,11 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
+                         Also consider to add an option, `network=always|install` to make the kiosk forget Wi-Fi network after use.
+- [ ] 2025.04.13.23.03 H `KioskStart.py` often starts without network.  Should it wait for this to come up if `network=always`?
+- [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
+                         Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 U Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
@@ -29,8 +34,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
 - [ ] 2025.04.09.11.00 H Test the absense of a network connection by using a cable while forging the box and an invalid Wi-Fi.
-- [ ] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
-                         Also consider to add an option, `network=always|install` to make the kiosk forget its network after use.
 - [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...  Inno setup is to
                          blame.  Apparently, it doesn't support a localized `Program Files` name.  Perhaps a `.msi` installer is
                          needed to handle the intricacies of Windows path names.  For now, the Inno solution is acceptable, though.
@@ -40,7 +43,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
 - [ ] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
-- [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
 - [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  This will probably break things after a while.
 - [ ] 2025.04.04.15.42 H Add option `user_modules` to install Python modules with `pip`.
 - [ ] 2025.03.29.21.11 H Go through all options and create a two-level "hierarchy" of options: `target.*`, `system.*`, `user`, etc.
