@@ -22,6 +22,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 ## Open Tasks
 # TODO:
 - [ ] 2025.04.13.17.47 U Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
+                         https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
