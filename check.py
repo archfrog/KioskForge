@@ -69,8 +69,6 @@ class KioskCheck(KioskDriver):
 		words += "--cache-dir"
 		words += ramdisk + os.sep + self.version.product + os.sep + "MyPy"
 		words += "--strict"
-		# NOTE: This option is no longer necessary as PyInstaller-VersionFile has been updated to provide type hints.
-		#words += "--follow-untyped-imports"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
 		words += "KioskSetup.py"
@@ -90,8 +88,6 @@ class KioskCheck(KioskDriver):
 
 		words  = TextBuilder()
 		words += "pylint"
-		# TODO: Remove --errors-only option once the warnings have been fixed.
-		#words += "--errors-only"
 		words += "KioskForge.py"
 		words += "KioskOpenbox.py"
 		words += "KioskSetup.py"
