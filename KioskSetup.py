@@ -30,10 +30,9 @@ import sys
 import time
 
 # pylint: disable-next:wildcard-import
-from toolbox.actions import AppendTextAction, CleanPackageCacheAction, CreateTextAction, CreateTextWithUserAndModeAction
+from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction
 from toolbox.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
-from toolbox.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, RebootSystemAction, UpgradeSnapsAction
-from toolbox.actions import UpdateSystemAction, UpgradeSystemAction
+from toolbox.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, RebootSystemAction
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
@@ -305,9 +304,12 @@ class KioskSetup(KioskDriver):
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
 		# Update and upgrade the system, including snaps (everything).
-		script += UpgradeSnapsAction()
-		script += UpdateSystemAction()
-		script += UpgradeSystemAction()
+		script += ExternalAction("Upgrading all snaps.", "snap refresh")
+		# NOTE: Use 'AptAction' to automatically wait for apt's lock to be released if in use.
+		script += AptAction("Updating system package indices.", "apt-get update")
+		script += AptAction("Upgrading all installed packages - first pass.", "apt-get upgrade -y")
+		# NOTE: The two passes are necessary to ensure that the kernel has been fully updated (sometimes there are two kernels).
+		script += AptAction("Upgrading all installed packages - second pass.", "apt-get upgrade -y")
 
 		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
 		script += ExternalAction(
@@ -535,7 +537,7 @@ class KioskSetup(KioskDriver):
 		script += PurgePackagesAction("Purging all unused packages to free disk space.", [])
 
 		# Free disk space by cleaning the apt cache.
-		script += CleanPackageCacheAction()
+		script += AptAction("Cleaning package cache.", "apt-get clean")
 
 		# Empty snap cache.
 		script += ExternalAction("Purging snap cache to free disk space", "rm -fr /var/lib/snapd/cache/*")

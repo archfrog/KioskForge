@@ -282,7 +282,7 @@ class RebootSystemAction(ExternalAction):
 		ExternalAction.__init__(self, "Rebooting system NOW!", "reboot")
 
 
-class ExternalAptAction(ExternalAction):
+class AptAction(ExternalAction):
 	"""Base class for 'apt' actions."""
 
 	def __init__(self, title : str, line : str) -> None:
@@ -297,54 +297,26 @@ class ExternalAptAction(ExternalAction):
 		return super().execute()
 
 
-class CleanPackageCacheAction(ExternalAptAction):
-	"""Apt action to clean the package cache (which can easily grow to gigabytes in size)."""
-
-	def __init__(self) -> None:
-		ExternalAptAction.__init__(self, "Cleaning package cache.", "apt-get clean")
-
-
-class InstallPackagesAction(ExternalAptAction):
+class InstallPackagesAction(AptAction):
 	"""Apt action to install one or more packages."""
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		names = ' '.join(packages)
-		ExternalAptAction.__init__(self, title, "apt-get install -y " + names)
+		AptAction.__init__(self, title, "apt-get install -y " + names)
 
 
-class InstallPackagesNoRecommendsAction(ExternalAptAction):
+class InstallPackagesNoRecommendsAction(AptAction):
 	"""Apt action to install one or more packages without installing recommended packages."""
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		names = ' '.join(packages)
-		ExternalAptAction.__init__(self, title, "apt-get install --no-install-recommends -y " + names)
+		AptAction.__init__(self, title, "apt-get install --no-install-recommends -y " + names)
 
 
-class PurgePackagesAction(ExternalAptAction):
+class PurgePackagesAction(AptAction):
 	"""Apt action to purge all unused/useless packages in the system."""
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		names = ' '.join(packages)
-		ExternalAptAction.__init__(self, title, "apt-get autoremove --purge -y " + names)
-
-
-class UpdateSystemAction(ExternalAptAction):
-	"""Apt action to update the system-wide package indices."""
-
-	def __init__(self) -> None:
-		ExternalAptAction.__init__(self, "Updating system package indices.", "apt-get update")
-
-
-class UpgradeSystemAction(ExternalAptAction):
-	"""Apt action to upgrade all packages in the system."""
-
-	def __init__(self) -> None:
-		ExternalAptAction.__init__(self, "Upgrading all installed packages.", "apt-get upgrade -y")
-
-
-class UpgradeSnapsAction(ExternalAction):
-	"""Snap action to upgrade all snaps in the system."""
-
-	def __init__(self) -> None:
-		ExternalAction.__init__(self, "Upgrading all snaps.", "snap refresh")
+		AptAction.__init__(self, title, "apt-get autoremove --purge -y " + names)
 
