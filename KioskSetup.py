@@ -120,7 +120,7 @@ class KioskSetup(KioskDriver):
 		script = Script(logger, resume)
 
 		# Assign hostname (affects logs and journals so we do it as the very first thing).
-		script += ExternalAction("Setting host name.", "hostnamectl set-hostname " + setup.hostname.data)
+		script += ExternalAction("Setting host name.", f"hostnamectl set-hostname {setup.hostname.data}")
 
 		# Set environment variable to stop dpkg from running interactively.
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
@@ -293,10 +293,10 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("Setting system locale.", f"update-locale LANG={setup.locale.data} LC_MESSAGES=en_US.UTF-8")
 
 		# Set timezone to use user's choice.
-		script += ExternalAction("Setting timezone.", "timedatectl set-timezone " + setup.timezone.data)
+		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {setup.timezone.data}")
 
 		# Configure and activate firewall, allowing only SSH at port 22.
-		script += ExternalAction("Disabling firewall logging.", "ufw logging off")
+		script += ExternalAction("Disabling firewall log.", "ufw logging off")
 		script += ExternalAction("Allowing SSH through firewall.", "ufw allow ssh")
 		script += ExternalAction("Enabling firewall.", "ufw --force enable")
 
