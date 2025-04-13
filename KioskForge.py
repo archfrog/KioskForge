@@ -286,7 +286,7 @@ class Editor:
 				for name, field in fields.items():
 					index += 1
 					names[index] = name
-					print(f"{index:2d}) %{name:-13s} = {field.data}")
+					print(f"{index:2d}) {name:15s} = {field.data}")
 				print()
 
 				answer = input("Please enter number or ENTER to quit: ").strip()
