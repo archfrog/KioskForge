@@ -73,7 +73,7 @@ class KioskDriver:
 			except Error as that:
 				logger.error(f"Unknown error: {that.text}")
 			except KeyboardInterrupt:
-				logger.error(f"Break error: The user hit Ctrl-C to abort the script")
+				logger.error("Break error: The user hit Ctrl-C to abort the script")
 			except Exception as that:				# pylint: disable=broad-exception-caught
 				# Attempt to get the exception text, if any, through a number of Python-supported means.
 				if hasattr(that, "message"):
