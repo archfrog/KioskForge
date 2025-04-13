@@ -19,7 +19,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+from typing import Dict, List, Optional
 
 import shlex
 import subprocess
@@ -44,9 +44,17 @@ class Result:
 
 
 # Global function to invoke an external program and return a 'Result' instance with the program's exit code and output.
-def invoke_list(command : List[str]) -> Result:
+def invoke_list(command : List[str], environment : Optional[Dict[str, str]] = None) -> Result:
 	# Capture stderr and stdout interleaved in the same output string by using stderr=...STDOUT and stdout=...PIPE.
-	result = subprocess.run(command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, check=False, shell=False, text=False)
+	result = subprocess.run(
+		command,
+		stderr=subprocess.STDOUT,
+		stdout=subprocess.PIPE,
+		check=False,
+		shell=False,
+		text=False,
+		env=environment
+	)
 	try:
 		output = result.stdout.decode('utf-8')
 	except UnicodeDecodeError:
@@ -55,18 +63,18 @@ def invoke_list(command : List[str]) -> Result:
 	return Result(result.returncode, output)
 
 # invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
-def invoke_list_safe(command : List[str]) -> None:
-	result = invoke_list(command)
+def invoke_list_safe(command : List[str], environment : Optional[Dict[str, str]] = None) -> None:
+	result = invoke_list(command, environment)
 	if result.status != 0:
 		raise KioskError(result.output)
 
 # Alias for 'invoke_list' that asks 'shlex.split()' to split a single string command into its equivalent list of tokens.
-def invoke_text(command : str) -> Result:
-	return invoke_list(shlex.split(command))
+def invoke_text(command : str, environment : Optional[Dict[str, str]] = None) -> Result:
+	return invoke_list(shlex.split(command), environment)
 
 # invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
-def invoke_text_safe(command : str) -> None:
-	result = invoke_text(command)
+def invoke_text_safe(command : str, environment : Optional[Dict[str, str]] = None) -> None:
+	result = invoke_text(command, environment)
 	if result.status != 0:
 		raise KioskError(result.output)
 
