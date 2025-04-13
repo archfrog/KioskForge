@@ -111,7 +111,7 @@ class KioskBuild(KioskDriver):
 				raise KioskError(f"Unable to locate '{tool}' in PATH")
 
 		# Check that Inno Setup v6.x is in its expected location.
-		if sys.platform == "win32:
+		if sys.platform == "win32":
 			innopath = r"c:\Program Files (x86)\Inno Setup 6\Compil32.exe"
 			if not os.path.isfile(innopath):
 				raise KioskError("Cannot find Inno Setup 6 (Compil32.exe) on this PC")
