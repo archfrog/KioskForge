@@ -27,6 +27,7 @@ import os
 import platform
 import sys
 
+from toolbox.actions import AptAction
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
 from toolbox.internet import internet_active
@@ -48,6 +49,10 @@ class KioskUpdate(KioskDriver):
 		if platform.system() != "Linux":
 			raise KioskError("This script is can only be run on a Linux kiosk machine")
 
+		# Check that we've got root privileges.
+		if os.geteuid() != 0:		# pylint: disable=E1101
+			raise KioskError("You must be root (use 'sudo') to run this script")
+
 		# Parse command-line arguments.
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
 			raise CommandError('"KioskUpdate.py"')
@@ -59,9 +64,10 @@ class KioskUpdate(KioskDriver):
 		# ******************** Perform tasks that do require an internet connection. *********************************************
 
 		if not internet_active():
-			logger.write("Not connected to the internet: Skipping system update, upgrade, and clean tasks.")
+			logger.write("Not connected to the internet: Skipping system update, upgrade, and cleanup tasks.")
 			return
 
+		# Upgrade snaps and clean out the snap cache.
 		try:
 			# Allow snap to update (don't know if this is necessary or not, but err on the side of caution).
 			invoke_text_safe("snap refresh --unhold")
@@ -75,17 +81,17 @@ class KioskUpdate(KioskDriver):
 			# Stop snapd from upgrading automatically (also done in 'KioskSetup.py').
 			invoke_text_safe("snap refresh --hold")
 
-		try:
-			# Update apt package indices.
-			invoke_text_safe("apt-get update")
+		# Update apt package indices, upgrade all packages, and clean the apt cache (which may grow to many gigabytes in size).
+		# NOTE: Use 'AptAction' to get automatic waiting for the 'apt' lock file to be released.
+		# NOTE: Use "apt-get upgrade -y", not "apt-get dist-upgrade -y", to ensure that the system doesn't suddenly break down.
+		for command in ["apt-get update", "apt-get upgrade -y", "apt-get clean"]:
+			result = AptAction(f"Apt maintenance: {command}.", command).execute()
+			if result.status != 0:
+				logger.error(f"Apt failure executing '{command}': {result.output}")
+			del result
+		del command
 
-			# Perform system-wide upgrade of all packages.
-			invoke_text_safe("apt-get upgrade -y")
-		finally:
-			# Clean up the apt cache, this may grow to gigabytes in size over time.
-			invoke_text_safe("apt-get clean")
-
-		logger.write("Successfully updated, upgraded, and cleaned snaps and packages.  Commencing reboot!")
+		logger.write("Successfully updated and upgraded system.  Rebooting!")
 
 		invoke_text_safe("reboot")
 
