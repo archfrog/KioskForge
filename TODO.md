@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.13.09.07 U The `KioskUpdate.py` script does *not* wait for `apt` to release its lock, if any!
 - [ ] 2025.04.13.08.04 H Why does `journalctl --vacuum-time=30d` vacuum everything?  Probably NTP not synced time yet.
 - [ ] 2025.04.13.06.45 H Make visual guide (with pictures) of how to make an installation medium using Raspberry Pi Imager.
 - [ ] 2025.04.12.06.14 H `../bld/KioskForge.iss` - the RAMDISK path should be configured by `build.py`, not hard-coded.
