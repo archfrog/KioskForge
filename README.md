@@ -168,11 +168,9 @@ Then set up these environment variables:
 | `PYTHONDONTWRITEBYTECODE` | `1`   | Disable the generation of needless Python byte-code files everywhere.                   |
 | `RAMDISK` 				| path  | A temporary folder, preferably on a RAM disk.  This is used for caching tool data, etc. |
 
-Run the script `test.bat` (Windows only) or `test.sh` (Linux only) to make MyPy test the code and report any errors.
+Run the script `check.py` (all platforms) to make MyPy and pylint test the code and report any discovered warnings and errors.
 
-**NOTE:** Please notice that some scripts contain Linux-specific parts, which make MyPy whine.  They'll be fixed soon.
-
-Run the script `build.py` (all platforms) to build the `KioskForge.exe` standalone executable, which is shipped with documentation.
+Run the script `build.py` (all platforms) to build the platform-specific installer, which is normally put at kioskforge.org.
 
 Development currently takes place on a Windows 11 Pro desktop computer, but I'll set up a Linux development environment soon.
 
