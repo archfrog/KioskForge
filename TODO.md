@@ -21,8 +21,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.13.09.07 U The `KioskUpdate.py` script does *not* wait for `apt` to release its lock, if any!
 - [ ] 2025.04.13.08.04 H Why does `journalctl --vacuum-time=30d` vacuum everything?  Probably NTP not synced time yet.
+                         Change KioskForge to use `vacuum_size` instead of `vacuum_days`, the former does not need an RTC.
 - [ ] 2025.04.13.06.45 H Make visual guide (with pictures) of how to make an installation medium using Raspberry Pi Imager.
 - [ ] 2025.04.12.06.14 H `../bld/KioskForge.iss` - the RAMDISK path should be configured by `build.py`, not hard-coded.
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
@@ -31,9 +31,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
 - [ ] 2025.04.09.11.00 H Test the absense of a network connection by using a cable while forging the box and an invalid Wi-Fi.
 - [ ] 2025.04.09.09.52 H Consider to add "stages": Stage 1 is host, stage 2 is first run, stage 3 is second run, stage 4 = poweroff.
-- [ ] 2025.04.09.05.45 H Fix the annoying problem that the kernel is not always updated completely, because there may be more than
-                         one in the package repository.  Either repeat upgrading until there are no upgrades left or use CloudInit
-						 to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
 - [ ] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
                          Also consider to add an option, `network=always|install` to make the kiosk forget its network after use.
 - [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...  Inno setup is to
@@ -125,6 +122,11 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.09.05.45 H Fix the annoying problem that the kernel is not always updated completely, because there may be more than
+                         one in the package repository.  Either repeat upgrading until there are no upgrades left or use CloudInit
+						 to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
+						 Fixed by using `apt-get dist-upgrade -y` instead of `apt-get upgrade -y` in `KioskSetup.py`.
+- [x] 2025.04.13.09.07 U The `KioskUpdate.py` script does *not* wait for `apt` to release its lock files, if locked!
 - [x] 2025.04.11.03.40 H Make MyPy check everything without any warnings or errors.  Finally, this worked with MyPy v1.15.
 - [x] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
 - [x] 2025.03.28.12.23 H The auto-installation of `bcrypt` should specify a version to ensure continued operation for a while.
