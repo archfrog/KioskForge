@@ -115,7 +115,7 @@ class KioskSetup(KioskDriver):
 		setup.load(origin + os.sep + "KioskForge.kiosk")
 
 		# Build the script to execute.
-		logger.write("Forging kiosk (this will take 10-30 minutes):")
+		logger.write("Forging kiosk (this will take between 10 and 30 minutes):")
 		logger.write()
 		script = Script(logger, resume)
 
@@ -174,7 +174,7 @@ class KioskSetup(KioskDriver):
 		lines += "# Function that displays all syslog entries made by Kiosk*.py."
 		lines += "kiosklog() {"
 		lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors, instead of all messages."
-		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk"
+		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk | grep -Fv systemd\["
 		lines += "}"
 		script += AppendTextAction(
 			"Creating 'kiosklog' Bash function for easier debugging, and bug and status reporting.",
@@ -307,13 +307,7 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("Upgrading all snaps.", "snap refresh")
 		# NOTE: Use 'AptAction' to automatically wait for apt's lock to be released if in use.
 		script += AptAction("Updating system package indices.", "apt-get update")
-		script += AptAction("Upgrading all installed packages.", "apt-get upgrade -y")
-
-		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
-		script += ExternalAction(
-			"Disabling 'snap' automatic upgrades.",
-			"snap refresh --hold"
-		)
+		script += AptAction("Upgrading all installed packages.", "apt-get dist-upgrade -y")
 
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if setup.sound_card.data != "none":
@@ -447,18 +441,9 @@ class KioskSetup(KioskDriver):
 
 		# Create swap file in case the system gets low on memory.
 		if setup.swap_size.data > 0:
-			script += ExternalAction(
-				"Allocating swap file.",
-				f"fallocate -l {setup.swap_size.data}G /swapfile",
-			)
-			script += ExternalAction(
-				"Setting permissions on new swap file.",
-				"chmod 600 /swapfile"
-			)
-			script += ExternalAction(
-				"Formatting swap file.",
-				"mkswap /swapfile"
-			)
+			script += ExternalAction("Allocating swap file.", f"fallocate -l {setup.swap_size.data}G /swapfile",)
+			script += ExternalAction("Setting permissions on new swap file.", "chmod 600 /swapfile")
+			script += ExternalAction("Formatting swap file.", "mkswap /swapfile")
 			script += AppendTextAction(
 				"Creating '/etc/fstab' entry for the new swap file.",
 				"/etc/fstab",
@@ -536,6 +521,9 @@ class KioskSetup(KioskDriver):
 
 		# Free disk space by cleaning the apt cache.
 		script += AptAction("Cleaning package cache.", "apt-get clean")
+
+		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
+		script += ExternalAction("Disabling 'snap' automatic upgrades.", "snap refresh --hold")
 
 		# Empty snap cache.
 		script += ExternalAction("Purging snap cache to free disk space", "rm -fr /var/lib/snapd/cache/*")
