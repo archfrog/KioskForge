@@ -312,7 +312,7 @@ class KioskSetup(KioskDriver):
 
 		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
 		script += ExternalAction(
-			"Instruct 'snap' to only update when KioskUpdate.py is being launched by cron.",
+			"Instructing 'snap' to only update when KioskUpdate.py is being launched by cron.",
 			"snap refresh --hold"
 		)
 
