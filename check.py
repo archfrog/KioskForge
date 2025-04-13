@@ -104,6 +104,8 @@ class KioskCheck(KioskDriver):
 		result = invoke_list(words.list)
 		output = result.output.strip()
 		if output:
+			print("pylint messages:")
+			print()
 			print(output)
 		del output
 		# If any fatal errors (1) or any errors (2), fail the 'check.py' script entirely.
