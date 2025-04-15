@@ -86,6 +86,7 @@ class KioskSetup(KioskDriver):
 			time.sleep(5)
 		del index
 
+		# If still no network, abort the forge process.
 		if not internet_active():
 			logger.error("*" * 50)
 			logger.error("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
