@@ -75,7 +75,7 @@ class KioskSetup(KioskDriver):
 			raise KioskError("This script is can only be run on a Linux kiosk machine")
 
 		# Check that we've got root privileges.
-		if os.geteuid() != 0:		# pylint: disable=E1101
+		if os.geteuid() != 0:		# pylint: disable=no-member
 			raise KioskError("You must be root (use 'sudo') to run this script")
 
 		# Check that we have got an active, usable internet connection.
