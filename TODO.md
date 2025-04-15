@@ -21,6 +21,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.15.05.03 H The `DEBIAN_FRONTEND` environment variable is *not* passed to the invocations of `apt`, etc.!
+                         This is a left-over from the original Bash version, `AptAction` should be set it instead.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
                          Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 U Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
