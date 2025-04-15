@@ -21,8 +21,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.15.05.03 H The `DEBIAN_FRONTEND` environment variable is *not* passed to the invocations of `apt`, etc.!
-                         This is a left-over from the original Bash version, `AptAction` should be set it instead.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
                          Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 U Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
@@ -116,6 +114,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.15.05.03 H The `DEBIAN_FRONTEND` environment variable is *not* passed to the invocations of `apt`, etc.!
+                         This is a left-over from the original Bash version, `AptAction` should set `DEBIAN_FRONTEND` instead.
+						 I just tested and `DEBIAN_FRONTEND` *is* passed through `subprocess.run()` in *all* cases.
 - [x] 2025.04.13.23.03 H `KioskStart.py` often starts without network.  Should it wait for this to come up if `network=always`?
 - [x] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
                          Also consider to add an option, `network=always|install` to make the kiosk forget Wi-Fi network after use.
