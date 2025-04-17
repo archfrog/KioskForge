@@ -241,7 +241,7 @@ class KioskBuild(KioskDriver):
 			words += "../tmp/KioskForge.iss"
 			invoke_list_safe(words.list)
 
-			# Copy output to RAMDISK to local work tree (Inno fails to add icons to the file because Dropbox is busy synchronizing).
+			# Copy output from RAM disk to local work tree.
 			exename = f"KioskForge-{self.version.version}-Setup.exe"
 			shutil.copyfile(ramdisk + exename, "../bin/" + exename)
 			del exename
