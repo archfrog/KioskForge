@@ -115,13 +115,13 @@ It is always best that the kiosk is permanently on the internet so that it can u
 As of now, the procedure is as follows:
 
 1. Create an `Ubuntu Server 24.04.2` installation media for Raspberry Pi 4B (ARM64) using a USB key or a MicroSD card:
-	a. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
-	b. [Raspberry Pi Imager Guide](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager).
-	c. You'll find `Ubuntu Server 24.04.2` in the category `Other general-purpose OS`.  Always use 64-bit editions only.
-	d. Be aware that newer Ubuntu Server server versions may pop up in the list when released so be careful what you select!
-	e. When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
-	f. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
-	g. Please notice that we recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
+	1. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
+	2. [Raspberry Pi Imager Guide](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager).
+	3. You'll find `Ubuntu Server 24.04.2` in the category `Other general-purpose OS`.  Always use 64-bit editions only.
+	4. Be aware that newer Ubuntu Server server versions may pop up in the list when released so be careful what you select!
+	5. When done, leave the installation media in your computer until KioskForge tells you to dismount it or safely remove it.
+	6. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
+	7. Please notice that we recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
 2. Launch KioskForge as described below.
 3. Create a new configuration using menu item `1` or load an existing configuration using menu item `2`.
 4. Edit the configuration to ensure that the configuration is correct using menu item `3` or use an external editor (an external
