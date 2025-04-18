@@ -64,7 +64,8 @@ class KioskSetup(KioskDriver):
 		# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).
 		# NOTE: The 'clear' command has no effect for reasons unknown to me so I resorted to using an 'xterm' escape sequence.
 		# Clear screen and move cursor to (1, 1).
-		print("\033[2J\033[1;1H", end="")
+		if sys.platform == "linux":
+			print("\033[2J\033[1;1H", end="")
 
 		# Output program banner and an empty line.
 		logger.write(self.version.banner())
