@@ -131,14 +131,15 @@ class KioskBuild(KioskDriver):
 
 		#*************************** Make a Git release tag for the target version ***********************************************
 
-		words  = TextBuilder()
-		words += "git"
-		words += "tag"
-		words += "-a"
-		words += self.version.version
-		words += "-m"
-		words += "Release v" + self.version.version + "."
-		invoke_list_safe(words.list)
+		if settings.ship:
+			words  = TextBuilder()
+			words += "git"
+			words += "tag"
+			words += "-a"
+			words += self.version.version
+			words += "-m"
+			words += "Release v" + self.version.version + "."
+			invoke_list_safe(words.list)
 
 		#************************** Create 'version.txt' (consumed by PyInstaller) ***********************************************
 
@@ -208,15 +209,40 @@ class KioskBuild(KioskDriver):
 			os.unlink("KioskForge.spec")
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
-		for file in ["FAQ.md", "GUIDE.md", "README.md"]:
+		files = {
+			"FAQ.md"    : "KioskForge Frequently Asked Questions",
+			"GUIDE.md"  : "KioskForge Usage Scenarios Guide",
+			"README.md" : "KioskForge Master Readme File"
+		}
+		for file, title in files.items():
 			words = TextBuilder()
 			words += "pandoc"
 
-			words += "-i"
-			words += file
+			# Source is GitHub flavored Markdown.
+			words += "--from=gfm"
 
+			# Output is HTML5/CSS3.
+			words += "--to=html5"
+
+			# Include metadata in the generated files.
+			words += "--standalone"
+
+			# Specify CSS file to use for the conversion.
+			words += "--include-before-body=../bld/pandoc.css"
+
+			# Specify title as Pandoc requires this.
+			words += "--metadata"
+			words += 'title="' + title + '"'
+
+			# Create a table of contents (TOC).
+			words += "--toc"
+
+			# Output to this path.
 			words += "-o"
 			words += distpath + os.sep + os.path.splitext(file)[0] + ".html"
+
+			# Input is this file.
+			words += file
 
 			invoke_list_safe(words.list)
 
