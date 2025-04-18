@@ -210,9 +210,9 @@ class KioskBuild(KioskDriver):
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		files = {
-			"FAQ.md"    : "KioskForge Frequently Asked Questions",
-			"GUIDE.md"  : "KioskForge Usage Scenarios Guide",
-			"README.md" : "KioskForge Master Readme File"
+			"FAQ.md"    : f"KioskForge v{self.version.version} Frequently Asked Questions",
+			"GUIDE.md"  : f"KioskForge v{self.version.version} Usage Scenarios Guide",
+			"README.md" : f"KioskForge v{self.version.version} Readme File"
 		}
 		for file, title in files.items():
 			words = TextBuilder()
@@ -232,7 +232,7 @@ class KioskBuild(KioskDriver):
 
 			# Specify title as Pandoc requires this.
 			words += "--metadata"
-			words += 'title="' + title + '"'
+			words += "title=" + title
 
 			# Create a table of contents (TOC).
 			words += "--toc"
