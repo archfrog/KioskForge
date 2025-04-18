@@ -62,7 +62,7 @@ submit a pull request.  Please make sure that the result generates a valid, reli
 Customization of the target kiosk machine can be done using `KioskForge.py` or using an editor to create an INI-style file:
 
 | Name               | Option name       | Type    | Description                                                                 |
-| ----------------   | ----------------- | ------  | --------------------------------------------------------------------------- |
+| ------------------ | ----------------- | ------  | --------------------------------------------------------------------------- |
 | Comment            | `comment`         | string  | A string describing the kiosk and its purpose (for your records).           |
 | Device type        | `device`          | string  | One of `pi4b`, or `pc`.  NOTE: `pc` is currently broken!                    |
 | Kiosk type         | `type`            | string  | One of `cli`, `x11`, or `web`.  Only `cli` and `web` are supported now.     |
