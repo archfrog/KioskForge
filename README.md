@@ -1,4 +1,4 @@
-# KioskForge Master Readme File
+# KioskForge Readme File
 KioskForge is a portable tool to automate and simplify the process of setting up a new kiosk machine for browsing a website.  It is
 intended to be used by somewhat non-technical users to set up a kiosk machine for browsing a given website.
 
@@ -10,7 +10,9 @@ KioskForge currently supports these things:
 * Ethernet and/or Wi-Fi networking.
 
 **NOTE**: Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
+
 **NOTE**: The PC target is currently likely broken because I don't have a spare PC to test it on.  WIP.
+
 **NOTE**: I don't currently have a PI5, so I cannot test and develop against it.
 
 
@@ -32,8 +34,6 @@ Please notice that we recommend specific versions of Python and Raspberry Pi Ima
 experience for you.  You are free to try with other versions of these tools, but we cannot guarantee that they work.
 
 ### Windows
-
-### Download the KioskForge Program
 Download the most recent version of `KioskForge-x.yy-Setup.exe` from [KioskForge.org](https://kioskforge.org/downloads/).
 
 Navigate to the `Downloads` folder and double-click on the `KioskForge-x.yy-Setup.exe` file.  Follow the prompts to install.
@@ -43,7 +43,7 @@ by clicking on the `KioskForge` command.
 
 
 ### Linux
-**NOTE:** `KioskForge` currently **cannot** be run on Linux.  This is a planned feature and is expected to be fixed soon.
+**NOTE:** `KioskForge` currently *cannot* be run on Linux.  This is a planned feature and is expected to be fixed soon.
 
 Install a recent version of the [Python v3.13+ programming language](https://python.org).  On most Linuxes, this can be done with
 the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.13+.  Earlier versions
@@ -53,7 +53,7 @@ You need to make sure that the script, `KioskForge.py`, has execute permissions 
 then you can invoke it using `./KioskForge.py`.
 
 
-## Macintosh
+### Macintosh
 I don't have access to a Mac computer, so no development or testing is done on this platform.  Feel free to port the script and
 submit a pull request.  Please make sure that the result generates a valid, reliable kiosk before submitting the pull request.
 
@@ -65,16 +65,15 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | ----------------   | ----------------- | ------  | --------------------------------------------------------------------------- |
 | Comment            | `comment`         | string  | A string describing the kiosk and its purpose (for your records).           |
 | Device type        | `device`          | string  | One of `pi4b`, or `pc`.  NOTE: `pc` is currently broken!                    |
-| Kiosk type         | `type`            | string  | One of `cli`, `x11`, or `web`.  Only `web` is supported currently.          |
-| Command            | `command`         | string  | An URL to open (type: web) or a command to run (type: cli/x11).             |
+| Kiosk type         | `type`            | string  | One of `cli`, `x11`, or `web`.  Only `cli` and `web` are supported now.     |
+| Command            | `command`         | string  | An URL to open (type: `web`) or a command to run (type: `cli`/`x11`).       |
 | Host name          | `hostname`        | string  | The unqualified domain name of the kiosk machine.                           |
 | Time zone          | `timezone`        | string  | The Linux-compatible time zone name (`CET` or `Europe/Copenhagen`).         |
-| Locale             | `locale`          | string  | The system locale (`da_DK.UTF-8` or a similar value).                       |
+| Locale             | `locale`          | string  | The system locale (`da_DK.UTF-8`, etc. - always ends in `.UTF-8`).          |
 | Keyboard layout    | `keyboard`        | string  | The name of the kiosk's keyboard layout (`dk`, `en`, etc.).                 |
-| Website URL        | `website`         | string  | The full, canonical URL of the website that is opened in the web browser.   |
-| Audio volume       | `audio`           | integer | The logarithmic audio volume from 0 through 100 (0 disables audio fully).   |
+| Sound card         | `sound_card`      | string  | `none`, Pi4B: `jack`, `hdmi1`, or `hdmi2`.  PC: Not yet supported.          |
+| Sound volume       | `sound_level`     | integer | The logarithmic audio volume from 0 through 100 (0 disables audio fully).   |
 | Mouse cursor       | `mouse`           | boolean | Whether or not the mouse cursor is visible, should normally be disabled.    |
-| Idle timeout       | `idle_timeout`    | seconds | Seconds of idle time before restarting the web browser (0 = never).         |
 | User login name    | `user_name`       | string  | The Linux user name of the user owning the web browser process, etc.        |
 | User password      | `user_code`       | string  | The raw or `bcrypt`-encoded password of the user.                           |
 | Public SSH key     | `ssh_key`         | string  | A public SSH key as generated by `ssh-keygen` for using SSH with the kiosk. |
@@ -84,23 +83,24 @@ Customization of the target kiosk machine can be done using `KioskForge.py` or u
 | Swap file size     | `swap_size`       | integer | The size of the swap file in gigabytes (0 = disable swap, not recommended). |
 | System update time | `upgrade_time`    | time    | The hour and minute when to perform a global upgrade of packages and snaps. |
 | Shutdown time      | `poweroff_time`   | time    | The hour and minute when to automatically shut down the kiosk machine.      |
-| Vacuum retention   | `vacuum_days`     | integer | The number of days to keep system logs before discarding them.              |
+| Vacuum retention   | `vacuum_size`     | integer | The number of megabytes data to keep in system logs before deleting it.     |
 | Screen rotation    | `screen_rotation` | integer | The screen and touch panel rotation: none, left, flip, or right.            |
-| User folder        | `user_folder`     | string  | A folder to copy to `~` on the kiosk.  Useful for local websites, etc.      |
+| User folder        | `user_folder`     | string  | A folder to copy to `~` on the kiosk.  See `GUIDE.html` for more info.      |
 | User packages      | `user_packages`   | string  | A space-separated list of packages to install while forging the kiosk.      |
 | CPU overclocking   | `cpu_boost`       | boolean | 0 = disable default overclocking, 1 = enable default overclocking.          |
+| Idle timeout       | `idle_timeout`    | seconds | Number of idle seconds before restarting the web browser (0 = never).       |
 
 KioskForge currently only supports DHCP-assigned LAN IP adresses so there's no way of specifying a fixed LAN IP address.  This
 basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself,
-which is a very good idea, anyway, as you don't want to port scan and stuff if the kiosk suddenly goes down and needs fixing.
+which is a very good idea, anyway, as you don't want to port scan and stuff if the kiosk suddenly misbehaves and needs fixing.
 
 **NOTE**:
 Currently, the interactive TUI editor *cannot* handle blank strings, so you may need to edit the configuration file manually using
 your favorite editor such as `Notepad` (you cannot use a word processor such as Word to edit KioskForge configuration files!).
 
 The easiest way to create a new `.kiosk` file is to launch KioskForge, select `4`, and save to the desired location and file name.
-After this, you can edit the `.kiosk` file using your favorite editor (such as `Notepad`).  After you have verified or modified the
-`.kiosk` file, you can simply double-click it in Windows Explorer to open it in KioskForge.  After this, you just hit `5`.
+After this, you can edit the `.kiosk` file using your favorite editor (such as `Notepad`).  After you have modified the `.kiosk`
+file, you can simply double-click it in Windows Explorer to open it in KioskForge.  After this, you just hit `5` in KioskForge.
 
 
 ## Usage
@@ -194,6 +194,6 @@ When you report a bug, please log into the kiosk and run this command to create 
 kiosklog > ~/kiosk.log
 ```
 
-Then please include the two files `~/.xsession-errors` and `~/kiosk.log` in your bug report.  These files will likely provide
-invaluable information about the issue, which makes it so much easier to debug and fix the issue.
+Then please include the two files `~/kiosk.log` and `~/.xsession-errors` (if it exists) in your bug report.  These files will
+likely provide invaluable information about the issue, which makes it so much easier to debug and fix the issue.
 
