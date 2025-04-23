@@ -21,9 +21,13 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2024.04.23.22.25 H Enhance KioskForge to detect Ubuntu 25.04 installation medias so that a suitable error is reported.
+- [ ] 2024.04.23.14.44 H Add "Kioskforge Kiosk file (.kiosk)" to the `New` menu of explorer so that users can create new kiosks.
+- [ ] 2024.04.23.14.45 H Remove everything related to the editor from the TUI version of KioskForge.  Let people use `Notepad` as
+                         the TUI editor is broken anyway, the user can't input blank entries at all.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
                          Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
-- [ ] 2025.04.13.17.47 U Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
+- [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
 - [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
