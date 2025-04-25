@@ -138,7 +138,7 @@ class KioskBuild(KioskDriver):
 			words += "-a"
 			words += self.version.version
 			words += "-m"
-			words += "Release v" + self.version.version + "."
+			words += f"Release v{self.version.version}."
 			invoke_list_safe(words.list)
 
 		#************************** Create 'version.txt' (consumed by PyInstaller) ***********************************************
@@ -153,7 +153,7 @@ class KioskBuild(KioskDriver):
 			legal_copyright="Copyright © " + self.version.company + ". All Rights Reserved.",
 			original_filename=self.version.product + ".exe",
 			product_name=self.version.product,
-			#translations=[1033, 437]			# TODO: 65001]
+			translations=[1033, 65001]
 		)
 
 		#************************** Create 'KioskForge.exe' (created by PyInstaller, consumed by Inno Setup 6+) ******************
