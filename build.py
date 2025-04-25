@@ -228,8 +228,8 @@ class KioskBuild(KioskDriver):
 			# Include metadata in the generated files.
 			words += "--standalone"
 
-			# Specify CSS file to use for the conversion.
-			words += "--include-before-body=build/pandoc.css"
+			# Specify HTML file with CSS to use for the conversion.
+			words += "--include-before-body=build/pandoc-styles.html"
 
 			# Specify title as Pandoc requires this.
 			words += "--metadata"
