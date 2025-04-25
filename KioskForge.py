@@ -192,6 +192,8 @@ class PcRecognizer(Recognizer):
 			edition = "Server"
 		elif product == "Ubuntu":
 			edition = "Desktop"
+		else:
+			return None
 
 		# Return a new target instance with the information we learned from .disk/info.
 		return Target("PC", product, edition, version, cpukind, "subiquity", path)
@@ -847,11 +849,13 @@ class KioskForge(KioskDriver):
 						# Update installation media.
 						# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 						targets = Recognizer().identify()
-						if len(targets) == 0:
-							raise KioskError("Unable to locate/identify installation medium on this machine")
-						elif len(targets) >= 2:
-							raise KioskError("Multiple install media detected - please remove all but one")
-						target = targets[0]
+						match len(targets):
+							case 0:
+								raise KioskError("Unable to locate/identify installation medium on this machine")
+							case 1:
+								target = targets[0]
+							case _:
+								raise KioskError("More than one installation medium detected - please remove all but one")
 						del targets
 
 						# Report the kind of image that was discovered.
