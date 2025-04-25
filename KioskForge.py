@@ -28,6 +28,7 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List, Optional
 
+import copy
 import hashlib
 import os
 import platform
@@ -57,14 +58,10 @@ def password_crypt(text : str) -> str:
 class Target:
 	"""Simple class that encapsulates all information about the target system."""
 
-	def __init__(self, kind : str, basedir : str, product : str, edition : str, version : str, cpukind : str, install : str) -> None:
+	def __init__(self, kind : str, product : str, edition : str, version : str, cpukind : str, install : str, basedir : str = "") -> None:
 		# Check arguments (mostly for the sake of documenting the valid values).
-		if kind not in ["PC", "PI"]:
-			raise ValueError("Argument 'kind' must be either 'PC' or 'PI'")
-		if cpukind not in ["amd64", "arm64"]:
-			raise ValueError("Argument 'cpukind' must be either 'amd64' or 'arm64'")
-		if install not in ["cloud-init", "subiquity"]:
-			raise ValueError("Argument 'install' must be either 'cloud-init' or 'subiquity'")
+		if install not in ["cloudinit", "subiquity"]:
+			raise ValueError("Argument 'install' must be either 'cloudinit' or 'subiquity'")
 
 		# Initialize instance.
 		self.__kind = kind
@@ -78,6 +75,12 @@ class Target:
 	@property
 	def basedir(self) -> str:
 		return self.__basedir
+
+	@basedir.setter
+	def basedir(self, value : str) -> None:
+		if self.__basedir != "":
+			raise ValueError(".basedir already set")
+		self.__basedir = value
 
 	@property
 	def cpukind(self) -> str:
@@ -113,10 +116,7 @@ class Recognizer:
 	def _identify(self, path : str) -> Optional[Target]:
 		raise NotImplementedError("Abstract method called")
 
-	def identify(self) -> Optional[Target]:
-		if platform.system() != "Windows":
-			raise KioskError("KioskForge.py only runs on Windows")
-
+	def identify(self) -> List[Target]:
 		# Scan all mount points/drives and see if there are any of the reserved files we're looking for.
 		targets : List[Target] = []
 		attempts = 0
@@ -125,7 +125,7 @@ class Recognizer:
 				mounts = os.listdrives()
 			elif platform.system() == "Linux":
 				# TODO: mounts = 'df -a -T -h -t vfat'; grep -Fv "/boot/efi"'
-				raise InternalError("Feature not finished")
+				raise InternalError("Feature not finished - Linux host not yet supported")
 			else:
 				raise InternalError(f"Unknown target platform: {platform.system()}")
 
@@ -138,9 +138,9 @@ class Recognizer:
 
 			# If zero kiosk images were found, let the user fix the error and try again.
 			if len(targets) == 0:
-				# Only wait three seconds five times so as to not force the user to hit Ctrl-C.
-				if attempts == 5:
-					return None
+				# Wait three seconds once so as to not force the user to hit Ctrl-C because we keep waiting too long.
+				if attempts == 1:
+					raise KioskError("Unable to locate a known Linux installation medium")
 				attempts += 1
 
 				# NOTE: Windows takes a little while to discover the written image, so we try once more if we fail at first.
@@ -150,15 +150,9 @@ class Recognizer:
 				time.sleep(3)
 				continue
 
-			# Handle more than one target drives.
-			if len(targets) >= 2:
-				raise KioskError("More than one USB key or MicroSD card found")
-
 			break
 
-		if len(targets) != 1:
-			raise InternalError("Unexpected number of found targets: There should only be one")
-		return targets[0]
+		return targets
 
 
 class PcRecognizer(Recognizer):
@@ -177,41 +171,50 @@ class PcRecognizer(Recognizer):
 		with open(info_name, "rt", encoding="utf8") as stream:
 			info_data = stream.read().strip()
 			fields = shlex.split(info_data)
-			if len(fields) != 8:
+			if len(fields) == 7:
+				# Ubuntu 25.04+ only provides seven fields because it is not an LTS release (sigh).
+				(product, version, codename, dash, release, cpukind, date_num) = fields
+				support = "STS"			# Short Term Support (STS) as opposed to Long Term Support (LTS).
+			elif len(fields) == 8:
+				# Ubuntu 24.04 provides eight fields because it is an LTS release.
+				(product, version, support, codename, dash, release, cpukind, date_num) = fields
+			else:
+				print("Warning: Unsupported .disk/info file - too few or too many fields")
 				return None
-			(product, version, support, codename, dash, release, cpukind, date_num) = fields
 			del codename
 			del dash
 			del release
 			del date_num
 
-		# Check the info file and report one or more errors if we don't support the found target.
-		errors = []
-		if product != "Ubuntu-Server":
-			errors.append(f"Error: Unsupported operating system: {product}")
-		if version != "24.04.1":
-			errors.append(f"Error: Unsupported version: {version}")
-		if support != "LTS":
-			errors.append(f"Error: Unsupported support lifetime: {support}")
-		if cpukind != "amd64":
-			errors.append(f"Error: Unsupported CPU kind: {cpukind}")
+		# Munge about with the product string so that it fits our needs...
+		if product == "Ubuntu-Server":
+			product = "Ubuntu"
+			edition = "Server"
+		elif product == "Ubuntu":
+			edition = "Desktop"
 
-		# If one or more errors were found, report them and don't recognize this target.
-		if errors:
-			for error in errors:
-				print(f"{path}: {error}")
-			return None
-
-		return Target("PC", path, "Ubuntu", "Server", "24.04.1", "amd64", "subiquity")
+		# Return a new target instance with the information we learned from .disk/info.
+		return Target("PC", product, edition, version, cpukind, "subiquity", path)
 
 
-SHA512_UBUNTU_SERVER_24_04_1_ARM64  = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
 SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 = 'ce3eb9b96c3e458380f4cfd731b2dc2ff655bdf837cad00c2396ddbcded64dbc1d20510c22bf211498ad788c8c81ba3ea04c9e33d8cf82538be0b1c4133b2622'
-SHA512_UBUNTU_SERVER_24_04_2_ARM64  = '5c62b93b8d19e8d7ac23aa9759a23893af5dd1ab5f80e4fb71f7b4fd3ddd0f84f7c82f9342ea4c9fdba2c350765c2c83eaaa6dcaac236f9a13f6644386e6a1d2'
+SHA512_UBUNTU_SERVER__24_04_1_ARM64 = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
 SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = '32825b5b770f94996f05a9f2fa95e8f7670944de5990a258d10d95c5bd0062123a707d8b943d23e7b0d54e8c3ff8440b0fd7ebbb8dc42bc20da8a77b3f3f6408'
+SHA512_UBUNTU_SERVER__24_04_2_ARM64 = '5c62b93b8d19e8d7ac23aa9759a23893af5dd1ab5f80e4fb71f7b4fd3ddd0f84f7c82f9342ea4c9fdba2c350765c2c83eaaa6dcaac236f9a13f6644386e6a1d2'
+SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 = 'fa8750e5f71adc4d0cff50c985e499d7dc0ce18132489a52d4c3df9d0c321100d5b1d93c5804dd9c88986e2a8e67cbd413d325576081f3d2b20046987bb26b63'
+SHA512_UBUNTU_SERVER__25_04_0_ARM64 = 'ef1f10d7cc59d8761490b0e0f3be0882d4781870e920d66f0b7ae440a940bf19fa689cc16ee06a0c81b5333b7ecc65fdb4137e050db1133a77fd117c03034157'
+
+PI_OPERATING_SYSTEMS = {
+	SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.1", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_1_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.1", "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.2", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_2_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.2", "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "25.04", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__25_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "25.04", "arm64", "cloudinit"),
+}
 
 class PiRecognizer(Recognizer):
-	"""Derived class that recognizes Ubuntu Desktop or Server 24.04.x in a Raspberry Pi 4B install image."""
+	"""Derived class that recognizes some Ubuntu Desktop/Server releases on a Raspberry Pi 4B installation medium."""
 
 	def __init__(self) -> None:
 		Recognizer.__init__(self)
@@ -225,17 +228,14 @@ class PiRecognizer(Recognizer):
 
 		with open(path + "initrd.img", "rb") as stream:
 			sha512 = hashlib.sha512(stream.read()).hexdigest()
-		result = None
-		if sha512 == SHA512_UBUNTU_SERVER_24_04_1_ARM64:
-			result = Target("PI", path, "Ubuntu", "Server", "24.04.1", "arm64", "cloud-init")
-		elif sha512 == SHA512_UBUNTU_SERVER_24_04_2_ARM64:
-			result = Target("PI", path, "Ubuntu", "Server", "24.04.2", "arm64", "cloud-init")
-		elif sha512 == SHA512_UBUNTU_DESKTOP_24_04_1_ARM64:
-			result = Target("PI", path, "Ubuntu", "Desktop", "24.04.1", "arm64", "cloud-init")
-		elif sha512 == SHA512_UBUNTU_DESKTOP_24_04_2_ARM64:
-			result = Target("PI", path, "Ubuntu", "Desktop", "24.04.2", "arm64", "cloud-init")
 
-		return result
+		# If unable to recognize the SHA512 sum of the 'initrd.img' file, refuse to recognize this installation medium.
+		if not PI_OPERATING_SYSTEMS.get(sha512):
+			return None
+
+		target = copy.copy(PI_OPERATING_SYSTEMS[sha512])
+		target.basedir = path
+		return target
 
 
 # List of systems that can be recognized and thus are supported.
@@ -518,8 +518,8 @@ class KioskForge(KioskDriver):
 
 			# Write commands to update and upgrade the system before we reboot the first time.
 			if False:
-				# TODO: Either reenable cloud-init updates or disable AutoInstall updates.
-				# NOTE: Temporarily disabled it possibly causes an issue where cloud-init times out.
+				# TODO: Either reenable CloudInit updates or disable AutoInstall updates.
+				# NOTE: Temporarily disabled it possibly causes an issue where CloudInit times out.
 				# NOTE: We're rebooting with the "power_state" key above, not only in case of a kernel upgrade
 				# NOTE: ("package_reboot_if_required").
 				stream.write("package_update: true")
@@ -846,22 +846,30 @@ class KioskForge(KioskDriver):
 
 						# Update installation media.
 						# Identify the kind and path of the kiosk machine image (currently only works on Windows).
-						target = Recognizer().identify()
-
-						# Fail if no target was identified.
-						if not target:
-							raise KioskError("Unable to locate or identify install image - did you select Ubuntu Server?")
+						targets = Recognizer().identify()
+						if len(targets) == 0:
+							raise KioskError("Unable to locate/identify installation medium on this machine")
+						elif len(targets) >= 2:
+							raise KioskError("Multiple install media detected - please remove all but one")
+						target = targets[0]
+						del targets
 
 						# Report the kind of image that was discovered.
 						print(
-							f"Discovered {target.kind} kiosk {target.product} {target.edition} v{target.version}" +
-							f" ({target.cpukind}) install image at {target.basedir}."
+							f"Discovered {target.kind} {target.product} {target.edition} {target.version}" +
+							f" ({target.cpukind.upper()}) installation medium at {target.basedir}"
 						)
 						print()
 
-						# Only accept Server images for now.
-						if target.edition != "Server":
-							raise KioskError("Only Ubuntu Server 24.04.x images are supported")
+						# Only accept Ubuntu Server images for AMD64/ARM64 for now.
+						accept = True
+						accept &= (target.product == "Ubuntu")
+						accept &= (target.edition == "Server")
+						accept &= (target.version in ["24.04.1", "24.04.2"])
+						accept &= (target.cpukind in ["amd64", "arm64"])
+						if not accept:
+							raise KioskError("Only Ubuntu Server 24.04.x images for AMD64/ARM64 CPUs are supported")
+						del accept
 
 						print("Preparing kiosk image for first boot.")
 						print()
@@ -890,12 +898,12 @@ class KioskForge(KioskDriver):
 						else:
 							raise InternalError(f"Unknown target kind: {target.kind}")
 
-						# Write cloud-init or Subiquity configuration files to automate install completely.
-						if target.install == "cloud-init":
-							# Generate cloud-init's meta-data file from scratch (to be sure of what's in it).
+						# Write cloudinit or Subiquity configuration files to automate install completely.
+						if target.install == "cloudinit":
+							# Generate Cloud-init's meta-data file from scratch (to be sure of what's in it).
 							self.save_cloudinit_metadata(setup, target.basedir + "meta-data")
 
-							# Generate cloud-init's network-config file from scratch (to be sure of what's in it).
+							# Generate Cloud-init's network-config file from scratch (to be sure of what's in it).
 							self.save_cloudinit_network_config(setup, target.basedir + "network-config")
 
 							# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
