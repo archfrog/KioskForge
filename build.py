@@ -210,9 +210,10 @@ class KioskBuild(KioskDriver):
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		files = {
-			"FAQ.md"    : f"KioskForge v{self.version.version} Frequently Asked Questions",
-			"GUIDE.md"  : f"KioskForge v{self.version.version} Usage Scenarios Guide",
-			"README.md" : f"KioskForge v{self.version.version} Readme File"
+			"CHANGES.md" : f"KioskForge v{self.version.version} Change Log",
+			"FAQ.md"     : f"KioskForge v{self.version.version} Frequently Asked Questions",
+			"GUIDE.md"   : f"KioskForge v{self.version.version} Usage Scenarios Guide",
+			"README.md"  : f"KioskForge v{self.version.version} Readme File"
 		}
 		for file, title in files.items():
 			words = TextBuilder()
@@ -228,7 +229,7 @@ class KioskBuild(KioskDriver):
 			words += "--standalone"
 
 			# Specify CSS file to use for the conversion.
-			words += "--include-before-body=../bld/pandoc.css"
+			words += "--include-before-body=build/pandoc.css"
 
 			# Specify title as Pandoc requires this.
 			words += "--metadata"
@@ -253,7 +254,7 @@ class KioskBuild(KioskDriver):
 		# Only build the Windows setup program on Windows as Inno Setup v6 does not run on Linux.
 		if sys.platform == "win32":
 			# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
-			with open("../bld/KioskForge.iss", "rt", encoding="utf8") as stream:
+			with open("build/KioskForge.iss", "rt", encoding="utf8") as stream:
 				script = stream.read()
 			script = script.replace("$$RAMDISK$$", ramdisk)
 			script = script.replace("$$VERSION$$", self.version.version)
