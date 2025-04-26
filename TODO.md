@@ -21,6 +21,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.26.09.22 H Make a page on KioskForge.org that lists all valid locales, keyboards, and time zones and link to this
+                         page from within each `.kiosk` file as the list of locales is hundreds of lines long, which makes the
+					     `.kiosk` files insanely big (35KB+).
+- [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
 - [ ] 2025.04.26.08.21 H Remame `Field.hint` to `Field.help` as the help text is now multi-line and an attempt of helping properly.
 - [ ] 2025.04.26.08.06 H Report all errors from loading a configuration file at once and with line numbers (to `*.err`).
