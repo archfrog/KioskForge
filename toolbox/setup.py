@@ -725,7 +725,7 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 		# Generate KioskForge.cfg.
 		with TextWriter(path) as stream:
 			stream.write(f"# {version.product} v{version.version} kiosk definition file.")
-			stream.write("# Please feel free to edit this file please using your favorite text editor.")
+			stream.write("# Please feel free to edit this file using your favorite text editor.")
 			stream.write("")
 
 			names = list(vars(self))
