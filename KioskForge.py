@@ -315,7 +315,7 @@ class Editor:
 				getattr(setup, names[choice]).parse(value)
 				changed = True
 			except FieldError as that:
-				print(f"Error: Invalid value entered for field {that.field}: {that.text}")
+				print(f"Error: Field '{that.field}' invalid: {that.text}")
 			except InputError as that:
 				print(f"Error: {that.text}")
 
@@ -792,7 +792,7 @@ class KioskForge(KioskDriver):
 						except FileNotFoundError as that:
 							raise KioskError("Unable to load the specified file - is the path correct?") from that
 						except FieldError as that:
-							raise KioskError(f"Invalid value entered for field {that.field}: {that.text}") from that
+							raise KioskError(f"Field '{that.field}' invalid: {that.text}") from that
 						except InputError as that:
 							raise KioskError(that.text) from that
 						print()
@@ -804,7 +804,7 @@ class KioskForge(KioskDriver):
 						try:
 							changed |= editor.edit(setup)
 						except FieldError as that:
-							print(f"Error: Invalid value entered for field {that.field}: {that.text}")
+							print(f"Error: Field '{that.field}' invalid: {that.text}")
 							continue
 						except InputError as that:
 							print(f"Error: {that.text}")
