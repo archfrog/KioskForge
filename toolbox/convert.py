@@ -41,7 +41,7 @@ BOOLEANS = {
 
 BOOLEAN_REGEX = dict_to_regex(BOOLEANS)
 
-# The complete list of layouts supported by Ubuntu Server (from July, 2024).
+# The complete list of keyboard layouts supported by Ubuntu Server (from July, 2024).
 KEYBOARDS = {
 	"af"    : "Dari",
 	"al"    : "Albanian",
