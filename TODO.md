@@ -21,7 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2024.04.23.22.25 H Enhance KioskForge to detect Ubuntu 25.04 installation medias so that a suitable error is reported.
+- [ ] 2025.04.26.02.06 H Use multi-line comments to explain each option, the current single-line style is inadequate.
 - [ ] 2024.04.23.14.44 H Add "Kioskforge Kiosk file (.kiosk)" to the `New` menu of explorer so that users can create new kiosks.
 - [ ] 2024.04.23.14.45 H Remove everything related to the editor from the TUI version of KioskForge.  Let people use `Notepad` as
                          the TUI editor is broken anyway, the user can't input blank entries at all.
@@ -43,7 +43,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
-- [ ] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
 - [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  This will probably break things after a while.
 - [ ] 2025.04.04.15.42 H Add option `user_modules` to install Python modules with `pip`.
 - [ ] 2025.03.29.21.11 H Go through all options and create a two-level "hierarchy" of options: `target.*`, `system.*`, `user`, etc.
@@ -118,6 +117,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
+                         I went the other way around and moved the Inno Setup configuration file (`KioskForge.iss`) into Git.
+- [x] 2024.04.23.22.25 H Enhance KioskForge to detect Ubuntu 25.04 installation medias so that a suitable error is reported.
 - [x] 2025.04.15.05.03 H The `DEBIAN_FRONTEND` environment variable is *not* passed to the invocations of `apt`, etc.!
                          This is a left-over from the original Bash version, `AptAction` should set `DEBIAN_FRONTEND` instead.
 						 I just tested and `DEBIAN_FRONTEND` *is* passed through `subprocess.run()` in *all* cases.
