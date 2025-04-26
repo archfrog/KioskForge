@@ -834,7 +834,7 @@ class KioskForge(KioskDriver):
 							raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
 
 						# Create new folder, if any, and save the configuration.
-						folder = os.path.dirname(answer)
+						folder = os.path.dirname(os.path.abspath(answer))
 						os.makedirs(folder, exist_ok=True)
 						setup.save(answer, self.version)
 						del folder
