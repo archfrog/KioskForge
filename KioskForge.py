@@ -303,9 +303,9 @@ class Editor:
 					raise InputError(f"Enter a valid number in the range 1 through {index}")
 
 				print(50 * "*")
-				hint = getattr(setup, names[choice]).hint
-				print(f"{hint}")
-				del hint
+				help = getattr(setup, names[choice]).help
+				print(f"{help}")
+				del help
 				print(50 * "*")
 				value = input("Enter new value (ENTER to leave unchanged): ").strip()
 				if value == "":

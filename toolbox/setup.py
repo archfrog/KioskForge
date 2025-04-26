@@ -33,15 +33,15 @@ from toolbox.version import Version
 
 
 class Field:
-	"""Base class for configuration fields; these are hint/name/data triplets."""
+	"""Base class for configuration fields; these are help/name/data triplets."""
 
-	def __init__(self, name : str, hint : str) -> None:
+	def __init__(self, name : str, help : str) -> None:
 		self.__name = name
-		self.__hint = hint
+		self.__help = help
 
 	@property
-	def hint(self) -> str:
-		return self.__hint
+	def help(self) -> str:
+		return self.__help
 
 	@property
 	def name(self) -> str:
@@ -54,8 +54,8 @@ class Field:
 class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
-	def __init__(self, name : str, data : bool, hint : str) -> None:
-		Field.__init__(self, name, hint)
+	def __init__(self, name : str, data : bool, help : str) -> None:
+		Field.__init__(self, name, help)
 		self.__data = data
 
 	@property
@@ -85,8 +85,8 @@ class BooleanField(Field):
 class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
-	def __init__(self, name : str, data : int, hint : str, lower : int, upper : int) -> None:
-		Field.__init__(self, name, hint)
+	def __init__(self, name : str, data : int, help : str, lower : int, upper : int) -> None:
+		Field.__init__(self, name, help)
 		self.__data = data
 		self.__lower = lower
 		self.__upper = upper
@@ -121,8 +121,8 @@ class NaturalField(Field):
 class OptionalStringField(Field):
 	"""Derived class that implements an optional string field."""
 
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		Field.__init__(self, name, hint)
+	def __init__(self, name : str, data : str, help : str) -> None:
+		Field.__init__(self, name, help)
 		self.__data = data
 
 	@property
@@ -144,8 +144,8 @@ class OptionalStringField(Field):
 class StringField(OptionalStringField):
 	"""Derived class that implements a mandatory string field."""
 
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		OptionalStringField.__init__(self, name, data, hint)
+	def __init__(self, name : str, data : str, help : str) -> None:
+		OptionalStringField.__init__(self, name, data, help)
 
 	@property
 	def type(self) -> str:
@@ -161,8 +161,8 @@ class StringField(OptionalStringField):
 class OptionalMultilineStringField(OptionalStringField):
 	"""Derived class that implements an optional multi-line string field."""
 
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		OptionalStringField.__init__(self, name, data, hint)
+	def __init__(self, name : str, data : str, help : str) -> None:
+		OptionalStringField.__init__(self, name, data, help)
 
 	@property
 	def text(self) -> str:
@@ -176,8 +176,8 @@ class OptionalMultilineStringField(OptionalStringField):
 class PasswordField(StringField):
 	"""Derived class that checks a Linux password."""
 
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		StringField.__init__(self, name, data, hint)
+	def __init__(self, name : str, data : str, help : str) -> None:
+		StringField.__init__(self, name, data, help)
 
 	@property
 	def type(self) -> str:
@@ -203,8 +203,8 @@ class PasswordField(StringField):
 class RegexField(StringField):
 	"""Derived class that implements a string field validated by a regular expression."""
 
-	def __init__(self, name : str, data : str, hint : str, regex : str) -> None:
-		StringField.__init__(self, name, data, hint)
+	def __init__(self, name : str, data : str, help : str, regex : str) -> None:
+		StringField.__init__(self, name, data, help)
 		self.__regex = regex
 
 	@property
@@ -224,8 +224,8 @@ class RegexField(StringField):
 class TimeField(OptionalStringField):
 	"""Derived class that implements a time (HH:MM) field."""
 
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		OptionalStringField.__init__(self, name, data, hint)
+	def __init__(self, name : str, data : str, help : str) -> None:
+		OptionalStringField.__init__(self, name, data, help)
 
 	@property
 	def type(self) -> str:
@@ -741,7 +741,7 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 				stream.write("#")
 
 				# Write the help text.
-				lines = field.hint.split("\n")
+				lines = field.help.split("\n")
 				for line in lines:
 					stream.write(f"# {line}")
 				del lines
