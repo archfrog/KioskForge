@@ -342,9 +342,9 @@ order, etc.
 You should pick the most narrow match, say "fr_CA" over "fr" if you're a
 Canadian living in a region of Canada where French is the main language.
 
-The complete list of valid locales can be found at:
+A complete list of valid locales can be found at:
 
-https://kioskforge.org/configuration/locales.html
+https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html
 """.strip()
 if False:
 	LOCALE_HELP += 2 * "\n"
