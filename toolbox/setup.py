@@ -1,4 +1,4 @@
-1#!/usr/bin/env python3
+#!/usr/bin/env python3
 # KioskForge - https://kioskforge.org
 # Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All Rights Reserved.
 #
@@ -19,13 +19,14 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+from typing import Any, Dict, ItemsView, List
 
 import re
+import secrets
 import time
 
 from toolbox.convert import BOOLEANS, KEYBOARDS, KEYBOARD_REGEX
-from toolbox.errors import FieldError, InputError
+from toolbox.errors import Error, FieldError, InputError
 from toolbox.locales import LOCALES
 from toolbox.logger import TextWriter
 from toolbox.timezones import TIMEZONES
@@ -33,19 +34,27 @@ from toolbox.version import Version
 
 
 class Field:
-	"""Base class for configuration fields; these are help/name/data triplets."""
+	"""Base class for configuration fields; these are name/data/hint triplets."""
 
-	def __init__(self, name : str, help : str) -> None:
+	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
-		self.__help = help
+		self.__hint = hint
 
 	@property
-	def help(self) -> str:
-		return self.__help
+	def data(self) -> Any:
+		raise NotImplementedError("Abstract method called")
+
+	@property
+	def hint(self) -> str:
+		return self.__hint
 
 	@property
 	def name(self) -> str:
 		return self.__name
+
+	@property
+	def text(self) -> str:
+		raise NotImplementedError("Abstract method called")
 
 	def parse(self, data : str) -> None:
 		raise NotImplementedError("Abstract method called")
@@ -54,8 +63,8 @@ class Field:
 class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
-	def __init__(self, name : str, data : bool, help : str) -> None:
-		Field.__init__(self, name, help)
+	def __init__(self, name : str, data : bool, hint : str) -> None:
+		Field.__init__(self, name, hint)
 		self.__data = data
 
 	@property
@@ -85,8 +94,8 @@ class BooleanField(Field):
 class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
-	def __init__(self, name : str, data : int, help : str, lower : int, upper : int) -> None:
-		Field.__init__(self, name, help)
+	def __init__(self, name : str, data : int, hint : str, lower : int, upper : int) -> None:
+		Field.__init__(self, name, hint)
 		self.__data = data
 		self.__lower = lower
 		self.__upper = upper
@@ -121,8 +130,8 @@ class NaturalField(Field):
 class OptionalStringField(Field):
 	"""Derived class that implements an optional string field."""
 
-	def __init__(self, name : str, data : str, help : str) -> None:
-		Field.__init__(self, name, help)
+	def __init__(self, name : str, data : str, hint : str) -> None:
+		Field.__init__(self, name, hint)
 		self.__data = data
 
 	@property
@@ -144,8 +153,8 @@ class OptionalStringField(Field):
 class StringField(OptionalStringField):
 	"""Derived class that implements a mandatory string field."""
 
-	def __init__(self, name : str, data : str, help : str) -> None:
-		OptionalStringField.__init__(self, name, data, help)
+	def __init__(self, name : str, data : str, hint : str) -> None:
+		OptionalStringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -154,30 +163,14 @@ class StringField(OptionalStringField):
 	def parse(self, data : str) -> None:
 		if data == "":
 			raise FieldError(self.name, "Field cannot be blank")
-
-		self.__data = data
-
-
-class OptionalMultilineStringField(OptionalStringField):
-	"""Derived class that implements an optional multi-line string field."""
-
-	def __init__(self, name : str, data : str, help : str) -> None:
-		OptionalStringField.__init__(self, name, data, help)
-
-	@property
-	def text(self) -> str:
-		return base().text.replace("\n", "|")
-
-	def parse(self, data : str) -> None:
-		data = data.replace("|", "\n")
 		OptionalStringField.parse(self, data)
 
 
 class PasswordField(StringField):
 	"""Derived class that checks a Linux password."""
 
-	def __init__(self, name : str, data : str, help : str) -> None:
-		StringField.__init__(self, name, data, help)
+	def __init__(self, name : str, data : str, hint : str) -> None:
+		StringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -203,8 +196,8 @@ class PasswordField(StringField):
 class RegexField(StringField):
 	"""Derived class that implements a string field validated by a regular expression."""
 
-	def __init__(self, name : str, data : str, help : str, regex : str) -> None:
-		StringField.__init__(self, name, data, help)
+	def __init__(self, name : str, data : str, hint : str, regex : str) -> None:
+		StringField.__init__(self, name, data, hint)
 		self.__regex = regex
 
 	@property
@@ -224,8 +217,8 @@ class RegexField(StringField):
 class TimeField(OptionalStringField):
 	"""Derived class that implements a time (HH:MM) field."""
 
-	def __init__(self, name : str, data : str, help : str) -> None:
-		OptionalStringField.__init__(self, name, data, help)
+	def __init__(self, name : str, data : str, hint : str) -> None:
+		OptionalStringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -330,11 +323,14 @@ KEYBOARD_HELP = """
 The keyboard layout.  This is primarily important to those who access the
 kiosk remotely using SSH and also the web browser, if any.
 
-The complete list of valid keyboard layouts is as follows:
+The complete list of valid keyboard layouts can be found at:
+
+https://kioskforge.org/configuration/keyboards.html
 """.strip()
-KEYBOARD_HELP += 2 * "\n"
-for layout, region in KEYBOARDS.items():
-	KEYBOARD_HELP += f"    {layout:5}  {region}\n"
+if False:
+	KEYBOARD_HELP += 2 * "\n"
+	for layout, region in KEYBOARDS.items():
+		KEYBOARD_HELP += f"    {layout:5}  {region}\n"
 
 
 LOCALE_HELP = """
@@ -346,11 +342,14 @@ order, etc.
 You should pick the most narrow match, say "fr_CA" over "fr" if you're a
 Canadian living in a region of Canada where French is the main language.
 
-The complete list of valid locales is as follows:
+The complete list of valid locales can be found at:
+
+https://kioskforge.org/configuration/locales.html
 """.strip()
-LOCALE_HELP += 2 * "\n"
-for locale in LOCALES:
-	LOCALE_HELP += f"    {locale}\n"
+if False:
+	LOCALE_HELP += 2 * "\n"
+	for locale in LOCALES:
+		LOCALE_HELP += f"    {locale}\n"
 
 
 MOUSE_HELP = """
@@ -471,11 +470,14 @@ browser, and so on.
 Use the most specific, precise time zone from the list below.  There are time
 zones for all regions of Earth, just search for "Africa/" or "Europe/", etc.
 
-A complete, valid list of the currently supported timezones is as follows:
+The complete list of valid time zones can be found at:
+
+https://kioskforge.org/configuration/timezones.html
 """.strip()
-TIMEZONE_HELP += 2 * "\n"
-for timezone in TIMEZONES:
-	TIMEZONE_HELP += f"    {timezone}\n"
+if False:
+	TIMEZONE_HELP += 2 * "\n"
+	for timezone in TIMEZONES:
+		TIMEZONE_HELP += f"    {timezone}\n"
 
 
 TYPE_HELP = """
@@ -625,69 +627,38 @@ configured.  In this case, 'wifi_code' will be ignored.
 """.strip()
 
 
-class Setup:					# pylint: disable=too-many-instance-attributes
-	"""Class that defines, loads, and saves the configuration of a given kiosk machine."""
+class Options:
+	"""Class that loads and saves a client-defined configuration file."""
 
 	def __init__(self) -> None:
-		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be blank.  All other fields must be set.
-		self.comment         = OptionalMultilineStringField("comment", "", COMMENT_HELP)
-		self.device          = RegexField("device", "pi4b", DEVICE_HELP, "(pi4b|pc)")
-		self.type            = RegexField("type", "web", TYPE_HELP, "(cli|x11|web)")
-		self.command         = StringField("command", "", COMMAND_HELP)
-		self.hostname        = RegexField("hostname", "", HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
-		self.timezone        = StringField("timezone", "UTC", TIMEZONE_HELP)
-		self.keyboard        = RegexField("keyboard", "en", KEYBOARD_HELP, KEYBOARD_REGEX)
-		self.locale          = StringField("locale", "en_US.UTF-8", LOCALE_HELP)
-		self.sound_card      = RegexField("sound_card", "none", SOUND_CARD_HELP, "(none|jack|hdmi1|hdmi2)")
-		self.sound_level     = NaturalField("sound_level", 80, SOUND_LEVEL_HELP, 0, 100)
-		self.mouse           = BooleanField("mouse", False, MOUSE_HELP)
-		self.user_name       = StringField("user_name", "kiosk", USER_NAME_HELP)
-		self.user_code       = PasswordField("user_code", "", USER_CODE_HELP)
-		self.ssh_key         = StringField("ssh_key", "", SSH_KEY_HELP)
-		self.wifi_name       = OptionalStringField("wifi_name", "", WIFI_NAME_HELP)
-		self.wifi_code       = OptionalStringField("wifi_code", "", WIFI_CODE_HELP)
-		self.wifi_boost      = BooleanField("wifi_boost", True, WIFI_BOOST_HELP)
-		self.cpu_boost       = BooleanField("cpu_boost", True, CPU_BOOST_HELP)
-		self.swap_size       = NaturalField("swap_size", 4, SWAP_SIZE_HELP, 0, 128)
-		self.vacuum_size     = NaturalField("vacuum_size", 256, VACUUM_SIZE_HELP, 0, 4096)
-		self.upgrade_time    = TimeField("upgrade_time", "", UPGRADE_TIME_HELP)
-		self.poweroff_time   = TimeField("poweroff_time", "", POWEROFF_TIME_HELP)
-		self.idle_timeout    = NaturalField("idle_timeout", 0, IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
-		self.screen_rotation = RegexField("screen_rotation", "none", SCREEN_ROTATION_HELP, "(none|left|flip|right)")
-		self.user_folder     = OptionalStringField("user_folder", "", USER_FOLDER_HELP)
-		self.user_packages   = OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
+		self.__options : Dict[str, Field] = {}
+
+	# Make the class backwards compatible with the old 'Setup' class, which used a named data member for each option.
+	def __getattr__(self, name : str) -> Field:
+		if name not in self.__options:
+			raise Error(f"Unknown option: {name}")
+		return self.__options[name]
+
+	# Make the += operator available to add new options to the 'Options' instance.
+	def __iadd__(self, option : Field) -> Any:
+		if option.name in self.__options:
+			raise Error(f"Option already exists: {option.name}")
+		self.__options[option.name] = option
+		return self
+
+	def items(self) -> ItemsView[str, Field]:
+		return self.__options.items()
 
 	def check(self) -> List[str]:
-		result = []
+		result : List[str] = []
 
 		# TODO: Implement generic mechanism for checking all named fields without hard-coding the checks.
 		if False:
-			for name in vars(self):
-				field = getattr(self, name)
-				result += field.check()
-		else:
+			for option in self.__options.values():
+				result += option.check()
+		elif False:
 			if self.comment.data == "":
 				result.append("Warning: 'comment' value not specified")
-			if self.device.data == "":
-				result.append("Warning: 'device' value not specified")
-			if self.type.data == "":
-				result.append("Warning: 'type' value not specified")
-			if self.command.data == "":
-				result.append("Warning: 'command' value not specified")
-			if self.hostname.data == "":
-				result.append("Warning: 'hostname' value not specified")
-			if self.timezone.data == "":
-				result.append("Warning: 'timezone' value not specified")
-			if self.keyboard.data == "":
-				result.append("Warning: 'keyboard' value not specified")
-			if self.locale.data == "":
-				result.append("Warning: 'locale' value not specified")
-			if self.sound_card.data == "":
-				result.append("Warning: 'sound_card' value not specified")
-			if self.user_name.data == "":
-				result.append("Warning: 'user_name' value not specified")
-			if self.user_code.data == "":
-				result.append("Warning: 'user_code' value not specified")
 			if self.ssh_key.data == "":
 				result.append("Warning: 'ssh_key' value not specified")
 			if self.wifi_name.data != "" and self.wifi_code.data == "":
@@ -732,7 +703,7 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 			stream.write("# Please feel free to edit this file using your favorite text editor.")
 			stream.write("")
 
-			names = list(vars(self))
+			names = list(self.__options.keys())
 			for name in names:
 				# Fetcht the next field to output.
 				field = getattr(self, name)
@@ -744,8 +715,8 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 				stream.write(f"# Option '{field.name}' ({field.type}):")
 				stream.write("#")
 
-				# Write the help text.
-				lines = field.help.split("\n")
+				# Write the hint text.
+				lines = field.hint.split("\n")
 				for line in lines:
 					stream.write(f"# {line}")
 				del lines
@@ -756,4 +727,50 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 				# Output a blank line before next option, if not the last option in the list.
 				if name != names[-1]:
 					stream.write("")
+			del names
+
+
+def hostname_create(basename : str) -> str:
+	random = secrets.randbelow(2**32)
+	return f"{basename}-{random}"
+
+
+# Source: https://stackoverflow.com/a/63160092
+def password_create(length : int) -> str:
+	return secrets.token_urlsafe(length)
+
+
+class Setup(Options):
+	"""The new and improved(tm) option manager, which uses a dictionary rather than 50+ data members."""
+
+	def __init__(self) -> None:
+		Options.__init__(self)
+
+		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be blank.  All other fields must be set.
+		self += OptionalStringField("comment", "", COMMENT_HELP)
+		self += RegexField("device", "pi4b", DEVICE_HELP, "(pi4b|pc)")
+		self += RegexField("type", "web", TYPE_HELP, "(cli|x11|web)")
+		self += StringField("command", "https://google.com", COMMAND_HELP)
+		self += RegexField("hostname", hostname_create("kiosk"), HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
+		self += StringField("timezone", "America/Los Angeles", TIMEZONE_HELP)
+		self += RegexField("keyboard", "us", KEYBOARD_HELP, KEYBOARD_REGEX)
+		self += StringField("locale", "en_US.UTF-8", LOCALE_HELP)
+		self += RegexField("sound_card", "none", SOUND_CARD_HELP, "(none|jack|hdmi1|hdmi2)")
+		self += NaturalField("sound_level", 80, SOUND_LEVEL_HELP, 0, 100)
+		self += BooleanField("mouse", False, MOUSE_HELP)
+		self += StringField("user_name", "kiosk", USER_NAME_HELP)
+		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
+		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
+		self += OptionalStringField("wifi_name", "", WIFI_NAME_HELP)
+		self += OptionalStringField("wifi_code", "", WIFI_CODE_HELP)
+		self += BooleanField("wifi_boost", True, WIFI_BOOST_HELP)
+		self += BooleanField("cpu_boost", True, CPU_BOOST_HELP)
+		self += NaturalField("swap_size", 4, SWAP_SIZE_HELP, 0, 128)
+		self += NaturalField("vacuum_size", 256, VACUUM_SIZE_HELP, 0, 4096)
+		self += TimeField("upgrade_time", "05:00", UPGRADE_TIME_HELP)
+		self += TimeField("poweroff_time", "", POWEROFF_TIME_HELP)
+		self += NaturalField("idle_timeout", 0, IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
+		self += RegexField("screen_rotation", "none", SCREEN_ROTATION_HELP, "(none|left|flip|right)")
+		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
+		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
 

@@ -280,15 +280,14 @@ class Editor:
 
 	def edit(self, setup : Setup) -> bool:
 		changed = False
-		fields = vars(setup)
 		names = {}
 		while True:
 			try:
 				index = 0
-				for name, field in fields.items():
+				for name, field in setup.items():
 					index += 1
 					names[index] = name
-					print(f"{index:2d}) {name:15s} = {field.data}")
+					print(f"{index:2d}) {name:15s} = {field.text}")
 				print()
 
 				answer = input("Please enter number or ENTER to quit: ").strip()
@@ -303,9 +302,9 @@ class Editor:
 					raise InputError(f"Enter a valid number in the range 1 through {index}")
 
 				print(50 * "*")
-				help = getattr(setup, names[choice]).help
-				print(f"{help}")
-				del help
+				hint = getattr(setup, names[choice]).hint
+				print(f"{hint}")
+				del hint
 				print(50 * "*")
 				value = input("Enter new value (ENTER to leave unchanged): ").strip()
 				if value == "":
@@ -966,6 +965,9 @@ class KioskForge(KioskDriver):
 						print()
 					case _:
 						raise KioskError(f"Unknown main menu choice: {choice}")
+			except FieldError as that:
+				print(f"*** Error: Field '{that.field}': {that.text}")
+				print()
 			except KioskError as that:
 				print(f"*** Error: {that.text}")
 				print()
