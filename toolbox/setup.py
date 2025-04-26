@@ -258,11 +258,15 @@ web browser, such as a Pi kiosk that detects motion and then plays a sound.
 
 
 COMMENT_HELP = """
-A descriptive comment for the kiosk machine, which describes its intended
-usage as well as important notes about the kiosk.
+A comment for your records about the kiosk machine.
+
+Please describe the kiosk's intended usage and other important notes.
 
 You should probably record the permanent LAN IP address, if any, here.
 Talk to your network administrator to get a static DCHP lease.
+
+A vertical bar (|) indicates a new line, this way you can write multiple
+lines of text in a single line.
 """.strip()
 
 
