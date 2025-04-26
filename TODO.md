@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.09.22 H Make a page on KioskForge.org that lists all valid locales, keyboards, and time zones and link to this
                          page from within each `.kiosk` file as the list of locales is hundreds of lines long, which makes the
 					     `.kiosk` files insanely big (35KB+).
