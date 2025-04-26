@@ -21,10 +21,21 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
+                         the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
+                         To see all languages partially or completely supported by Ubuntu, click `View all languages` on
+                         [Translation Status by Language](https://translations.launchpad.net/ubuntu/noble).  The Ubuntu package
+                         to install, to get all locales, is `locales-all`.  It is a 10 MB download that expands to 238 MB on disk.
+                         After `locales-gen` has been installed, you need to run `locale-gen` (which probably takes forever).
+                         One solution is to always install `locales-all` and only do a `locale-gen` on `en_US.UTF8` and the user
+                         language specified in the `.kiosk` file.
+- [ ] 2025.04.26.11.41 H A full list of supported locales can be found at
+                         [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
+                         Please notice that you can select the Ubuntu version at the very top of the page.
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.09.22 H Make pages on KioskForge.org that lists all valid locales, keyboards, and time zones and link to these
                          page from within each `.kiosk` file as the list of locales is hundreds of lines long, which makes the
-					     `.kiosk` files insanely big (35KB+).  The link in `*.kiosk` has been made, the website needs work yet.
+                         `.kiosk` files insanely big (35KB+).  The link in `*.kiosk` has been made, the website needs work yet.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
 - [ ] 2025.04.26.08.21 H Remame `Field.hint` to `Field.help` as the help text is now multi-line and an attempt of helping properly.
@@ -65,7 +76,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.29.21.17 H Consider to pass in the `Setup` instance to each option: `sound_card` depends on `device`, etc.
 - [ ] 2025.03.29.21.00 H Rewrite `Setup.save()` to use a new `???` method, which returns the *external* representation for `.cfg`.
 - [ ] 2025.03.27.14.09 H Modules: Every module should be an instance of the class `Module` and should provide the following:
-						    1. A textual description, which may be made up of multiple lines of text.
+	   1. A textual description, which may be made up of multiple lines of text.
                             2. A default configuration, which is provided as a Python `Dict[str, str]`.
                             3. The default configuration makes it possible to read and display the *default module settings*.
                             4. A way of asking the module if it can be rolled back or not (not all changes can be undone).
@@ -109,8 +120,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          https://github.com/MaxBelkov/visualsyslog
 - [ ] 2025.03.24.05.49 M Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
                          https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
-						 2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
-						 Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
+                         2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
+                         Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
                          `KioskForge-m.nn.zip`, the latter for Windows users.  Ideally, there'd only be one executable for each
@@ -123,11 +134,13 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
                          https://forums.raspberrypi.com/viewtopic.php?p=1979825#p1979542
-- [ ] 2025.03.09.05.18 L Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.  Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
+- [ ] 2025.03.09.05.18 L Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.
+                         Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of
+                         intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
                          PyPy cannot easily generate stand-alone executables so `PyInstaller` is better for now.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
                          This could, perhaps, be done by saving a list of already performed steps or by adding a feature to undo a
-						 step that has already been done, although this is a more complicated than just skipping successful steps.
+                         step that has already been done, although this is a more complicated than just skipping successful steps.
 - [ ] 2025.03.05.18.25 L Make the script download the current [Ubuntu Server image](https://cdimage.ubuntu.com/releases/noble/release/ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz).
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
@@ -137,14 +150,14 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2024.04.23.22.25 H Enhance KioskForge to detect Ubuntu 25.04 installation medias so that a suitable error is reported.
 - [x] 2025.04.15.05.03 H The `DEBIAN_FRONTEND` environment variable is *not* passed to the invocations of `apt`, etc.!
                          This is a left-over from the original Bash version, `AptAction` should set `DEBIAN_FRONTEND` instead.
-						 I just tested and `DEBIAN_FRONTEND` *is* passed through `subprocess.run()` in *all* cases.
+                         I just tested and `DEBIAN_FRONTEND` *is* passed through `subprocess.run()` in *all* cases.
 - [x] 2025.04.13.23.03 H `KioskStart.py` often starts without network.  Should it wait for this to come up if `network=always`?
 - [x] 2025.04.09.05.43 H Solve the problem that some kiosks only have Wi-Fi during the forge process.  Recommend cabled network.
                          Also consider to add an option, `network=always|install` to make the kiosk forget Wi-Fi network after use.
-						 Not a good idea, if the kiosk is taken back for maintenance.  Better as it is now, it works as it should.
+                         Not a good idea, if the kiosk is taken back for maintenance.  Better as it is now, it works as it should.
 - [x] 2025.03.16.06.03 H Rewrite all Bash scripts generated by KioskForge into Python3 scripts so as to allow access to the
                          configuration file (`KioskForge.cfg`) on the target kiosk so that the user *can* change a setting
-						 simply by logging in, preferably using SSH, editing `KioskForge.cfg`, and then rebooting the kiosk.
+                         simply by logging in, preferably using SSH, editing `KioskForge.cfg`, and then rebooting the kiosk.
 - [x] 2025.03.27.16.55 H Investigate how to make minijack work even though is not recommended by most (requires an amplifier).
                          Works fine, just plug in a couple of amplifying loud speakers and it works just as expected.
 - [x] 2025.03.27.17.38 H Make the kiosk configuration more flexible: Prepare for doing motion detector + custom script, etc.
@@ -158,8 +171,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          Change KioskForge to use `vacuum_size` instead of `vacuum_days`, the former does not need an RTC.
 - [x] 2025.04.09.05.45 H Fix the annoying problem that the kernel is not always updated completely, because there may be more than
                          one in the package repository.  Either repeat upgrading until there are no upgrades left or use CloudInit
-						 to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
-						 Fixed by using `apt-get dist-upgrade -y` instead of `apt-get upgrade -y` in `KioskSetup.py`.
+                         to perform the system upgrade.  Unfortunately, I have seen this time out at least once.
+                         Fixed by using `apt-get dist-upgrade -y` instead of `apt-get upgrade -y` in `KioskSetup.py`.
 - [x] 2025.04.13.09.07 U The `KioskUpdate.py` script does *not* wait for `apt` to release its lock files, if locked!
 - [x] 2025.04.11.03.40 H Make MyPy check everything without any warnings or errors.  Finally, this worked with MyPy v1.15.
 - [x] 2025.04.03.06.09 H Rewrite build batch scripts (`test.bat`, `test.sh`) into Python for portability and consistency.
@@ -172,8 +185,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.03.19.07.35 H Protect against "injection attacks": Quote all user-supplied data passed to cloud-init, etc.  Bah.
 - [x] 2025.03.27.18.37 H Make `KioskStart.py` responsible for configuring Pipewire (to give access to the `Setup` instance).
                          This should be done by the login shell, if possible, as people may want audio for non-browser-kiosks.
-						 Create a new script, `KioskSound.py`, which handles the configuration of Pipewire.
-						 This is done by the `KioskStart.py` script which doesn't have root priveleges (it works...).
+                         Create a new script, `KioskSound.py`, which handles the configuration of Pipewire.
+                         This is done by the `KioskStart.py` script which doesn't have root priveleges (it works...).
 - [x] 2025.04.07.02.31 H Consider to rename `upgrade_time` to `maintenance` or something like that.  Nope, it only does upgrades.
 - [x] 2025.04.09.12.56 H Move `journalctl vacuum` to `KioskStart.py` so that is invoked on every boot, not on a preset time.
                          This is a good way to solve the problem that some kiosks never have network and thus no upgrades are done.
@@ -184,7 +197,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          Remember to update code that copies KioskForge around: `KioskForge.py` and `KioskSetup.py`.
 - [x] 2025.03.27.18.25 H Check if the PI4B audio device names (`wpctl status --name`) are board dependent.
                          They are currently hardcoded in the `KioskStartX11.py` script generated by `KioskSetup.py`.
-						 KioskForge works with audio on several different PI4B boards, so they are not board dependent.
+                         KioskForge works with audio on several different PI4B boards, so they are not board dependent.
 - [x] 2025.04.07.09.24 H Make `build.py` export the correct version number to the Inno Setup compiler.
 - [x] 2025.04.07.10.19 H Fix bogus hint about `vacuum_time` being set: that option no longer exists.
 - [x] 2025.04.07.01.30 H How does `user_folder` work with the new installer?  I guess will be completely broken...
@@ -196,21 +209,21 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.03.28.12.17 H Check out https://thisdavej.com/share-python-scripts-like-a-pro-uv-and-pep-723-for-easy-deployment/ to
                          see if this is something of value for the KioskForge project.  Not relevant when we use `PyInstaller`.
 - [x] 2025.03.28.13.27 H Finish up the `GUIDE.md` document and make sure to document the more peculiar options such as `snap_time`.
-						 Also, expand the `README.md` guide (perhaps an appendix) to explain each option in detail.
-						 `snap_time` has been removed and is now integrated into the `KioskUpdate.py` script.
+                         Also, expand the `README.md` guide (perhaps an appendix) to explain each option in detail.
+                         `snap_time` has been removed and is now integrated into the `KioskUpdate.py` script.
 - [x] 2025.03.31.22.00 H It may be useful to start the kiosk using a systemd job instead of through `.bashrc`.  This would fix the
                          problem that the kiosk is started twice if you SSH into the kiosk machine.
-						 I have spent hours on this - with no success whatsoever - so I dropped doing this for now.
+                         I have spent hours on this - with no success whatsoever - so I dropped doing this for now.
 - [x] 2025.04.03.06.51 H Figure out what to do about the `ship.bat` script; it really shouldn't be part of the public GitHub repo.
                          The `ship.bat` script is now part of the `build.py` script, which shouldn't be part of the repository.
 - [x] 2025.04.04.16.13 H Add option `network` to allow disabling network completely, after forging is complete.  This should imply
                          `snap_time=`, `update_time=`, `wifi_name=`, etc.
-						 This has been fixed with two changes: 1) snap is now updated in `KioskUpdate.py` and 2) `KioskUpdate.py`
-						 now ignores the request to upgrade everything if there is no internet available.
+                         This has been fixed with two changes: 1) snap is now updated in `KioskUpdate.py` and 2) `KioskUpdate.py`
+                         now ignores the request to upgrade everything if there is no internet available.
 - [x] 2025.03.29.21.12 H Introduce symbolic names for the four screen rotations: `none`, `left`, `right`, and `flip` (upside-down).
 - [x] 2025.03.27.19.04 H Change `audio` option to be one of `none`, `auto`, `jack`, `hdmi1`, `hdmi2`.  Configure accordingly.
                          `auto` will only work on PCs, which I cannot develop nor test at this point in time.
-						 This was done with the update that introduced `sound_card` and renamed `audio` to `sound_level`.
+                         This was done with the update that introduced `sound_card` and renamed `audio` to `sound_level`.
 - [x] 2025.03.27.20.28 M Would it make sense to merge all target scripts into a single script to simplify exception handling? No.
 - [x] 2025.04.04.16.10 H Support disabling snap updates using the `snap refresh --hold` command (let `KioskUpdate.py` do it).
 - [x] 2025.04.04.17.23 H Snaps ought to be updated in the `KioskUpgrade.py` script, to make things simpler for the end-user.
@@ -232,7 +245,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          2. HDMI1: `alsa_output.platform-fef00700.hdmi.hdmi-stereo`.
                          3. HDMI2: `alsa_output.platform-fef05700.hdmi.hdmi-stereo`
                          THE VALUES GIVEN ABOVE ARE PROBABLY DEVICE-SPECIFIC AND MUST BE FETCHED FROM `wpctl`.
-						 The values are very unlikely to be valid for Raspberry Pi 5 (even if they work on 4B).
+                         The values are very unlikely to be valid for Raspberry Pi 5 (even if they work on 4B).
 - [x] 2025.03.29.20.51 H Rename `audio` option to `sound_level`.  Introduce `sound_card`.
 - [x] 2025.03.27.16.53 H Create `kiosklog` function early on so that the user can SSH in and follow the progress easily.  Document!
 - [x] 2025.03.27.20.47 H Rewrite 'KioskLaunchX11.sh' Bash script into Python.
@@ -243,23 +256,23 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          The problem was that the --no-installs-recommends option was given to `apt`.
 - [x] 2025.03.20.03.51 U X11 does not always start up, if `audio=1`: it fails with the error from pipewire) shown below:
                          `Translate ID error: [-1] is not a valid ID (returned by default-nodes-api)`
-						 This is partially solved by installing the `rtkit` package and enabling its `systemd` service.
-						 [Translate console error](https://forums.gentoo.org/viewtopic-t-1168313-start-0.html)
-						 [jackdbus syslog error](https://forums.linuxmint.com/viewtopic.php?t=408389)
+                         This is partially solved by installing the `rtkit` package and enabling its `systemd` service.
+                         [Translate console error](https://forums.gentoo.org/viewtopic-t-1168313-start-0.html)
+                         [jackdbus syslog error](https://forums.linuxmint.com/viewtopic.php?t=408389)
 - [x] 2025.03.20.04.07 H Pipewire audio does not appear to work (I don't have any suitable headphones at hand).
 - [x] 2025.03.19.05.33 H Not sure if the `audio` kiosk settings work (`mouse` appears to work just fine).
 - [x] 2025.03.19.04.59 H Investigate if `xrandr` is better at providing useful output than `xinput` (requires a touch screen).
 - [x] 2025.03.26.05.41 H What about the case that there's both a mouse and a touch screen/panel?  `xrandr` only supports mice, but
                          the coordinate transformation given to `xinput` probably blows both to kingdom come.
-						 The touch panel is now rotated using an X11 configuration file which does not apply to the screen.
+                         The touch panel is now rotated using an X11 configuration file which does not apply to the screen.
 - [x] 2025.03.26.12.19 H Set host name as the very first operation to avoid two different host names in syslog.
 - [x] 2025.03.26.04.58 H Rename `invoke` to `invoke_text` globally.
 - [x] 2025.03.24.03.18 H Why is `idle_timeout` written to the configuration file as a string, not as an integer?  Typo, fixed.
 - [x] 2025.03.24.04.17 H Only modify `/etc/ssh/sshd.conf` to **require** a private key if a public key has been specified.
 - [x] 2025.03.19.23.26 H Explore `cx_freeze` to generate a stand-alone `.exe` file that the end-user can run without having to
                          install Python and so on.  [cx-freeze](https://cx-freeze.readthedocs.io/en/stable/)
-						 Decided to go with [PyInstaller](https://pyinstaller.org/en/stable/) instead as `cx_freeze` was way too
-						 difficult to configure and make work as intended.
+                         Decided to go with [PyInstaller](https://pyinstaller.org/en/stable/) instead as `cx_freeze` was way too
+                         difficult to configure and make work as intended.
 - [x] 2025.03.05.16.28 H Change `logger` local into a global variable so it is accessible everywhere (crude hack due to laziness).
                          (Dropped, no particular need for the above change.)
 - [x] 2025.03.19.22.17 H Always use the name `KioskForge.cfg` for the configuration file so as to not confuse end users.
@@ -270,26 +283,26 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.03.20.04.04 H Check `syslog` for errors from the installed packages, etc. so as to detect other possible problems.
 - [x] 2025.03.19.09.11 H Separate `rotate_screen` `xinput` logic from `xrandr` logic as not everybody needs the former.
                          This makes the configuration of a kiosk rather error-prone as the user probably forgets to enable `xinput`
-						 when enabling `xrandr` and vice versa.  For now, they work in unison.
+                         when enabling `xrandr` and vice versa.  For now, they work in unison.
 - [x] 2025.03.15.19.00 H Uninstall the Ubuntu package `needrestart` as the kiosk always reboots after upgrading.
 - [x] 2025.02.28.01.12 H Consider making a server in Python that the kiosks can report their IP and status to.  Use broadcasts.
                          Not necessary, the user can simply check his or her router UI for this information and even lock the IP.
 - [x] 2025.03.19.04.35 H Investigate if this entry can be used for anything (not very likely):
                          [Get list of touch screens using `xinput`](https://gist.github.com/rubo77/daa262e0229f6e398766?permalink_comment_id=1763721#gistcomment-1763721)
-						 I have already implemented similar code, which handles multiple touch screens as well as a single one.
+                         I have already implemented similar code, which handles multiple touch screens as well as a single one.
 - [x] 2025.03.19.04.53 H KioskForge fails to report an error if completely unable to identify the install image.
 - [x] 2025.03.19.01.35 H Parse output of `xinput list` and keep all `Virtual core pointer` values but `Virtual core XTEST pointer`:
                          One person on the 'net reported that he or she had to use `Virtual core XTEST pointer` as the choice.
                          Filter out the two Raspberry Pi 4 devices (RPI5?) `vc4-hdmi-0` and `vc4-hdmi-1`.
                          This is the list of devices that need a transformation matrix to operate with a rotated display.
-						 Consider or experiment with only keeping values that match `touch` (case-insensitive).
+                         Consider or experiment with only keeping values that match `touch` (case-insensitive).
 - [x] 2025.03.19.04.28 H Mark errors **much** more visible, possibly by writing three stars in front of them.
 - [x] 2025.03.09.16.28 H Begin using [type_enforced](https://github.com/connor-makowski/type_enforced) globally in the project.
                          This *may* require installing the module via `pip`, but in that case the script should detect that the
-						 module is missing and automatically install it (perhaps with a confirmation).
+                         module is missing and automatically install it (perhaps with a confirmation).
 - [x] 2025.03.09.16.44 H I spent like fifteen minutes on trying out `type_enforced` and didn't manage to get it to work.  Most
                          noticably, it doesn't yet really support global enforcement, only per-class and per-function.  Looks good,
-						 but probably needs a bit more work before I can use it as I plan to (on all of my code).
+                         but probably needs a bit more work before I can use it as I plan to (on all of my code).
 - [x] 2025.02.28.05.15 H Add support for Ubuntu Server (and Desktop) v24.04.2 to the operating system detector.
 - [x] 2025.03.19.04.45 H TUI version: Suggest to save to same folder as was loaded from.  Don't generate a path.
                          The TUI version already does this, a path is only generated if a configuration wasn't loaded beforehand.
@@ -306,14 +319,14 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.02.27.16.49 H Remove explanatory comments from configuration files (people use the TUI/GUI to edit these values).
 - [x] 2025.02.28.00.56 H I believe I left the Pi on yet it was off after five hours.  I'll try again over the night.
                          This issue has not been recreated, but it *may* be caused by the idle timeout code.  Perhaps a process
-						 that is not closed down correctly or Chromium that crashes when restarted.
-						 X11 left this error in its log file (`.xsession-errors`):
-						 `XIO: fatal IO error 4 (Interrupted system call) on X server ":0" after 4801 requests (4798 known processed) with 0 events remaining.`
-						 After which X11 seems to have crashed, pulling down the entire kiosk (into a dead state).
-						 I reread the code in `KioskStart.py` and an assignment statement was missing, possibly causing the issue.
-						 I am going to make a new kiosk and leave it running through the night.
-						 04:25 So far, the box has run without issues, I am confident that the missing assignment statement was the
-						 cause of the X11 crash because it meant that a dead process was occasionally attempted killed.
+                         that is not closed down correctly or Chromium that crashes when restarted.
+                         X11 left this error in its log file (`.xsession-errors`):
+                         `XIO: fatal IO error 4 (Interrupted system call) on X server ":0" after 4801 requests (4798 known processed) with 0 events remaining.`
+                         After which X11 seems to have crashed, pulling down the entire kiosk (into a dead state).
+                         I reread the code in `KioskStart.py` and an assignment statement was missing, possibly causing the issue.
+                         I am going to make a new kiosk and leave it running through the night.
+                         04:25 So far, the box has run without issues, I am confident that the missing assignment statement was the
+                         cause of the X11 crash because it meant that a dead process was occasionally attempted killed.
 - [x] 2025.02.28.01.44 H I observed cloud-init report "ERROR: Timeout was reached" (?), which could indicate that I am giving
                          cloud-init too much work during the initial boot.  I am going to disable cloud-init upgrades for now.
                          Remember to disable upgrades when using autoinstall.yaml (Subiquity).
@@ -343,12 +356,12 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [x] 2025.02.21.17.43 H Ask Darren and Rune what their expectations and wishes for KioskForge v2.x are.
 - [x] 2025.02.22.13.58 H Rename the `KioskMaker` project to something else - the name is already taken by an Italian entity.
                          Names such as `KioskBuilder`, `KioskSetup`, `OpenKiosk`, `Kiosk Master` were all taken but `KioskForge`
-						 turned out to be free, according to Google, so I chose that and have registered the .org domain already.
+                         turned out to be free, according to Google, so I chose that and have registered the .org domain already.
 - [x] 2025.02.26.11.54 M Investigate [Open Kiosk](https://openkiosk.mozdevgroup.com/).  It might be worth a try!  Too complex!
 - [x] 2025.02.27.17.21 L Make the script invoke `Raspberry Pi Imager` directly so that the burning step is eliminated:
                          "c:\Program Files (x86)\Raspberry Pi Imager\rpi-imager-cli.cmd" --cli --disable-verify --disable-eject --enable-writing-system-drives "c:\Users\Mikael\Downloads\ubuntu-24.04.2-preinstalled-server-arm64+raspi.img.xz" \\.\PhysicalDrive2
                          This requires finding the physical path of the USB key, which can be done with `wmi` for Python, but I am
                          not happy about the prospect of the user accidentally deleting a drive with valuable data, so this is dropped.
-						 Furthermore, it will require the installation of two additional packages for Python, something I doubt the
-						 average KioskForge user will be capable of.
+                         Furthermore, it will require the installation of two additional packages for Python, something I doubt the
+                         average KioskForge user will be capable of.
 
