@@ -21,6 +21,13 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.26.07.25 H Ensure boolean settings are written as `false` or `true`, nothing else.
+- [ ] 2025.04.26.07.19 H The system can only be rebooted through `upgrade_time`.  CLEAN UP THIS IDIOTIC MESS!
+- [ ] 2025.04.26.06.27 H If the `hostname` option is blank, KioskForge should generate a random `kiosk-NNNNNNNNN` host name.
+- [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
+- [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
+- [ ] 2025.04.26.05.54 H Rename the `upgrade_time` option to `upkeep_time` so as to emphasize what it then will do.
+- [ ] 2025.04.26.05.53 H Make the system maintenance mandatory.  Do journal cleanup as the first part of the daily maintenace.
 - [ ] 2025.04.26.02.06 H Use multi-line comments to explain each option, the current single-line style is inadequate.
 - [ ] 2024.04.23.14.44 H Add "Kioskforge Kiosk file (.kiosk)" to the `New` menu of explorer so that users can create new kiosks.
 - [ ] 2024.04.23.14.45 H Remove everything related to the editor from the TUI version of KioskForge.  Let people use `Notepad` as
