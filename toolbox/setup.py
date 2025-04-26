@@ -719,7 +719,7 @@ class Setup:					# pylint: disable=too-many-instance-attributes
 			try:
 				getattr(self, name).parse(data)
 			except AttributeError as that:
-				raise FieldError(name, f"Unknown option in configuration file: {name}") from that
+				raise FieldError(name, f"Unknown option ignored: {name}") from that
 
 	def save(self, path : str, version : Version) -> None:
 		# Generate KioskForge.cfg.
