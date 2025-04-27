@@ -76,7 +76,7 @@ class Settings:
 			elif argument == "--debug":
 				self.__debug = True
 			elif argument == "--ship":
-				if sys.platform == "win32":
+				if sys.platform != "win32":
 					raise KioskError("The --ship option can only be used on Windows")
 				self.__ship = True
 			else:
