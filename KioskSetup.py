@@ -263,7 +263,7 @@ class KioskSetup(KioskDriver):
 			)
 			#...Disable root login, if not already disabled.
 			script += ReplaceTextAction(
-				"Disabling root login using SSH if not already disabled.",
+				"Disabling root login using SSH.",
 				"/etc/ssh/sshd_config",
 				"#PermitRootLogin prohibit-password",
 				"PermitRootLogin no"
