@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.
 - [ ] 2025.04.27.20.34 H Implement thorough, complete check of a `Setup` instance BEFORE updating the installation medium.
@@ -81,7 +82,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2025.03.29.21.17 H Consider to pass in the `Setup` instance to each option: `sound_card` depends on `device`, etc.
 - [ ] 2025.03.29.21.00 H Rewrite `Setup.save()` to use a new `???` method, which returns the *external* representation for `.cfg`.
 - [ ] 2025.03.27.14.09 H Modules: Every module should be an instance of the class `Module` and should provide the following:
-	   1. A textual description, which may be made up of multiple lines of text.
+                            1. A textual description, which may be made up of multiple lines of text.
                             2. A default configuration, which is provided as a Python `Dict[str, str]`.
                             3. The default configuration makes it possible to read and display the *default module settings*.
                             4. A way of asking the module if it can be rolled back or not (not all changes can be undone).
