@@ -326,10 +326,6 @@ The complete list of valid keyboard layouts can be found at:
 
 https://kioskforge.org/keyboards.html
 """.strip()
-if False:
-	KEYBOARD_HELP += 2 * "\n"
-	for layout, region in KEYBOARDS.items():
-		KEYBOARD_HELP += f"    {layout:5}  {region}\n"
 
 
 LOCALE_HELP = """
@@ -345,10 +341,6 @@ A complete list of valid locales can be found at:
 
 https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html
 """.strip()
-if False:
-	LOCALE_HELP += 2 * "\n"
-	for locale in LOCALES:
-		LOCALE_HELP += f"    {locale}\n"
 
 
 MOUSE_HELP = """
@@ -473,10 +465,6 @@ The complete list of valid time zones can be found at:
 
 https://kioskforge.org/timezones.html
 """.strip()
-if False:
-	TIMEZONE_HELP += 2 * "\n"
-	for timezone in TIMEZONES:
-		TIMEZONE_HELP += f"    {timezone}\n"
 
 
 TYPE_HELP = """
