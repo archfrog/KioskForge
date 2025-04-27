@@ -185,6 +185,7 @@ class PcRecognizer(Recognizer):
 			del dash
 			del release
 			del date_num
+			del support
 
 		# Munge about with the product string so that it fits our needs...
 		if product == "Ubuntu-Server":
