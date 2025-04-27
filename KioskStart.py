@@ -40,7 +40,9 @@ from toolbox.version import Version
 CARDS = {
 	'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
 	'pi4b.hdmi1' : 'alsa_output.platform-fef00700.hdmi.hdmi-stereo',
-	'pi4b.hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo'
+	'pi4b.hdmi2' : 'alsa_output.platform-fef05700.hdmi.hdmi-stereo',
+	'pi5.hdmi1'  : 'alsa_card.platform-107c701400.hdmi.hdmi-stereo',
+	'pi5.hdmi2'  : 'alsa_card.platform-107c706400.hdmi.hdmi-stereo'
 }
 
 class KioskStart(KioskDriver):
@@ -71,7 +73,7 @@ class KioskStart(KioskDriver):
 			# TODO: Incorporate https://www.reddit.com/r/pipewire/comments/13w2xyk/comment/jmj138k/ (use 'wpctl' even if it is sad).
 
 			# NOTE: 'wpctl' only accepts ids so we cheat and ask PulseAudio's pactl to do the job for us.
-			# Pause for three seconds because pactl otherwise reports spurious errors.
+			# Pause for three seconds because pactl otherwise reports spurious errors (the audio subsystem is not up yet, I guess).
 			time.sleep(3)
 
 			# Set default output device to that of the 'device' option.
