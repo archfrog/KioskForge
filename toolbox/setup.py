@@ -266,33 +266,32 @@ lines of text in a single line.
 CPU_BOOST_HELP = """
 If the CPU should be overclocked.
 
-This option depends on the target Raspberry Pi system.  For Raspberry Pi
-4Bs, it will increase the processing speed (CPU clock rate) of the target
-kiosk by 20 percent from 1.5 gigahertz to 1.8 gigahertz.  This translates to
-considerable extra performance at the cost of a signficicantly hotter CPU.
-If processor speed matters, and cooling is good or heat is not a significant
-issue, then you should enable this setting.
+This option currently only works with Raspberry Pi 4B targets.
+
+Enabling the option will increase the processing speed (CPU clock rate) of
+the target kiosk by 20 percent from 1.5 gigahertz to 1.8 gigahertz.  This
+translates to extra performance at the cost of a signficantly hotter CPU.
+If processor speed matters, and cooling is good or heat is not a
+significant issue, then you should enable this setting.
 
 This setting is most useful with 'web' type kiosks as these need lots of
 power to process complex websites and display these.
-
-This option only has an effect on Raspberry Pi kiosks!  PCs are not easily
-overclocked beyond what happens automatically.
 """.strip()
 
 
 DEVICE_HELP = """
 Specifies the hardware type of the kiosk.  Valid values are:
 
-1. pi4b: Raspberry Pi 4B with at least 2 gigabytes of RAM.
-2. pc  : IBM PC compatible machine with at least 4 gigabytes of RAM.
+1. pi4b: Raspberry Pi 4B with at least 2 GB RAM.
+2. pi5 : Raspberry Pi 5 with at least 2 GB RAM.
+3. pc  : IBM PC compatible machine with at least 4 GB RAM.
 
 This setting affects the 'sound_card' and 'cpu_boost' options as follows:
 
 1. 'sound_card' depends entirely on the target device type.  See the
    'sound_card' option for more information.
-2. 'cpu_boost' can only be activated for Raspberry Pi kiosks.  PCs commonly
-    adjust their CPU's speed dynamically depending on load.
+2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.  PCs
+    commonly adjust their CPU's speed dynamically depending on load.
 """.strip()
 
 
@@ -403,7 +402,7 @@ The sound card to use, if any.
 This depends entirely on the target system:
 
 1. pi4b: none, jack, hdmi1, or hdmi2.
-2. pi5 : none, jack, hdmi1, or hdmi2.
+2. pi5 : none, hdmi1, or hdmi2.
 3. pc  : none or ???.
 
 If you don't need any audio in your kiosk, you should use the value 'none'.
@@ -748,7 +747,7 @@ class Setup(Options):
 
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be blank.  All other fields must be set.
 		self += OptionalStringField("comment", "", COMMENT_HELP)
-		self += RegexField("device", "pi4b", DEVICE_HELP, "(pi4b|pc)")
+		self += RegexField("device", "pi4b", DEVICE_HELP, "(pi4b|pi5|pc)")
 		self += RegexField("type", "web", TYPE_HELP, "(cli|x11|web)")
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += RegexField("hostname", hostname_create("kiosk"), HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")

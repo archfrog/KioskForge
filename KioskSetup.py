@@ -188,7 +188,7 @@ class KioskSetup(KioskDriver):
 		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
 		script += ExternalAction("Enabling Network Time Protocol (NTP).", "timedatectl set-ntp on")
 
-		if setup.wifi_boost.data and setup.wifi_name.data != "":
+		if setup.wifi_name.data and setup.wifi_boost.data:
 			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
 			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
 			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
@@ -328,6 +328,33 @@ class KioskSetup(KioskDriver):
 				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
 			)
 
+			# Ubuntu Server 24.04.x on Raspberry Pi 5 needs an obscure fix for X11 to discover its GPU and screens.
+			if setup.device.data == "pi5":
+				script += InstallPackagesNoRecommendsAction("Installing Rasperry Pi System Configuration tool", ["raspi-config"])
+				script += ExternalAction(
+					"Downloading X11 graphics driver for Pi5",
+					"wget -q https://archive.raspberrypi.org/debian/pool/main/g/gldriver-test/gldriver-test_0.15_all.deb"
+				)
+				script += AptAction("Installing X11 graphics driver for Pi5", "apt-get install -y ./gldriver-test_0.15_all.deb")
+				script += ExternalAction("Removing downloaded graphics driver for Pi5", "rm -f gldriver-test_0.15_all.deb")
+
+				# Create X11 configuration file to use Pi5 graphics driver.
+				lines  = TextBuilder()
+				lines += 'Section "OutputClass"'
+				lines += '    Identifier "vc4"'
+				lines += '    MatchDriver "vc4"'
+				lines += '    Driver "modesetting"'
+				lines += '    Option "PrimaryGPU" "true"'
+				lines += 'EndSection'
+				script += CreateTextWithUserAndModeAction(
+					"Creating X11 configuration file to use Pi5 graphics driver",
+					"/etc/X11/xorg.conf.d/99-v3d.conf",
+					"root",
+					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
+					lines.text
+				)
+				del lines
+
 			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskOpenbox.py).
 			# NOTE: This file is always created, when the screen is rotated, but has no effect on non-touch displays.
 			# NOTE: I'd love to create this file in 'KioskStart.py', but it runs as the created user, not as root.
@@ -343,7 +370,7 @@ class KioskSetup(KioskDriver):
 				lines += f'\tOption "CalibrationMatrix" "{MATRICES[setup.screen_rotation.data]}"'
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
-					"Creating X11 configuration file to rotate the touch panel.",
+					"Creating X11 configuration file to rotate touch panel (if any).",
 					"/etc/X11/xorg.conf.d/99-kiosk-set-touch-rotation.conf",
 					"root",
 					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
