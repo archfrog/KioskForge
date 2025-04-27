@@ -29,7 +29,7 @@ def internet_active() -> bool:
 	try:
 		connection.request("HEAD", "/")
 		return True
-	except httplib.HTTPException:
+	except:
 		return False
 	finally:
 		connection.close()
