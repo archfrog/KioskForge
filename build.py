@@ -35,6 +35,7 @@ from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
+from toolbox.setup  import Setup
 from toolbox.various import ramdisk_get
 from toolbox.version import Version
 
@@ -253,8 +254,11 @@ class KioskBuild(KioskDriver):
 
 			invoke_list_safe(words.list)
 
+		# For now, simply add the extension ".txt" to the LICENSE file, which must be accepted in the installer.
 		shutil.copyfile("LICENSE", distpath + os.sep + "LICENSE.txt")
-		shutil.copyfile("Template.kiosk", distpath + os.sep + "Template.kiosk")
+
+		# Generate a brand new, up-to-date template kiosk by saving an empty, blank kiosk.
+		Setup().save(distpath + os.sep + "Template.kiosk", self.version)
 
 		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
 
