@@ -16,7 +16,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Tasks in the Source Code
-**NOTE:** Use `grep -FR TODO: *.py` to see the current list of task items embedded in the source code.
+**NOTE:** Use `grep -FR TODO: *.py toolbox/*.py` to see the current list of task items embedded in the source code.  These are
+also reported by `pylint`, which is automatically invoked by the `check.py` script.
 
 
 ## Open Tasks
