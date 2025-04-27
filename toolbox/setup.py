@@ -324,7 +324,7 @@ kiosk remotely using SSH and also the web browser, if any.
 
 The complete list of valid keyboard layouts can be found at:
 
-https://kioskforge.org/configuration/keyboards.html
+https://kioskforge.org/keyboards.html
 """.strip()
 if False:
 	KEYBOARD_HELP += 2 * "\n"
@@ -471,7 +471,7 @@ zones for all regions of Earth, just search for "Africa/" or "Europe/", etc.
 
 The complete list of valid time zones can be found at:
 
-https://kioskforge.org/configuration/timezones.html
+https://kioskforge.org/timezones.html
 """.strip()
 if False:
 	TIMEZONE_HELP += 2 * "\n"
