@@ -29,7 +29,7 @@ def internet_active() -> bool:
 	try:
 		connection.request("HEAD", "/")
 		return True
-	except:
+	except:								# pylint: disable=bare-except
 		return False
 	finally:
 		connection.close()
