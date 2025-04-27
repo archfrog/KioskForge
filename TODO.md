@@ -21,7 +21,9 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.27.20.34 H Implement throrough, complete check of a `Setup` instance BEFORE updating the installation medium.
+- [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
+                         `.local/share/xorg/Xorg.0.log`.
+- [ ] 2025.04.27.20.34 H Implement thorough, complete check of a `Setup` instance BEFORE updating the installation medium.
 - [ ] 2025.04.27.20.32 H Finish up audio support for Pi5.
 - [ ] 2025.04.27.20.33 H Ensure `KioskSetup.py` properly handles the addition of Pi5, especially with respect to audio.  For
                          instance, we do not (yet) support overclocking the Pi5, so `KioskForge.py` needs to be fixed.
