@@ -75,6 +75,8 @@ class Settings:
 			elif argument == "--debug":
 				self.__debug = True
 			elif argument == "--ship":
+				if sys.platform == "win32":
+					raise KioskError("The --ship option can only be used on Windows")
 				self.__ship = True
 			else:
 				raise CommandError('"build.py" [--clean] [--debug] [--ship]')
@@ -91,6 +93,10 @@ class KioskBuild(KioskDriver):
 		# Delete two standard arguments that we don't currently use for anything.
 		del logger
 		del origin
+
+		# Check that we're running on Windows, this script has not yet been ported to and tested on Linux.
+		if sys.platform != "win32":
+			raise KioskError("The build.py script currently only works on Windows")
 
 		# Parse command-line arguments.
 		settings = Settings()
@@ -248,6 +254,7 @@ class KioskBuild(KioskDriver):
 			invoke_list_safe(words.list)
 
 		shutil.copyfile("LICENSE", distpath + os.sep + "LICENSE.txt")
+		shutil.copyfile("Template.kiosk", distpath + os.sep + "Template.kiosk")
 
 		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
 
@@ -276,19 +283,20 @@ class KioskBuild(KioskDriver):
 		#************************** Copy the new 'KioskForge-x.yy-Setup.exe' via SSH to the web server hosting kioskforge.org.
 
 		# Only ship if explicitly requested as this will fail on all systems but my own PCs.
-		home_env = os.environ.get("HOME")
-		if settings.ship and home_env:
+		home = os.environ.get("HOME")
+		if settings.ship and home:
 			words  = TextBuilder()
 			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version because
 			# Microsoft's version does not honor the HOME environment variable, something which the Git version does.
+			# TODO: Test if the below code, which provides the path to 'config' explicitly, does not work with Windows OpenSSH.
 			words += r"C:\Program Files\Git\usr\bin\scp.exe"
 			words += "-F"
-			words += home_env + ".ssh/config"
+			words += home + ".ssh/config"
 			words += "-p"
 			words += ramdisk + f"KioskForge-{self.version.version}-Setup.exe"
 			words += "web:web/pub/kioskforge.org/downloads"
 			invoke_list_safe(words.list)
-		del home_env
+		del home
 
 
 if __name__ == "__main__":
