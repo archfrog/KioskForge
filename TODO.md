@@ -21,6 +21,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.28.01.47 H `Setup` must generate a host name and/or password if either of these is blank.
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.
