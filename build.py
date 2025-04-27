@@ -186,10 +186,9 @@ class KioskBuild(KioskDriver):
 		words += "--workpath"
 		words += workpath
 
-		# NOTE: The --specpath option also affects the default location of data files, something I think is pretty bizarre.
-		if False:
-			words += "--specpath"
-			words += distpath
+		# NOTE: The --specpath option also affects the default location of data files, something which I think is pretty bizarre.
+		# words += "--specpath"
+		# words += distpath
 
 		words += "--upx-exclude"
 		words += "python3.dll"
