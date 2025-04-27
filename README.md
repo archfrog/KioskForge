@@ -4,7 +4,7 @@ intended to be used by somewhat non-technical users to set up a kiosk machine fo
 
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.2 on Raspberry Pi 4B (2+ GB RAM) ARM64 (aarch64) and PC x64/AMD64 machines.
+* Ubuntu Server 24.04.2 on Raspberry Pi 4B/5 (2+ GB RAM) ARM64 (aarch64) and PC x64/AMD64 machines (4+ GB RAM).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or Wi-Fi networking.
@@ -13,7 +13,7 @@ KioskForge currently supports these things:
 
 **NOTE**: The PC target is currently likely broken because I don't have a spare PC to test it on.  WIP.
 
-**NOTE**: I don't currently have a PI5, so I cannot test and develop against it.
+**NOTE**: Prelimary support for Raspberry Pi 5 has been added, but it is not mature yet.  Audio does not yet work on Pi5.
 
 
 ## Philosophy

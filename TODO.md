@@ -21,6 +21,10 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.04.27.20.34 H Implement throrough, complete check of a `Setup` instance BEFORE updating the installation medium.
+- [ ] 2025.04.27.20.32 H Finish up audio support for Pi5.
+- [ ] 2025.04.27.20.33 H Ensure `KioskSetup.py` properly handles the addition of Pi5, especially with respect to audio.  For
+                         instance, we do not (yet) support overclocking the Pi5, so `KioskForge.py` needs to be fixed.
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
                          the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
                          To see all languages partially or completely supported by Ubuntu, click `View all languages` on
@@ -38,7 +42,6 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
                          `.kiosk` files insanely big (35KB+).  The link in `*.kiosk` has been made, the website needs work yet.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
-- [ ] 2025.04.26.08.21 H Remame `Field.hint` to `Field.help` as the help text is now multi-line and an attempt of helping properly.
 - [ ] 2025.04.26.08.06 H Report all errors from loading a configuration file at once and with line numbers (to `*.err`).
 - [ ] 2025.04.26.07.25 H Ensure boolean settings are written as `false` or `true`, nothing else.
 - [ ] 2025.04.26.07.19 H The system can only be rebooted through `upgrade_time`.  CLEAN UP THIS IDIOTIC MESS!
@@ -145,6 +148,8 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.26.08.21 H Rename `Field.hint` to `Field.help` as the help text is now multi-line and an attempt of helping properly.
+                         I did this, but `pylint` whined over the redefinition of a predefined Python symbol.  Reverted the change.
 - [x] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
                          I went the other way around and moved the Inno Setup configuration file (`KioskForge.iss`) into Git.
 - [x] 2024.04.23.22.25 H Enhance KioskForge to detect Ubuntu 25.04 installation medias so that a suitable error is reported.
