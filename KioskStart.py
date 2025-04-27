@@ -78,10 +78,9 @@ class KioskStart(KioskDriver):
 
 			# Set default output device to that of the 'device' option.
 			card_path = setup.device.data + '.' + setup.sound_card.data
-			# TODO: Fail gracefully if the card path isn't defined (PI5, for instance).
-			card_name = CARDS[card_path]
-			invoke_text_safe(f"pactl set-default-sink {card_name}")
-			del card_name
+			if card_path not in CARDS:
+				raise KioskError(f"Unknown sound card: {card_path}")
+			invoke_text_safe(f"pactl set-default-sink {CARDS[card_path]}")
 			del card_path
 
 			# Set the audio level to user-specified percentage on a logarithmic scale.
