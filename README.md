@@ -134,10 +134,10 @@ As of now, the procedure is as follows:
 8. Use Windows' *Safe Removal* feature or `Eject` from Windows Explorer to safely unmount the installation media.
 9. Move the installation media to the powered off Raspberry Pi 4+.
 10. Power on the Raspberry Pi 4+.
-11. Wait between 15 and 30 minutes (this depends a lot on the I/O speed of the installation media) until the kiosk has been forged,
-    which is shown by the kiosk rebooting into kiosk mode showing the requested URL.
+11. Wait 10 to 30 minutes (this depends a lot on the I/O speed of the installation media) until the kiosk has been forged,
+    which is shown by the kiosk rebooting into kiosk mode.
 12. Try out and test the new kiosk.  If you find issues, please report them (see the section `Bugs` below).
-13. You can either attach a keyboard or SSH into the box (if you know its LAN IP address) to power it off.
+13. You can either attach a keyboard or SSH into the box (the LAN IP address is shown when the kiosk boots) to power it off.
 14. Mount the Raspberry Pi in whatever enclosure you are using for your kiosk.  This is typically custom made by carpenters.
 
 After that, the kiosk should *theoretically* run nicely and reliably for years and years.  However, you may want to log into it,
