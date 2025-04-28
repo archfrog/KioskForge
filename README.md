@@ -42,13 +42,10 @@ KioskForge using the Windows installer).  This is the recommended way of opening
 Alternatively, you can supply the path of the kiosk file on the command-line if starting KioskForge from a console window.
 
 ### Creating a new kiosk file from scratch
-To create a new, blank `.kiosk` file, make a copy of `Template.kiosk` found in `C:\Program Files\KioskForge`.
-
-**NOTE:** I am planning on adding a `KioskForge file` template to the `New` menu in Windows Explorer so that you can simply
-right-click your Desktop, select `new` and then `KioskForge file` to create a new, self-documenting `.kiosk` file.
+To create a new, blank `.kiosk` file, use the `New` right-click context menu in Windows Explorer.
 
 ### Configuring the Kiosk
-To configure your kiosk, edit it using your favorite editor such as `Notepad`.
+To configure your kiosk, edit it using your favorite editor such as `Notepad`.  You can right-click the file and select `Edit`.
 
 **NOTE:** You *cannot* use Microsoft Word or similar word processing software to edit the `.kiosk` file.
 
@@ -78,8 +75,10 @@ Navigate to the `Downloads` folder and double-click on the `KioskForge-x.yy-Setu
 you have installed KioskForge before, you should probably skim the `CHANGES.html` file and see if there's anything important to
 you.
 
-After this, you can launch KioskForge directly from Windows Explorer, by double-clicking a `.kiosk` file, or from the Start menu
-by clicking on the `KioskForge` command.
+After this, you can launch KioskForge directly from Windows Explorer, by double-clicking a `.kiosk` file.
+
+**NOTE:** There's currently no point in starting KioskForge from the Windows Start menu: It will fail because it needs the name of
+a kiosk file to open.  You can, however, run it from a console if you are so inclined, insofar you pass the name of a kiosk file.
 
 
 ### Linux
@@ -92,7 +91,7 @@ should work fine, especially v3.10+, but I don't test against these and don't us
 Then fetch KioskForge from GitHub using the following command:
 
 ```bash
-git clone https://github.com/vhmdk/KioskForge
+    git clone https://github.com/vhmdk/KioskForge
 ```
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
@@ -122,7 +121,7 @@ file".  A kiosk file is a simple configuration file that is made up of lines tha
 a field assignment of the form `name=value`.
 
 The only way to use KioskForge is to double-click a kiosk file (which ends in `.kiosk` and has the Windows Explorer file type
-`KioskForge Kiosk File`.  A kiosk file defines a kiosk and what the kiosk is supposed to do.
+`KioskForge Kiosk`).  A kiosk file defines a kiosk and what how the kiosk is to be forged.
 
 If there are one or more errors in the kiosk file, KioskForge will report them, wait for you to hit enter, and then exit.
 
@@ -146,20 +145,21 @@ The procedure is as follows:
 	5. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
 	6. When done, leave the installation media in your computer until KioskForge tells you to safely remove it (or dismount it).
 	7. Please notice that we recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
-2. Copy the file `Template.kiosk` from `C:\Program Files\KioskForge\Template.kiosk` to your Desktop or wherever you want it.
-   Please rename the `Template.kiosk` file to something more appropriate after having copied it.
-3. Edit the new, renamed `.kiosk` by opening it in `Notepad`.  When you are done editing it, save it to disk using `Ctrl-S`.
-4. Double-clock on the new, renamed `.kiosk` file to open it in KioskForge.
-5. As soon as you double-click the `.kiosk` file, KioskForge will attempt to find and modify the Linux installation medium.
-6. Press `ENTER` to exit KioskForge.
-7. Use Windows' *Safe Removal* feature or `Eject` from Windows Explorer to safely unmount the installation media.
-8. Move the installation media to the powered off kiosk machine.
-9. Power on the kiosk machine.
-10. Wait 10 to 30 minutes (this depends a lot on the I/O speed of the installation media and on your internet speed) until the
+2. Right-click on empty space on your Desktop, or the folder where you want to place the `.kiosk` file, and select `New`, then
+   `KioskForge Kiosk`.  Please assign the new kiosk file a meaningful name so that you can easily see what purpose of the kiosk is.
+3. Edit the new kiosk by opening it in `Notepad` (right-click on the kiosk icon and select `Edit`).  Save it using `Ctrl-S`.
+4. Double-clock on the new kiosk file to open it in KioskForge.
+5. KioskForge will present a summary of the kiosk file and ask you to hit `ENTER` to continue.  To abort, hit `Ctrl-C`.
+6. KioskForge will now prepare the kiosk install image to forge the new kiosk.
+7. KioskForge then asks you to press `ENTER` to exit KioskForge.  Press `ENTER` to continue and exit KioskForge.
+8. Use Windows' *Safe Removal* feature or `Eject` from Windows Explorer to safely disconnect the installation media.
+9. Move the installation media to the powered off kiosk machine.
+10. Power on the kiosk machine.
+11. Wait 10 to 30 minutes (this depends a lot on the I/O speed of the installation media and on your internet speed) until the
     kiosk has been forged, which is shown by the kiosk rebooting into kiosk mode.
-11. Try out and test the new kiosk.  If you find issues, please either modify your `.kiosk` file or report them to us.
-12. You can either attach a keyboard or SSH into the box (the LAN IP address is shown when the kiosk boots) to power it off.
-13. Mount the Raspberry Pi in whatever enclosure you are using for your kiosk.  This is typically custom made by carpenters.
+12. Try out and test the new kiosk.  If you find issues, please either modify your `.kiosk` file or report them to us.
+13. You can either attach a keyboard or SSH into the box (the LAN IP address is shown when the kiosk boots) to power it off.
+14. Mount the Raspberry Pi in whatever enclosure you are using for your kiosk.  This is typically custom made by carpenters.
 
 After that, the kiosk should *theoretically* run nicely and reliably for years and years.  However, you may want to log into it,
 using SSH, once in a while to verify that logs are being rotated, that there is sufficient disk space available, and so on.  The
@@ -167,6 +167,20 @@ kiosk is set up to automatically reclaim as much space as it can, whenever the d
 
 If you SSH into the kiosk or use a local keyboard to log in, you can use the `kiosklog` command to view `syslog` entries related
 to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `kiosklog -p 3 | more`.
+
+
+## Bugs and Ideas
+Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to
+[Mikael Egevig](mailto:me@vhm.dk).  The former is the preferred method, but use whichever method suits you best.
+
+When you report a bug, please log into the kiosk and run this command to create a log file:
+
+```bash
+    kiosklog > ~/kiosk.log
+```
+
+Then please include the two files `~/kiosk.log` and `~/.xsession-errors` (if it exists) in your bug report.  These files will
+likely provide invaluable information about the issue, which makes it so much easier to debug and fix the issue.
 
 
 ## Contributing
@@ -188,23 +202,23 @@ People probably only use the script occasionally, albeit we want to automate it 
 To develop on KioskForge, install these things first:
 
 ```batch
-rem Install Python v3.12+ from https://python.org or using your package manager.
-rem ...
+	rem Install Python v3.12+ from https://python.org or using your package manager.
+	rem ...
 
-rem Install MyPy using Pip:
-pip install mypy
+	rem Install MyPy using Pip:
+	pip install mypy
 
-rem Install pylint using Pip:
-pip install pylint
+	rem Install pylint using Pip:
+	pip install pylint
 
-rem Install bcrypt using Pip:
-pip install bcrypt
+	rem Install bcrypt using Pip:
+	pip install bcrypt
 
-rem Install PyInstaller using Pip:
-pip install pyinstaller
+	rem Install PyInstaller using Pip:
+	pip install pyinstaller
 
-rem Install pyinstaller-versionfile using Pip:
-pip install pyinstaller-versionfile
+	rem Install pyinstaller-versionfile using Pip:
+	pip install pyinstaller-versionfile
 ```
 
 Then set up these environment variables:
@@ -219,18 +233,3 @@ Run the script `check.py` (all platforms) to make MyPy and pylint test the code 
 Run the script `build.py` (all platforms) to build the platform-specific installer, which is normally put at kioskforge.org.
 
 Development currently takes place on a Windows 11 desktop computer, but I'll set up a Linux development environment soon.
-
-
-## Bugs and Ideas
-Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to
-[Mikael Egevig](mailto:me@vhm.dk).  The former is the preferred method, but use whichever method suits you best.
-
-When you report a bug, please log into the kiosk and run this command to create a log file:
-
-```bash
-kiosklog > ~/kiosk.log
-```
-
-Then please include the two files `~/kiosk.log` and `~/.xsession-errors` (if it exists) in your bug report.  These files will
-likely provide invaluable information about the issue, which makes it so much easier to debug and fix the issue.
-
