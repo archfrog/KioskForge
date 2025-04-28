@@ -54,7 +54,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "..\tmp\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\CHANGES.html"; DestDir: "{app}"; Flags: isreadme
+Source: "..\tmp\CHANGES.html"; DestDir: "{app}"; Flags: isreadme ignoreversion
 Source: "..\tmp\FAQ.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\GUIDE.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
