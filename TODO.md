@@ -22,27 +22,26 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.28.01.47 H `Setup` must generate a host name and/or password if either of these is blank.
+- [ ] 2025.04.28.05.38 H Figure out why the `wifi_code` regex accepts more than 63 characters.
+- [ ] 2025.04.28.04.18 H Implement and document constraints of `wifi_name`, `wifi_code`, `user_name`, and `user_pass`.
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.
-- [ ] 2025.04.27.20.34 H Implement thorough, complete check of a `Setup` instance BEFORE updating the installation medium.
+- [ ] 2025.04.27.05.56 H Rip out the editor from `KioskForge.py` and let the user use his/her favorite text editor instead.
+- [ ] 2025.04.27.20.34 H Implement thorough, complete check of a `Setup` instance when loading it from disk.
 - [ ] 2025.04.27.20.32 H Finish up audio support for Pi5.
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
                          the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
                          To see all languages partially or completely supported by Ubuntu, click `View all languages` on
                          [Translation Status by Language](https://translations.launchpad.net/ubuntu/noble).  The Ubuntu package
                          to install, to get all locales, is `locales-all`.  It is a 10 MB download that expands to 238 MB on disk.
-                         After `locales-gen` has been installed, you need to run `locale-gen` (which probably takes forever).
+                         After `locales-all` has been installed, you need to run `locale-gen` (which probably takes forever).
                          One solution is to always install `locales-all` and only do a `locale-gen` on `en_US.UTF8` and the user
                          language specified in the `.kiosk` file.
 - [ ] 2025.04.26.11.41 H A full list of supported locales can be found at
                          [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
                          Please notice that you can select the Ubuntu version at the very top of the page.
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
-- [ ] 2025.04.26.09.22 H Make pages on KioskForge.org that lists all valid locales, keyboards, and time zones and link to these
-                         page from within each `.kiosk` file as the list of locales is hundreds of lines long, which makes the
-                         `.kiosk` files insanely big (35KB+).  The link in `*.kiosk` has been made, the website needs work yet.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
 - [ ] 2025.04.26.08.06 H Report all errors from loading a configuration file at once and with line numbers (to `*.err`).
@@ -151,6 +150,11 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.28.01.47 H `Setup` must generate a host name and/or password if either of these is blank.  Nope, then they're invalid.
+- [x] 2025.04.28.03.43 H Create `ChoiceField`, which accepts a list of choices that the option can take.
+- [x] 2025.04.26.09.22 H Make pages on KioskForge.org that lists all valid locales, keyboards, and time zones and link to these
+                         page from within each `.kiosk` file as the list of locales is hundreds of lines long, which makes the
+                         `.kiosk` files insanely big (35KB+).  The link in `*.kiosk` has been made, the website needs work yet.
 - [x] 2025.04.27.20.33 H Ensure `KioskSetup.py` properly handles the addition of Pi5, especially with respect to audio.  For
                          instance, we do not (yet) support overclocking the Pi5, so `KioskForge.py` needs to be fixed.
 						 This has been fixed, which caused me to discover that KioskForge always used `cpu_boost=0` (a bug).
