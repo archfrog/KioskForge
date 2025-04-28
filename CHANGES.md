@@ -4,7 +4,7 @@ This document presents the important changes made to each KioskForge release fro
 ## Version 0.18 (2025.04.28)
 1. Initial support for the Raspberry Pi 5 has been added.  Sound support on the Pi 5 has not been tested yet, though.
 2. The KioskForge setup program now includes a change log of changes made to KioskForge, which can be shown by the installer.
-3. The built-in editor and menu has been removed: KioskForge can only be used to prepare a kiosk installation medium at present.
+3. The built-in editor and menu has been removed: KioskForge can now only be used to prepare a kiosk installation medium.
 4. The cleaning of logs on the target kiosk machine now actually works (a lowercase 'm' was changed to an uppercase ditto).
 5. The `cpu_boost` option is now honored properly.  Previously, all kiosks were created as if `cpu_boost` was always disabled.
 6. KioskForge `.kiosk` files are now checked and validated *much* more thoroughly than before.
