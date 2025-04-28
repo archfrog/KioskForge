@@ -217,7 +217,7 @@ class KioskBuild(KioskDriver):
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		files = {
 			"CHANGES.md" : f"KioskForge v{self.version.version} Change Log",
-			"FAQ.md"     : f"KioskForge v{self.version.version} Frequently Asked Questions",
+			"FAQ.md"     : f"KioskForge v{self.version.version} FAQ",
 			"GUIDE.md"   : f"KioskForge v{self.version.version} Usage Scenarios Guide",
 			"README.md"  : f"KioskForge v{self.version.version} README File"
 		}
