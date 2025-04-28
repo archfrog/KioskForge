@@ -822,7 +822,7 @@ class Setup(Options):
 		self += RegexField("type", "web", TYPE_HELP, "cli|x11|web")
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += RegexField("hostname", hostname_create("kiosk"), HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
-		self += ChoiceField("timezone", "America/Los Angeles", TIMEZONE_HELP, TIMEZONES)
+		self += ChoiceField("timezone", "America/Los_Angeles", TIMEZONE_HELP, TIMEZONES)
 		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
 		self += RegexField("sound_card", "none", SOUND_CARD_HELP, "none|jack|hdmi1|hdmi2")
