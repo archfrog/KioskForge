@@ -778,12 +778,11 @@ class Options:
 			stream.write("# Please feel free to edit this file using your favorite text editor.")
 			stream.write("")
 
-			names = list(self.__options.keys())
-			for name in names:
+			for name in self.__options.keys():
 				# Fetcht the next field to output.
 				field = getattr(self, name)
 
-				# Write a line of stars/asterisk to indicate start of option.
+				# Write a line of asterisks to indicate start of option's help text.
 				stream.write(f"#{78 * '*'}")
 
 				# Write the field name and its type.
@@ -796,13 +795,14 @@ class Options:
 					stream.write(f"# {line}")
 				del lines
 
+				# Write a line of asterisks to indicate end of of option's help text.
+				stream.write(f"#{78 * '*'}")
+
 				# Write the field name and data.
 				stream.write(f"{field.name}={field.text}")
 
-				# Output a blank line before next option, if not the last option in the list.
-				if name != names[-1]:
-					stream.write("")
-			del names
+				# Output a blank line between options and after the last option.
+				stream.write("")
 
 
 def hostname_create(basename : str) -> str:
