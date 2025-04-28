@@ -155,7 +155,7 @@ class KioskBuild(KioskDriver):
 			output_file=rootpath + os.sep + "version.txt",
 			version=self.version.version,
 			company_name=self.version.company,
-			file_description="Tool to forge a complete Linux kiosk machine from scratch.",
+			file_description=f"{self.version.product} - A tool to forge an Ubuntu Linux kiosk machine.",
 			internal_name=self.version.product,
 			legal_copyright="Copyright © " + self.version.company + ". All Rights Reserved.",
 			original_filename=self.version.product + ".exe",
@@ -219,7 +219,7 @@ class KioskBuild(KioskDriver):
 			"CHANGES.md" : f"KioskForge v{self.version.version} Change Log",
 			"FAQ.md"     : f"KioskForge v{self.version.version} Frequently Asked Questions",
 			"GUIDE.md"   : f"KioskForge v{self.version.version} Usage Scenarios Guide",
-			"README.md"  : f"KioskForge v{self.version.version} Readme File"
+			"README.md"  : f"KioskForge v{self.version.version} README File"
 		}
 		for file, title in files.items():
 			words = TextBuilder()
