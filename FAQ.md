@@ -22,9 +22,9 @@ All files created by and used by KioskForge are located in `~/KioskForge`.  Plea
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
-To be honest, I get a bunch of these errors every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcomm, but I have no idea what they mean or why they pop up.
+To be honest, I get a bunch of these errors almost every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcom, but I have no idea what they mean or why they pop up.
 
-This *may* be caused by the code that disables the Wi-Fi power saving feature.  This feature is called `wifi_boost`.
+This *may* be caused by the code that disables the Wi-Fi power saving feature.  It is controlled by the option `wifi_boost`.
 
 Please ignore these errors - as far as I can tell, the Wi-Fi card works as it should and the kiosk runs reliably as it should.
 
