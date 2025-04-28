@@ -23,6 +23,7 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
 
+import glob
 import os
 import shutil
 import sys
@@ -61,30 +62,25 @@ class KioskCheck(KioskDriver):
 		# Check that the user has set up the RAMDISK environment variable and make sure it is normalized while we're at it.
 		ramdisk = ramdisk_get()
 
-		#*************************** Ask MyPy to statically check all Python source files in the current folder. *****************
-
+		#***** Ask MyPy to statically check all Python source files in the current folder and in the 'toolbox' folder. ***********
 		words  = TextBuilder()
 		words += "mypy"
 		words += "--cache-dir"
 		words += ramdisk + self.version.product + os.sep + "MyPy"
 		words += "--strict"
-		words += "KioskForge.py"
-		words += "KioskOpenbox.py"
-		words += "KioskSetup.py"
-		words += "KioskStart.py"
-		words += "KioskUpdate.py"
-		words += "build.py"
-		words += "check.py"
+		for source in glob.glob("*.py") + glob.glob("toolbox/*.py"):
+			words += source
 
 		result = invoke_list(words.list)
 		if result.status != 0:
+			print("MyPy messages:")
+			print()
 			print(result.output)
 			raise KioskError("MyPy failed its static checks")
 		del result
 		del words
 
 		#************************* Ask pylint to statically check all Python source files in the current folder. *****************
-
 		words  = TextBuilder()
 		words += "pylint"
 		words += "-j"
