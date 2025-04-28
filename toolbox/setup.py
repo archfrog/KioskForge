@@ -250,7 +250,7 @@ class RegexField(StringField):
 		if not data:
 			raise FieldError(self.name, f"Missing value in field '{self.name}'")
 
-		if not re.fullmatch(f"^({self.__regex})$", data):
+		if not re.fullmatch(self.__regex, data):
 			raise FieldError(self.name, f"Invalid value in field '{self.name}': {data}")
 
 		StringField.parse(self, data)
