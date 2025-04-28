@@ -763,7 +763,8 @@ class Options:
 		if errors:
 			for error in errors:
 				logger.error(str(error))
-			raise KioskError(f"{len(errors)} error(s) detected while reading file: {path}")
+			print()
+			raise KioskError(f"{len(errors)} error(s) detected while reading file '{path}'")
 
 	def save(self, path : str, version : Version) -> None:
 		# Generate KioskForge.cfg.
