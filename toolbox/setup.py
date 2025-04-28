@@ -25,10 +25,10 @@ import re
 import secrets
 import time
 
-from toolbox.convert import BOOLEANS, KEYBOARDS, KEYBOARD_REGEX
-from toolbox.errors import Error, FieldError, InputError
+from toolbox.convert import BOOLEANS, KEYBOARDS
+from toolbox.errors import Error, FieldError, InputError, InternalError, KioskError, TextFileError
 from toolbox.locales import LOCALES
-from toolbox.logger import TextWriter
+from toolbox.logger import Logger, TextWriter
 from toolbox.timezones import TIMEZONES
 from toolbox.version import Version
 
@@ -39,6 +39,7 @@ class Field:
 	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
 		self.__hint = hint
+		self._set   = False
 
 	@property
 	def data(self) -> Any:
@@ -51,6 +52,10 @@ class Field:
 	@property
 	def name(self) -> str:
 		return self.__name
+
+	@property
+	def assigned(self) -> bool:
+		return self._set
 
 	@property
 	def text(self) -> str:
@@ -77,16 +82,17 @@ class BooleanField(Field):
 
 	@property
 	def type(self) -> str:
-		return "boolean"
+		return "boolean value: 'true' or 'false'"
 
 	def parse(self, data : str) -> None:
 		if len(data) == 0:
-			raise FieldError(self.name, "Field cannot be blank")
+			raise FieldError(self.name, f"Missing value in field '{self.name}'")
 
 		try:
 			self.__data = BOOLEANS[data.lower()]
+			self._set = True
 		except KeyError as that:
-			raise FieldError(self.name, "Invalid value entered") from that
+			raise FieldError(self.name, f"Invalid value in field '{self.name}': {data}") from that
 		except ValueError as that:
 			raise FieldError(self.name, str(that)) from that
 
@@ -110,19 +116,26 @@ class NaturalField(Field):
 
 	@property
 	def type(self) -> str:
-		return "natural"
+		return "natural number: integer without a sign"
 
 	def parse(self, data : str) -> None:
-		if not data or data[0] == '-':
-			raise FieldError(self.name, f"Invalid value entered: {data}")
+		if not data:
+			raise FieldError(self.name, f"Missing value in field '{self.name}'")
+		if data[0] == '-':
+			raise FieldError(self.name, f"Invalid positive integer in field '{self.name}': {data}")
 
 		try:
-			value = int(data)
+			try:
+				value = int(data)
+			except Exception as that:
+				raise FieldError(self.name, f"Invalid integer in field '{self.name}': {data}") from that
 
 			if value < self.__lower or value > self.__upper:
-				raise FieldError(self.name, f"Value outside bounds ({self.__lower} through {self.__upper})")
+				raise FieldError(self.name, f"Value outside bounds ({self.__lower}..{self.__upper}) in field '{self.name}': {data}")
 
 			self.__data = value
+
+			self._set = True
 		except ValueError as that:
 			raise FieldError(self.name, str(that)) from that
 
@@ -144,10 +157,11 @@ class OptionalStringField(Field):
 
 	@property
 	def type(self) -> str:
-		return "optional string"
+		return "optional, possibly empty string"
 
 	def parse(self, data : str) -> None:
 		self.__data = data
+		self._set = True
 
 
 class StringField(OptionalStringField):
@@ -158,12 +172,30 @@ class StringField(OptionalStringField):
 
 	@property
 	def type(self) -> str:
-		return "optional string"
+		return "mandatory, non-empty string"
 
 	def parse(self, data : str) -> None:
 		if data == "":
-			raise FieldError(self.name, "Field cannot be blank")
+			raise FieldError(self.name, f"Missing value in field '{self.name}'")
 		OptionalStringField.parse(self, data)
+
+
+class ChoiceField(StringField):
+	"""Derived class that implements a choice from a predefined list of valid choices."""
+
+	def __init__(self, name : str, data : str, hint : str, choices : List[str]) -> None:
+		StringField.__init__(self, name, data, hint)
+		self.__choices = choices
+
+	@property
+	def type(self) -> str:
+		return "mandatory value from list of valid values"
+
+	def parse(self, data : str) -> None:
+		if data not in self.__choices:
+			raise FieldError(self.name, f"Invalid value in field '{self.name}': {data}")
+
+		StringField.parse(self, data)
 
 
 class PasswordField(StringField):
@@ -174,7 +206,7 @@ class PasswordField(StringField):
 
 	@property
 	def type(self) -> str:
-		return "password"
+		return "mandatory, non-empty password"
 
 	def parse(self, data : str) -> None:
 		# Report error if the password string is empty.
@@ -206,23 +238,45 @@ class RegexField(StringField):
 
 	@property
 	def type(self) -> str:
-		return "regular expression"
+		return "mandatory regular expression: a string conforming to some criterion"
 
 	def parse(self, data : str) -> None:
-		if not re.fullmatch(self.__regex, data):
-			raise FieldError(self.name, f"Value does not match validating regular expression: {data}")
+		if not data:
+			raise FieldError(self.name, f"Missing value in field '{self.name}'")
+
+		if not re.fullmatch(f"^({self.__regex})$", data):
+			raise FieldError(self.name, f"Invalid value in field '{self.name}': {data}")
+
 		StringField.parse(self, data)
 
 
-class TimeField(OptionalStringField):
-	"""Derived class that implements a time (HH:MM) field."""
+class OptionalRegexField(RegexField):
+	"""Derived class that implements an optional string field validated by a regular expression."""
+
+	def __init__(self, name : str, data : str, hint : str, regex : str) -> None:
+		RegexField.__init__(self, name, data, hint, regex)
+
+	@property
+	def type(self) -> str:
+		return "optional, possibly empty regular expression"
+
+	def parse(self, data : str) -> None:
+		if not data:
+			OptionalStringField.parse(self, data)
+			return
+
+		RegexField.parse(self, data)
+
+
+class OptionalTimeField(OptionalStringField):
+	"""Derived class that implements an optional time (HH:MM) field."""
 
 	def __init__(self, name : str, data : str, hint : str) -> None:
 		OptionalStringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
-		return "time string"
+		return "optional, possibly empty time string of the form HH:MM"
 
 	def parse(self, data : str) -> None:
 		if data == "":
@@ -259,7 +313,7 @@ You should probably record the permanent LAN IP address, if any, here.
 Talk to your network administrator to get a static DCHP lease.
 
 A vertical bar (|) indicates a new line, this way you can write multiple
-lines of text in a single line.
+lines of text in a single line in the 'comment' field.
 """.strip()
 
 
@@ -299,7 +353,7 @@ HOSTNAME_HELP = """
 The unqualified host name, which may consists of US English letters, digits,
 and dashes (-).  It must be 1 to 63 characters long.
 
-If this field is left blank, KioskForge will generate a random name of the
+If this field is left empty, KioskForge will generate a random name of the
 form 'kiosk-NNNNNNNNN', where 'NNNNNNNNN' is a decimal number.
 
 Most commonly, you don't need to worry about the kiosk host name at all.
@@ -308,13 +362,13 @@ Most commonly, you don't need to worry about the kiosk host name at all.
 
 IDLE_TIMEOUT_HELP = """
 The number of seconds of idle time before Chromium is restarted.  A value
-between 0 (disabled) and 86.400 (one full day).
+in the range 0 (disabled) to 86.400 (one full day).
 
 This option has no effect for kiosk types other than 'web'.
 
 Some visitors to kiosks like to sabotage the kiosk, which is the primary
 reason why this option exists.  Also, it is nice to be able to reset a web
- kiosk back to its home page after a given period of no activity from users.
+kiosk back to its starting page after a given period of user inactivity.
 """.strip()
 
 
@@ -337,6 +391,9 @@ order, etc.
 You should pick the most narrow match, say "fr_CA" over "fr" if you're a
 Canadian living in a region of Canada where French is the main language.
 
+Please notice that KioskForge has only been tested with UTF-8 locales:
+Those that end in '.UTF-8'.  No warranties are given for other locales.
+
 A complete list of valid locales can be found at:
 
 https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html
@@ -356,12 +413,12 @@ as this makes the mouse cursor visible to the user.
 POWEROFF_TIME_HELP = """
 The time of day to power off the system.
 
-The value blank disables this option, otherwise it must be a time string of
+An empty string disables this option, otherwise it must be a time string of
 the form HH:MM, which is the hour and minute of when the operation is done.
 
 This option is primarily intended for environments where there are no
 visitors to the kiosk during the night.  In such cases, the kiosk needs to be
-power on by a time switch.
+powered on by a time switch.
 
 If you use a time switch, please remember to use this option to gracefully
 shut down the kiosk.  Most computers benefit from being shut down gracefully
@@ -383,8 +440,8 @@ The valid values are:
 3. flip : The screen has been mounted upside-down.
 4. right: The screen has been rotated 90 degrees to the right.
 
-Please notice that this setting affects both screens without a touch panel
-and screens with a touch panel.
+Please notice that this setting affects both standard screens (without a
+touch panel) and screens with a touch panel.
 """.strip()
 
 
@@ -399,7 +456,7 @@ This depends entirely on the target system:
 
 If you don't need any audio in your kiosk, you should use the value 'none'.
 
-Please notice that the jack stick on the Pi4B and Pi5 requires amplification.
+Please notice that the jack stick on the Pi4B requires amplification.
 """.strip()
 
 
@@ -420,7 +477,7 @@ If 'sound_card' is 'none', this value will be completely ignored.
 SSH_KEY_HELP = """
 The public SSH key for accessing the kiosk using the 'ssh' command.
 
-If blank, SSH access is disabled and you'll need a monitor and a keyboard to
+If empty, SSH access is disabled and you'll need a monitor and a keyboard to
 log into the kiosk machine.
 
 The key can be generated using the 'ssh-keygen' command, which is part of
@@ -428,7 +485,7 @@ Linux but also available on numerous public websites that you can use to
 generate an SSH key pair.  Just do a google of "ssh-keygen online".
 
 To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
-(CLI aka not GUI).
+(CLI/non-GUI).
 
 IMPORTANT:
 If you lose your private key, you cannot access the kiosk using SSH anymore.
@@ -455,8 +512,8 @@ The time zone of the kiosk.
 
 This is typically the local time zone of where the kiosk is located.
 
-Please be aware that the time zone affects time stamps in logs, in the web
-browser, and so on.
+Please be aware that the time zone affects time stamps in logs, the time
+seen by the the web browser, and so on.
 
 Use the most specific, precise time zone from the list below.  There are time
 zones for all regions of Earth, just search for "Africa/" or "Europe/", etc.
@@ -488,7 +545,7 @@ detector).
 UPGRADE_TIME_HELP = """
 The time of day to upgrade the system.
 
-If blank, this option is disabled.
+If empty, this option is disabled.
 
 During upgrades, the following things take place:
 
@@ -497,6 +554,10 @@ During upgrades, the following things take place:
 3. Snaps are upgraded.
 4. Ubuntu packages are upgraded.
 5. The system is rebooted.
+
+Please notice that the maintenance process gracefully handles lack of
+internet.  In that case, no upgrades will be attemped downloaded, etc.,
+and the system will not be rebooted as there is no reason to do so.
 """.strip()
 
 
@@ -522,7 +583,7 @@ into the kiosk.
 USER_FOLDER_HELP = """
 The path of a user folder to copy from the host to the kiosk.
 
-If set to blank, nothing will be copied.  Else the given folder is copied.
+If empty, nothing will be copied, otherwise the given folder is copied.
 
 A "user folder" is a custom folder that may contain various files needed by
 the kiosk, but which are not part of KioskForge.
@@ -541,12 +602,16 @@ to the kiosk so that a new folder '/home/username/Website' is created and
 populated by the files it contains on the host.
 
 If you are creating a 'web' type kiosk that browses a remote website, you
-generally don't need to specify a non-blank value for this setting.
+generally don't need to specify a value for this setting.
 """.strip()
 
 
 USER_NAME_HELP = """
 The user name of the non-root primary Linux user.
+
+Technically, a user name can be from 1 to 256 characters, but most Linux
+tools only a maximum of 32 characters, so this is the limit in KioskForge.
+The user name may only consist of US letters, digits, and underscores (_).
 
 This is the user who runs X11, Chromium and/or any custom user apps.
 
@@ -561,7 +626,7 @@ about it if you use SSH to access the kiosk.
 USER_PACKAGES_HELP = """
 A space-separated list of user packages to install when forging of the kiosk.
 
-If blank, this feature is disabled.
+If empty, this feature is disabled.
 
 This option is rarely necessary, but if you are forging a 'cli' or 'x11' type
 kiosk, you may need to install additional Ubuntu packages while forging the
@@ -574,7 +639,7 @@ The maximum size, in megabytes, of system log files.
 
 This value ranges from 0 (= unlimited) through 4096 (4 gigabytes).
 
-A good value that provides room for perhaps one month of logs is 256.
+A good value that provides room for weeks of logging of a kiosk is 256.
 
 System logs are cleaned out as the first step of the mandatory daily
 maintenance controlled by the 'upgrade_time' option.
@@ -597,9 +662,13 @@ disabled.
 WIFI_CODE_HELP = """
 The password to the Wi-Fi network, if any.
 
+A Wi-Fi password may consist of 8 to 63 extended characters, but it is
+advisable to only use printable ASCII characters to be able to enter
+the password in various operating systems and/or tools.
+
 This setting is case sensitive so that "Pass" is different from "pass".
 
-If left blank and the 'wifi_name' setting is non-blank, the Wi-Fi connection
+If empty and the 'wifi_name' setting is non-blank, the Wi-Fi connection
 will be assumed to be public and open to everybody (without a password).
 """.strip()
 
@@ -607,10 +676,15 @@ will be assumed to be public and open to everybody (without a password).
 WIFI_NAME_HELP = """
 The Wi-Fi network name (SSID).
 
+A Wi-Fi WPK (password) may consists of 1 to 32 characters of unspecified
+value.  In other words, you can use pretty much anything.  However, it is
+advisable to only use ASCII characters so as to make it practical to use
+the password and also avoid breaking or confusing supporting tools.
+
 This setting is case sensitive so that "MyWiFi" is different from "mywifi".
 
-If left blank, Wi-Fi is disabled altogether and a Wi-Fi network is not
-configured.  In this case, 'wifi_code' will be ignored.
+If empty, Wi-Fi is disabled altogether and no Wi-Fi network is configured.
+In this case, 'wifi_code' will be ignored.
 """.strip()
 
 
@@ -623,43 +697,33 @@ class Options:
 	# Make the class backwards compatible with the old 'Setup' class, which used a named data member for each option.
 	def __getattr__(self, name : str) -> Field:
 		if name not in self.__options:
-			raise Error(f"Unknown option: {name}")
+			raise InternalError(f"Unknown option: {name}")
 		return self.__options[name]
 
 	# Make the += operator available to add new options to the 'Options' instance.
 	def __iadd__(self, option : Field) -> Any:
 		if option.name in self.__options:
-			raise Error(f"Option already exists: {option.name}")
+			raise InternalError(f"Option already exists: {option.name}")
 		self.__options[option.name] = option
 		return self
 
 	def items(self) -> ItemsView[str, Field]:
 		return self.__options.items()
 
-	def check(self) -> List[str]:
-		result : List[str] = []
+	def load_list(self, path : str, allow_redefinitions : bool = False) -> List[TextFileError]:
+		# Returns a list of errors encountered while loading the .kiosk file.
+		result = []
 
-		# TODO: Implement generic mechanism for checking all named fields without hard-coding the checks.
-		if False:
-			for option in self.__options.values():
-				result += option.check()
-		elif False:
-			if self.comment.data == "":
-				result.append("Warning: 'comment' value not specified")
-			if self.ssh_key.data == "":
-				result.append("Warning: 'ssh_key' value not specified")
-			if self.wifi_name.data != "" and self.wifi_code.data == "":
-				result.append("Warning: 'wifi_code' value not specified")
-
-		return result
-
-	def load(self, path : str) -> None:
 		# Read in the specified file and split it into individual lines.
 		with open(path, "rt", encoding="utf-8") as stream:
 			lines = stream.read().split('\n')
 
 		# Process each line in turn.
+		number = 0
 		for line in lines:
+			# Increment the line number, used for error reporting.
+			number += 1
+
 			# Remove trailing whitespaces.
 			line = line.rstrip()
 
@@ -667,21 +731,39 @@ class Options:
 			if line == "" or line[0] in ['#', ';']:
 				continue
 
-			# Process unsupported section marker.
-			if line[0] == '[' and line[-1] == ']':
-				raise InputError("Sections not supported in kiosk files")
-
-			# Parse name/data pair (name=data).
-			index = line.find('=')
-			if index == -1:
-				raise InputError(f"Missing delimiter (=) in line: {line}")
-			( name, data ) = ( line[:index].strip(), line[index + 1:].strip() )
-
-			# Store the field.
+			# Append some exceptions to the 'result' list of errors detected while parsing the file.
 			try:
-				getattr(self, name).parse(data)
-			except AttributeError as that:
-				raise FieldError(name, f"Unknown option ignored: {name}") from that
+				# Process unsupported section marker.
+				if line[0] == '[' and line[-1] == ']':
+					raise InputError("Sections not supported in kiosk files")
+
+				# Parse name/data pair (name=data).
+				index = line.find('=')
+				if index == -1:
+					raise InputError("Missing delimiter (=) in line")
+				( name, data ) = ( line[:index].strip(), line[index + 1:].strip() )
+
+				# Fetch the named field or throw exception AttributeError if non-existent.
+				field = getattr(self, name)
+
+				# Check that the field has not already been assigned (set).
+				if not allow_redefinitions and field.assigned:
+					raise InputError(f"Illegal redefinition of field '{name}'")
+
+				# Attempt to parse the field's right-hand-side (its data).
+				field.parse(data)
+			except Error as that:
+				result.append(TextFileError(path, number, that.text))
+			except AttributeError:
+				result.append(TextFileError(path, number, f"Unknown option ignored: {name}"))
+		return result
+
+	def load_safe(self, logger : Logger, path : str) -> None:
+		errors = self.load_list(path)
+		if errors:
+			for error in errors:
+				logger.error(str(error))
+			raise KioskError(f"{len(errors)} error(s) detected while reading file: {path}")
 
 	def save(self, path : str, version : Version) -> None:
 		# Generate KioskForge.cfg.
@@ -733,31 +815,31 @@ class Setup(Options):
 	def __init__(self) -> None:
 		Options.__init__(self)
 
-		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be blank.  All other fields must be set.
+		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
 		self += OptionalStringField("comment", "", COMMENT_HELP)
-		self += RegexField("device", "pi4b", DEVICE_HELP, "(pi4b|pi5|pc)")
-		self += RegexField("type", "web", TYPE_HELP, "(cli|x11|web)")
+		self += RegexField("device", "pi4b", DEVICE_HELP, "pi4b|pi5|pc")
+		self += RegexField("type", "web", TYPE_HELP, "cli|x11|web")
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += RegexField("hostname", hostname_create("kiosk"), HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
-		self += StringField("timezone", "America/Los Angeles", TIMEZONE_HELP)
-		self += RegexField("keyboard", "us", KEYBOARD_HELP, KEYBOARD_REGEX)
-		self += StringField("locale", "en_US.UTF-8", LOCALE_HELP)
-		self += RegexField("sound_card", "none", SOUND_CARD_HELP, "(none|jack|hdmi1|hdmi2)")
+		self += ChoiceField("timezone", "America/Los Angeles", TIMEZONE_HELP, TIMEZONES)
+		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
+		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
+		self += RegexField("sound_card", "none", SOUND_CARD_HELP, "none|jack|hdmi1|hdmi2")
 		self += NaturalField("sound_level", 80, SOUND_LEVEL_HELP, 0, 100)
 		self += BooleanField("mouse", False, MOUSE_HELP)
-		self += StringField("user_name", "kiosk", USER_NAME_HELP)
+		self += RegexField("user_name", "kiosk", USER_NAME_HELP, r"[A-Za-z0-9_]{1,32}")
 		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
-		self += OptionalStringField("wifi_name", "", WIFI_NAME_HELP)
-		self += OptionalStringField("wifi_code", "", WIFI_CODE_HELP)
+		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
+		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}")
 		self += BooleanField("wifi_boost", True, WIFI_BOOST_HELP)
 		self += BooleanField("cpu_boost", True, CPU_BOOST_HELP)
 		self += NaturalField("swap_size", 4, SWAP_SIZE_HELP, 0, 128)
 		self += NaturalField("vacuum_size", 256, VACUUM_SIZE_HELP, 0, 4096)
-		self += TimeField("upgrade_time", "05:00", UPGRADE_TIME_HELP)
-		self += TimeField("poweroff_time", "", POWEROFF_TIME_HELP)
+		self += OptionalTimeField("upgrade_time", "05:00", UPGRADE_TIME_HELP)
+		self += OptionalTimeField("poweroff_time", "", POWEROFF_TIME_HELP)
 		self += NaturalField("idle_timeout", 0, IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
-		self += RegexField("screen_rotation", "none", SCREEN_ROTATION_HELP, "(none|left|flip|right)")
+		self += RegexField("screen_rotation", "none", SCREEN_ROTATION_HELP, "none|left|flip|right")
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
 

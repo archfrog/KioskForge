@@ -709,9 +709,6 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
-		# NOTE: No need for a logger in KioskForge as it does very few things and some of them interactively.
-		del logger
-
 		# Output copyright information, etc.
 		print(self.version.banner())
 		print()
@@ -726,24 +723,21 @@ class KioskForge(KioskDriver):
 
 		# Bloody hack to support double-clicking on a '.kiosk' file in Windows Explorer follows...
 		if len(arguments) == 1:
-			first_path = arguments[0]
+			filename = arguments[0]
 		else:
-			first_path = ""
+			filename = ""
 
 		# Show the main menu.
 		# TODO: Warn the user against saving if the kiosk is blank.
 		setup = Setup()
 		editor = Editor()
 		changed = False
-		filename = ""
+
+		if filename:
+			setup.load_safe(logger, filename)
+
 		while True:
 			try:
-				if first_path:
-					setup.load(first_path)
-					filename = first_path
-					changed = False
-					first_path = ""
-
 				print(f"Kiosk file: {filename if filename != '' else '(none)'}")
 				print()
 
@@ -785,7 +779,7 @@ class KioskForge(KioskDriver):
 							continue
 
 						try:
-							setup.load(answer)
+							setup.load_safe(logger, answer)
 							filename = answer
 
 							print("Kiosk successfully loaded from disk")

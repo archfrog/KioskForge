@@ -24,7 +24,7 @@ from typing import Any, Dict
 
 # Converts the keys of the specified dictionary into a regular expression that validates the given set of keys.
 def dict_to_regex(dictionary : Dict[str, Any]) -> str:
-	return "(" + "|".join(dictionary.keys()) + ")"
+	return "|".join(dictionary.keys())
 
 
 # Dictionary of valid responses in various prompts and their mappings to the corresponding boolean values.

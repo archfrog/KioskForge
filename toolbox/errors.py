@@ -18,6 +18,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 class Error(Exception):
 	"""The base class for all exceptions."""
 
@@ -42,6 +43,30 @@ class InputError(Error):
 
 	def __init__(self, text : str) -> None:
 		Error.__init__(self, text)
+
+
+class TextFileError(InputError):
+	"""Exception used to report an error in a specific line of a specific file."""
+
+	def __init__(self, file : str, line : int, text : str) -> None:
+		InputError.__init__(self, text)
+		self.__file = file
+		self.__line = line
+
+	@property
+	def file(self) -> str:
+		return self.__file
+
+	@property
+	def line(self) -> int:
+		return self.__line
+
+	def __str__(self) -> str:
+		result = "(" + self.__file
+		if self.__line:
+			result += ":" + str(self.__line)
+		result += ") Error: " + self.text
+		return result
 
 
 class FieldError(InputError):
