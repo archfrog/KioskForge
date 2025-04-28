@@ -238,7 +238,7 @@ class RegexField(StringField):
 
 	@property
 	def type(self) -> str:
-		return "mandatory regular expression: a string conforming to some criterion"
+		return "mandatory regular expression: a valid pattern"
 
 	def parse(self, data : str) -> None:
 		if not data:
@@ -772,7 +772,7 @@ class Options:
 		# Generate KioskForge.cfg.
 		with TextWriter(path) as stream:
 			stream.write(f"# {version.product} v{version.version} kiosk definition file.")
-			stream.write("# Please feel free to edit this file using your favorite text editor.")
+			stream.write("# Please edit this file using your favorite text editor such as Notepad.")
 			stream.write("")
 
 			for name in self.__options:
@@ -821,14 +821,14 @@ class Setup(Options):
 
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
 		self += OptionalStringField("comment", "", COMMENT_HELP)
-		self += RegexField("device", "pi4b", DEVICE_HELP, "pi4b|pi5|pc")
-		self += RegexField("type", "web", TYPE_HELP, "cli|x11|web")
+		self += ChoiceField("device", "pi4b", DEVICE_HELP, ["pi4b", "pi5", "pc"])
+		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web"])
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += OptionalRegexField("hostname", "", HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
 		self += ChoiceField("timezone", "America/Los_Angeles", TIMEZONE_HELP, TIMEZONES)
 		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
-		self += RegexField("sound_card", "none", SOUND_CARD_HELP, "none|jack|hdmi1|hdmi2")
+		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", 80, SOUND_LEVEL_HELP, 0, 100)
 		self += BooleanField("mouse", False, MOUSE_HELP)
 		self += RegexField("user_name", "kiosk", USER_NAME_HELP, r"[A-Za-z0-9_]{1,32}")
@@ -843,7 +843,7 @@ class Setup(Options):
 		self += OptionalTimeField("upgrade_time", "05:00", UPGRADE_TIME_HELP)
 		self += OptionalTimeField("poweroff_time", "", POWEROFF_TIME_HELP)
 		self += NaturalField("idle_timeout", 0, IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
-		self += RegexField("screen_rotation", "none", SCREEN_ROTATION_HELP, "none|left|flip|right")
+		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
 
