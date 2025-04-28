@@ -144,8 +144,8 @@ class Recognizer:
 				attempts += 1
 
 				# NOTE: Windows takes a little while to discover the written image, so we try once more if we fail at first.
-				print("ALERT: Waiting three seconds for installation media to be discovered by the host operating system...")
-				print("ALERT: If you have not already done so, please insert the installation media to proceed.")
+				print("NOTE: Waiting three seconds for installation media to be discovered by the host operating system...")
+				print("NOTE: If you have not already done so, please insert the installation media to proceed.")
 				print()
 				time.sleep(3)
 				continue
@@ -270,89 +270,38 @@ class KernelOptions:
 			stream.write(' '.join(self.__options))
 
 
-class Editor:
-	"""Very simple editor for selecting choices and editing configurations."""
+def menu_select(title : str, choices : List[str]) -> int:
+	print(title + ":")
 
-	def confirm(self, question : str) -> bool:
-		answer = ""
-		while answer not in BOOLEANS:
-			answer = input(question + " (y/n)? ").strip().lower()
-		return BOOLEANS[answer]
+	while True:
+		try:
+			print()
+			index = 0
+			while index < len(choices):
+				value = choices[index]
+				index += 1
+				print(f"{index:2d}) {value}")
+			print()
+			del index
 
-	def edit(self, setup : Setup) -> bool:
-		changed = False
-		names = {}
-		while True:
-			try:
-				index = 0
-				for name, field in setup.items():
-					index += 1
-					names[index] = name
-					print(f"{index:2d}) {name:15s} = {field.text}")
-				print()
+			answer = input("Enter choice (ENTER to quit): ").strip()
+			print()
 
-				answer = input("Please enter number or ENTER to quit: ").strip()
-				if answer == "":
-					return changed
+			if answer == "":
+				return -1
 
-				if not answer.isdigit():
-					raise InputError("Enter a valid number")
+			if not answer.isdigit():
+				raise InputError(f"Please enter an integer between 1 and {len(choices)}")
 
-				choice = int(answer)
-				if choice == 0 or choice > index:
-					raise InputError(f"Enter a valid number in the range 1 through {index}")
+			choice = int(answer) - 1
+			if choice < 0 or choice >= len(choices):
+				raise InputError(f"Please enter a number between 1 and {len(choices)}")
 
-				print(78 * "*")
-				hint = getattr(setup, names[choice]).hint
-				print(f"{hint}")
-				del hint
-				print(78 * "*")
-				value = input("Enter new value (ENTER to leave unchanged): ").strip()
-				if value == "":
-					break
+			break
+		except InputError as that:
+			raise KioskError(that.text) from that
 
-				# Attempt to assign the new field value, this may cause a 'FieldError' exception to be thrown.
-				getattr(setup, names[choice]).parse(value)
-				changed = True
-			except FieldError as that:
-				print(f"Error: Field '{that.field}' invalid: {that.text}")
-			except InputError as that:
-				print(f"Error: {that.text}")
-
-		return changed
-
-	def select(self, title : str, choices : List[str]) -> int:
-		print(title + ":")
-
-		while True:
-			try:
-				print()
-				index = 0
-				while index < len(choices):
-					value = choices[index]
-					index += 1
-					print(f"{index:2d}) {value}")
-				print()
-				del index
-
-				answer = input("Enter choice (ENTER to quit): ").strip()
-				print()
-
-				if answer == "":
-					return -1
-
-				if not answer.isdigit():
-					raise InputError(f"Please enter an integer between 1 and {len(choices)}")
-
-				choice = int(answer) - 1
-				if choice < 0 or choice >= len(choices):
-					raise InputError(f"Please enter a number between 1 and {len(choices)}")
-
-				break
-			except InputError as that:
-				raise KioskError(that.text) from that
-
-		return choice
+	return choice
 
 
 class KioskForge(KioskDriver):
@@ -718,255 +667,137 @@ class KioskForge(KioskDriver):
 			raise KioskError("This script can currently only be run on a Windows machine")
 
 		# Parse command-line arguments.
-		if len(arguments) > 1:
-			raise CommandError("\"KioskForge.py\"")
+		if len(arguments) != 1:
+			raise CommandError("\"KioskForge.py\" kiosk-file")
 
-		# Bloody hack to support double-clicking on a '.kiosk' file in Windows Explorer follows...
-		if len(arguments) == 1:
-			filename = arguments[0]
-		else:
-			filename = ""
+		# "Parse" the command-line arguments.
+		filename = arguments[0]
 
-		# Show the main menu.
-		# TODO: Warn the user against saving if the kiosk is blank.
+		# Load the specified kiosk.
 		setup = Setup()
-		editor = Editor()
-		changed = False
+		setup.load_safe(logger, filename)
 
-		if filename:
-			setup.load_safe(logger, filename)
+		print(f"Kiosk file: {filename}")
+		print()
 
-		while True:
-			try:
-				print(f"Kiosk file: {filename if filename != '' else '(none)'}")
-				print()
+		# Update installation media.
 
-				# Present a menu of valid choices for the user to make.
-				choices = [
-					"Create new kiosk in memory",
-					"Load existing kiosk from disk",
-					"Edit created or loaded kiosk",
-					"Save kiosk to disk",
-					"Update Raspberry Pi Imager prepared installation media",
-				]
-				choice = editor.select("Select a menu choice", choices)
+		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
+		targets = Recognizer().identify()
+		match len(targets):
+			case 0:
+				raise KioskError("Unable to locate/identify installation medium on this machine")
+			case 1:
+				target = targets[0]
+			case _:
+				raise KioskError("More than one installation medium detected - please remove all but one")
+		del targets
 
-				# Process the requested menu command.
-				match choice:
-					case -1:
-						if changed:
-							raise KioskError("Kiosk has unsaved changes")
+		# Report the kind of image that was discovered.
+		print(
+			f"Discovered {target.kind} {target.product} {target.edition} {target.version}" +
+			f" ({target.cpukind.upper()}) installation medium at {target.basedir}"
+		)
+		print()
 
-						# Exit program.
-						break
-					case 0:
-						if changed:
-							raise KioskError("Kiosk has unsaved changes")
+		# Only accept Ubuntu Server images for AMD64/ARM64 for now.
+		accept = True
+		accept &= (target.product == "Ubuntu")
+		accept &= (target.edition == "Server")
+		accept &= (target.version in ["24.04.1", "24.04.2"])
+		accept &= (target.cpukind in ["amd64", "arm64"])
+		if not accept:
+			raise KioskError("Only Ubuntu Server 24.04.x images for AMD64/ARM64 CPUs are supported")
+		del accept
 
-						# Create new kiosk.
-						setup = Setup()
-						filename = ""
-						changed = False
+		print("Preparing kiosk image for first boot.")
+		print()
 
-						print("New kiosk successfully created in memory.")
-						print()
-					case 1:
-						# Load existing kiosk from disk.
-						answer = input("Please enter or paste full path of kiosk file (*.kiosk): ").strip()
-						print()
+		# Append options to quiet both the kernel and systemd.
+		if target.kind == "PI":
+			kernel_options = KernelOptions()
+			kernel_options.load(target.basedir + "cmdline.txt")
+			#...Ask the kernel to shut up.
+			kernel_options.append("quiet")
+			#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
+			kernel_options.append("log_level=3")
+			#...Ask systemd to shut up.
+			kernel_options.append("systemd.show_status=auto")
+			kernel_options.save(target.basedir + "cmdline.txt")
 
-						if answer == "":
-							continue
+			# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
+			if setup.device.data == "pi4b" and not setup.cpu_boost.data:
+				with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
+					text = stream.read()
+				text = text.replace("arm_boost=1", "arm_boost=0")
+				with open(target.basedir + "config.txt", "wt", encoding="utf8") as stream:
+					stream.write(text)
+		elif target.kind == "PC":
+			# TODO: Figure out a way to provide kernel command-line options when targeting a PC (not done easily).
+			pass
+		else:
+			raise InternalError(f"Unknown target kind: {target.kind}")
 
-						try:
-							setup.load_safe(logger, answer)
-							filename = answer
+		# Write cloudinit or Subiquity configuration files to automate install completely.
+		if target.install == "cloudinit":
+			# Generate Cloud-init's meta-data file from scratch (to be sure of what's in it).
+			self.save_cloudinit_metadata(setup, target.basedir + "meta-data")
 
-							print("Kiosk successfully loaded from disk")
-						except FileNotFoundError as that:
-							raise KioskError("Unable to load the specified file - is the path correct?") from that
-						except FieldError as that:
-							raise KioskError(f"Field '{that.field}' invalid: {that.text}") from that
-						except InputError as that:
-							raise KioskError(that.text) from that
-						print()
+			# Generate Cloud-init's network-config file from scratch (to be sure of what's in it).
+			self.save_cloudinit_network_config(setup, target.basedir + "network-config")
 
-						changed = False
-					case 2:
-						# Edit kiosk.
-						# Allow the user to re-edit the kiosk as long as there are errors.
-						try:
-							changed |= editor.edit(setup)
-						except FieldError as that:
-							print(f"Error: Field '{that.field}' invalid: {that.text}")
-							continue
-						except InputError as that:
-							print(f"Error: {that.text}")
-							continue
+			# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
+			self.save_cloudinit_userdata(setup, target, target.basedir + "user-data")
+		elif target.install == "subiquity":
+			# Generate Subiquity's autoinstall.yaml file.
+			self.save_subiquity_yaml(setup, target, target.basedir + "autoinstall.yaml")
+		else:
+			raise KioskError(f"Unknown installer type: {target.install}")
 
-						# Report errors detected after changing the selected kiosk.
-						errors = setup.check()
-						if not errors:
-							continue
+		# Compute output folder.
+		output = target.basedir + "KioskForge"
 
-						print()
-						print("Warnings(s) detected in configuration:")
-						print()
-						for error in errors:
-							print(">>> " + error)
-						print()
-						del errors
-					case 3:
-						# Save kiosk.
-						# Allow the user to save the kiosk.
-						answer = input(f"Please enter/paste full path: (blank = {filename}): ").strip()
-						print()
+		# Remove previous KioskForge folder on installation medium, if any.
+		if os.path.isdir(output):
+			shutil.rmtree(output)
 
-						if answer == "":
-							answer = filename
+		# Create KioskForge folder on the installation medium.
+		os.makedirs(output)
 
-						if not answer.endswith(".kiosk"):
-							raise KioskError("KioskForge kiosk configuration files MUST end in .kiosk")
+		# Write configuration to the target.
+		setup.save(output + os.sep + "KioskForge.kiosk", self.version)
 
-						# Create new folder, if any, and save the configuration.
-						folder = os.path.dirname(os.path.abspath(answer))
-						os.makedirs(folder, exist_ok=True)
-						setup.save(answer, self.version)
-						del folder
-						changed = False
+		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
+		names = ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]
+		for name in names:
+			if os.path.isfile(origin + os.sep + name):
+				shutil.copyfile(origin + os.sep + name, output + os.sep + name)
+			else:
+				shutil.copytree(origin + os.sep + name, output + os.sep + name)
+		del names
 
-						filename = answer
-						del answer
-					case 4:
-						# Check if a kiosk has been created or loaded.
-						if not filename and not changed:
-							raise KioskError("No kiosk defined, cannot forge the kiosk")
+		# Copy user folder, if any, to the install medium so that it can be copied onto the target.
+		if setup.user_folder.data:
+			if setup.user_folder.data == "KioskForge":
+				raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
 
-						# Update installation media.
-						# Identify the kind and path of the kiosk machine image (currently only works on Windows).
-						targets = Recognizer().identify()
-						match len(targets):
-							case 0:
-								raise KioskError("Unable to locate/identify installation medium on this machine")
-							case 1:
-								target = targets[0]
-							case _:
-								raise KioskError("More than one installation medium detected - please remove all but one")
-						del targets
+			# Use 'abspath' to the handle the case that the user folder is identical to '.'.
+			source = os.path.abspath(os.path.join(os.path.dirname(filename), setup.user_folder.data))
+			# Extract the last portion of the source's full path to get the name of the folder on the install medium.
+			basename = os.path.basename(source)
+			destination = target.basedir + os.sep + basename
+			del basename
 
-						# Report the kind of image that was discovered.
-						print(
-							f"Discovered {target.kind} {target.product} {target.edition} {target.version}" +
-							f" ({target.cpukind.upper()}) installation medium at {target.basedir}"
-						)
-						print()
+			if os.path.isdir(destination):
+				shutil.rmtree(destination)
 
-						# Only accept Ubuntu Server images for AMD64/ARM64 for now.
-						accept = True
-						accept &= (target.product == "Ubuntu")
-						accept &= (target.edition == "Server")
-						accept &= (target.version in ["24.04.1", "24.04.2"])
-						accept &= (target.cpukind in ["amd64", "arm64"])
-						if not accept:
-							raise KioskError("Only Ubuntu Server 24.04.x images for AMD64/ARM64 CPUs are supported")
-						del accept
+			shutil.copytree(source, destination)
+			del source
+			del destination
 
-						print("Preparing kiosk image for first boot.")
-						print()
-
-						# Append options to quiet both the kernel and systemd.
-						if target.kind == "PI":
-							kernel_options = KernelOptions()
-							kernel_options.load(target.basedir + "cmdline.txt")
-							#...Ask the kernel to shut up.
-							kernel_options.append("quiet")
-							#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
-							kernel_options.append("log_level=3")
-							#...Ask systemd to shut up.
-							kernel_options.append("systemd.show_status=auto")
-							kernel_options.save(target.basedir + "cmdline.txt")
-
-							# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-							if setup.device.data == "pi4b" and not setup.cpu_boost.data:
-								with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
-									text = stream.read()
-								text = text.replace("arm_boost=1", "arm_boost=0")
-								with open(target.basedir + "config.txt", "wt", encoding="utf8") as stream:
-									stream.write(text)
-						elif target.kind == "PC":
-							# TODO: Figure out a way to provide kernel command-line options when targeting a PC (not done easily).
-							pass
-						else:
-							raise InternalError(f"Unknown target kind: {target.kind}")
-
-						# Write cloudinit or Subiquity configuration files to automate install completely.
-						if target.install == "cloudinit":
-							# Generate Cloud-init's meta-data file from scratch (to be sure of what's in it).
-							self.save_cloudinit_metadata(setup, target.basedir + "meta-data")
-
-							# Generate Cloud-init's network-config file from scratch (to be sure of what's in it).
-							self.save_cloudinit_network_config(setup, target.basedir + "network-config")
-
-							# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
-							self.save_cloudinit_userdata(setup, target, target.basedir + "user-data")
-						elif target.install == "subiquity":
-							# Generate Subiquity's autoinstall.yaml file.
-							self.save_subiquity_yaml(setup, target, target.basedir + "autoinstall.yaml")
-						else:
-							raise KioskError(f"Unknown installer type: {target.install}")
-
-						# Compute output folder.
-						output = target.basedir + "KioskForge"
-
-						# Remove previous KioskForge folder on installation medium, if any.
-						if os.path.isdir(output):
-							shutil.rmtree(output)
-
-						# Create KioskForge folder on the installation medium.
-						os.makedirs(output)
-
-						# Write configuration to the target.
-						setup.save(output + os.sep + "KioskForge.kiosk", self.version)
-
-						# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-						names = ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]
-						for name in names:
-							if os.path.isfile(origin + os.sep + name):
-								shutil.copyfile(origin + os.sep + name, output + os.sep + name)
-							else:
-								shutil.copytree(origin + os.sep + name, output + os.sep + name)
-						del names
-
-						# Copy user folder, if any, to the install medium so that it can be copied onto the target.
-						if setup.user_folder.data:
-							if setup.user_folder.data == "KioskForge":
-								raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
-
-							# Use 'abspath' to the handle the case that the user folder is identical to '.'.
-							source = os.path.abspath(os.path.join(os.path.dirname(filename), setup.user_folder.data))
-							# Extract the last portion of the source's full path to get the name of the folder on the install medium.
-							basename = os.path.basename(source)
-							destination = target.basedir + os.sep + basename
-							del basename
-
-							if os.path.isdir(destination):
-								shutil.rmtree(destination)
-
-							shutil.copytree(source, destination)
-							del source
-							del destination
-
-						# Report success to the log.
-						print(f"Preparation of boot image successfully completed - please eject/unmount {target.basedir} safely.")
-						print()
-					case _:
-						raise KioskError(f"Unknown main menu choice: {choice}")
-			except FieldError as that:
-				print(f"*** Error: Field '{that.field}': {that.text}")
-				print()
-			except KioskError as that:
-				print(f"*** Error: {that.text}")
-				print()
+		# Report success to the log.
+		print(f"Preparation of boot image successfully completed - please eject/unmount {target.basedir} safely.")
+		print()
 
 
 if __name__ == "__main__":
