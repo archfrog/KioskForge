@@ -155,7 +155,7 @@ class KioskBuild(KioskDriver):
 			output_file=rootpath + os.sep + "version.txt",
 			version=self.version.version,
 			company_name=self.version.company,
-			file_description=f"{self.version.product} - A tool to forge an Ubuntu Linux kiosk machine.",
+			file_description=self.version.product,
 			internal_name=self.version.product,
 			legal_copyright="Copyright © " + self.version.company + ". All Rights Reserved.",
 			original_filename=self.version.product + ".exe",
