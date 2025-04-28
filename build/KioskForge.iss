@@ -6,9 +6,10 @@
 #define MyAppPublisher "Vendsyssel Historiske Museum"
 #define MyAppURL "https://kioskforge.org/"
 #define MyAppExeName MyAppName + ".exe"
-#define MyAppAssocName MyAppName + " Kiosk File"
+#define MyAppAssocName MyAppName + " Kiosk"
 #define MyAppAssocExt ".kiosk"
-#define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
+;#define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
+#define MyAppAssocKey "KioskForge.Kiosk.0"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -33,7 +34,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-;DefaultGroupName={#MyAppName}
+DefaultGroupName={#MyAppName}
 LicenseFile=..\src\LICENSE
 ;InfoAfterFile=..\src\LICENSE
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
@@ -63,10 +64,16 @@ Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
+Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppAssocKey}"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}"; ValueType: string; ValueName: "Content Type"; ValueData: "text/plain"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}"; ValueType: string; ValueName: "PerceivedType"; ValueData: "text"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\OpenWithProgids"; ValueType: string; ValueName: "{#MyAppAssocKey}"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\{#MyAppAssocKey}\ShellNew"; ValueType: string; ValueName: "FileName"; ValueData: "{app}\Template.kiosk"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppAssocName}"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
+Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\edit\command"; ValueType: string; ValueName: ""; ValueData: """{#GetEnv('SystemRoot')}\system32\NOTEPAD.EXE"" ""%1"""
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+;Root: HKCR; Subkey: "Applications\{#MyAppExeName}"; ValueType: string, ValueName: "FriendlyAppName"; ValueDate: "{#MyAppName}"; Flags: uninsdeletekey
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
