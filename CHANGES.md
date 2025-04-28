@@ -1,8 +1,6 @@
 # KioskForge Change Log
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
-## Version
-
 ## Version 0.18 (2025.04.28)
 1. Initial support for the Raspberry Pi 5 has been added.  Sound support on the Pi 5 has not been tested yet, though.
 2. The built-in editor has been retired.  Currently, KioskForge can only be used to prepare a kiosk installation medium.
