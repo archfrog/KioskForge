@@ -778,7 +778,7 @@ class Options:
 			stream.write("# Please feel free to edit this file using your favorite text editor.")
 			stream.write("")
 
-			for name in self.__options.keys():
+			for name in self.__options:
 				# Fetcht the next field to output.
 				field = getattr(self, name)
 
