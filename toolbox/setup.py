@@ -679,7 +679,7 @@ the password in various operating systems and/or tools.
 
 This setting is case sensitive so that "Pass" is different from "pass".
 
-If empty and the 'wifi_name' setting is non-blank, the Wi-Fi connection
+If empty and the 'wifi_name' setting is non-empty, the Wi-Fi connection
 will be assumed to be public and open to everybody (without a password).
 """.strip()
 
@@ -804,7 +804,7 @@ class Options:
 				# Write the field name and data.
 				stream.write(f"{field.name}={field.text}")
 
-				# Output a blank line between options and after the last option.
+				# Output an empty line between options and after the last option.
 				stream.write("")
 
 
