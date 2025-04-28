@@ -779,7 +779,7 @@ class Options:
 			stream.write("")
 
 			for name in self.__options:
-				# Fetcht the next field to output.
+				# Fetch the next field to output.
 				field = getattr(self, name)
 
 				# Write a line of asterisks to indicate start of option's help text.
