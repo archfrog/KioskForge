@@ -21,8 +21,8 @@
 PRODUCT = "KioskForge"
 VERSION = "0.18"
 COMPANY = "Vendsyssel Historiske Museum"
-CONTACT = "me@vhm.dk"
-TESTING = True
+CONTACT = "Mikael Egevig <me@vhm.dk>"
+WEBSITE = "https://kioskforge.org/"
 
 class Version:
 	"""A simple wrapper around everything related to version information about the running script."""
@@ -33,11 +33,11 @@ class Version:
 		self.version = VERSION
 		self.company = COMPANY
 		self.contact = CONTACT
-		self.testing = TESTING
 
 	def banner(self) -> str:
-		result  = f"{self.program} v{self.version}{' (TEST)' if self.testing else ''}"
-		result += f" - Copyright (c) 2024-2025 {self.company} ({self.contact}).  All Rights Reserved."
+		result  = f"{self.program} v{self.version} - {WEBSITE} - {CONTACT}"
+		result += "\n"
+		result += f"Copyright (c) 2024-2025 {self.company}.  All Rights Reserved."
 		return result
 
 
