@@ -69,8 +69,8 @@ class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
 	def __init__(self, name : str, data : str, hint : str) -> None:
-		Field.__init__(self, name, hint)
 		self.__data = False
+		Field.__init__(self, name, hint)
 
 		self.parse(data)
 
@@ -103,10 +103,10 @@ class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
 	def __init__(self, name : str, data : str, hint : str, lower : int, upper : int) -> None:
-		Field.__init__(self, name, hint)
 		self.__data  = 0
 		self.__lower = lower
 		self.__upper = upper
+		Field.__init__(self, name, hint)
 
 		self.parse(data)
 
@@ -148,8 +148,8 @@ class OptionalStringField(Field):
 	"""Derived class that implements an optional string field."""
 
 	def __init__(self, name : str, data : str, hint : str) -> None:
-		Field.__init__(self, name, hint)
 		self.__data = ""
+		Field.__init__(self, name, hint)
 
 		self.parse(data)
 
@@ -190,8 +190,8 @@ class ChoiceField(StringField):
 	"""Derived class that implements a choice from a predefined list of valid choices."""
 
 	def __init__(self, name : str, data : str, hint : str, choices : List[str]) -> None:
-		StringField.__init__(self, name, data, hint)
 		self.__choices = choices
+		StringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -235,8 +235,8 @@ class RegexField(StringField):
 	"""Derived class that implements a string field validated by a regular expression."""
 
 	def __init__(self, name : str, data : str, hint : str, regex : str) -> None:
-		StringField.__init__(self, name, data, hint)
 		self.__regex = regex
+		StringField.__init__(self, name, data, hint)
 
 	@property
 	def regex(self) -> str:
