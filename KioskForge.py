@@ -642,11 +642,6 @@ class KioskForge(KioskDriver):
 		setup = Setup()
 		setup.load_safe(logger, filename)
 
-		print(f"Kiosk file: {filename}")
-		print()
-
-		# Update installation media.
-
 		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 		targets = Recognizer().identify()
 		match len(targets):
@@ -674,6 +669,30 @@ class KioskForge(KioskDriver):
 		if not accept:
 			raise KioskError("Only Ubuntu Server 24.04.x images for AMD64/ARM64 CPUs are supported")
 		del accept
+
+		# Display a synopsis of the selected kiosk, incuding the comment, hostname, and possibly more.
+		print("*** Summary (some fields intentionally left out):")
+		print()
+		print(f"    Kiosk        : {filename}")
+		print(f"    Comment      : {setup.comment.data}")
+		print(f"    Device       : {setup.device.data}")
+		print(f"    Type         : {setup.type.data}")
+		print(f"    Command      : {setup.command.data}")
+		print(f"    Host name    : {setup.hostname.data}")
+		print(f"    Time zone    : {setup.timezone.data}")
+		print(f"    Keyboard     : {setup.keyboard.data}")
+		print(f"    Locale       : {setup.locale.data}")
+		print(f"    Sound card   : {setup.sound_card.data}")
+		print(f"    User name    : {setup.user_name.data}")
+		print(f"    Wi-Fi name   : {setup.wifi_name.data}")
+		print(f"    Upgrade time : {setup.upgrade_time.data}")
+		print(f"    Poweroff time: {setup.poweroff_time.data}")
+		print(f"    Rotation     : {setup.screen_rotation.data}")
+		print(f"    User folder  : {setup.user_folder.data}")
+		print()
+
+		print("*** Press ENTER to prepare kiosk installation image or Ctrl-C to abort")
+		input()
 
 		print("Preparing kiosk image for first boot.")
 		print()
