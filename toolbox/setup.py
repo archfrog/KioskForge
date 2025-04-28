@@ -19,7 +19,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import Any, Dict, ItemsView, List
+from typing import Any, Dict, List
 
 import re
 import secrets
@@ -711,9 +711,6 @@ class Options:
 			raise InternalError(f"Option already exists: {option.name}")
 		self.__options[option.name] = option
 		return self
-
-	def items(self) -> ItemsView[str, Field]:
-		return self.__options.items()
 
 	def load_list(self, path : str, allow_redefinitions : bool = False) -> List[TextFileError]:
 		# Returns a list of errors encountered while loading the .kiosk file.
