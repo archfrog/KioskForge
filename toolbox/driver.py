@@ -90,7 +90,7 @@ class KioskDriver:
 		# If not running from a console, wait for a keypress so that the user can read the output.
 		if platform.system() == "Windows" and not "PROMPT" in os.environ:
 			print()
-			input("Press ENTER to continue and close this window")
+			input("*** Press ENTER to continue and close this window")
 
 		return status
 

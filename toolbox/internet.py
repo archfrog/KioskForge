@@ -37,5 +37,6 @@ def internet_active() -> bool:
 
 def lan_ip_address() -> str:
 	result = invoke_text("hostname -I")
-	return f"*** LAN IP: {result.output if result.status == 0 else '(none)'}"
+	address = result.output.strip() if result.status == 0 else '(unknown)'
+	return address
 

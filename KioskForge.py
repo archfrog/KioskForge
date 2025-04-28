@@ -761,8 +761,15 @@ class KioskForge(KioskDriver):
 			del destination
 
 		# Report success to the log.
-		print(f"Preparation of boot image successfully completed - please eject/unmount {target.basedir} safely.")
-		print()
+		match platform.system():
+			case "Windows":
+				action = "eject"
+			case "Linux":
+				action = "unmount"
+			case _:
+				raise KioskError(f"Unknown host operating system: {platform.system()}")
+		print(f"Preparation of boot image successfully completed - please {action} {target.basedir} safely.")
+		del action
 
 
 if __name__ == "__main__":

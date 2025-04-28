@@ -6,7 +6,7 @@
 #define MyAppPublisher "Vendsyssel Historiske Museum"
 #define MyAppURL "https://kioskforge.org/"
 #define MyAppExeName MyAppName + ".exe"
-#define MyAppAssocName MyAppName + " File"
+#define MyAppAssocName MyAppName + " Kiosk File"
 #define MyAppAssocExt ".kiosk"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
 

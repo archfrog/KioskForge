@@ -54,7 +54,7 @@ class Field:
 		return self.__name
 
 	@property
-	def assigned(self) -> bool:
+	def changed(self) -> bool:
 		return self._set
 
 	@property
@@ -353,10 +353,15 @@ HOSTNAME_HELP = """
 The unqualified host name, which may consists of US English letters, digits,
 and dashes (-).  It must be 1 to 63 characters long.
 
-If this field is left empty, KioskForge will generate a random name of the
-form 'kiosk-NNNNNNNNN', where 'NNNNNNNNN' is a decimal number.
-
 Most commonly, you don't need to worry about the kiosk host name at all.
+
+If this field is left empty, the forge process will automatically create a
+host name of the form "kioskforge-NNNNNNNNN", where NNNNNNNNN is a number
+in the range zero through 2,147,483,638.
+
+IMPORTANT:
+You should never have two machines with the same host name on a local area
+network (LAN).  This may cause issues with Windows and other systems.
 """.strip()
 
 
@@ -747,7 +752,7 @@ class Options:
 				field = getattr(self, name)
 
 				# Check that the field has not already been assigned (set).
-				if not allow_redefinitions and field.assigned:
+				if not allow_redefinitions and field.changed:
 					raise InputError(f"Illegal redefinition of field '{name}'")
 
 				# Attempt to parse the field's right-hand-side (its data).
@@ -801,8 +806,9 @@ class Options:
 
 
 def hostname_create(basename : str) -> str:
-	random = secrets.randbelow(2**32)
-	return f"{basename}-{random}"
+	"""Creates a unique host name of the form 'basename-number', where number is an integer in the range zero through 2**31."""
+	number = secrets.randbelow(2**31)
+	return f"{basename}-{number}"
 
 
 # Source: https://stackoverflow.com/a/63160092
@@ -821,7 +827,7 @@ class Setup(Options):
 		self += RegexField("device", "pi4b", DEVICE_HELP, "pi4b|pi5|pc")
 		self += RegexField("type", "web", TYPE_HELP, "cli|x11|web")
 		self += StringField("command", "https://google.com", COMMAND_HELP)
-		self += RegexField("hostname", hostname_create("kiosk"), HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
+		self += OptionalRegexField("hostname", "", HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
 		self += ChoiceField("timezone", "America/Los_Angeles", TIMEZONE_HELP, TIMEZONES)
 		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
