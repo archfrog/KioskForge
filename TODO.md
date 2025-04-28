@@ -22,7 +22,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.04.28.04.18 H Implement and document constraints of `wifi_name`, `wifi_code`, `user_name`, and `user_pass`.
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.
@@ -149,6 +148,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.28.04.18 H Implement and document constraints of `wifi_name`, `wifi_code`, `user_name`, and `user_pass`.
 - [x] 2025.04.28.05.38 H Figure out why the `wifi_code` regex accepts more than 63 characters.  It doesn't, buggy test case...
 - [x] 2025.04.28.07.57 H Do *not* bypass the `parse` method when assigning default values to `Field` instances! This can hide bugs!
 - [x] 2025.04.28.01.47 H `Setup` must generate a host name and/or password if either of these is blank.  Nope, then they're invalid.
