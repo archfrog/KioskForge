@@ -39,9 +39,8 @@ import time
 
 import bcrypt
 
-from toolbox.convert import BOOLEANS
 from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, FieldError, InputError, InternalError, KioskError
+from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.logger import Logger, TextWriter
 from toolbox.setup import Setup
 from toolbox.version import Version
@@ -270,40 +269,6 @@ class KernelOptions:
 			stream.write(' '.join(self.__options))
 
 
-def menu_select(title : str, choices : List[str]) -> int:
-	print(title + ":")
-
-	while True:
-		try:
-			print()
-			index = 0
-			while index < len(choices):
-				value = choices[index]
-				index += 1
-				print(f"{index:2d}) {value}")
-			print()
-			del index
-
-			answer = input("Enter choice (ENTER to quit): ").strip()
-			print()
-
-			if answer == "":
-				return -1
-
-			if not answer.isdigit():
-				raise InputError(f"Please enter an integer between 1 and {len(choices)}")
-
-			choice = int(answer) - 1
-			if choice < 0 or choice >= len(choices):
-				raise InputError(f"Please enter a number between 1 and {len(choices)}")
-
-			break
-		except InputError as that:
-			raise KioskError(that.text) from that
-
-	return choice
-
-
 class KioskForge(KioskDriver):
 	"""This class contains the 'KioskForge' code, which prepares a boot image for running 'KioskSetup' on a kiosk machine."""
 
@@ -472,7 +437,7 @@ class KioskForge(KioskDriver):
 			# Write commands to update and upgrade the system before we reboot the first time.
 			if False:
 				# TODO: Either reenable CloudInit updates or disable AutoInstall updates.
-				# NOTE: Temporarily disabled it possibly causes an issue where CloudInit times out.
+				# NOTE: Temporarily disabled it because it possibly causes CloudInit to time out.
 				# NOTE: We're rebooting with the "power_state" key above, not only in case of a kernel upgrade
 				# NOTE: ("package_reboot_if_required").
 				stream.write("package_update: true")
