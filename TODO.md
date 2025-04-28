@@ -25,8 +25,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.
-- [ ] 2025.04.27.05.56 H Rip out the editor from `KioskForge.py` and let the user use his/her favorite text editor instead.
-- [ ] 2025.04.27.20.34 H Implement thorough, complete check of a `Setup` instance when loading it from disk.
 - [ ] 2025.04.27.20.32 H Finish up audio support for Pi5.
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
                          the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
@@ -42,18 +40,11 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
-- [ ] 2025.04.26.08.06 H Report all errors from loading a configuration file at once and with line numbers (to `*.err`).
-- [ ] 2025.04.26.07.25 H Ensure boolean settings are written as `false` or `true`, nothing else.
 - [ ] 2025.04.26.07.19 H The system can only be rebooted through `upgrade_time`.  CLEAN UP THIS IDIOTIC MESS!
-- [ ] 2025.04.26.06.27 H If the `hostname` option is blank, KioskForge should generate a random `kiosk-NNNNNNNNN` host name.
 - [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
 - [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
 - [ ] 2025.04.26.05.54 H Rename the `upgrade_time` option to `upkeep_time` so as to emphasize what it then will do.
 - [ ] 2025.04.26.05.53 H Make the system maintenance mandatory.  Do journal cleanup as the first part of the daily maintenace.
-- [ ] 2025.04.26.02.06 H Use multi-line comments to explain each option, the current single-line style is inadequate.
-- [ ] 2024.04.23.14.44 H Add "Kioskforge Kiosk file (.kiosk)" to the `New` menu of explorer so that users can create new kiosks.
-- [ ] 2024.04.23.14.45 H Remove everything related to the editor from the TUI version of KioskForge.  Let people use `Notepad` as
-                         the TUI editor is broken anyway, the user can't input blank entries at all.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
                          Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
@@ -67,11 +58,10 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...  Inno setup is to
                          blame.  Apparently, it doesn't support a localized `Program Files` name.  Perhaps a `.msi` installer is
                          needed to handle the intricacies of Windows path names.  For now, the Inno solution is acceptable, though.
-- [ ] 2025.04.07.03.50 H Would be nifty the the `command` option worked relative to `~`.  I think it does, but am not sure.
+- [ ] 2025.04.07.03.50 H Would be nifty if the `command` option worked relative to `~`.  I think it does, but am not sure.
 - [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
 - [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
-- [ ] 2025.04.07.00.08 H Check out if any more options need to be optional.
 - [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  This will probably break things after a while.
 - [ ] 2025.04.04.15.42 H Add option `user_modules` to install Python modules with `pip`.
 - [ ] 2025.03.29.21.11 H Go through all options and create a two-level "hierarchy" of options: `target.*`, `system.*`, `user`, etc.
@@ -114,8 +104,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.12.17.xx.xx M Add support for a local NGINX/Apache web server so that the kiosk can serve a PHP web site locally, it
                          should also be possible to specify a .sql file to import into MariaDB, etc., after installation.
 - [ ] 2024.12.17.xx.xx M Write documentation on how to update the files served by the local web server, if any, using `WinSCP`.
-- [ ] 2025.03.09.06.39 M Make KioskForge check that it is running on a supported Windows such as Windows 10+.
-- [ ] 2024.11.07.20.33 M Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
 - [ ] 2025.02.27.16.46 M Make the script scriptable by allowing the user to provide a configuration file, a destination, etc.
 - [ ] 2025.03.19.23.08 M Open up the GitHub repository for the public once most of the high priority tasks are completed and a
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
@@ -125,22 +113,15 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
                          https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
                          2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
                          Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
+- [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
                          `KioskForge-m.nn.zip`, the latter for Windows users.  Ideally, there'd only be one executable for each
                          platform.
                          There is now only a single installer image for Windows.  This needs to made for Linux as well.
-- [ ] 2025.03.27.15.15 L Add option to allow the installation of user-specified packages.
 - [ ] 2025.03.27.14.05 L Dynamic Reconfiguration: That `KioskSetup.py` is run every configuration change and automatically
                          installs, removes, and configures packages and the system according to the configuration on every boot.
 - [ ] 2025.03.19.10.07 L Consider to add color support to the TUI version of the script, most noticable red colors for errors.
-- [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
-- [ ] 2025.03.19.01.39 L Check if the kiosk supports audio playback at all (when `audio=1`).  People report issues with this:
-                         https://forums.raspberrypi.com/viewtopic.php?p=1979825#p1979542
-- [ ] 2025.03.09.05.18 L Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.
-                         Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of
-                         intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
-                         PyPy cannot easily generate stand-alone executables so `PyInstaller` is better for now.
 - [ ] 2024.11.12.13.00 L Make the script completely resumable so that it can be rerun over and over again without issues.
                          This could, perhaps, be done by saving a list of already performed steps or by adding a feature to undo a
                          step that has already been done, although this is a more complicated than just skipping successful steps.
@@ -148,6 +129,24 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.09.05.18 D Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.
+                         Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of
+                         intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
+                         PyPy cannot easily generate stand-alone executables so `PyInstaller` is better for now.
+- [x] 2025.03.19.01.39 H Check if the kiosk supports audio playback at all (when `sound_card` is not `none`).  Yes, works great.
+- [x] 2025.03.09.06.39 D Make KioskForge check that it is running on a supported Windows such as Windows 10+.  (WHY???)
+- [x] 2025.03.27.15.15 H Add option to allow the installation of user-specified packages.
+- [x] 2024.11.07.20.33 H Validate setup **much** better so that it can actually be relied on (blank or not is not good enough).
+- [x] 2025.04.07.00.08 H Check out if any more options need to be optional.
+- [x] 2024.04.23.14.45 H Remove everything related to the editor from the TUI version of KioskForge.  Let people use `Notepad` as
+                         the TUI editor is broken anyway, the user can't input blank entries at all.
+- [x] 2024.04.23.14.44 H Add "Kioskforge Kiosk file (.kiosk)" to the `New` menu of explorer so that users can create new kiosks.
+- [x] 2025.04.26.02.06 H Use multi-line comments to explain each option, the current single-line style is inadequate.
+- [x] 2025.04.26.06.27 H If the `hostname` option is blank, `KioskSetup.py` should generate a random host name.
+- [x] 2025.04.26.07.25 H Ensure boolean settings are written as `false` or `true`, nothing else.
+- [x] 2025.04.26.08.06 H Report all errors from loading a configuration file at once and with line numbers.
+- [x] 2025.04.27.20.34 H Implement thorough, complete check of a `Setup` instance when loading it from disk.
+- [x] 2025.04.27.05.56 H Rip out the editor from `KioskForge.py` and let the user use his/her favorite text editor instead.
 - [x] 2025.04.28.04.18 H Implement and document constraints of `wifi_name`, `wifi_code`, `user_name`, and `user_pass`.
 - [x] 2025.04.28.05.38 H Figure out why the `wifi_code` regex accepts more than 63 characters.  It doesn't, buggy test case...
 - [x] 2025.04.28.07.57 H Do *not* bypass the `parse` method when assigning default values to `Field` instances! This can hide bugs!
