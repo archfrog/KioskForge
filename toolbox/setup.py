@@ -68,9 +68,11 @@ class Field:
 class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
-	def __init__(self, name : str, data : bool, hint : str) -> None:
+	def __init__(self, name : str, data : str, hint : str) -> None:
 		Field.__init__(self, name, hint)
-		self.__data = data
+		self.__data = False
+
+		self.parse(data)
 
 	@property
 	def data(self) -> bool:
@@ -100,11 +102,13 @@ class BooleanField(Field):
 class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
-	def __init__(self, name : str, data : int, hint : str, lower : int, upper : int) -> None:
+	def __init__(self, name : str, data : str, hint : str, lower : int, upper : int) -> None:
 		Field.__init__(self, name, hint)
-		self.__data = data
+		self.__data  = 0
 		self.__lower = lower
 		self.__upper = upper
+
+		self.parse(data)
 
 	@property
 	def data(self) -> int:
@@ -145,7 +149,9 @@ class OptionalStringField(Field):
 
 	def __init__(self, name : str, data : str, hint : str) -> None:
 		Field.__init__(self, name, hint)
-		self.__data = data
+		self.__data = ""
+
+		self.parse(data)
 
 	@property
 	def data(self) -> str:
@@ -829,20 +835,20 @@ class Setup(Options):
 		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
 		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
-		self += NaturalField("sound_level", 80, SOUND_LEVEL_HELP, 0, 100)
-		self += BooleanField("mouse", False, MOUSE_HELP)
+		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
+		self += BooleanField("mouse", "false", MOUSE_HELP)
 		self += RegexField("user_name", "kiosk", USER_NAME_HELP, r"[A-Za-z0-9_]{1,32}")
 		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
 		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}")
-		self += BooleanField("wifi_boost", True, WIFI_BOOST_HELP)
-		self += BooleanField("cpu_boost", True, CPU_BOOST_HELP)
-		self += NaturalField("swap_size", 4, SWAP_SIZE_HELP, 0, 128)
-		self += NaturalField("vacuum_size", 256, VACUUM_SIZE_HELP, 0, 4096)
+		self += BooleanField("wifi_boost", "true", WIFI_BOOST_HELP)
+		self += BooleanField("cpu_boost", "true", CPU_BOOST_HELP)
+		self += NaturalField("swap_size", "4", SWAP_SIZE_HELP, 0, 128)
+		self += NaturalField("vacuum_size", "256", VACUUM_SIZE_HELP, 0, 4096)
 		self += OptionalTimeField("upgrade_time", "05:00", UPGRADE_TIME_HELP)
 		self += OptionalTimeField("poweroff_time", "", POWEROFF_TIME_HELP)
-		self += NaturalField("idle_timeout", 0, IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
+		self += NaturalField("idle_timeout", "0", IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
