@@ -291,7 +291,7 @@ class KioskBuild(KioskDriver):
 			words  = TextBuilder()
 			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version because
 			# Microsoft's version does not honor the HOME environment variable, something which the Git version does.
-			# TODO: Test if the below code, which provides the path to 'config' explicitly, does not work with Windows OpenSSH.
+			# TODO: Test if the below code, which provides the path to 'config' explicitly, works with Windows OpenSSH.
 			words += r"C:\Program Files\Git\usr\bin\scp.exe"
 			words += "-F"
 			words += home + ".ssh/config"
