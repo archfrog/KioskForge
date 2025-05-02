@@ -72,7 +72,7 @@ Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\{#MyAppAssocKey}\ShellNew"
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}"; ValueType: string; ValueName: ""; ValueData: "{#MyAppAssocName}"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\edit\command"; ValueType: string; ValueName: ""; ValueData: """{#GetEnv('SystemRoot')}\system32\NOTEPAD.EXE"" ""%1"""
-Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" forge ""%1"""
 ;Root: HKCR; Subkey: "Applications\{#MyAppExeName}"; ValueType: string, ValueName: "FriendlyAppName"; ValueDate: "{#MyAppName}"; Flags: uninsdeletekey
 
 [Icons]

@@ -622,23 +622,27 @@ class KioskForge(KioskDriver):
 
 			stream.dedent()
 
-	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
-		# Output copyright information, etc.
-		print(self.version.banner())
+	def create(self, filename : str) -> None:
+		print(f"Creating kiosk: {filename}")
 		print()
 
-		# Check that we're running on Windows.
-		if platform.system() != "Windows":
-			raise KioskError("This script can currently only be run on a Windows machine")
+		# Create the new kiosk.
+		setup = Setup()
 
-		# Parse command-line arguments.
-		if len(arguments) != 1:
-			raise CommandError("\"KioskForge.py\" kiosk-file")
+		# Check that the output does not already exist.
+		if os.path.exists(filename):
+			raise KioskError(f"Kiosk file already exists: {filename}")
 
-		# "Parse" the command-line arguments.
-		filename = arguments[0]
+		# Write the new kiosk.
+		setup.save(filename, self.version)
 
-		# Load the specified kiosk.
+		print("Kiosk created successfully.")
+
+	def forge(self, logger : Logger, origin : str, filename : str) -> None:
+		print(f"Forging kiosk: {filename}")
+		print()
+
+		# Load the kiosk.
 		setup = Setup()
 		setup.load_safe(logger, filename)
 
@@ -789,6 +793,73 @@ class KioskForge(KioskDriver):
 				raise KioskError(f"Unknown host operating system: {platform.system()}")
 		print(f"Preparation of boot image successfully completed - please {action} {target.basedir} safely.")
 		del action
+
+		print()
+		print("Kiosk forged successfully.")
+
+	def upgrade(self, logger : Logger, filename : str) -> None:
+		print(f"Upgrading kiosk: {filename}")
+		print()
+
+		# Create a kiosk to load the kiosk to be upgraded into.
+		setup = Setup()
+
+		# Load the kiosk and get the list of errors detected.
+		errors = setup.load_list(filename)
+
+		# Filter out all errors of the form "Option never assigned: ", these are irrelevant when upgrading a kiosk.
+		errors = list(filter(lambda x: not x.text.startswith("Option never assigned: "), errors))
+
+		# If there are errors left, report them and abort the upgrade process.
+		if errors:
+			for error in errors:
+				logger.error(str(error))
+			print()
+			raise KioskError(f"{len(errors)} error(s) detected while reading file '{filename}'")
+
+		# Save the new, upgraded kiosk.
+		setup.save(filename, self.version)
+
+		print("Kiosk upgraded successfully.")
+
+	def verify(self, logger : Logger, filename : str) -> None:
+		print(f"Verifying kiosk: {filename}")
+		print()
+
+		# Create a kiosk to be loaded (which implicitly verifies the kiosk).
+		setup = Setup()
+		setup.load_safe(logger, filename)
+		print("Kiosk verified successfully.")
+
+	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
+		# Output copyright information, etc.
+		print(self.version.banner())
+		print()
+
+		# Check that we're running on Windows.
+		if platform.system() != "Windows":
+			raise KioskError("This script can currently only be run on a Windows machine")
+
+		# Parse command-line arguments.
+		if len(arguments) != 2:
+			raise CommandError("\"KioskForge.py\" (forge|create|verify|upgrade) kiosk-file")
+
+		# "Parse" the command-line arguments.
+		command  = arguments[0]
+		filename = arguments[1]
+
+		# Forge, create, check, or upgrade the specified kiosk.
+		match command:
+			case "create":
+				self.create(filename)
+			case "forge":
+				self.forge(logger, origin, filename)
+			case "upgrade":
+				self.upgrade(logger, filename)
+			case "verify":
+				self.verify(logger, filename)
+			case _:
+				raise KioskError(f"Invalid command specified: {command}")
 
 
 if __name__ == "__main__":
