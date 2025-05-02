@@ -39,7 +39,10 @@ class Field:
 	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
 		self.__hint = hint
-		self._set   = False
+		# _mods => number of modifications, incremented by one every time the 'parse()' method is successfully called.
+		# NOTE: This member is protected so that derived classes can increment it.  Don't know a better way to do it.
+		# NOTE: We start at -1 because the constructor always invokes 'parse()' once and only once.
+		self._mods = -1
 
 	@property
 	def data(self) -> Any:
@@ -54,8 +57,8 @@ class Field:
 		return self.__name
 
 	@property
-	def changed(self) -> bool:
-		return self._set
+	def changes(self) -> int:
+		return self._mods
 
 	@property
 	def text(self) -> str:
@@ -92,7 +95,7 @@ class BooleanField(Field):
 
 		try:
 			self.__data = BOOLEANS[data.lower()]
-			self._set = True
+			self._mods += 1
 		except KeyError as that:
 			raise FieldError(self.name, f"Invalid value in field '{self.name}': {data}") from that
 		except ValueError as that:
@@ -139,7 +142,7 @@ class NaturalField(Field):
 
 			self.__data = value
 
-			self._set = True
+			self._mods += 1
 		except ValueError as that:
 			raise FieldError(self.name, str(that)) from that
 
@@ -167,7 +170,7 @@ class OptionalStringField(Field):
 
 	def parse(self, data : str) -> None:
 		self.__data = data
-		self._set = True
+		self._mods += 1
 
 
 class StringField(OptionalStringField):
@@ -754,6 +757,9 @@ class Options:
 		self.__options[option.name] = option
 		return self
 
+	def keys(self) -> List[str]:
+		return list(self.__options.keys())
+
 	def load_list(self, path : str, allow_redefinitions : bool = False) -> List[TextFileError]:
 		# Returns a list of errors encountered while loading the .kiosk file.
 		result = []
@@ -790,8 +796,8 @@ class Options:
 				# Fetch the named field or throw exception AttributeError if non-existent.
 				field = getattr(self, name)
 
-				# Check that the field has not already been assigned (set).
-				if not allow_redefinitions and field.changed:
+				# Check that the field has not already been assigned more than once (it is set first time by the constructor).
+				if not allow_redefinitions and field.changes >= 1:
 					raise InputError(f"Illegal redefinition of field '{name}'")
 
 				# Attempt to parse the field's right-hand-side (its data).
@@ -800,6 +806,13 @@ class Options:
 				result.append(TextFileError(path, number, that.text))
 			except AttributeError:
 				result.append(TextFileError(path, number, f"Unknown option ignored: {name}"))
+
+		# Check that all fields were assigned by the configuration files.
+		for key in self.keys():
+			field = getattr(self, key)
+			if not field.changes:
+				result.append(TextFileError(path, 0, f"Option never assigned: {key}"))
+
 		return result
 
 	def load_safe(self, logger : Logger, path : str) -> None:
