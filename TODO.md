@@ -25,7 +25,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.
-- [ ] 2025.04.27.20.32 H Finish up audio support for Pi5.
+- [ ] 2025.04.27.20.32 H Finish up audio support for Pi5 (I don't have the audio hardware yet).
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
                          the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
                          To see all languages partially or completely supported by Ubuntu, click `View all languages` on
@@ -40,17 +40,13 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
-- [ ] 2025.04.26.07.19 H The system can only be rebooted through `upgrade_time`.  CLEAN UP THIS IDIOTIC MESS!
 - [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
 - [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
-- [ ] 2025.04.26.05.54 H Rename the `upgrade_time` option to `upkeep_time` so as to emphasize what it then will do.
-- [ ] 2025.04.26.05.53 H Make the system maintenance mandatory.  Do journal cleanup as the first part of the daily maintenace.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
                          Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
-- [ ] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
 - [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
@@ -113,6 +109,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
                          https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
                          2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
                          Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
+- [ ] 2025.05.01.05.17 L Some users will want the screen to go to sleep between guests to the kiosk.
 - [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
@@ -129,6 +126,18 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
+- [x] 2025.04.26.05.53 H Make the system maintenance mandatory.  Do journal cleanup as the first part of the daily maintenace.
+                         The system maintenance cannot be mandatory for those PI4Bs that do not have NTP (time) access.
+- [x] 2025.04.26.05.54 D Rename the `upgrade_time` option to `upkeep_time` so as to emphasize what it then will do.  DROPPED.
+- [x] 2025.05.01.05.48 H Please explain how to use cron jobs reliably on a kiosk without internet access (no correct time)...
+                         If no internet access, the kiosk always starts on the fictitious time of January 1st, 1970 00:00...
+- [x] 2025.05.01.05.16 H Some users will want the kiosk to shut down, not reboot, after maintenance has completed.
+- [x] 2025.04.26.07.19 H The system can only be rebooted through `upgrade_time`.  This is how it is for now.  No reason to reboot
+                         if nothing has been upgraded.  No reason *not* to upgrade if there is internet access.  In short: Pi4Bs
+						 that run without internet should probably never be rebooted, unless through `poweroff_time`.
+- [x] 2025.05.01.06.43 H Should `vacuum_time` be re-introduced?  I'd prefer not to, but it does solve some problems.
+                         No, it doesn't solve the problem that the clock is incorrect on PI4B without internet access.
 - [x] 2025.03.09.05.18 D Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.
                          Recommended by Alexandre ("pypy is just a python with jit").  Probably not relevant then due to lack of
                          intensive computing tasks.  The most important thing for KioskForge is that Python is easy to install.
