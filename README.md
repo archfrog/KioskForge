@@ -1,5 +1,6 @@
 # KioskForge README File
-[KioskForge](https://kioskforge.org) is a program to automate and simplify the process of setting up a new kiosk machine.
+KioskForge is a freeware, open source software (FOSS) program to automate and simplify the process of setting up a new kiosk
+machine.
 
 ## Synopsis
 KioskForge is intended to be used by somewhat non-technical users to set up a kiosk machine for browsing a given website or by more
@@ -32,7 +33,7 @@ KioskForge currently supports these things:
 
 Please notice that the kiosk needs either internet access or a real-time clock (RTC) for the automatic, daily maintenance to work
 properly.  If the kiosk does not have internet access, it should be either a PC or a PI5 with an RTC backup battery.  At this time,
-we cannot recommend using PI4Bs without internet access.  The optimal is that the kiosk has internet access, though.
+we cannot recommend using PI4Bs without internet access.  The best is that the kiosk has internet access, though.
 
 **NOTE:** Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
 
