@@ -30,6 +30,10 @@ KioskForge currently supports these things:
 * Configuring basic Linux things such as host name, keyboard layout, locale, time zone, etc.
 * Rotating standard or touch-panel displays.
 
+Please notice that the kiosk needs either internet access or a real-time clock (RTC) for the automatic, daily maintenance to work
+properly.  If the kiosk does not have internet access, it should be either a PC or a PI5 with an RTC backup battery.  At this time,
+we cannot recommend using PI4Bs without internet access.  The optimal is that the kiosk has internet access, though.
+
 **NOTE:** Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
 
 **NOTE:** The PC target is currently likely broken because I don't have a spare PC to test it on.  WIP.
