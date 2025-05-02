@@ -60,39 +60,46 @@ class KioskUpdate(KioskDriver):
 		setup = Setup()
 		setup.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# ******************** Perform tasks that do require an internet connection. *********************************************
+		# Vacuum system logs every time we maintain the system if a maximum log size has been specified.
+		if setup.vacuum_size.data != 0:
+			invoke_text_safe(f"/usr/bin/journalctl --vacuum-size={setup.vacuum_size.data}M")
 
-		if not internet_active():
-			logger.write("Not connected to the internet: Skipping system update, upgrade, and cleanup tasks.")
-			return
+		# Not all kiosks are online so we need to handle the case that there's no internet gracefully.
+		if internet_active():
+			# Upgrade snaps and clean out the snap cache.
+			try:
+				# Allow snap to update (don't know if this is necessary or not, but err on the side of caution).
+				invoke_text_safe("snap refresh --unhold")
 
-		# Upgrade snaps and clean out the snap cache.
-		try:
-			# Allow snap to update (don't know if this is necessary or not, but err on the side of caution).
-			invoke_text_safe("snap refresh --unhold")
+				# Refresh all snaps.
+				invoke_text_safe("snap refresh")
 
-			# Refresh all snaps.
-			invoke_text_safe("snap refresh")
+				# Purge the snap cache, this may grow to 5+ gigabytes over time.
+				invoke_text_safe("rm -fr /var/lib/snapd/cache/*")
+			finally:
+				# Stop snapd from upgrading automatically (also done in 'KioskSetup.py').
+				invoke_text_safe("snap refresh --hold")
 
-			# Purge the snap cache, this may grow to 5+ gigabytes over time.
-			invoke_text_safe("rm -fr /var/lib/snapd/cache/*")
-		finally:
-			# Stop snapd from upgrading automatically (also done in 'KioskSetup.py').
-			invoke_text_safe("snap refresh --hold")
+			# Update apt package indices, upgrade all packages, and clean the apt cache (which may grow to many gigabytes in size).
+			# NOTE: Use 'AptAction' to get automatic waiting for the 'apt' lock file to be released.
+			# NOTE: Use "apt-get upgrade -y", not "apt-get dist-upgrade -y", to ensure that the system doesn't suddenly break down.
+			for command in ["apt-get update", "apt-get upgrade -y", "apt-get clean"]:
+				result = AptAction(f"Apt maintenance: {command}.", command).execute()
+				if result.status != 0:
+					logger.error(f"Apt failure executing '{command}': {result.output}")
+				del result
+			del command
 
-		# Update apt package indices, upgrade all packages, and clean the apt cache (which may grow to many gigabytes in size).
-		# NOTE: Use 'AptAction' to get automatic waiting for the 'apt' lock file to be released.
-		# NOTE: Use "apt-get upgrade -y", not "apt-get dist-upgrade -y", to ensure that the system doesn't suddenly break down.
-		for command in ["apt-get update", "apt-get upgrade -y", "apt-get clean"]:
-			result = AptAction(f"Apt maintenance: {command}.", command).execute()
-			if result.status != 0:
-				logger.error(f"Apt failure executing '{command}': {result.output}")
-			del result
-		del command
+			logger.write("Successfully vacuumed, updated, and upgraded system.")
 
-		logger.write("Successfully updated and upgraded system.  Rebooting!")
-
-		invoke_text_safe("reboot")
+		# Execute the requested post-upgrade action.
+		match setup.upgrade_post.data:
+			case "reboot":
+				invoke_text_safe("reboot")
+			case "poweroff":
+				invoke_text_safe("poweroff")
+			case _:
+				raise KioskError(f"Invalid value in 'upgrade_post' option: {setup.upgrade_post.data}")
 
 
 if __name__ == "__main__":

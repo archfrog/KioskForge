@@ -436,19 +436,7 @@ class KioskSetup(KioskDriver):
 		if setup.user_packages.data:
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(setup.user_packages.data))
 
-		# Vacuum system logs every boot if a maximum log size has been specified.
-		if setup.vacuum_size.data != 0:
-			lines  = TextBuilder()
-			lines += "# Cron job to vacuum (clean) system logs."
-			lines += f"@reboot\troot\t/usr/bin/journalctl --vacuum-size={setup.vacuum_size.data}M"
-			script += CreateTextAction(
-				"Creating cron job to vacuum logs at every boot.",
-				"/etc/cron.d/kiosk-vacuum-logs",
-				lines.text
-			)
-			del lines
-
-		# Create cron job to update, upgrade, clean, and reboot the system every day at a given time.
+		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
 		if setup.upgrade_time.data != "":
 			lines  = TextBuilder()
 			lines += "# Cron job to upgrade, clean, and reboot the system every day."
@@ -460,7 +448,7 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
-		# Create cron job to power off the system at a given time (only usable when it is manually turned on again).
+		# Create cron job to power off the system at a given time (only usable when the kiosk is manually turned on again).
 		if setup.poweroff_time.data != "":
 			lines  = TextBuilder()
 			lines += "# Cron job to shut down the kiosk machine nicely every day."

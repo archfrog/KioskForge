@@ -429,15 +429,30 @@ the form HH:MM, which is the hour and minute of when the operation is done.
 
 This option is primarily intended for environments where there are no
 visitors to the kiosk during the night.  In such cases, the kiosk needs to be
-powered on by a time switch.
+powered on by a time switch in the morning.
 
-If you use a time switch, please remember to use this option to gracefully
-shut down the kiosk.  Most computers benefit from being shut down gracefully
-rather than abruptly by loss of power.
+If you use a time switch, please remember to gracefully shut down the kiosk.
+Most computers benefit from being shut down gracefully rather than abruptly
+by loss of power.
+
+You do not need to use this option if you set "upgrade_post" to "poweroff":
+in this case, you can safely ignore this option.
+
+The preferred way of shutting down a kiosk is through the "upgrade_post"
+option as it ensures the system is upgraded, if there is access to the
+internet from the kiosk, before it, gets powered down, something that the
+"poweroff_time" option does not.  The "poweroff_time" option works
+independently of the upgrade process, which can cause serious issues if
+the kiosk is shut down in the middle of an upgrade.
+
+The only reason this option currently exists is because some users need it.
 
 IMPORTANT:
-Raspberry Pis do not normally have a built-in real-time clock (RTC) so they
-need network access to set the system time after they have rebooted.
+Raspberry Pi 4Bs do not have a built-in real-time clock (RTC) so they need
+network access to set the system time after they have rebooted, which again
+affects the scheduled processes as they cannot run at a known time if the
+kiosk's real-time clock is not set accurately.  The result is that RPI4Bs
+should only be used for kiosks that are normally on the internet.
 """.strip()
 
 
@@ -550,6 +565,27 @@ The 'web' type is by far the most commonly used type, but the 'cli' type is
 very useful for things like making a designated kiosk that starts playing a
 given sound whenever somebody approaches the kiosk machine (using a motion
 detector).
+""".strip()
+
+
+UPGRADE_POST_HELP = """
+The action that the kiosk should take when it has finished up cleaning up
+logs and upgrading the kiosk.
+
+There are two valid choices:
+
+1. reboot  : The kiosk will reboot back to kiosk mode after the upgrade.
+2. poweroff: The kiosk will shut down after the upgrade.
+
+Most users will want the kiosk to simply reboot but some users will want
+the kiosk to shut down during the night and to be started by a time switch.
+
+Please notice that the "poweroff" choice requires that the power is cycled
+so that the kiosk starts up again, this should happen when the kiosk is to
+start up again, and is typically implemented using a simple time switch.
+
+If you set this option to "poweroff", you can safely disregard the
+"poweroff_time" option as there's no sense in powering off twice in a day.
 """.strip()
 
 
@@ -846,6 +882,7 @@ class Setup(Options):
 		self += BooleanField("cpu_boost", "true", CPU_BOOST_HELP)
 		self += NaturalField("swap_size", "4", SWAP_SIZE_HELP, 0, 128)
 		self += NaturalField("vacuum_size", "256", VACUUM_SIZE_HELP, 0, 4096)
+		self += ChoiceField("upgrade_post", "reboot", UPGRADE_POST_HELP, ["poweroff", "reboot"])
 		self += OptionalTimeField("upgrade_time", "05:00", UPGRADE_TIME_HELP)
 		self += OptionalTimeField("poweroff_time", "", POWEROFF_TIME_HELP)
 		self += NaturalField("idle_timeout", "0", IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
