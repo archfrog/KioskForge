@@ -1,7 +1,22 @@
 # KioskForge README File
-[KioskForge](https://kioskforge.org) is a program to automate and simplify the process of setting up a new kiosk machine.  It is
-intended to be used by somewhat non-technical users to set up a kiosk machine for browsing a given website or by more advanced
-users to set up a kiosk that runs a CLI or GUI app of the user's choice.
+[KioskForge](https://kioskforge.org) is a program to automate and simplify the process of setting up a new kiosk machine.
+
+## Synopsis
+KioskForge is intended to be used by somewhat non-technical users to set up a kiosk machine for browsing a given website or by more
+advanced users to set up a kiosk that runs a CLI or GUI app of the user's choice.
+
+KioskForge takes two inputs:
+
+1. An Ubuntu Server 24.04.2 installation medium (created using [Raspberry Pi Imager](https://www.raspberrypi.com/software/)).
+2. A "kiosk file", which is a configuration file that specifies the values of all the settings that KioskForge supports.
+
+The first, the Ubuntu Server installation medium, is automatically located on the host machine, if it is present.  The second,
+the kiosk file, is specified as an argument to KioskForge, which is most easily done simply by double-clicking on the kiosk file.
+
+KioskForge then modifies the Ubuntu Server installation medium so that the first time a system is set up using it, a kiosk
+ready to deploy will be created.
+
+The total size of the files that KioskForge install on the Ubuntu Server kiosk machine is currently less than 1 MB in total.
 
 ## Features
 KioskForge currently supports these things:
