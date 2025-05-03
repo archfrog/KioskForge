@@ -20,11 +20,23 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 also reported by `pylint`, which is automatically invoked by the `check.py` script.
 
 
+Alternative, Wayland-based kiosk on top of Ubuntu Server 24.04:
+
+```bash
+sudo snap install ubuntu-frame
+sudo snap set ubuntu-frame daemon=true
+sudo snap install chromium
+sudo snap set chromium url=https://clyderiveratlas.ca
+sudo snap set chromium daemon=true
+snap connect chromium:wayland
+```
+
 ## Open Tasks
 # TODO:
+- [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
+                         This so that `KioskStart.py` can actually wait for an internet connection before it continues.
+- [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
-- [ ] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
-                         `.local/share/xorg/Xorg.0.log`.
 - [ ] 2025.04.27.20.32 H Finish up audio support for Pi5 (I don't have the audio hardware yet).
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
                          the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
@@ -56,7 +68,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
                          needed to handle the intricacies of Windows path names.  For now, the Inno solution is acceptable, though.
 - [ ] 2025.04.07.03.50 H Would be nifty if the `command` option worked relative to `~`.  I think it does, but am not sure.
 - [ ] 2025.04.07.03.42 H `KioskSetup.py`, and other target-side scripts, are likely to *explode* if there are spaces in path names.
-- [ ] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
 - [ ] 2025.04.07.00.42 H Explore avoiding the PyInstaller `--onefile` option as some actively suggest to not use it.
 - [ ] 2025.04.04.15.42 H Should `pip` be allowed to update in `KioskUpdate.py`?  This will probably break things after a while.
 - [ ] 2025.04.04.15.42 H Add option `user_modules` to install Python modules with `pip`.
@@ -126,6 +137,9 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
+                         `.local/share/xorg/Xorg.0.log`.  Renamed to `KioskZipper.py` because `cmd.exe` Tab expansion got tedious.
+- [x] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
 - [x] 2025.03.27.20.15 H Would it be beneficial to create scripts on the host and simply copy them onto the target?  Almost there.
 - [x] 2025.04.26.05.53 H Make the system maintenance mandatory.  Do journal cleanup as the first part of the daily maintenace.
                          The system maintenance cannot be mandatory for those PI4Bs that do not have NTP (time) access.
