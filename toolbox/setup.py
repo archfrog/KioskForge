@@ -757,6 +757,9 @@ class Options:
 		self.__options[option.name] = option
 		return self
 
+	def assign(self, name : str, data : str) -> None:
+		self.__options[name].parse(data)
+
 	def keys(self) -> List[str]:
 		return list(self.__options.keys())
 
@@ -858,9 +861,9 @@ class Options:
 
 
 def hostname_create(basename : str) -> str:
-	"""Creates a unique host name of the form 'basename-number', where number is an integer in the range zero through 2**31."""
-	number = secrets.randbelow(2**31)
-	return f"{basename}-{number}"
+	"""Creates a unique host name of the form '{basename}{number}', where number is an integer from zero to 2**16."""
+	number = secrets.randbelow(2**16)
+	return f"{basename}{number}"
 
 
 # Source: https://stackoverflow.com/a/63160092

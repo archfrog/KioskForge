@@ -42,7 +42,8 @@ import bcrypt
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.logger import Logger, TextWriter
-from toolbox.setup import Setup
+from toolbox.setup import hostname_create, Setup
+from toolbox.shell import tree_delete
 from toolbox.version import Version
 
 
@@ -337,6 +338,10 @@ class KioskForge(KioskDriver):
 			)
 			stream.write()
 
+			# Set the host name here so that the system log does not loose internal structure due to changing hostname.
+			stream.write(f'hostname: "{setup.hostname.data}"')
+			stream.write()
+
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
 			stream.indent()
@@ -372,7 +377,7 @@ class KioskForge(KioskDriver):
 			stream.write("content: |")
 			stream.indent()
 			stream.write("[Unit]")
-			stream.write("Description=KioskForge automatic configuration of new kiosk machine.")
+			stream.write("Description=KioskForge kiosk forge driver")
 			stream.write("After=network-online.target")
 			stream.write("After=cloud-init.target")
 			stream.write("After=multi-user.target")
@@ -622,29 +627,17 @@ class KioskForge(KioskDriver):
 
 			stream.dedent()
 
-	def create(self, filename : str) -> None:
-		print(f"Creating kiosk: {filename}")
-		print()
-
-		# Create the new kiosk.
-		setup = Setup()
-
-		# Check that the output does not already exist.
-		if os.path.exists(filename):
-			raise KioskError(f"Kiosk file already exists: {filename}")
-
-		# Write the new kiosk.
-		setup.save(filename, self.version)
-
-		print("Kiosk created successfully.")
-
-	def forge(self, logger : Logger, origin : str, filename : str) -> None:
-		print(f"Forging kiosk: {filename}")
+	def apply(self, logger : Logger, origin : str, filename : str) -> None:
+		print(f"Applying kiosk: {filename}")
 		print()
 
 		# Load the kiosk.
 		setup = Setup()
 		setup.load_safe(logger, filename)
+
+		# Assign host name to setup instance, if the user has not provided one.
+		if not setup.hostname.data:
+			setup.assign("hostname", hostname_create("kiosk"))
 
 		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 		targets = Recognizer().identify()
@@ -745,9 +738,9 @@ class KioskForge(KioskDriver):
 		# Compute output folder.
 		output = target.basedir + "KioskForge"
 
-		# Remove previous KioskForge folder on installation medium, if any.
+		# Remove previous KioskForge folder on installation medium, if any (handles read-only files unlike 'shutil.rmtree()').
 		if os.path.isdir(output):
-			shutil.rmtree(output)
+			tree_delete(output)
 
 		# Create KioskForge folder on the installation medium.
 		os.makedirs(output)
@@ -756,7 +749,15 @@ class KioskForge(KioskDriver):
 		setup.save(output + os.sep + "KioskForge.kiosk", self.version)
 
 		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-		names = ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]
+		names = [
+			"KioskForge.py",
+			"KioskOpenbox.py",
+			"KioskSetup.py",
+			"KioskStart.py",
+			"KioskUpdate.py",
+			"KioskZipper.py",
+			"toolbox"
+		]
 		for name in names:
 			if os.path.isfile(origin + os.sep + name):
 				shutil.copyfile(origin + os.sep + name, output + os.sep + name)
@@ -795,7 +796,23 @@ class KioskForge(KioskDriver):
 		del action
 
 		print()
-		print("Kiosk forged successfully.")
+		print("Kiosk prepared successfully.")
+
+	def create(self, filename : str) -> None:
+		print(f"Creating kiosk: {filename}")
+		print()
+
+		# Create the new kiosk.
+		setup = Setup()
+
+		# Check that the output does not already exist.
+		if os.path.exists(filename):
+			raise KioskError(f"Kiosk file already exists: {filename}")
+
+		# Write the new kiosk.
+		setup.save(filename, self.version)
+
+		print("Kiosk created successfully.")
 
 	def upgrade(self, logger : Logger, filename : str) -> None:
 		print(f"Upgrading kiosk: {filename}")
@@ -842,7 +859,7 @@ class KioskForge(KioskDriver):
 
 		# Parse command-line arguments.
 		if len(arguments) != 2:
-			raise CommandError("\"KioskForge.py\" (forge|create|verify|upgrade) kiosk-file")
+			raise CommandError("\"KioskForge.py\" (apply|create|verify|upgrade) kiosk-file")
 
 		# "Parse" the command-line arguments.
 		command  = arguments[0]
@@ -852,8 +869,8 @@ class KioskForge(KioskDriver):
 		match command:
 			case "create":
 				self.create(filename)
-			case "forge":
-				self.forge(logger, origin, filename)
+			case "apply":
+				self.apply(logger, origin, filename)
 			case "upgrade":
 				self.upgrade(logger, filename)
 			case "verify":

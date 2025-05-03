@@ -39,7 +39,7 @@ from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.internet import internet_active, lan_ip_address
 from toolbox.invoke import invoke_text
 from toolbox.logger import Logger
-from toolbox.setup import hostname_create, Setup
+from toolbox.setup import Setup
 from toolbox.script import Script
 from toolbox.version import Version
 
@@ -85,6 +85,8 @@ class KioskSetup(KioskDriver):
 			logger.write("*** NETWORK DOWN: Waiting 5 seconds for the kiosk to come online")
 			index += 1
 			time.sleep(5)
+		if index:
+			logger.write()
 		del index
 
 		# If still no network, abort the forge process.
@@ -122,13 +124,6 @@ class KioskSetup(KioskDriver):
 		logger.write("Forging kiosk (this will take between 10 and 30 minutes):")
 		logger.write()
 		script = Script(logger, resume)
-
-		# Create host name, if not specified, and use it (affects logs and journals so we do it as the very first thing).
-		hostname = setup.hostname.data
-		if not hostname:
-			hostname = hostname_create("kioskforge")
-		script += ExternalAction("Setting host name.", f"hostnamectl set-hostname {hostname}")
-		del hostname
 
 		# Set environment variable to stop dpkg from running interactively.
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
