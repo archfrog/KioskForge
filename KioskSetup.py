@@ -97,6 +97,7 @@ class KioskSetup(KioskDriver):
 
 		# Display LAN IP - not everybody has access to the router in charge of assigning a LAN IP via DHCP.
 		logger.write("*** LAN IP: " + lan_ip_address())
+		logger.write()
 
 		# Parse command-line arguments.
 		if len(arguments) >= 2:
