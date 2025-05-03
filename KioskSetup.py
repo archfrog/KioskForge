@@ -52,6 +52,43 @@ MATRICES = {
 	'right' : '0 1 0 -1 0 1 0 0 1'
 }
 
+WAYLAND_ORIENTATION = {
+	"none"  : "normal",
+	"left"  : "left",
+	"flip"  : "inverted",
+	"right" : "right"
+}
+
+WAYLAND_CONFIGURATION = """
+layouts:
+# keys here are layout labels (used for atomically switching between them)
+# when enabling displays, surfaces should be matched in reverse recency order
+  default:                         # the default layout
+    cards:
+    # a list of cards (currently matched by card-id)
+    - card-id: 0
+      HDMI-A-1:
+        # This output supports the following modes: 1920x1080@60.0, 1920x1080@59.9,
+        # 1920x1080@30.0, 1920x1080@30.0, 1920x1080@50.0, 1920x1080@25.0, 1680x1050@59.9,
+        # 1280x1024@75.0, 1280x1024@60.0, 1440x900@75.0, 1440x900@59.9, 1280x960@60.0,
+        # 1152x864@75.0, 1280x720@60.0, 1280x720@59.9, 1280x720@50.0, 1440x576@50.0,
+        # 1024x768@75.0, 1024x768@70.1, 1024x768@60.0, 800x600@75.0, 800x600@60.3,
+        # 800x600@56.2, 720x576@50.0, 720x480@60.0, 720x480@59.9, 640x480@75.0,
+        # 640x480@66.7, 640x480@60.0, 640x480@59.9, 720x400@70.1
+        #
+        # Uncomment the following to enforce the selected configuration.
+        # Or amend as desired.
+        #
+         state: enabled        # "enabled" or "disabled", defaults to "enabled"
+         position: [0, 0]      # Defaults to [0, 0]
+         orientation: {orientation} # "normal", "left", "right", or "inverted", defaults to "normal"
+         scale: 1
+         group: 0      # Outputs with the same non-zero value are treated as a single display
+      HDMI-A-2:
+        # (disconnected)
+""".strip()
+
+
 
 class KioskSetup(KioskDriver):
 	"""This class contains the 'KioskSetup' code, which configures a supported Ubuntu Server system to become a web kiosk."""
@@ -121,7 +158,7 @@ class KioskSetup(KioskDriver):
 		setup.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
 		# Build the script to execute.
-		logger.write("Forging kiosk (this will take between 10 and 30 minutes):")
+		logger.write("Forging kiosk (takes between 10 and 30 minutes):")
 		logger.write()
 		script = Script(logger, resume)
 
@@ -319,7 +356,48 @@ class KioskSetup(KioskDriver):
 			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
 
 		# Configure the kiosk according to its type.
-		if setup.type.data in [ "x11", "web" ]:
+		if setup.type.data == "web-wayland":
+			# Install Ubuntu Frame (Wayland-based) instead of X11.
+			script += ExternalAction("Installing Ubuntu Frame for Wayland.", "snap install ubuntu-frame")
+			#script += ExternalAction("Configuring Ubuntu Frame for kiosk use.", "snap set ubuntu-frame daemon=true")
+
+			# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
+			script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
+			#script += ExternalAction("Configuring Chromium for Ubuntu Frame.", "snap set chromium daemon=true")
+			script += ExternalAction("Connecting Chromium with Wayland.", "snap connect chromium:wayland")
+
+			# NOTE: The line below appears to be irrelevant for browsing local files in the HOME folder.
+			# script += ExternalAction("Making Chromium able to access to local files.", "snap connect chromium:removable-media")
+
+			script += ExternalAction("Configuring starting page in Chromium.", f"sudo snap set chromium url={setup.command.data}")
+
+			# ...Stop and disable the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
+			script += ExternalAction(
+				"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
+				"snap remove --purge cups"
+			)
+
+			# Write almost empty Chromium preferences file to disable translate feature.
+			lines = TextBuilder()
+			lines += '{"translate":{"enabled":false}}'
+			script += CreateTextWithUserAndModeAction(
+				"Disabling Translate feature in Chromium web browser.",
+				f"{os.path.dirname(origin)}/snap/chromium/common/chromium/Default/Preferences",
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
+			)
+			del lines
+
+			# Tell Wayland to rotate the screen as per the kiosk configuration.
+			if setup.screen_rotation.data != "none":
+				orientation = WAYLAND_ORIENTATION[setup.screen_rotation.data]
+				script += ExternalAction(
+					"Configure Wayland to rotate the screen.",
+					'snap set ubuntu-frame display="' + WAYLAND_CONFIGURATION.format(orientation=orientation) + '"'
+				)
+				del orientation
+		elif setup.type.data in ["x11", "web"]:
 			# Install X Windows server and the OpenBox window manager.
 			script += InstallPackagesNoRecommendsAction(
 				"Installing X Windows and OpenBox window manager.",
@@ -467,7 +545,76 @@ class KioskSetup(KioskDriver):
 				"/swapfile\tnone\tswap\tsw\t0\t0"
 			)
 
-		if True:
+		if setup.type.data == "web-wayland":
+			# If using Wayland.
+
+			# Create systemd service to allocate a session for the kiosk user.
+			lines  = TextBuilder()
+			lines += "[Service]"
+			lines += "# This is what causes a user session to be allocated for the kiosk user."
+			lines += f"User={setup.user_name.data}"
+			lines += "PAMName=login"
+			lines += "TTYPath=/dev/tty1"
+			lines += "ExecStart=/usr/bin/systemctl --user start --wait user-session.target"
+			script += CreateTextWithUserAndModeAction(
+				"Creating global systemd script to allocate a session for the user.",
+				"/usr/lib/systemd/system/user-session.service",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
+			)
+			del lines
+			script += ExternalAction("Enabling global systemd user-session service.", "systemctl enable user-session.service")
+
+			# Create systemd service to run Ubuntu Frame under the kiosk user.
+			lines  = TextBuilder()
+			lines += "[Unit]"
+			lines += "Before=xdg-desktop-autostart.target"
+			lines += "BindsTo=graphical-session.target"
+			lines += "[Service]"
+			lines += "ExecStartPre=/usr/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY=wayland-0"
+			lines += "ExecStart=/snap/bin/ubuntu-frame"
+			script += CreateTextWithUserAndModeAction(
+				"Creating user-specific systemd service to launch Ubuntu Frame.",
+				f"{os.path.dirname(origin)}/.config/systemd/user/ubuntu-frame.service",
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
+			)
+			del lines
+			# TODO: script += ExternalAction("Enabling custom systemd Ubuntu Frame service.", "systemctl enable ubuntu-frame.service")
+
+			# Create systemd service to launch Chromium.
+			lines  = TextBuilder()
+			lines += "[Unit]"
+			lines += "After=ubuntu-frame.service"
+			lines += "[Service]"
+			lines += f"ExecStart=/snap/bin/chromium --kiosk '{setup.command.data}'"
+			script += CreateTextWithUserAndModeAction(
+				"Creating user-specific systemd service to launch Chromium.",
+				f"{os.path.dirname(origin)}/.config/systemd/user/chromium.service",
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
+			)
+			del lines
+			# TODO: script += ExternalAction("Enabling custom systemd Chromium service.", "systemctl enable chromium.service")
+
+			# Start all of the above in one operation.
+			lines  = TextBuilder()
+			lines += "[Unit]"
+			lines += "Wants=ubuntu-frame.service chromium.service"
+			script += CreateTextWithUserAndModeAction(
+				"Creating user-specific systemd service to launch Chromium.",
+				f"{os.path.dirname(origin)}/.config/systemd/user/user-session.target",
+				setup.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR,
+				lines.text
+			)
+			del lines
+
+			script += ExternalAction("Start Wayland and then Chromium when booting.", "systemctl add-wants graphical.target user-session.service")
+		else:
 			# Append lines to .bashrc to execute the startup script (only if we're not connecting using SSH).
 			lines  = TextBuilder()
 			lines += ""
@@ -496,36 +643,36 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-		else:
-			# NOTE: I never did manage to get the systemd service to even start up (I've stopped playing with it for now).
-			lines  = TextBuilder()
-			lines += "[Unit]"
-			lines += "Description=KioskForge kiosk service."
-			lines += "After=network-online.target"
-			lines += "After=cloud-init.target"
-			lines += "After=multi-user.target"
-			lines += ""
-			lines += "[Service]"
-			lines += f"User={setup.user_name.data}"
-			lines += f"Group={setup.user_name.data}"
-			lines += "Type=simple"
-			lines += "ExecStart="
-			lines += f"ExecStart={origin}/KioskStart.py"
-			lines += "StandardOutput=tty"
-			lines += "StandardError=tty"
-			lines += ""
-			lines += "[Install]"
-			lines += "WantedBy=cloud-init.target"
-			script += CreateTextWithUserAndModeAction(
-				"Creating systemd kiosk service.",
-				"/usr/lib/systemd/system/kiosk.service",
-				"root",
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
-				lines.text
-			)
-
-			# Enable the new systemd unit.
-			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
+#		else:
+#			# NOTE: I never did manage to get the systemd service to even start up (I've stopped playing with it for now).
+#			lines  = TextBuilder()
+#			lines += "[Unit]"
+#			lines += "Description=KioskForge kiosk service."
+#			lines += "After=network-online.target"
+#			lines += "After=cloud-init.target"
+#			lines += "After=multi-user.target"
+#			lines += ""
+#			lines += "[Service]"
+#			lines += f"User={setup.user_name.data}"
+#			lines += f"Group={setup.user_name.data}"
+#			lines += "Type=simple"
+#			lines += "ExecStart="
+#			lines += f"ExecStart={origin}/KioskStart.py"
+#			lines += "StandardOutput=tty"
+#			lines += "StandardError=tty"
+#			lines += ""
+#			lines += "[Install]"
+#			lines += "WantedBy=cloud-init.target"
+#			script += CreateTextWithUserAndModeAction(
+#				"Creating systemd kiosk service.",
+#				"/usr/lib/systemd/system/kiosk.service",
+#				"root",
+#				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+#				lines.text
+#			)
+#
+#			# Enable the new systemd unit.
+#			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
@@ -547,7 +694,7 @@ class KioskSetup(KioskDriver):
 
 		# Synchronize all changes to disk (may take a while on microSD cards).
 		script += ExternalAction(
-			"Flushing disk buffers before rebooting (may take a while on microSD cards).",
+			"Flushing disk buffers before rebooting (may take a while when using slow media).",
 			"sync"
 		)
 

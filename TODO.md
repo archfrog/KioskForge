@@ -33,19 +33,21 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
+						 Linux distributions as well as different configurations:
+							 `system.upgrade()`                          (`apt-get upgrade`)
+						     `system.install_atom("foobar")`             (`apt-get install -y foobar`)
+							 `system.install_list("foobar baroof")`      (`apt-get install -y foobar baroof`)
+                         Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
+						 This scripting language should be completely hidden to the end-user and simply simplify KioskForge.
+- [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is more a matter of an operating mode than a type of kiosk.
+- [ ] 2025.05.03.08.08 H Wayland: stop the user session (Chromium, etc.) prior to running `snap update` and restart afterwards:
+						 `sudo snap stop chromium; sudo apt-get upgrade; sudo snap start chromium`.
+- [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
                          This so that `KioskStart.py` can actually wait for an internet connection before it continues.
 - [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.
-- [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.04.27.20.32 H Finish up audio support for Pi5 (I don't have the audio hardware yet).
-- [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
-                         the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
-                         To see all languages partially or completely supported by Ubuntu, click `View all languages` on
-                         [Translation Status by Language](https://translations.launchpad.net/ubuntu/noble).  The Ubuntu package
-                         to install, to get all locales, is `locales-all`.  It is a 10 MB download that expands to 238 MB on disk.
-                         After `locales-all` has been installed, you need to run `locale-gen` (which probably takes forever).
-                         One solution is to always install `locales-all` and only do a `locale-gen` on `en_US.UTF8` and the user
-                         language specified in the `.kiosk` file.
 - [ ] 2025.04.26.11.41 H A full list of supported locales can be found at
                          [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
                          Please notice that you can select the Ubuntu version at the very top of the page.
@@ -53,7 +55,6 @@ snap connect chromium:wayland
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
 - [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
-- [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
 - [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
                          Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
@@ -102,6 +103,16 @@ snap connect chromium:wayland
                          This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
+- [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
+- [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
+                         the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
+                         To see all languages partially or completely supported by Ubuntu, click `View all languages` on
+                         [Translation Status by Language](https://translations.launchpad.net/ubuntu/noble).  The Ubuntu package
+                         to install, to get all locales, is `locales-all`.  It is a 10 MB download that expands to 238 MB on disk.
+                         After `locales-all` has been installed, you need to run `locale-gen` (which probably takes forever).
+                         One solution is to always install `locales-all` and only do a `locale-gen` on `en_US.UTF8` and the user
+                         language specified in the `.kiosk` file.
+- [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
 - [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking (wifi, cpu) can be configured.
 - [ ] 2025.03.16.06.07 M GUI: Add option to control overclocking of RPI4 and RPI5.
 - [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.

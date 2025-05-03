@@ -558,9 +558,14 @@ The type of kiosk.
 
 The valid values are:
 
-1. web: A "standard" kiosk that displays a given website.
+1. web: A legacy kiosk that displays a given website on X11 using Chromium
+   as the web browser.  X11 does not offer GPU acceleration on Pi5.
 2. x11: A custom, X11 app installed during forging of the kiosk.
 3. cli: A custom, console app installed during forging of the kiosk.
+4. web-wayland: A modern kiosk that displays a website on Wayland using
+   Chromium as the web browser.  Wayland does offer GPU accelleration.
+
+NOTE: The "web-wayland" type of kiosk is not yet finished: don't use it!
 
 The website URL or custom command is specified using the 'command' option.
 
@@ -880,7 +885,7 @@ class Setup(Options):
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
 		self += OptionalStringField("comment", "", COMMENT_HELP)
 		self += ChoiceField("device", "pi4b", DEVICE_HELP, ["pi4b", "pi5", "pc"])
-		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web"])
+		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web", "web-wayland"])
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += OptionalRegexField("hostname", "", HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
 		self += ChoiceField("timezone", "America/Los_Angeles", TIMEZONE_HELP, TIMEZONES)

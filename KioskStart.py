@@ -96,7 +96,13 @@ class KioskStart(KioskDriver):
 					words += "--"
 					words += "-nocursor"
 				invoke_list_safe(words.list)
-		elif setup.type.data in ["cli"]:
+		elif setup.type.data == "web-wayland":
+			# TODO: Add support for the 'mouse' option.
+			if not os.environ.get("WAYLAND_DISPLAY"):
+				invoke_text_safe("/usr/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY=wayland-0")
+				invoke_text_safe("/snap/bin/ubuntu-frame")
+				invoke_text_safe(f"/snap/bin/chromium --kiosk '{setup.command.data}'")
+		elif setup.type.data == "cli":
 			invoke_text_safe(setup.command.data)
 		else:
 			raise KioskError(f"Unknown kiosk type: {setup.type.data}")
