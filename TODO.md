@@ -40,13 +40,15 @@ snap connect chromium:wayland
 							 `system.install_list("foobar baroof")`      (`apt-get install -y foobar baroof`)
                          Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
 						 This scripting language should be completely hidden to the end-user and simply simplify KioskForge.
-- [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is more a matter of an operating mode than a type of kiosk.
+- [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
 - [ ] 2025.05.03.08.08 H Wayland: stop the user session (Chromium, etc.) prior to running `snap update` and restart afterwards:
 						 `sudo snap stop chromium; sudo apt-get upgrade; sudo snap start chromium`.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
                          This so that `KioskStart.py` can actually wait for an internet connection before it continues.
-- [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.
+- [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.  My early tests
+                         indicate that Pi5 is not very fast on Wayland either: Can't display a 2K YouTube video without many frame
+					     drops.
 - [ ] 2025.04.27.20.32 H Finish up audio support for Pi5 (I don't have the audio hardware yet).
 - [ ] 2025.04.26.11.41 H A full list of supported locales can be found at
                          [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
