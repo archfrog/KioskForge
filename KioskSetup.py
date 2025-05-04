@@ -359,11 +359,11 @@ class KioskSetup(KioskDriver):
 		if setup.type.data == "web-wayland":
 			# Install Ubuntu Frame (Wayland-based) instead of X11.
 			script += ExternalAction("Installing Ubuntu Frame for Wayland.", "snap install ubuntu-frame")
-			#script += ExternalAction("Configuring Ubuntu Frame for kiosk use.", "snap set ubuntu-frame daemon=true")
+			script += ExternalAction("Configuring Ubuntu Frame for kiosk use.", "snap set ubuntu-frame daemon=true")
 
 			# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
 			script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
-			#script += ExternalAction("Configuring Chromium for Ubuntu Frame.", "snap set chromium daemon=true")
+			script += ExternalAction("Configuring Chromium for Ubuntu Frame.", "snap set chromium daemon=true")
 			script += ExternalAction("Connecting Chromium with Wayland.", "snap connect chromium:wayland")
 
 			# NOTE: The line below appears to be irrelevant for browsing local files in the HOME folder.
@@ -371,7 +371,7 @@ class KioskSetup(KioskDriver):
 
 			script += ExternalAction("Configuring starting page in Chromium.", f"sudo snap set chromium url={setup.command.data}")
 
-			# ...Stop and disable the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
+			# ...Stop and remove the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
 			script += ExternalAction(
 				"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
 				"snap remove --purge cups"
