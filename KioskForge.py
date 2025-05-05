@@ -320,11 +320,13 @@ class KioskForge(KioskDriver):
 				stream.indent()
 				stream.write("dhcp4: true")
 				stream.write("optional: false")
+				stream.write("regulatory-domain: {setup.wifi_country.data}")
 				stream.write("access-points:")
 				stream.indent()
 				stream.write(f'"{setup.wifi_name.data}":')
 				stream.indent()
 				stream.write(f'password: "{setup.wifi_code.data}"')
+				stream.write(f"hidden: {'true' if setup.wifi_hidden.data else 'false'}")
 				stream.dedent(5)
 
 	def save_cloudinit_userdata(self, setup : Setup, target : Target, path : str) -> None:

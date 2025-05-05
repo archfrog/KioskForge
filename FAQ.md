@@ -12,6 +12,8 @@ This section contains various common questions about technical issues with Kiosk
 ### I am unable to connect to my Wi-Fi network?
 This is most likely because you have misspelled the Wi-Fi network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
 
+The values of `wifi_country` and `wifi_hidden` also need to be correct, although this is mostly important when accessing a 5G network using the AC standard.
+
 A tip is to try to create a new connection with your phone to see if that works.  If either the Wi-Fi network name or the password is incorrect, it will fail too.
 
 ### How much space does KioskForge take up on the kiosk machine?

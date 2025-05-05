@@ -717,9 +717,9 @@ disabled.
 WIFI_CODE_HELP = """
 The password to the Wi-Fi network, if any.
 
-A Wi-Fi password may consist of 8 to 63 extended characters, but it is
-advisable to only use printable ASCII characters to be able to enter
-the password in various operating systems and/or tools.
+A Wi-Fi WPK (password) may consist of 8 to 63 extended characters, but it is
+advisable to only use printable ASCII characters to be able to enter the
+password in various operating systems and/or tools.
 
 This setting is case sensitive so that "Pass" is different from "pass".
 
@@ -728,18 +728,38 @@ will be assumed to be public and open to everybody (without a password).
 """.strip()
 
 
+WIFI_COUNTRY_HELP = """
+The country code of the "regulatory domain" for the Wi-Fi card.  In
+other words: The two-letter code of the country that the Wi-Fi card is
+being used in.  Often, but not always, the same as the 'keyboard' option.
+""".strip()
+
+
+WIFI_HIDDEN_HELP = """
+Some hardware needs a bit of help to find hidden Wi-Fi networks, so this
+option is used to instruct them whether or not the desired Wi-Fi network
+is in fact hidden.
+
+The value 'false' indicates that the desired Wi-Fi network is standard,
+publicly visible network and the value 'true' indicates that it is a
+hidden network, which may slow down network scanning time a bit.
+
+Most users will want to use the default value of 'false' here.
+""".strip()
+
+
 WIFI_NAME_HELP = """
 The Wi-Fi network name (SSID).
 
-A Wi-Fi WPK (password) may consists of 1 to 32 characters of unspecified
+A Wi-Fi SSID (network name) may consists of 1 to 32 characters of any
 value.  In other words, you can use pretty much anything.  However, it is
 advisable to only use ASCII characters so as to make it practical to use
-the password and also avoid breaking or confusing supporting tools.
+the network name and also avoid breaking or confusing supporting tools.
 
 This setting is case sensitive so that "MyWiFi" is different from "mywifi".
 
 If empty, Wi-Fi is disabled altogether and no Wi-Fi network is configured.
-In this case, 'wifi_code' will be ignored.
+In this case, 'wifi_code', 'wifi_country', and 'wifi_hidden' are ignored.
 """.strip()
 
 
@@ -818,7 +838,7 @@ class Options:
 		# Check that all fields were assigned by the configuration files.
 		for key in self.keys():
 			field = getattr(self, key)
-			if not field.changes:
+			if field.changes < 1:
 				result.append(TextFileError(path, 0, f"Option never assigned: {key}"))
 
 		return result
@@ -899,6 +919,8 @@ class Setup(Options):
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
 		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}")
+		self += StringField("wifi_country", "us", WIFI_COUNTRY_HELP)
+		self += BooleanField("wifi_hidden", "false", WIFI_HIDDEN_HELP)
 		self += BooleanField("wifi_boost", "true", WIFI_BOOST_HELP)
 		self += BooleanField("cpu_boost", "true", CPU_BOOST_HELP)
 		self += NaturalField("swap_size", "4", SWAP_SIZE_HELP, 0, 128)

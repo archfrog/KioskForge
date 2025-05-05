@@ -62,7 +62,6 @@ snap connect chromium:wayland
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
-- [ ] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
 - [ ] 2025.04.09.11.00 H Test the absense of a network connection by using a cable while forging the box and an invalid Wi-Fi.
@@ -150,6 +149,10 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
+                         It apparently only worked because I was only creating a 2.4G Wi-Fi network in my router.  There is a
+						 bug report about this, but the cloud-init people refuse to add an option to set the wifi country code.
+						 See https://github.com/canonical/cloud-init/issues/3926  Netplan supports this (`regulatory-domain: xx`).
 - [x] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.  Renamed to `KioskZipper.py` because `cmd.exe` Tab expansion got tedious.
 - [x] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
