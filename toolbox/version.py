@@ -19,7 +19,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRODUCT = "KioskForge"
-VERSION = "0.19"
+VERSION = "0.20"
 COMPANY = "Vendsyssel Historiske Museum"
 CONTACT = "Mikael Egevig <me@vhm.dk>"
 WEBSITE = "https://kioskforge.org/"

@@ -1,6 +1,15 @@
 # KioskForge Change Log
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 0.20 (2025.05.05)
+1. A new option, `wifi_country`, was added because Wi-Fi 5G networks mostly worked, but not always.  This option is used to specify
+   the host country that the kiosk is placed in.  It is a two-letter abbreviation ("us" = the US, "dk" = Denmark", etc.).
+2. A new option, `wifi_hidden`, was added because Linux likes to know this beforehand, so that it can scan quickly or more slowly,
+   depending on whether or not the Wi-Fi network is visible or not.
+3. A problem was fixed in `KioskForge verify "Some Example.kiosk"` because it did not report *missing* options, which basically
+   meant that `KioskForge verify` accepted kiosks that were invalid because they lacked one or more options.
+4. Various cosmetic changes.
+
 ## Version 0.19 (2025.05.03)
 1. A new option, `upgrade_post`, which can be either `reboot` or `poweroff`, has been added.  This option controls what the
    kiosk does when it has successfully performed maintenance: reboot or poweroff.
