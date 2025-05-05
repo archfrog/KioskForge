@@ -320,7 +320,7 @@ class KioskForge(KioskDriver):
 				stream.indent()
 				stream.write("dhcp4: true")
 				stream.write("optional: false")
-				stream.write("regulatory-domain: {setup.wifi_country.data}")
+				stream.write(f"regulatory-domain: {setup.wifi_country.data}")
 				stream.write("access-points:")
 				stream.indent()
 				stream.write(f'"{setup.wifi_name.data}":')
