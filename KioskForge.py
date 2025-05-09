@@ -41,8 +41,9 @@ import bcrypt
 
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
+from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger, TextWriter
-from toolbox.setup import hostname_create, Setup
+from toolbox.setup import hostname_create
 from toolbox.shell import tree_delete
 from toolbox.sources import SOURCES
 
@@ -276,8 +277,8 @@ class KioskForge(KioskDriver):
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
 
-	def save_cloudinit_metadata(self, setup : Setup, path : str) -> None:
-		del setup
+	def save_cloudinit_metadata(self, kiosk : Kiosk, path : str) -> None:
+		del kiosk
 
 		with TextWriter(path) as stream:
 			# Write header to let the user know who generated this particular file.
@@ -288,7 +289,7 @@ class KioskForge(KioskDriver):
 			stream.write("dsmode: local")
 			stream.write("instance_id: cloud-image")
 
-	def save_cloudinit_network_config(self, setup : Setup, path : str) -> None:
+	def save_cloudinit_network_config(self, kiosk : Kiosk, path : str) -> None:
 		with TextWriter(path) as stream:
 			# Write header to let the user know who generated this particular file.
 			stream.write(
@@ -306,11 +307,11 @@ class KioskForge(KioskDriver):
 			stream.write("eth0:")
 			stream.indent()
 			stream.write("dhcp4: true")
-			stream.write(f"optional: {'true' if setup.wifi_name.data else 'false'}")
+			stream.write(f"optional: {'true' if kiosk.wifi_name.data else 'false'}")
 			stream.write()
 			stream.dedent(3)
 
-			if setup.wifi_name.data:
+			if kiosk.wifi_name.data:
 				stream.indent()
 				stream.write("wifis:")
 				stream.indent()
@@ -319,18 +320,18 @@ class KioskForge(KioskDriver):
 				stream.indent()
 				stream.write("dhcp4: true")
 				stream.write("optional: false")
-				stream.write(f"regulatory-domain: {setup.wifi_country.data}")
+				stream.write(f"regulatory-domain: {kiosk.wifi_country.data}")
 				stream.write("access-points:")
 				stream.indent()
-				stream.write(f'"{setup.wifi_name.data}":')
+				stream.write(f'"{kiosk.wifi_name.data}":')
 				stream.indent()
-				stream.write(f'password: "{setup.wifi_code.data}"')
-				stream.write(f"hidden: {'true' if setup.wifi_hidden.data else 'false'}")
+				stream.write(f'password: "{kiosk.wifi_code.data}"')
+				stream.write(f"hidden: {'true' if kiosk.wifi_hidden.data else 'false'}")
 				stream.dedent(5)
 
-	def save_cloudinit_userdata(self, setup : Setup, target : Target, path : str) -> None:
+	def save_cloudinit_userdata(self, kiosk : Kiosk, target : Target, path : str) -> None:
 		with TextWriter(path) as stream:
-			output = f"/home/{setup.user_name.data}"
+			output = f"/home/{kiosk.user_name.data}"
 
 			# Write header to let the user know who generated this particular file.
 			stream.write("#cloud-config")
@@ -340,19 +341,19 @@ class KioskForge(KioskDriver):
 			stream.write()
 
 			# Set the host name here so that the system log does not loose internal structure due to changing hostname.
-			stream.write(f'hostname: "{setup.hostname.data}"')
+			stream.write(f'hostname: "{kiosk.hostname.data}"')
 			stream.write()
 
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
 			stream.indent()
-			stream.write(f"- name: {setup.user_name.data}")
+			stream.write(f"- name: {kiosk.user_name.data}")
 			stream.indent()
 			stream.write("gecos: Administrator")
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			stream.write(f'passwd: "{password_crypt(setup.user_code.data)}"')
+			stream.write(f'passwd: "{password_crypt(kiosk.user_code.data)}"')
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
@@ -360,13 +361,13 @@ class KioskForge(KioskDriver):
 			stream.write()
 
 			# Write timezone (to get date and time in logs correct).
-			stream.write(f"timezone: {setup.timezone.data}")
+			stream.write(f"timezone: {kiosk.timezone.data}")
 			stream.write()
 
 			# Write keyboard layout (I haven't found a reliable way to do this in any other way).
 			stream.write("keyboard:")
 			stream.indent()
-			stream.write(f"layout: {setup.keyboard.data}")
+			stream.write(f"layout: {kiosk.keyboard.data}")
 			stream.write("model: pc105")
 			stream.dedent()
 			stream.write()
@@ -409,18 +410,18 @@ class KioskForge(KioskDriver):
 			stream.write("runcmd:")
 			stream.indent()
 			stream.write(f"- cp -pR {source}/KioskForge {output}")
-			stream.write(f"- chown -R {setup.user_name.data}:{setup.user_name.data} {output}/KioskForge")
+			stream.write(f"- chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {output}/KioskForge")
 			stream.write(f"- chmod -R u+x {output}/KioskForge")
 			stream.write(f"- chmod a-x {output}/KioskForge/KioskForge.kiosk")
 
 			# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
 			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
-			if setup.user_folder.data:
-				basename = os.path.basename(os.path.abspath(setup.user_folder.data))
+			if kiosk.user_folder.data:
+				basename = os.path.basename(os.path.abspath(kiosk.user_folder.data))
 				user_source = source + '/' + basename
 				user_target = output + '/' + basename
 				stream.write(f"- cp -pR {user_source} {output}")
-				stream.write(f"- chown -R {setup.user_name.data}:{setup.user_name.data} {user_target}")
+				stream.write(f"- chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {user_target}")
 				stream.write(f"- chmod -R u+x {user_target}")
 				del user_source
 				del user_target
@@ -457,12 +458,12 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 			stream.write()
 
-	def save_subiquity_yaml(self, setup : Setup, target : Target, path : str) -> None:
+	def save_subiquity_yaml(self, kiosk : Kiosk, target : Target, path : str) -> None:
 		del target
 
 		with TextWriter(path) as stream:
 			source = "/cdrom/"
-			output = f"/home/{setup.user_name.data}"
+			output = f"/home/{kiosk.user_name.data}"
 
 			# Write header to let the user know who generated this particular file.
 			stream.write("#cloud-config")
@@ -527,10 +528,10 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 			stream.write("identity:")
 			stream.indent()
-			stream.write(f"hostname: {setup.hostname.data}")
+			stream.write(f"hostname: {kiosk.hostname.data}")
 			stream.write("realname: Kiosk")
-			stream.write(f"username: {setup.user_name.data}")
-			stream.write(f'password: "{password_crypt(setup.user_code.data)}"')
+			stream.write(f"username: {kiosk.user_name.data}")
+			stream.write(f'password: "{password_crypt(kiosk.user_code.data)}"')
 			stream.dedent()
 			stream.write("kernel:")
 			stream.indent()
@@ -540,13 +541,13 @@ class KioskForge(KioskDriver):
 			# Write keyboard configuration.
 			stream.write("keyboard:")
 			stream.indent()
-			stream.write(f"layout: {setup.keyboard.data}")
+			stream.write(f"layout: {kiosk.keyboard.data}")
 			stream.write("toggle: null")
 			stream.write("variant: ''")
 			stream.dedent()
 
 			# Write locale information.
-			stream.write(f"locale: {setup.locale.data}")
+			stream.write(f"locale: {kiosk.locale.data}")
 
 			# Write network configuration.
 			stream.write("network:")
@@ -561,7 +562,7 @@ class KioskForge(KioskDriver):
 			stream.dedent()
 			stream.dedent()
 
-			if setup.wifi_name.data:
+			if kiosk.wifi_name.data:
 				stream.write("wifis:")
 				stream.indent()
 				stream.write("wlp1s0:")
@@ -570,9 +571,9 @@ class KioskForge(KioskDriver):
 				stream.write("optional: false")
 				stream.write("access-points:")
 				stream.indent()
-				stream.write(f'"{setup.wifi_name.data}":')
+				stream.write(f'"{kiosk.wifi_name.data}":')
 				stream.indent()
-				stream.write(f'password: "{setup.wifi_code.data}"')
+				stream.write(f'password: "{kiosk.wifi_code.data}"')
 				stream.dedent(4)
 
 			stream.dedent()
@@ -598,7 +599,7 @@ class KioskForge(KioskDriver):
 			stream.write("allow-pw: false")
 			stream.write("install-server: true")
 			stream.write("authorized-keys:")
-			stream.write(f"- '{setup.ssh_key.data}'")
+			stream.write(f"- '{kiosk.ssh_key.data}'")
 			stream.dedent()
 
 			stream.write("storage:")
@@ -618,8 +619,8 @@ class KioskForge(KioskDriver):
 			stream.write(f"- curtin in-target -- cp -pR {source}/KioskForge {output}")
 
 			# TODO: Copy user-supplied data folder to the target, if any.
-			if setup.user_folder.data:
-				stream.write(f"- curtin in-target -- cp -pR {setup.user_folder.data} {output}")
+			if kiosk.user_folder.data:
+				stream.write(f"- curtin in-target -- cp -pR {kiosk.user_folder.data} {output}")
 				raise InternalError("user_folder is not yet implemented for PC targets")
 
 			# Continue the installation of the kiosk (late-commands is executed just before the system is rebooted).
@@ -633,12 +634,12 @@ class KioskForge(KioskDriver):
 		print()
 
 		# Load the kiosk.
-		setup = Setup()
-		setup.load_safe(logger, filename)
+		kiosk = Kiosk(self.version)
+		kiosk.load_safe(logger, filename)
 
 		# Assign host name to setup instance, if the user has not provided one.
-		if not setup.hostname.data:
-			setup.assign("hostname", hostname_create("kiosk"))
+		if not kiosk.hostname.data:
+			kiosk.assign("hostname", hostname_create("kiosk"))
 
 		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 		targets = Recognizer().identify()
@@ -672,21 +673,21 @@ class KioskForge(KioskDriver):
 		print("*** Summary (some fields intentionally left out):")
 		print()
 		print(f"    Kiosk        : {filename}")
-		print(f"    Comment      : {setup.comment.data}")
-		print(f"    Device       : {setup.device.data}")
-		print(f"    Type         : {setup.type.data}")
-		print(f"    Command      : {setup.command.data}")
-		print(f"    Host name    : {setup.hostname.data}")
-		print(f"    Time zone    : {setup.timezone.data}")
-		print(f"    Keyboard     : {setup.keyboard.data}")
-		print(f"    Locale       : {setup.locale.data}")
-		print(f"    Sound card   : {setup.sound_card.data}")
-		print(f"    User name    : {setup.user_name.data}")
-		print(f"    Wi-Fi name   : {setup.wifi_name.data}")
-		print(f"    Upgrade time : {setup.upgrade_time.data}")
-		print(f"    Poweroff time: {setup.poweroff_time.data}")
-		print(f"    Rotation     : {setup.screen_rotation.data}")
-		print(f"    User folder  : {setup.user_folder.data}")
+		print(f"    Comment      : {kiosk.comment.data}")
+		print(f"    Device       : {kiosk.device.data}")
+		print(f"    Type         : {kiosk.type.data}")
+		print(f"    Command      : {kiosk.command.data}")
+		print(f"    Host name    : {kiosk.hostname.data}")
+		print(f"    Time zone    : {kiosk.timezone.data}")
+		print(f"    Keyboard     : {kiosk.keyboard.data}")
+		print(f"    Locale       : {kiosk.locale.data}")
+		print(f"    Sound card   : {kiosk.sound_card.data}")
+		print(f"    User name    : {kiosk.user_name.data}")
+		print(f"    Wi-Fi name   : {kiosk.wifi_name.data}")
+		print(f"    Upgrade time : {kiosk.upgrade_time.data}")
+		print(f"    Poweroff time: {kiosk.poweroff_time.data}")
+		print(f"    Rotation     : {kiosk.screen_rotation.data}")
+		print(f"    User folder  : {kiosk.user_folder.data}")
 		print()
 
 		print("*** Press ENTER to prepare kiosk installation image or Ctrl-C to abort")
@@ -708,7 +709,7 @@ class KioskForge(KioskDriver):
 			kernel_options.save(target.basedir + "cmdline.txt")
 
 			# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-			if setup.device.data == "pi4b" and not setup.cpu_boost.data:
+			if kiosk.device.data == "pi4b" and not kiosk.cpu_boost.data:
 				with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
 					text = stream.read()
 				text = text.replace("arm_boost=1", "arm_boost=0")
@@ -723,16 +724,16 @@ class KioskForge(KioskDriver):
 		# Write cloudinit or Subiquity configuration files to automate install completely.
 		if target.install == "cloudinit":
 			# Generate Cloud-init's meta-data file from scratch (to be sure of what's in it).
-			self.save_cloudinit_metadata(setup, target.basedir + "meta-data")
+			self.save_cloudinit_metadata(kiosk, target.basedir + "meta-data")
 
 			# Generate Cloud-init's network-config file from scratch (to be sure of what's in it).
-			self.save_cloudinit_network_config(setup, target.basedir + "network-config")
+			self.save_cloudinit_network_config(kiosk, target.basedir + "network-config")
 
 			# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
-			self.save_cloudinit_userdata(setup, target, target.basedir + "user-data")
+			self.save_cloudinit_userdata(kiosk, target, target.basedir + "user-data")
 		elif target.install == "subiquity":
 			# Generate Subiquity's autoinstall.yaml file.
-			self.save_subiquity_yaml(setup, target, target.basedir + "autoinstall.yaml")
+			self.save_subiquity_yaml(kiosk, target, target.basedir + "autoinstall.yaml")
 		else:
 			raise KioskError(f"Unknown installer type: {target.install}")
 
@@ -747,7 +748,7 @@ class KioskForge(KioskDriver):
 		os.makedirs(output)
 
 		# Write configuration to the target.
-		setup.save(output + os.sep + "KioskForge.kiosk", self.version)
+		kiosk.save(output + os.sep + "KioskForge.kiosk")
 
 		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
 		for name in SOURCES:
@@ -757,12 +758,12 @@ class KioskForge(KioskDriver):
 				shutil.copytree(origin + os.sep + name, output + os.sep + name)
 
 		# Copy user folder, if any, to the install medium so that it can be copied onto the target.
-		if setup.user_folder.data:
-			if setup.user_folder.data == "KioskForge":
+		if kiosk.user_folder.data:
+			if kiosk.user_folder.data == "KioskForge":
 				raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
 
 			# Use 'abspath' to the handle the case that the user folder is identical to '.'.
-			source = os.path.abspath(os.path.join(os.path.dirname(filename), setup.user_folder.data))
+			source = os.path.abspath(os.path.join(os.path.dirname(filename), kiosk.user_folder.data))
 			# Extract the last portion of the source's full path to get the name of the folder on the install medium.
 			basename = os.path.basename(source)
 			destination = target.basedir + os.sep + basename
@@ -794,14 +795,14 @@ class KioskForge(KioskDriver):
 		print()
 
 		# Create the new kiosk.
-		setup = Setup()
+		kiosk = Kiosk(self.version)
 
 		# Check that the output does not already exist.
 		if os.path.exists(filename):
 			raise KioskError(f"Kiosk file already exists: {filename}")
 
 		# Write the new kiosk.
-		setup.save(filename, self.version)
+		kiosk.save(filename)
 
 		print("Kiosk created successfully.")
 
@@ -810,10 +811,10 @@ class KioskForge(KioskDriver):
 		print()
 
 		# Create a kiosk to load the kiosk to be upgraded into.
-		setup = Setup()
+		kiosk = Kiosk(self.version)
 
 		# Load the kiosk and get the list of errors detected.
-		errors = setup.load_list(filename)
+		errors = kiosk.load_list(filename)
 
 		# Filter out all errors of the form "Option never assigned: ", these are irrelevant when upgrading a kiosk.
 		errors = list(filter(lambda x: not x.text.startswith("Option never assigned: "), errors))
@@ -826,7 +827,7 @@ class KioskForge(KioskDriver):
 			raise KioskError(f"{len(errors)} error(s) detected while reading file '{filename}'")
 
 		# Save the new, upgraded kiosk.
-		setup.save(filename, self.version)
+		kiosk.save(filename)
 
 		print("Kiosk upgraded successfully.")
 
@@ -835,8 +836,8 @@ class KioskForge(KioskDriver):
 		print()
 
 		# Create a kiosk to be loaded (which implicitly verifies the kiosk).
-		setup = Setup()
-		setup.load_safe(logger, filename)
+		kiosk = Kiosk(self.version)
+		kiosk.load_safe(logger, filename)
 		print("Kiosk verified successfully.")
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:

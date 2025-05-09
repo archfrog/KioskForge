@@ -35,7 +35,7 @@ from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
-from toolbox.setup  import Setup
+from toolbox.kiosk import Kiosk
 from toolbox.sources import SOURCES
 from toolbox.various import ramdisk_get
 from toolbox.version import Version
@@ -233,7 +233,7 @@ class KioskBuild(KioskDriver):
 		shutil.copyfile("LICENSE", paths.temppath + os.sep + "LICENSE.txt")
 
 		# Generate a brand new, up-to-date template kiosk by saving an empty, blank kiosk.
-		Setup().save(paths.temppath + os.sep + "Template.kiosk", version)
+		Kiosk(version).save(paths.temppath + os.sep + "Template.kiosk")
 
 	def build_installer(self, paths : Paths, version : str) -> None:
 		innopath = r"C:\Program Files (x86)\Inno Setup 6\Compil32.exe"

@@ -30,9 +30,9 @@ import zipfile
 
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
-from toolbox.logger import Logger
 from toolbox.invoke import invoke_text
-from toolbox.setup import Setup
+from toolbox.kiosk import Kiosk
+from toolbox.logger import Logger
 
 
 def strip_and_unhide(path : str) -> str:
@@ -76,11 +76,11 @@ class KioskZipper(KioskDriver):
 		try:
 			# Load the configuration, so that we can redact the sensitive/irrelevant information out of it.
 			filename = "Kiosk.kiosk"
-			setup = Setup()
-			setup.load_safe(logger, "KioskForge/KioskForge.kiosk")
+			kiosk = Kiosk(self.version)
+			kiosk.load_safe(logger, "KioskForge/KioskForge.kiosk")
 			for field in ["user_name", "user_code", "wifi_name", "wifi_code", "ssh_key"]:
-				setup.assign(field, "REDACTED")
-			setup.save(filename, self.version)
+				kiosk.assign(field, "REDACTED")
+			kiosk.save(filename)
 			include.append(filename)
 			cleanup.append(filename)
 			del field
