@@ -33,6 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.05.09.05.38 H `KioskDriver.__init__()` should take the app name as a parameter to eliminate `self.version = ...`.
+- [ ] 2025.05.09.05.36 H The version number shown in Windows Explorer's Details tab is `0.0.0.0`?
 - [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
 						 Linux distributions as well as different configurations:
 							 `system.upgrade()`                          (`apt-get upgrade`)
