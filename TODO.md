@@ -47,16 +47,10 @@ snap connect chromium:wayland
 - [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.  My early tests
                          indicate that Pi5 is not very fast on Wayland either: Can't display a 2K YouTube video without many frame
 					     drops.
-- [ ] 2025.04.27.20.32 H Finish up audio support for Pi5 (I don't have the audio hardware yet).
-- [ ] 2025.04.26.11.41 H A full list of supported locales can be found at
-                         [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
-                         Please notice that you can select the Ubuntu version at the very top of the page.
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
 - [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
-- [ ] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
-                         Add `finish` (?) option with one of two values: `shutdown` or `restart` to control the above.
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
@@ -90,7 +84,6 @@ snap connect chromium:wayland
                          The AUTOSTART code is not implemented in the Subiquity (AutoInstall) writer, so this is broken by now.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled (???).
-- [ ] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable warning(s).
 - [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
@@ -126,12 +119,7 @@ snap connect chromium:wayland
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
-- [ ] 2025.03.24.05.49 M Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
-                         https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
-                         2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
-                         Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
 - [ ] 2025.05.01.05.17 L Some users will want the screen to go to sleep between guests to the kiosk.
-- [ ] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
                          `KioskForge-m.nn.zip`, the latter for Windows users.  Ideally, there'd only be one executable for each
@@ -147,6 +135,18 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
+- [x] 2025.03.24.05.49 D Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
+                         https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
+                         2025.04.11: I spent two hours trying to get this to work, but either got too much or too little output.
+                         Syslog entries didn't appear at all and console output didn't work unless I used a simple `print`.
+- [x] 2025.03.15.19.15 H Loading a configuration with missing values should auto-assign defaults and report suitable error(s).
+- [x] 2025.04.04.16.13 H Make the box easier to deploy - allow the use of `poweroff` instead of `reboot` at the last stage.
+                         Add `upgrade_post` option with one of two values: `shutdown` or `restart` to control the above.
+- [x] 2025.04.27.20.32 H Finish up audio support for Pi5 (Pi5 has no jack and thus only supports `hdmi1` and `hdmi2`).
+- [x] 2025.04.26.11.41 H A full list of supported locales can be found at
+                         [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
+                         Please notice that you can select the Ubuntu version at the very top of the page.
 - [x] 2025.05.03.08.08 H Stop the user session (Chromium, etc.) prior to running `snap refresh` and restart afterwards:
 						 `sudo snap stop chromium; sudo snap refresh; sudo reboot`
 - [x] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
