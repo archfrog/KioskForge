@@ -34,21 +34,20 @@ snap connect chromium:wayland
 ## Open Tasks
 # TODO:
 - [ ] 2025.05.09.05.38 H `KioskDriver.__init__()` should take the app name as a parameter to eliminate `self.version = ...`.
-- [ ] 2025.05.09.05.36 H The version number shown in Windows Explorer's Details tab is `0.0.0.0`?
 - [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
-						 Linux distributions as well as different configurations:
-							 `system.upgrade()`                          (`apt-get upgrade`)
-						     `system.install_atom("foobar")`             (`apt-get install -y foobar`)
-							 `system.install_list("foobar baroof")`      (`apt-get install -y foobar baroof`)
+                         Linux distributions as well as different configurations:
+                         `system.upgrade()`                          (`apt-get upgrade`)
+                         `system.install_atom("foobar")`             (`apt-get install -y foobar`)
+                         `system.install_list("foobar baroof")`      (`apt-get install -y foobar baroof`)
                          Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
-						 This scripting language should be completely hidden to the end-user and simply simplify KioskForge.
+                         This scripting language should be completely hidden to the end-user and simply simplify KioskForge.
 - [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
                          This so that `KioskStart.py` can actually wait for an internet connection before it continues.
 - [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.  My early tests
                          indicate that Pi5 is not very fast on Wayland either: Can't display a 2K YouTube video without many frame
-					     drops.
+                         drops.
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
@@ -121,6 +120,8 @@ snap connect chromium:wayland
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
+- [ ] 2025.05.09.05.36 L The version number shown in Windows Explorer's Details tab is `0.0.0.0`?
+                         The problem is in Inno Setup (which I'd love to replace), the info given to Inno is correct.
 - [ ] 2025.05.01.05.17 L Some users will want the screen to go to sleep between guests to the kiosk.
 - [ ] 2025.03.28.13.14 L The Linux version of KioskForge (when, if) must be built on Linux and packaged using `tar` to ensure that
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
@@ -150,11 +151,11 @@ snap connect chromium:wayland
                          [Ubuntu Locales](https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html).
                          Please notice that you can select the Ubuntu version at the very top of the page.
 - [x] 2025.05.03.08.08 H Stop the user session (Chromium, etc.) prior to running `snap refresh` and restart afterwards:
-						 `sudo snap stop chromium; sudo snap refresh; sudo reboot`
+                         `sudo snap stop chromium; sudo snap refresh; sudo reboot`
 - [x] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
                          It apparently only worked because I was only creating a 2.4G Wi-Fi network in my router.  There is a
-						 bug report about this, but the cloud-init people refuse to add an option to set the wifi country code.
-						 See https://github.com/canonical/cloud-init/issues/3926  Netplan supports this (`regulatory-domain: xx`).
+                         bug report about this, but the cloud-init people refuse to add an option to set the wifi country code.
+                         See https://github.com/canonical/cloud-init/issues/3926  Netplan supports this (`regulatory-domain: xx`).
 - [x] 2025.04.27.20.37 H Add Python script, `KioskError.py`, which makes an archive of `kiosklog`, `.xsession-errors`, and
                          `.local/share/xorg/Xorg.0.log`.  Renamed to `KioskZipper.py` because `cmd.exe` Tab expansion got tedious.
 - [x] 2025.04.07.03.38 H `KioskForge.py` crashes if you make the install medium twice with read-only files in the user folder.
@@ -167,7 +168,7 @@ snap connect chromium:wayland
 - [x] 2025.05.01.05.16 H Some users will want the kiosk to shut down, not reboot, after maintenance has completed.
 - [x] 2025.04.26.07.19 H The system can only be rebooted through `upgrade_time`.  This is how it is for now.  No reason to reboot
                          if nothing has been upgraded.  No reason *not* to upgrade if there is internet access.  In short: Pi4Bs
-						 that run without internet should probably never be rebooted, unless through `poweroff_time`.
+                         that run without internet should probably never be rebooted, unless through `poweroff_time`.
 - [x] 2025.05.01.06.43 H Should `vacuum_time` be re-introduced?  I'd prefer not to, but it does solve some problems.
                          No, it doesn't solve the problem that the clock is incorrect on PI4B without internet access.
 - [x] 2025.03.09.05.18 D Try out [PyPy](https://github.com/pypy/pypy), it should support Tkinter.
@@ -198,7 +199,7 @@ snap connect chromium:wayland
                          `.kiosk` files insanely big (35KB+).  The link in `*.kiosk` has been made, the website needs work yet.
 - [x] 2025.04.27.20.33 H Ensure `KioskSetup.py` properly handles the addition of Pi5, especially with respect to audio.  For
                          instance, we do not (yet) support overclocking the Pi5, so `KioskForge.py` needs to be fixed.
-						 This has been fixed, which caused me to discover that KioskForge always used `cpu_boost=0` (a bug).
+                         This has been fixed, which caused me to discover that KioskForge always used `cpu_boost=0` (a bug).
 - [x] 2025.04.26.08.21 H Rename `Field.hint` to `Field.help` as the help text is now multi-line and an attempt of helping properly.
                          I did this, but `pylint` whined over the redefinition of a predefined Python symbol.  Reverted the change.
 - [x] 2025.04.06.23.58 H Move `build.py` into its own, closed-source project (?), at least figure out what to do with it.
