@@ -21,7 +21,7 @@
 # This script prepares a ZIP archive with various redacted kiosk and log files that can be sent off to the KioskForge authors.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List, Optional
+from typing import List
 
 import os
 import platform
