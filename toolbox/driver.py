@@ -29,6 +29,7 @@ import traceback
 
 from toolbox.errors import CommandError, Error, InternalError, KioskError
 from toolbox.logger import Logger
+from toolbox.version import Version
 
 # Standard, C-like exit code definitions.
 EXIT_SUCCESS = os.EX_OK
@@ -37,10 +38,19 @@ EXIT_FAILURE = 1
 class KioskDriver:
 	"""Base class for the classes that implement the respective script features."""
 
+	def __init__(self, app_name : str = "") -> None:
+		if not app_name:
+			app_name = self.project
+		self.__version = Version(app_name)
+
 	@property
 	def project(self) -> str:
 		"""Returns the class name of an instance of 'KioskDriver'."""
 		return type(self).__name__
+
+	@property
+	def version(self) -> Version:
+		return self.__version
 
 	@abc.abstractmethod
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:

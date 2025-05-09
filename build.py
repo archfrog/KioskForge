@@ -122,8 +122,7 @@ class KioskBuild(KioskDriver):
 	"""Defines the build.py script, which is responsible for building a platform-dependent executable using PyInstaller."""
 
 	def __init__(self) -> None:
-		KioskDriver.__init__(self)
-		self.version = Version("build")
+		KioskDriver.__init__(self, "build")
 
 	def build_exe(self, settings : Settings, paths : Paths, version : Version) -> None:
 		workpath = paths.rootpath + os.sep + "PyInstaller"

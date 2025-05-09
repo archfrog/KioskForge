@@ -37,7 +37,6 @@ from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_text
 from toolbox.logger import Logger
 from toolbox.setup import Setup
-from toolbox.version import Version
 
 KIOSKFORGE_TO_XRANDR_ROTATIONS = {
 	'none'  : 'normal',
@@ -51,7 +50,6 @@ class KioskOpenbox(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project)
 
 	# Returns the total number of seconds (with a fraction) of idle time since the X server was last busy.
 	@staticmethod

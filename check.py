@@ -35,15 +35,13 @@ from toolbox.invoke import invoke_list
 from toolbox.logger import Logger
 from toolbox.sources import SOURCES
 from toolbox.various import ramdisk_get
-from toolbox.version import Version
 
 
 class KioskCheck(KioskDriver):
 	"""Defines the check.py script, which is responsible for invoking MyPy (portably) to check all Python source files."""
 
 	def __init__(self) -> None:
-		KioskDriver.__init__(self)
-		self.version = Version("check")
+		KioskDriver.__init__(self, "check")
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Delete two standard arguments that we don't currently use for anything.

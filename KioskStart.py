@@ -35,7 +35,6 @@ from toolbox.internet import lan_ip_address
 from toolbox.invoke import invoke_list_safe, invoke_text_safe
 from toolbox.logger import Logger
 from toolbox.setup import Setup
-from toolbox.version import Version
 
 CARDS = {
 	'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',
@@ -50,7 +49,6 @@ class KioskStart(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.

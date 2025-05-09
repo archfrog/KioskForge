@@ -33,7 +33,6 @@ from toolbox.errors import CommandError, KioskError
 from toolbox.logger import Logger
 from toolbox.invoke import invoke_text
 from toolbox.setup import Setup
-from toolbox.version import Version
 
 
 def strip_and_unhide(path : str) -> str:
@@ -49,7 +48,6 @@ class KioskZipper(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Output copyright information, etc.

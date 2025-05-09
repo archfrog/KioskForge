@@ -33,7 +33,6 @@ from toolbox.internet import internet_active
 from toolbox.logger import Logger
 from toolbox.invoke import invoke_text_safe
 from toolbox.setup import Setup
-from toolbox.version import Version
 
 
 class KioskUpdate(KioskDriver):
@@ -41,7 +40,6 @@ class KioskUpdate(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.

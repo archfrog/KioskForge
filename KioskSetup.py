@@ -41,7 +41,6 @@ from toolbox.invoke import invoke_text
 from toolbox.logger import Logger
 from toolbox.setup import Setup
 from toolbox.script import Script
-from toolbox.version import Version
 
 
 # NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
@@ -95,7 +94,6 @@ class KioskSetup(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).

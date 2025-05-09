@@ -45,7 +45,6 @@ from toolbox.logger import Logger, TextWriter
 from toolbox.setup import hostname_create, Setup
 from toolbox.shell import tree_delete
 from toolbox.sources import SOURCES
-from toolbox.version import Version
 
 
 def password_crypt(text : str) -> str:
@@ -276,7 +275,6 @@ class KioskForge(KioskDriver):
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
-		self.version = Version(self.project)
 
 	def save_cloudinit_metadata(self, setup : Setup, path : str) -> None:
 		del setup
