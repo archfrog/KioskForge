@@ -33,6 +33,7 @@ from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list
 from toolbox.logger import Logger
+from toolbox.sources import SOURCES
 from toolbox.various import ramdisk_get
 from toolbox.version import Version
 
@@ -85,14 +86,9 @@ class KioskCheck(KioskDriver):
 		words += "pylint"
 		words += "-j"
 		words += "0"
-		words += "KioskForge.py"
-		words += "KioskOpenbox.py"
-		words += "KioskSetup.py"
-		words += "KioskStart.py"
-		words += "KioskUpdate.py"
-		words += "build.py"
-		words += "check.py"
-		words += "toolbox"
+
+		for word in SOURCES + ["build.py", "check.py"]:
+			words += word
 
 		# Create PYLINTHOME environment variable as this seems the only to move the pylint persistent data to my RAM disk.
 		# A command-line option to specify the persistent directory path would have been pretty nifty.

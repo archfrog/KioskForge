@@ -44,6 +44,7 @@ from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.logger import Logger, TextWriter
 from toolbox.setup import hostname_create, Setup
 from toolbox.shell import tree_delete
+from toolbox.sources import SOURCES
 from toolbox.version import Version
 
 
@@ -751,21 +752,11 @@ class KioskForge(KioskDriver):
 		setup.save(output + os.sep + "KioskForge.kiosk", self.version)
 
 		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-		names = [
-			"KioskForge.py",
-			"KioskOpenbox.py",
-			"KioskSetup.py",
-			"KioskStart.py",
-			"KioskUpdate.py",
-			"KioskZipper.py",
-			"toolbox"
-		]
-		for name in names:
+		for name in SOURCES:
 			if os.path.isfile(origin + os.sep + name):
 				shutil.copyfile(origin + os.sep + name, output + os.sep + name)
 			else:
 				shutil.copytree(origin + os.sep + name, output + os.sep + name)
-		del names
 
 		# Copy user folder, if any, to the install medium so that it can be copied onto the target.
 		if setup.user_folder.data:

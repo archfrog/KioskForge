@@ -36,6 +36,7 @@ from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list_safe
 from toolbox.logger import Logger
 from toolbox.setup  import Setup
+from toolbox.sources import SOURCES
 from toolbox.various import ramdisk_get
 from toolbox.version import Version
 
@@ -48,6 +49,40 @@ def folder_delete_contents(path : str) -> None:
 		else:
 			os.unlink(item)
 
+class Paths:
+	"""Simple class, which is used to easily pass around the four intermediate paths that this script uses internally."""
+
+	def __init__(self, ramdisk : str, rootpath : str, shippath : str, temppath : str) -> None:
+		self.__ramdisk  = ramdisk
+		self.__rootpath = rootpath
+		self.__shippath = shippath
+		self.__temppath = temppath
+
+		# Ensure all directories exist.
+		os.makedirs(self.__ramdisk, mode=0o664, exist_ok=True)
+		os.makedirs(self.__rootpath, mode=0o664, exist_ok=True)
+		os.makedirs(self.__shippath, mode=0o664, exist_ok=True)
+		os.makedirs(self.__temppath, mode=0o664, exist_ok=True)
+
+	@property
+	def ramdisk(self) -> str:
+		"""Returns the absolute path of the RAM disk (or a similar, temporary, disk directory)."""
+		return self.__ramdisk
+
+	@property
+	def rootpath(self) -> str:
+		"""Returns the """
+		return self.__rootpath
+
+	@property
+	def shippath(self) -> str:
+		"""Returns a LOCAL directory where all built KioskForge-x.yy-Setup.exe files are copied to once built."""
+		return self.__shippath
+
+	@property
+	def temppath(self) -> str:
+		"""Returns the path to a RAM disk (or other temporary folder) that can be erased completely on every invocation."""
+		return self.__temppath
 
 class Settings:
 	"""Used parse and query the command-line options given to the script when invoked."""
@@ -90,6 +125,179 @@ class KioskBuild(KioskDriver):
 		KioskDriver.__init__(self)
 		self.version = Version("build")
 
+	def build_exe(self, settings : Settings, paths : Paths, version : Version) -> None:
+		workpath = paths.rootpath + os.sep + "PyInstaller"
+		os.makedirs(workpath, mode=0o664, exist_ok=True)
+
+		# Write 'version.txt' needed to fill out the details that can be viewed in the Details pane of Windows Explorer.
+		pyinstaller_versionfile.create_versionfile(
+			output_file=paths.rootpath + os.sep + "version.txt",
+			version=version.version,
+			company_name=version.company,
+			file_description=version.product,
+			internal_name=version.product,
+			legal_copyright="Copyright © " + version.company + ". All Rights Reserved.",
+			original_filename=version.product + ".exe",
+			product_name=version.product,
+			translations=[1033, 65001]
+		)
+
+		# Build the (pretty long) command line for PyInstaller.
+		words  = TextBuilder()
+		words += "pyinstaller"
+
+		if settings.debug:
+			words += "--debug"
+			words += "all"
+
+		if settings.clean:
+			words += "--clean"
+
+		words += "--console"
+		words += "--noupx"
+		words += "--onefile"
+
+		words += "--temppath"
+		words += paths.temppath
+
+		words += "--workpath"
+		words += workpath
+
+		# NOTE: The --specpath option also affects the default location of data files, something which I think is pretty bizarre.
+		# words += "--specpath"
+		# words += paths.temppath
+
+		words += "--upx-exclude"
+		words += "python3.dll"
+
+		words += "--icon"
+		words += "../pic/logo.ico"
+
+		words += "--version-file"
+		words += paths.rootpath + os.sep + "version.txt"
+
+		for item in SOURCES:
+			words += "--add-data"
+			if os.path.isfile(item):
+				words += item + ":."
+			else:
+				words += item + ":" + item
+
+		words += "KioskForge.py"
+
+		invoke_list_safe(words.list)
+
+		# Remove the 'KioskForge.spec' file as it is automatically re-generated whenever PyInstaller is invoked.
+		if os.path.isfile("KioskForge.spec"):
+			os.unlink("KioskForge.spec")
+
+		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
+		files = {
+			"CHANGES.md" : f"KioskForge v{version.version} Change Log",
+			"FAQ.md"     : f"KioskForge v{version.version} FAQ",
+			"GUIDE.md"   : f"KioskForge v{version.version} Usage Scenarios Guide",
+			"README.md"  : f"KioskForge v{version.version} README File"
+		}
+		for file, title in files.items():
+			words = TextBuilder()
+			words += "pandoc"
+
+			# Source is GitHub flavored Markdown.
+			words += "--from=gfm"
+
+			# Output is HTML5/CSS3.
+			words += "--to=html5"
+
+			# Include metadata in the generated files.
+			words += "--standalone"
+
+			# Specify HTML file with CSS to use for the conversion.
+			words += "--include-before-body=build/pandoc-styles.html"
+
+			# Specify title as Pandoc requires this.
+			words += "--metadata"
+			words += "title=" + title
+
+			# Create a table of contents (TOC).
+			words += "--toc"
+
+			# Output to this path.
+			words += "-o"
+			words += paths.temppath + os.sep + os.path.splitext(file)[0] + ".html"
+
+			# Input is this file.
+			words += file
+
+			invoke_list_safe(words.list)
+
+		# For now, simply add the extension ".txt" to the LICENSE file, which must be accepted in the installer.
+		shutil.copyfile("LICENSE", paths.temppath + os.sep + "LICENSE.txt")
+
+		# Generate a brand new, up-to-date template kiosk by saving an empty, blank kiosk.
+		Setup().save(paths.temppath + os.sep + "Template.kiosk", version)
+
+	def build_installer(self, paths : Paths, version : str) -> None:
+		innopath = r"C:\Program Files (x86)\Inno Setup 6"
+
+		# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
+		with open("build/KioskForge.iss", "rt", encoding="utf8") as stream:
+			script = stream.read()
+		script = script.replace("$$RAMDISK$$", paths.ramdisk)
+		script = script.replace("$$VERSION$$", version)
+		with open(paths.temppath + os.sep + "KioskForge.iss", "wt", encoding="utf8") as stream:
+			stream.write(script)
+
+		# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
+		words  = TextBuilder()
+		words += innopath
+		words += "/cc"
+		words += paths.temppath + os.sep + "KioskForge.iss"
+		invoke_list_safe(words.list)
+
+		# Copy output from RAM disk to local work tree.
+		exename = f"KioskForge-{version}-Setup.exe"
+		shutil.copyfile(paths.ramdisk + exename, paths.shippath + os.sep + exename)
+		del exename
+
+	def check(self) -> None:
+		# NOTE: Check.py fails if MyPy or pylint reports ERRORS, not if pylint only reports warnings.
+		words  = TextBuilder()
+		words += "python"
+		words += "check.py"
+		invoke_list_safe(words.list)
+
+	def ship(self, paths : Paths, version : str) -> None:
+		scp = shutil.which("scp")
+		if not scp:
+			raise KioskError("SCP not found, cannot ship built KioskForge installer.")
+
+		words  = TextBuilder()
+		words += scp
+
+		# Use the .ssh/config file found at HOME, not at some idiotic Windows-style "C:\Users\Foo\.ssh\config".
+		words += "-F"
+		words += os.environ["HOME"] + ".ssh/config"
+
+		# Preserve file date when copying to the web server.
+		words += "-p"
+
+		# Specify source file and target directory.
+		# TODO: Change SCP target directory to the real one once we go public.
+		words += paths.ramdisk + f"KioskForge-{version}-Setup.exe"
+		words += "web:web/pub/egevig.org/vhm"
+
+		invoke_list_safe(words.list)
+
+	def tag(self, version : str) -> None:
+		words  = TextBuilder()
+		words += "git"
+		words += "tag"
+		words += "-a"
+		words += version
+		words += "-m"
+		words += f"Release v{version}."
+		invoke_list_safe(words.list)
+
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Delete two standard arguments that we don't currently use for anything.
 		del logger
@@ -117,199 +325,33 @@ class KioskBuild(KioskDriver):
 		# Check that the user has set up the RAMDISK environment variable and make sure it is normalized while we're at it.
 		ramdisk = ramdisk_get()
 
-		#************************** Set up paths and clean out distribution path *************************************************
-
-		rootpath = ramdisk + "KioskForge"
-		distpath = "../tmp"
-		os.makedirs(distpath, mode=0o664, exist_ok=True)
-		workpath = rootpath + os.sep + "PyInstaller"
-		os.makedirs(workpath, mode=0o664, exist_ok=True)
+		#*** Set up paths and clean out distribution path.
+		# Create object to easily pass around the output paths.
+		paths = Paths(ramdisk, ramdisk + os.sep + "KioskForge", "../bin", "../tmp")
 
 		# Make sure we don't accidentally ship artifacts from earlier builds.
-		folder_delete_contents(distpath)
+		folder_delete_contents(paths.temppath)
 
-		#*************************** Ask MyPy and pylint if the product is ready for distribution ********************************
+		#*** Perform the actual build steps.
+		# Ask MyPy and pylint if the product is ready for distribution.
+		self.check()
 
-		# NOTE: Check.py fails if MyPy or pylint reports ERRORS, not if pylint only reports warnings.
-		words  = TextBuilder()
-		words += "python"
-		words += "check.py"
-		invoke_list_safe(words.list)
-
-		#*************************** Make a Git release tag for the target version ***********************************************
-
+		# Make a Git release tag for the target version, which will fail if already defined, this is intentional.
 		if settings.ship:
-			words  = TextBuilder()
-			words += "git"
-			words += "tag"
-			words += "-a"
-			words += self.version.version
-			words += "-m"
-			words += f"Release v{self.version.version}."
-			invoke_list_safe(words.list)
+			self.tag(self.version.version)
 
-		#************************** Create 'version.txt' (consumed by PyInstaller) ***********************************************
+		# Create 'KioskForge.exe' (created by PyInstaller, consumed by Inno Setup 6+).
+		self.build_exe(settings, paths, self.version)
 
-		# Write 'version.txt' needed to fill out the details that can be viewed in Windows Explorer.
-		pyinstaller_versionfile.create_versionfile(
-			output_file=rootpath + os.sep + "version.txt",
-			version=self.version.version,
-			company_name=self.version.company,
-			file_description=self.version.product,
-			internal_name=self.version.product,
-			legal_copyright="Copyright © " + self.version.company + ". All Rights Reserved.",
-			original_filename=self.version.product + ".exe",
-			product_name=self.version.product,
-			translations=[1033, 65001]
-		)
-
-		#************************** Create 'KioskForge.exe' (created by PyInstaller, consumed by Inno Setup 6+) ******************
-
-		# Build the (pretty long) command line for PyInstaller.
-		words  = TextBuilder()
-		words += "pyinstaller"
-
-		if settings.debug:
-			words += "--debug"
-			words += "all"
-
-		if settings.clean:
-			words += "--clean"
-
-		words += "--console"
-		words += "--noupx"
-		words += "--onefile"
-
-		words += "--distpath"
-		words += distpath
-
-		words += "--workpath"
-		words += workpath
-
-		# NOTE: The --specpath option also affects the default location of data files, something which I think is pretty bizarre.
-		# words += "--specpath"
-		# words += distpath
-
-		words += "--upx-exclude"
-		words += "python3.dll"
-
-		words += "--icon"
-		words += "../pic/logo.ico"
-
-		words += "--version-file"
-		words += rootpath + os.sep + "version.txt"
-
-		items = [
-			"KioskForge.py",
-			"KioskOpenbox.py",
-			"KioskSetup.py",
-			"KioskStart.py",
-			"KioskUpdate.py",
-			"KioskZipper.py",
-			"toolbox"
-		]
-		for item in items:
-			words += "--add-data"
-			if os.path.isfile(item):
-				words += item + ":."
-			else:
-				words += item + ":" + item
-		del items
-
-		words += "KioskForge.py"
-
-		invoke_list_safe(words.list)
-
-		# Remove the 'KioskForge.spec' file as it is automatically re-generated whenever PyInstaller is invoked.
-		if os.path.isfile("KioskForge.spec"):
-			os.unlink("KioskForge.spec")
-
-		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
-		files = {
-			"CHANGES.md" : f"KioskForge v{self.version.version} Change Log",
-			"FAQ.md"     : f"KioskForge v{self.version.version} FAQ",
-			"GUIDE.md"   : f"KioskForge v{self.version.version} Usage Scenarios Guide",
-			"README.md"  : f"KioskForge v{self.version.version} README File"
-		}
-		for file, title in files.items():
-			words = TextBuilder()
-			words += "pandoc"
-
-			# Source is GitHub flavored Markdown.
-			words += "--from=gfm"
-
-			# Output is HTML5/CSS3.
-			words += "--to=html5"
-
-			# Include metadata in the generated files.
-			words += "--standalone"
-
-			# Specify HTML file with CSS to use for the conversion.
-			words += "--include-before-body=build/pandoc-styles.html"
-
-			# Specify title as Pandoc requires this.
-			words += "--metadata"
-			words += "title=" + title
-
-			# Create a table of contents (TOC).
-			words += "--toc"
-
-			# Output to this path.
-			words += "-o"
-			words += distpath + os.sep + os.path.splitext(file)[0] + ".html"
-
-			# Input is this file.
-			words += file
-
-			invoke_list_safe(words.list)
-
-		# For now, simply add the extension ".txt" to the LICENSE file, which must be accepted in the installer.
-		shutil.copyfile("LICENSE", distpath + os.sep + "LICENSE.txt")
-
-		# Generate a brand new, up-to-date template kiosk by saving an empty, blank kiosk.
-		Setup().save(distpath + os.sep + "Template.kiosk", self.version)
-
-		#************************** Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+) ********************************
-
-		# Only build the Windows setup program on Windows as Inno Setup v6 does not run on Linux.
+		# Create 'KioskForge-x.yy-Setup.exe' (created by Inno Setup 6+).
+		# NOTE: Only build the Windows setup program on Windows as Inno Setup v6 does not run on Linux.
 		if sys.platform == "win32":
-			# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
-			with open("build/KioskForge.iss", "rt", encoding="utf8") as stream:
-				script = stream.read()
-			script = script.replace("$$RAMDISK$$", ramdisk)
-			script = script.replace("$$VERSION$$", self.version.version)
-			with open("../tmp/KioskForge.iss", "wt", encoding="utf8") as stream:
-				stream.write(script)
+			self.build_installer(paths, self.version.version)
 
-			# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
-			words  = TextBuilder()
-			words += innopath
-			words += "/cc"
-			words += "../tmp/KioskForge.iss"
-			invoke_list_safe(words.list)
-
-			# Copy output from RAM disk to local work tree.
-			exename = f"KioskForge-{self.version.version}-Setup.exe"
-			shutil.copyfile(ramdisk + exename, "../bin/" + exename)
-			del exename
-
-		#************************** Copy the new 'KioskForge-x.yy-Setup.exe' via SSH to the web server hosting kioskforge.org.
-
-		# Only ship if explicitly requested as this will fail on all systems but my own PCs.
-		home = os.environ.get("HOME")
-		if settings.ship and home:
-			words  = TextBuilder()
-			# Use hard-coded path to avoid invoking Microsoft's OpenSSH, if present, as I always use the Git version because
-			# Microsoft's version does not honor the HOME environment variable, something which the Git version does.
-			# TODO: Test if the below code, which provides the path to 'config' explicitly, works with Windows OpenSSH.
-			words += r"C:\Program Files\Git\usr\bin\scp.exe"
-			words += "-F"
-			words += home + ".ssh/config"
-			words += "-p"
-			words += ramdisk + f"KioskForge-{self.version.version}-Setup.exe"
-			words += "web:web/pub/egevig.org/vhm"
-			invoke_list_safe(words.list)
-		del home
+		# Copy the new 'KioskForge-x.yy-Setup.exe' via SSH to the web server hosting kioskforge.org.
+		# NOTE: Only ship if explicitly requested as this will fail on all systems but my own PCs.
+		if settings.ship and os.environ.get("HOME"):
+			self.ship(paths, self.version.version)
 
 
 if __name__ == "__main__":
