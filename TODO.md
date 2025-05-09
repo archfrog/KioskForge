@@ -33,7 +33,6 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.05.09.05.38 H `KioskDriver.__init__()` should take the app name as a parameter to eliminate `self.version = ...`.
 - [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
                          Linux distributions as well as different configurations:
                          `system.upgrade()`                          (`apt-get upgrade`)
@@ -138,6 +137,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.05.09.05.38 H `KioskDriver.__init__()` should take the app name as a parameter to eliminate `self.version = ...`.
 - [x] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [x] 2025.03.24.05.49 D Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
                          https://stackoverflow.com/questions/3968669/how-to-configure-logging-to-syslog-in-python
