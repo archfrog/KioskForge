@@ -199,12 +199,22 @@ class KioskBuild(KioskDriver):
 		words += "--version-file"
 		words += rootpath + os.sep + "version.txt"
 
-		for item in ["KioskForge.py", "KioskOpenbox.py", "KioskSetup.py", "KioskStart.py", "KioskUpdate.py", "toolbox"]:
+		items = [
+			"KioskForge.py",
+			"KioskOpenbox.py",
+			"KioskSetup.py",
+			"KioskStart.py",
+			"KioskUpdate.py",
+			"KioskZipper.py",
+			"toolbox"
+		]
+		for item in items:
 			words += "--add-data"
 			if os.path.isfile(item):
 				words += item + ":."
 			else:
 				words += item + ":" + item
+		del items
 
 		words += "KioskForge.py"
 
@@ -297,7 +307,7 @@ class KioskBuild(KioskDriver):
 			words += home + ".ssh/config"
 			words += "-p"
 			words += ramdisk + f"KioskForge-{self.version.version}-Setup.exe"
-			words += "web:web/pub/kioskforge.org/downloads"
+			words += "web:web/pub/egevig.org/vhm"
 			invoke_list_safe(words.list)
 		del home
 
