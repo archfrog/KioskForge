@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # KioskForge - https://kioskforge.org
-# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All Rights Reserved.
+# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
 # conditions are met:
@@ -136,7 +136,7 @@ class KioskBuild(KioskDriver):
 			company_name=version.company,
 			file_description=version.product,
 			internal_name=version.product,
-			legal_copyright="Copyright © " + version.company + ". All Rights Reserved.",
+			legal_copyright="Copyright © " + version.company + ". All rights reserved.",
 			original_filename=version.product + ".exe",
 			product_name=version.product,
 			translations=[1033, 65001]
@@ -157,7 +157,7 @@ class KioskBuild(KioskDriver):
 		words += "--noupx"
 		words += "--onefile"
 
-		words += "--temppath"
+		words += "--distpath"
 		words += paths.temppath
 
 		words += "--workpath"
@@ -237,7 +237,7 @@ class KioskBuild(KioskDriver):
 		Setup().save(paths.temppath + os.sep + "Template.kiosk", version)
 
 	def build_installer(self, paths : Paths, version : str) -> None:
-		innopath = r"C:\Program Files (x86)\Inno Setup 6"
+		innopath = r"C:\Program Files (x86)\Inno Setup 6\Compil32.exe"
 
 		# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
 		with open("build/KioskForge.iss", "rt", encoding="utf8") as stream:

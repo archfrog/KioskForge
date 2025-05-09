@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # KioskForge - https://kioskforge.org
-# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All Rights Reserved.
+# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
 # conditions are met:

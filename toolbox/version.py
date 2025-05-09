@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # KioskForge - https://kioskforge.org
-# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All Rights Reserved.
+# Copyright (c) 2024-2025 Vendsyssel Historiske Museum (me@vhm.dk). All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
 # conditions are met:
@@ -37,7 +37,7 @@ class Version:
 	def banner(self) -> str:
 		result  = f"{self.program} v{self.version} - {WEBSITE} - {CONTACT}"
 		result += "\n"
-		result += f"Copyright (c) 2024-2025 {self.company}.  All Rights Reserved."
+		result += f"Copyright (c) 2024-2025 {self.company}.  All rights reserved."
 		return result
 
 
