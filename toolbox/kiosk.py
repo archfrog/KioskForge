@@ -20,8 +20,8 @@
 
 from toolbox.convert import KEYBOARDS
 from toolbox.locales import LOCALES
-from toolbox.setup import BooleanField, ChoiceField, NaturalField, OptionalRegexField, OptionalStringField, OptionalTimeField
-from toolbox.setup import Options, PasswordField, password_create, RegexField, StringField
+from toolbox.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
+from toolbox.setup import OptionalTimeField, PasswordField, password_create, RegexField, StringField
 from toolbox.timezones import TIMEZONES
 from toolbox.version import Version
 
@@ -29,10 +29,10 @@ from toolbox.version import Version
 COMMAND_HELP = """
 This is the action that the kiosk should take when it starts up.
 
-For 'web' type kiosks (see 'type'), this option specifies the local or
+For 'web' type kiosks (see 'type'), this field specifies the local or
 remote URL to display in Chromium.
 
-For 'x11' and 'cli' type kiosks, this option specifies an actual Linux
+For 'x11' and 'cli' type kiosks, this field specifies an actual Linux
 command (script or binary) that is launched upon starting up.  The latter
 two types are used for custom solutions that do not necessarily require a
 web browser, such as a Pi kiosk that detects motion and then plays a sound.
@@ -55,9 +55,9 @@ lines of text in a single line in the 'comment' field.
 CPU_BOOST_HELP = """
 If the CPU should be overclocked.
 
-This option currently only works with Raspberry Pi 4B targets.
+This field currently only works with Raspberry Pi 4B targets.
 
-Enabling the option will increase the processing speed (CPU clock rate) of
+Enabling the field will increase the processing speed (CPU clock rate) of
 the target kiosk by 20 percent from 1.5 gigahertz to 1.8 gigahertz.  This
 translates to extra performance at the cost of a signficantly hotter CPU.
 If processor speed matters, and cooling is good or heat is not a
@@ -75,10 +75,10 @@ Specifies the hardware type of the kiosk.  Valid values are:
 2. pi5 : Raspberry Pi 5 with at least 2 GB RAM.
 3. pc  : IBM PC compatible machine with at least 4 GB RAM.
 
-This setting affects the 'sound_card' and 'cpu_boost' options as follows:
+This setting affects the 'sound_card' and 'cpu_boost' field as follows:
 
 1. 'sound_card' depends entirely on the target device type.  See the
-   'sound_card' option for more information.
+   'sound_card' field for more information.
 2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.  PCs
     commonly adjust their CPU's speed dynamically depending on load.
 """.strip()
@@ -104,10 +104,10 @@ IDLE_TIMEOUT_HELP = """
 The number of seconds of idle time before Chromium is restarted.  A value
 in the range 0 (disabled) to 86.400 (one full day).
 
-This option has no effect for kiosk types other than 'web'.
+This field has no effect for kiosk types other than 'web'.
 
 Some visitors to kiosks like to sabotage the kiosk, which is the primary
-reason why this option exists.  Also, it is nice to be able to reset a web
+reason why this field exists.  Also, it is nice to be able to reset a web
 kiosk back to its starting page after a given period of user inactivity.
 """.strip()
 
@@ -153,10 +153,10 @@ as this makes the mouse cursor visible to the user.
 POWEROFF_TIME_HELP = """
 The time of day to power off the system.
 
-An empty string disables this option, otherwise it must be a time string of
+An empty string disables this field, otherwise it must be a time string of
 the form HH:MM, which is the hour and minute of when the operation is done.
 
-This option is primarily intended for environments where there are no
+This field is primarily intended for environments where there are no
 visitors to the kiosk during the night.  In such cases, the kiosk needs to be
 powered on by a time switch in the morning.
 
@@ -164,17 +164,17 @@ If you use a time switch, please remember to gracefully shut down the kiosk.
 Most computers benefit from being shut down gracefully rather than abruptly
 by loss of power.
 
-You do not need to use this option if you set "upgrade_post" to "poweroff":
-in this case, you can safely ignore this option.
+You do not need to use this field if you set "upgrade_post" to "poweroff":
+in this case, you can safely ignore this field.
 
 The preferred way of shutting down a kiosk is through the "upgrade_post"
-option as it ensures the system is upgraded, if there is access to the
+field as it ensures the system is upgraded, if there is access to the
 internet from the kiosk, before it, gets powered down, something that the
-"poweroff_time" option does not.  The "poweroff_time" option works
+"poweroff_time" field does not.  The "poweroff_time" field works
 independently of the upgrade process, which can cause serious issues if
 the kiosk is shut down in the middle of an upgrade.
 
-The only reason this option currently exists is because some users need it.
+The only reason this field currently exists is because some users need it.
 
 IMPORTANT:
 Raspberry Pi 4Bs do not have a built-in real-time clock (RTC) so they need
@@ -293,7 +293,7 @@ The valid values are:
 
 NOTE: The "web-wayland" type of kiosk is not yet finished: don't use it!
 
-The website URL or custom command is specified using the 'command' option.
+The website URL or custom command is specified using the 'command' field.
 
 The 'web' type is by far the most commonly used type, but the 'cli' type is
 very useful for things like making a designated kiosk that starts playing a
@@ -318,19 +318,19 @@ Please notice that the "poweroff" choice requires that the power is cycled
 so that the kiosk starts up again, this should happen when the kiosk is to
 start up again, and is typically implemented using a simple time switch.
 
-If you set this option to "poweroff", you can safely disregard the
-"poweroff_time" option as there's no sense in powering off twice in a day.
+If you set this field to "poweroff", you can safely disregard the
+"poweroff_time" field as there's no sense in powering off twice in a day.
 """.strip()
 
 
 UPGRADE_TIME_HELP = """
 The time of day to upgrade the system.
 
-If empty, this option is disabled.
+If empty, this field is disabled.
 
 During upgrades, the following things take place:
 
-1. System logs are reduced to the size given in the 'vacuum_size' option.
+1. System logs are reduced to the size given in the 'vacuum_size' field.
 2. If there is no network access, the system maintenance ends here.
 3. Snaps are upgraded.
 4. Ubuntu packages are upgraded.
@@ -343,13 +343,13 @@ and the system will not be rebooted as there is no reason to do so.
 
 
 USER_CODE_HELP = """
-The password for the user whose name is given in the 'user_name' option.
+The password for the user whose name is given in the 'user_name' field.
 
 There is technically no maximum limit to the length of the password, but you
 should always use between 16 and 132 characters.
 
 This setting is of very little signficance if you provide an SSH public key
-using the 'ssh_key' option as this installs a key file on the kiosk so that
+using the 'ssh_key' field as this installs a key file on the kiosk so that
 you can log into the kiosk using SSH without entering a password.  However,
 the password will still be required to perform administrative commands on the
 kiosk.  For this reason, you should use an SSH public key and a fairly safe
@@ -409,7 +409,7 @@ A space-separated list of user packages to install when forging of the kiosk.
 
 If empty, this feature is disabled.
 
-This option is rarely necessary, but if you are forging a 'cli' or 'x11' type
+This field is rarely necessary, but if you are forging a 'cli' or 'x11' type
 kiosk, you may need to install additional Ubuntu packages while forging the
 kiosk.
 """.strip()
@@ -423,7 +423,7 @@ This value ranges from 0 (= unlimited) through 4096 (4 gigabytes).
 A good value that provides room for weeks of logging of a kiosk is 256.
 
 System logs are cleaned out as the first step of the mandatory daily
-maintenance controlled by the 'upgrade_time' option.
+maintenance controlled by the 'upgrade_time' field.
 """.strip()
 
 
@@ -434,8 +434,8 @@ If 'true', the kiosk will be configured to NOT use power-saving on its Wi-Fi
 network card.  This means two things: The kiosk will use slightly more power
 and the kiosk will access the internet quite a bit faster.
 
-If your kiosk is a 'web' type kiosk, you should probably enable this option.
-In most other cases, this option has no significant effect and should be
+If your kiosk is a 'web' type kiosk, you should probably enable this field.
+In most other cases, this field has no significant effect and should be
 disabled.
 """.strip()
 
@@ -457,13 +457,13 @@ will be assumed to be public and open to everybody (without a password).
 WIFI_COUNTRY_HELP = """
 The country code of the "regulatory domain" for the Wi-Fi card.  In
 other words: The two-letter code of the country that the Wi-Fi card is
-being used in.  Often, but not always, the same as the 'keyboard' option.
+being used in.  Often, but not always, the same as the 'keyboard' field.
 """.strip()
 
 
 WIFI_HIDDEN_HELP = """
 Some hardware needs a bit of help to find hidden Wi-Fi networks, so this
-option is used to instruct them whether or not the desired Wi-Fi network
+field is used to instruct them whether or not the desired Wi-Fi network
 is in fact hidden.
 
 The value 'false' indicates that the desired Wi-Fi network is standard,
@@ -489,11 +489,11 @@ In this case, 'wifi_code', 'wifi_country', and 'wifi_hidden' are ignored.
 """.strip()
 
 
-class Kiosk(Options):
+class Kiosk(Fields):
 	"""The definition of a kiosk."""
 
 	def __init__(self, version : Version) -> None:
-		Options.__init__(self, version)
+		Fields.__init__(self, version)
 
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
 		self += OptionalStringField("comment", "", COMMENT_HELP)

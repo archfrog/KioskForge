@@ -298,31 +298,31 @@ class OptionalTimeField(OptionalStringField):
 			raise FieldError(self.name, f"Invalid time specification: {data}") from that
 
 
-class Options:
-	"""The new and improved(tm) options class, which uses a dictionary rather than 50+ data members."""
+class Fields:
+	"""The new and improved(tm) fields manager, which uses a dictionary rather than 50+ data members."""
 
 	def __init__(self, version : Version) -> None:
 		self.__version = version
-		self.__options : Dict[str, Field] = {}
+		self.__fields : Dict[str, Field] = {}
 
 	# Make the class backwards compatible with the old 'Setup' class, which used a named data member for each option.
 	def __getattr__(self, name : str) -> Field:
-		if name not in self.__options:
-			raise InternalError(f"Unknown option: {name}")
-		return self.__options[name]
+		if name not in self.__fields:
+			raise InternalError(f"Unknown field: {name}")
+		return self.__fields[name]
 
 	# Make the += operator available to add new options to the 'Options' instance.
-	def __iadd__(self, option : Field) -> Any:
-		if option.name in self.__options:
-			raise InternalError(f"Option already exists: {option.name}")
-		self.__options[option.name] = option
+	def __iadd__(self, field : Field) -> Any:
+		if field.name in self.__fields:
+			raise InternalError(f"Field already exists: {field.name}")
+		self.__fields[field.name] = field
 		return self
 
 	def assign(self, name : str, data : str) -> None:
-		self.__options[name].parse(data)
+		self.__fields[name].parse(data)
 
 	def keys(self) -> List[str]:
-		return list(self.__options.keys())
+		return list(self.__fields.keys())
 
 	def load_list(self, path : str, allow_redefinitions : bool = False) -> List[TextFileError]:
 		# Returns a list of errors encountered while loading the .kiosk file.
@@ -369,13 +369,13 @@ class Options:
 			except Error as that:
 				result.append(TextFileError(path, number, that.text))
 			except AttributeError:
-				result.append(TextFileError(path, number, f"Unknown option ignored: {name}"))
+				result.append(TextFileError(path, number, f"Unknown field ignored: {name}"))
 
 		# Check that all fields were assigned by the configuration files.
 		for key in self.keys():
 			field = getattr(self, key)
 			if field.changes < 1:
-				result.append(TextFileError(path, 0, f"Option never assigned: {key}"))
+				result.append(TextFileError(path, 0, f"Field never assigned: {key}"))
 
 		return result
 
@@ -394,11 +394,11 @@ class Options:
 			stream.write("# Please edit this file using your favorite text editor such as Notepad.")
 			stream.write("")
 
-			for name in self.__options:
+			for name in self.__fields:
 				# Fetch the next field to output.
 				field = getattr(self, name)
 
-				# Write a line of asterisks to indicate start of option's help text.
+				# Write a line of asterisks to indicate start of the field's help text.
 				stream.write(f"#{78 * '*'}")
 
 				# Write the field name and its type.
@@ -411,13 +411,13 @@ class Options:
 					stream.write(f"# {line}")
 				del lines
 
-				# Write a line of asterisks to indicate end of of option's help text.
+				# Write a line of asterisks to indicate end of the field's help text.
 				stream.write(f"#{78 * '*'}")
 
 				# Write the field name and data.
 				stream.write(f"{field.name}={field.text}")
 
-				# Output an empty line between options and after the last option.
+				# Output an empty line between fields and after the last field.
 				stream.write("")
 
 
