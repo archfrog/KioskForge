@@ -95,7 +95,7 @@ class KioskDriver:
 				else:
 					text = str(that)
 				logger.error(f"Fatal error: {text}")
-				logger.write(traceback.format_exc())
+				# NOTE: logger.write(traceback.format_exc())
 
 		# If not running from a console, wait for a keypress so that the user can read the output.
 		if platform.system() == "Windows" and not "PROMPT" in os.environ:
