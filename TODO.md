@@ -41,8 +41,6 @@ snap connect chromium:wayland
                          Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
 						 This scripting language should be completely hidden to the end-user and simply simplify KioskForge.
 - [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
-- [ ] 2025.05.03.08.08 H Wayland: stop the user session (Chromium, etc.) prior to running `snap update` and restart afterwards:
-						 `sudo snap stop chromium; sudo apt-get upgrade; sudo snap start chromium`.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
                          This so that `KioskStart.py` can actually wait for an internet connection before it continues.
@@ -149,6 +147,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.05.03.08.08 H Stop the user session (Chromium, etc.) prior to running `snap refresh` and restart afterwards:
+						 `sudo snap stop chromium; sudo snap refresh; sudo reboot`
 - [x] 2025.03.21.20.26 H Add WIFI country code and configure it properly with both Cloud-Init and AutoInstall (it works?!).
                          It apparently only worked because I was only creating a 2.4G Wi-Fi network in my router.  There is a
 						 bug report about this, but the cloud-init people refuse to add an option to set the wifi country code.

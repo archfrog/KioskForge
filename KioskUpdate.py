@@ -68,7 +68,10 @@ class KioskUpdate(KioskDriver):
 		if internet_active():
 			# Upgrade snaps and clean out the snap cache.
 			try:
-				# Allow snap to update (don't know if this is necessary or not, but err on the side of caution).
+				# Stop Chromium (the only running snap) before asking snap to upgrade (refresh) all snaps.
+				invoke_text_safe("snap stop chromium")
+
+				# Allow snap to update.
 				invoke_text_safe("snap refresh --unhold")
 
 				# Refresh all snaps.
@@ -77,7 +80,7 @@ class KioskUpdate(KioskDriver):
 				# Purge the snap cache, this may grow to 5+ gigabytes over time.
 				invoke_text_safe("rm -fr /var/lib/snapd/cache/*")
 			finally:
-				# Stop snapd from upgrading automatically (also done in 'KioskSetup.py').
+				# Stop snapd from upgrading automatically so it doesn't upgrade randomly (also done in 'KioskSetup.py').
 				invoke_text_safe("snap refresh --hold")
 
 			# Update apt package indices, upgrade all packages, and clean the apt cache (which may grow to many gigabytes in size).
