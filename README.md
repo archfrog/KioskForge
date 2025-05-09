@@ -33,7 +33,7 @@ KioskForge currently supports these things:
 
 Please notice that the kiosk needs either internet access or a real-time clock (RTC) for the automatic, daily maintenance to work
 properly.  If the kiosk does not have internet access, it should be either a PC or a PI5 with an RTC backup battery.  At this time,
-we cannot recommend using PI4Bs without internet access.  The best is that the kiosk has internet access, though.
+we cannot recommend using PI4Bs without internet access.  The best is that the kiosk generally has internet access, though.
 
 **NOTE:** Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
 
