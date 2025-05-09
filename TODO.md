@@ -48,8 +48,6 @@ snap connect chromium:wayland
                          indicate that Pi5 is not very fast on Wayland either: Can't display a 2K YouTube video without many frame
                          drops.
 - [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
-- [ ] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Setup` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
-- [ ] 2025.04.26.08.20 H Rename `Setup.XxxField` to `Setup.XxxOption`.
 - [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
@@ -137,6 +135,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Fields` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
+- [x] 2025.04.26.08.20 D Rename `Setup.XxxField` to `Setup.XxxOption`; I decided to stay with "field" rather than "option".
 - [x] 2025.05.09.05.38 H `KioskDriver.__init__()` should take the app name as a parameter to eliminate `self.version = ...`.
 - [x] 2025.03.19.22.04 L Rewrite detector logic so that the known platforms are defined by a list of detector instances.
 - [x] 2025.03.24.05.49 D Redo the `Logger` class so that it **only** uses Python's `logging` module as outlined in this article:
