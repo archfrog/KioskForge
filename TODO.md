@@ -33,13 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
-                         Linux distributions as well as different configurations:
-                         `system.upgrade()`                          (`apt-get upgrade`)
-                         `system.install_atom("foobar")`             (`apt-get install -y foobar`)
-                         `system.install_list("foobar baroof")`      (`apt-get install -y foobar baroof`)
-                         Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
-                         This scripting language should be completely hidden to the end-user and simply simplify KioskForge.
+- [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
 - [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
@@ -47,7 +41,6 @@ snap connect chromium:wayland
 - [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.  My early tests
                          indicate that Pi5 is not very fast on Wayland either: Can't display a 2K YouTube video without many frame
                          drops.
-- [ ] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [ ] 2025.04.26.06.16 H There is no option to install additional snaps.  Perhaps a more general approach is needed for this?
 - [ ] 2025.04.13.17.47 H Fix the crappy "restart Chromium" code by replacing it with an ad-hoc Chromium extension:
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
@@ -94,6 +87,13 @@ snap connect chromium:wayland
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
 - [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
+- [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
+                         Linux distributions as well as different configurations:
+                         `system.upgrade()`                          (`apt-get upgrade`)
+                         `system.install_atom("foobar")`             (`apt-get install -y foobar`)
+                         `system.install_list("foobar baroof")`      (`apt-get install -y foobar baroof`)
+                         Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
+                         This scripting language should be completely hidden to the end-user and just simplify KioskForge.
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
                          the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
                          To see all languages partially or completely supported by Ubuntu, click `View all languages` on
@@ -135,6 +135,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [x] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Fields` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [x] 2025.04.26.08.20 D Rename `Setup.XxxField` to `Setup.XxxOption`; I decided to stay with "field" rather than "option".
 - [x] 2025.05.09.05.38 H `KioskDriver.__init__()` should take the app name as a parameter to eliminate `self.version = ...`.
