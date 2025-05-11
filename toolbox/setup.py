@@ -37,10 +37,6 @@ class Field:
 	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
 		self.__hint = hint
-		# _mods => number of modifications, incremented by one every time the 'parse()' method is successfully called.
-		# NOTE: This member is protected so that derived classes can increment it.  Don't know a better way to do it.
-		# NOTE: We start at -1 because the constructor always invokes 'parse()' once and only once.
-		self._mods = -1
 
 	@property
 	def data(self) -> Any:
@@ -53,10 +49,6 @@ class Field:
 	@property
 	def name(self) -> str:
 		return self.__name
-
-	@property
-	def changes(self) -> int:
-		return self._mods
 
 	@property
 	def text(self) -> str:
@@ -88,12 +80,11 @@ class BooleanField(Field):
 		return "boolean value: 'true' or 'false'"
 
 	def parse(self, data : str) -> None:
-		if len(data) == 0:
+		if not data:
 			raise FieldError(self.name, f"Missing value in field '{self.name}'")
 
 		try:
 			self.__data = BOOLEANS[data.lower()]
-			self._mods += 1
 		except KeyError as that:
 			raise FieldError(self.name, f"Invalid value in field '{self.name}': {data}") from that
 		except ValueError as that:
@@ -139,8 +130,6 @@ class NaturalField(Field):
 				raise FieldError(self.name, f"Value outside bounds ({self.__lower}..{self.__upper}) in field '{self.name}': {data}")
 
 			self.__data = value
-
-			self._mods += 1
 		except ValueError as that:
 			raise FieldError(self.name, str(that)) from that
 
@@ -168,7 +157,6 @@ class OptionalStringField(Field):
 
 	def parse(self, data : str) -> None:
 		self.__data = data
-		self._mods += 1
 
 
 class StringField(OptionalStringField):
@@ -182,7 +170,7 @@ class StringField(OptionalStringField):
 		return "mandatory, non-empty string"
 
 	def parse(self, data : str) -> None:
-		if data == "":
+		if not data:
 			raise FieldError(self.name, f"Missing value in field '{self.name}'")
 		OptionalStringField.parse(self, data)
 
@@ -217,7 +205,7 @@ class PasswordField(StringField):
 
 	def parse(self, data : str) -> None:
 		# Report error if the password string is empty.
-		if data == "":
+		if not data:
 			raise FieldError(self.name, "Password cannot be empty")
 
 		# Disallow passwords starting with a dollar sign, including encrypted passwords.
@@ -286,7 +274,7 @@ class OptionalTimeField(OptionalStringField):
 		return "optional, possibly empty time string of the form HH:MM"
 
 	def parse(self, data : str) -> None:
-		if data == "":
+		if not data:
 			OptionalStringField.parse(self, data)
 			return
 
@@ -304,6 +292,7 @@ class Fields:
 	def __init__(self, version : Version) -> None:
 		self.__version = version
 		self.__fields : Dict[str, Field] = {}
+		self.__edited : Dict[str, bool] = {}
 
 	# Make the class backwards compatible with the old 'Setup' class, which used a named data member for each option.
 	def __getattr__(self, name : str) -> Field:
@@ -313,27 +302,39 @@ class Fields:
 
 	# Make the += operator available to add new fields to the 'Fields' instance.
 	def __iadd__(self, field : Field) -> Any:
+		# Check that the field hasn't been created before.
 		if field.name in self.__fields:
 			raise InternalError(f"Field already exists: {field.name}")
+
+		# Create the field.
 		self.__fields[field.name] = field
+
+		# Create an new, false entry in the 'self.__edited' dictionary.
+		self.__edited[field.name] = False
+
 		return self
 
 	def assign(self, name : str, data : str) -> None:
+		"""Attempts to assign a field by calling the 'parse()' method on it and then save the edit in 'self.__edited'."""
 		self.__fields[name].parse(data)
+		self.__edited[name] = True
 
-	def changed(self) -> bool:
-		changes = 0
-		for name in self.__fields:
-			field = getattr(self, name)
-			changes += field.changes
-		return bool(changes)
+	def edited(self) -> bool:
+		result = False
+		for value in self.__edited.values():
+			result |= value
+		return result
 
-	def keys(self) -> List[str]:
-		return list(self.__fields.keys())
+	def unedit(self) -> None:
+		for name in self.__edited:
+			self.__edited[name] = False
 
 	def load_list(self, path : str, allow_redefinitions : bool = False) -> List[TextFileError]:
 		# Returns a list of errors encountered while loading the .kiosk file.
 		result = []
+
+		# Clear the dictionary of edits so that we can detect unassigned fields.
+		self.unedit()
 
 		# Read in the specified file and split it into individual lines.
 		with open(path, "rt", encoding="utf-8") as stream:
@@ -364,25 +365,24 @@ class Fields:
 					raise InputError("Missing delimiter (=) in line")
 				( name, data ) = ( line[:index].strip(), line[index + 1:].strip() )
 
-				# Fetch the named field or throw exception AttributeError if non-existent.
-				field = getattr(self, name)
-
 				# Check that the field has not already been assigned more than once (it is set first time by the constructor).
-				if not allow_redefinitions and field.changes >= 1:
+				if not allow_redefinitions and self.__edited[name]:
 					raise InputError(f"Illegal redefinition of field '{name}'")
 
-				# Attempt to parse the field's right-hand-side (its data).
-				field.parse(data)
+				# Attempt to assign the field and its new value, while keeping track of edits.
+				self.assign(name, data)
 			except Error as that:
 				result.append(TextFileError(path, number, that.text))
 			except AttributeError:
 				result.append(TextFileError(path, number, f"Unknown field ignored: {name}"))
 
 		# Check that all fields were assigned by the configuration files.
-		for key in self.keys():
-			field = getattr(self, key)
-			if field.changes < 1:
-				result.append(TextFileError(path, 0, f"Field never assigned: {key}"))
+		for name in self.__fields:
+			if not self.__edited[name]:
+				result.append(TextFileError(path, 0, f"Field never assigned: {name}"))
+
+		# From a client point of view, the kiosk is without edits just after having been loaded.
+		self.unedit()
 
 		return result
 
@@ -427,6 +427,9 @@ class Fields:
 				# Output an empty line between fields and after the last field.
 				stream.write("")
 
+		# The kiosk is pristine, unedited and without changes just after having been saved.
+		self.unedit()
+
 
 def hostname_create(basename : str) -> str:
 	"""Creates a unique host name of the form '{basename}{number}', where number is an integer from zero to 2**16."""
@@ -437,5 +440,4 @@ def hostname_create(basename : str) -> str:
 # Source: https://stackoverflow.com/a/63160092
 def password_create(length : int) -> str:
 	return secrets.token_urlsafe(length)
-
 
