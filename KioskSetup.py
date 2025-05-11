@@ -126,10 +126,10 @@ class KioskSetup(KioskDriver):
 
 		# If still no network, abort the forge process.
 		if not internet_active():
-			logger.error("*" * 50)
+			logger.error("*" * 79)
 			logger.error("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
 			logger.error("*** (Please check the Wi-Fi name and password - both are case-sensitive.)")
-			logger.error("*" * 50)
+			logger.error("*" * 79)
 			raise KioskError("No active network connections detected")
 
 		# Display LAN IP - not everybody has access to the router in charge of assigning a LAN IP via DHCP.
