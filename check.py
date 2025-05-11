@@ -67,7 +67,7 @@ class KioskCheck(KioskDriver):
 		words += "--cache-dir"
 		words += ramdisk + self.version.product + os.sep + "MyPy"
 		words += "--strict"
-		for source in glob.glob("*.py") + glob.glob("toolbox/*.py"):
+		for source in SOURCES:
 			words += source
 
 		result = invoke_list(words.list)
