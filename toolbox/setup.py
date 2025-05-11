@@ -311,7 +311,7 @@ class Fields:
 			raise InternalError(f"Unknown field: {name}")
 		return self.__fields[name]
 
-	# Make the += operator available to add new options to the 'Options' instance.
+	# Make the += operator available to add new fields to the 'Fields' instance.
 	def __iadd__(self, field : Field) -> Any:
 		if field.name in self.__fields:
 			raise InternalError(f"Field already exists: {field.name}")
@@ -320,6 +320,13 @@ class Fields:
 
 	def assign(self, name : str, data : str) -> None:
 		self.__fields[name].parse(data)
+
+	def changed(self) -> bool:
+		changes = 0
+		for name in self.__fields:
+			field = getattr(self, name)
+			changes += field.changes
+		return bool(changes)
 
 	def keys(self) -> List[str]:
 		return list(self.__fields.keys())
