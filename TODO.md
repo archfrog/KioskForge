@@ -135,6 +135,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.05.15.04.34 H Fix snap cleanup in `KioskUpdate.py`: It does not remove old, useless revisions of upgraded snaps.
+                         See https://www.debugpoint.com/clean-up-snap/ for more information.
 - [x] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
 - [x] 2025.04.26.09.21 H Rename `setup.Settings` to `setup.Fields` AFTER `setup.Setup` has been renamed to `setup.Kiosk`.
 - [x] 2025.04.26.08.20 D Rename `Setup.XxxField` to `Setup.XxxOption`; I decided to stay with "field" rather than "option".
