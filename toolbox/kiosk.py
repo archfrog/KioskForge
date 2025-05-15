@@ -326,19 +326,22 @@ If you set this field to "poweroff", you can safely disregard the
 UPGRADE_TIME_HELP = """
 The time of day to upgrade the system.
 
-If empty, this field is disabled.
+If empty, this field is disabled.  This is not recommended as virtually
+all kiosks should be rebooted at least once a day so as to reduce the
+size of system logs and other things that grow quietly in the background.
 
-During upgrades, the following things take place:
+During the upgrade, the following things take place:
 
 1. System logs are reduced to the size given in the 'vacuum_size' field.
-2. If there is no network access, the system maintenance ends here.
+2. If there is no network access, the system upgrade skips to step 7.
 3. Snaps are upgraded.
-4. Ubuntu packages are upgraded.
-5. The system is rebooted.
+4. Snap's excessive disk usage is reduced to the bare minimum.
+5. Ubuntu's apt package manager packages are upgraded.
+6. The apt repository is emptied so as to not take up disk space.
+7. The system is rebooted or powered off according to 'upgrade_post'.
 
 Please notice that the maintenance process gracefully handles lack of
-internet.  In that case, no upgrades will be attemped downloaded, etc.,
-and the system will not be rebooted as there is no reason to do so.
+internet.  In that case, no upgrades will be attemped downloaded.
 """.strip()
 
 
