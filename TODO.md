@@ -33,6 +33,18 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.05.28.12.47 H Subiquity, minimal disk/swap configuration:
+                         storage:
+						   layout:
+						     name: direct
+							 match:
+							   ssd: true
+                           swap:
+						     size: 0
+- [ ] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.
+                         Raspberry Pi Imager seems to generate a bogus boot device.
+- [ ] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
+- [ ] 2025.05.28.08.32 U Make KioskForge support PCs once again.
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
 - [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
