@@ -481,15 +481,10 @@ class CloudinitConfigurator(Configurator):
 			stream.dedent()
 			stream.write()
 
-			# Write commands to update and upgrade the system before we reboot the first time.
-			if False:
-				# TODO: Either reenable CloudInit updates or disable AutoInstall updates.
-				# NOTE: Temporarily disabled it because it possibly causes CloudInit to time out.
-				# NOTE: We're rebooting with the "power_state" key above, not only in case of a kernel upgrade
-				# NOTE: ("package_reboot_if_required").
-				stream.write("package_update: true")
-				stream.write("package_upgrade: true")
-				stream.write()
+			# Do not update and upgrade packages through CloudInit as it occasionally times out (in my experience).
+			stream.write("package_update: false")
+			stream.write("package_upgrade: false")
+			stream.write()
 
 			# Write commands to install and/or enable Network Time Protocol (NTP).
 			stream.write("ntp:")
