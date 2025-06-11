@@ -215,7 +215,7 @@ class ReplaceTextAction(InternalAction):
 	def execute(self) -> Result:
 		result = Result()
 		try:
-			# Make properties locally accessible with requiring an accessor lookup on each use.
+			# Make properties locally accessible without requiring an accessor lookup on each use.
 			path = self.path
 			source_text = self.source_text
 			target_text = self.target_text
