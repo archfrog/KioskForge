@@ -678,7 +678,7 @@ class SubiquityConfigurator(Configurator):
 			stream.write(f"- curtin in-target -- /usr/bin/mkdir -p {output}")
 			stream.write(f"- curtin in-target -- /usr/bin/cp -pR {source}/KioskForge {output}")
 
-			# TODO: Copy user-supplied data folder to the target, if any.
+			# Copy user-supplied data folder to the target, if any.
 			if self.kiosk.user_folder.data:
 				stream.write(f"- curtin in-target -- /usr/bin/cp -pR {self.kiosk.user_folder.data} {output}")
 
