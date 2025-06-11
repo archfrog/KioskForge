@@ -563,7 +563,7 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-			# TODO: script += ExternalAction("Enabling custom systemd Ubuntu Frame service.", "systemctl enable ubuntu-frame.service")
+			script += ExternalAction("Enabling custom systemd Ubuntu Frame service.", "systemctl enable ubuntu-frame.service")
 
 			# Create systemd service to launch Chromium.
 			lines  = TextBuilder()
@@ -579,7 +579,7 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-			# TODO: script += ExternalAction("Enabling custom systemd Chromium service.", "systemctl enable chromium.service")
+			script += ExternalAction("Enabling custom systemd Chromium service.", "systemctl enable chromium.service")
 
 			# Start all of the above in one operation.
 			lines  = TextBuilder()
@@ -593,7 +593,6 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-
 			script += ExternalAction("Start Wayland and then Chromium when booting.", "systemctl add-wants graphical.target user-session.service")
 		else:
 			# Append lines to .bashrc to execute the startup script (only if we're not connecting using SSH).
