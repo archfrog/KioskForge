@@ -668,6 +668,10 @@ class SubiquityConfigurator(Configurator):
 			stream.write("match:")
 			stream.indent()
 			stream.write("ssd: true")
+			stream.dedent()
+			stream.write("swap:")
+			stream.indent()
+			stream.write(f"size: {self.kiosk.swap_size.data}G")
 			stream.dedent(3)
 
 			# NOTE: KioskSetup.py also updates the system, but this will do nothing when already done by Subiquity.
