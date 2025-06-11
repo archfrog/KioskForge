@@ -33,16 +33,6 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.05.28.12.47 H Subiquity, minimal disk/swap configuration:
-                         storage:
-						   layout:
-						     name: direct
-							 match:
-							   ssd: true
-                           swap:
-						     size: 0
-- [ ] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.
-                         Raspberry Pi Imager seems to generate a bogus boot device.
 - [ ] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
 - [ ] 2025.05.28.08.32 U Make KioskForge support PCs once again.
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
@@ -147,6 +137,16 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.
+                         Raspberry Pi Imager seems to generate a bogus boot device.
+- [x] 2025.05.28.12.47 H Subiquity, minimal disk/swap configuration:
+                         storage:
+						   layout:
+						     name: direct
+							 match:
+							   ssd: true
+                           swap:
+						     size: 0
 - [x] 2025.05.15.04.34 H Fix snap cleanup in `KioskUpdate.py`: It does not remove old, useless revisions of upgraded snaps.
                          See https://www.debugpoint.com/clean-up-snap/ for more information.
 - [x] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
