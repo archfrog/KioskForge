@@ -33,8 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?).
 - [ ] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
-- [ ] 2025.05.28.08.32 U Make KioskForge support PCs once again.
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
 - [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
