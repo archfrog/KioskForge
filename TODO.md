@@ -137,6 +137,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.06.11.10.38 H Remove leftovers of IPv6 disabling code, this conflicts with task to support IPv6 fully.
 - [x] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.
                          Raspberry Pi Imager seems to generate a bogus boot device.
 - [x] 2025.05.28.12.47 H Subiquity, minimal disk/swap configuration:

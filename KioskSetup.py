@@ -268,23 +268,6 @@ class KioskSetup(KioskDriver):
 				"systemctl enable kiosk-disable-wifi-power-saving"
 			)
 
-		# TODO: Disable IPv6 as it apparently slows down Internet communication and is claimed to make the network stack unstable.
-		if False:
-			dummy = """
-				apt-get install -y net-tools
-				TARGET=/etc/rc.local
-				echo "#!/usr/bin/bash" >> $TARGET
-				# NOTE: 'all' and 'default' do not always include all active network cards; apparently they are set up very early.
-				echo "# Disable IPv6 on all active interfaces." >> $TARGET
-				for netcard in all default `netstat -i | tail +3 | awk '{ print $1; }'`; do
-					if [ -f /proc/sys/net/ipv6/conf/$netcard/disable_ipv6 ]; then
-						echo sysctl -wq net.ipv6.conf.$netcard.disable_ipv6=1 >> $TARGET
-					fi
-				done
-				chmod a+x $TARGET
-				unset -v TARGET
-			"""
-
 		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 		#...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
