@@ -119,6 +119,7 @@ snap connect chromium:wayland
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
+- [ ] 2025.06.11.10.50 L Should we add a graceful shutdown feature to 'KioskOpenbox.py' (this is probably not worth the effort)?
 - [ ] 2025.05.09.05.36 L The version number shown in Windows Explorer's Details tab is `0.0.0.0`?
                          The problem is in Inno Setup (which I'd love to replace), the info given to Inno is correct.
 - [ ] 2025.05.01.05.17 L Some users will want the screen to go to sleep between guests to the kiosk.

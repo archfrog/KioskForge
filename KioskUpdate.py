@@ -101,7 +101,6 @@ class KioskUpdate(KioskDriver):
 			# Upgrade snaps and clean out the snap cache.
 
 			# Stop X11 using "killall", the only "handle" we have (we cannot kill the Python interpreter running this script...).
-			# TODO: Contemplate adding a graceful shutdown feature to 'KioskOpenbox.py' (this is probably not worth the effort).
 			invoke_text_safe("killall Xorg")
 
 			# Stop Chromium (the only running snap) before asking snap to upgrade (refresh) all snaps.
