@@ -783,14 +783,14 @@ class KioskForge(KioskDriver):
 			kernel_options.save(target.basedir + "cmdline.txt")
 
 			# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-			if kiosk.device.data == "pi4b" and not kiosk.cpu_boost.data:
+			if kiosk.device.data in ["pi4b", "pi5"] and not kiosk.cpu_boost.data:
 				with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
 					text = stream.read()
 				text = text.replace("arm_boost=1", "arm_boost=0")
 				with open(target.basedir + "config.txt", "wt", encoding="utf8") as stream:
 					stream.write(text)
 		elif target.kind == "PC":
-			# TODO: Figure out a way to provide kernel command-line options when targeting a PC (not done easily).
+			# NOTE: There's no easy way to configure the kernel command line when the target is a PC, so ignore for now.
 			pass
 		else:
 			raise InternalError(f"Unknown target kind: {target.kind}")
