@@ -1,6 +1,13 @@
 # KioskForge Change Log
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 0.22 (2025.06.25)
+1. The option `user_options` has been added.  This allows the user to specify additional options to Google Chrome.  The most
+   interesting option to add to Chrome is `--autoplay-policy=no-user-gesture-required`, which allows starting a video automatically
+   when a given web page is loaded (normally this requires user-interaction before the video can play).  This is for making simple
+   `VideoLooper` style kiosks on Pi5, something which VideoLooper does not yet support.
+2. Various internal changes of no importance to the end-user.
+
 ## Version 0.21 (2025.05.15)
 1. The daily upgrade process has been enhanced significantly as `snap` likes to keep many large files around forever.  These files
    are now removed on a daily basis, if the kiosk has internet access, so that they don't grow to 5-10 gigabytes in size.
