@@ -407,6 +407,19 @@ about it if you use SSH to access the kiosk.
 """.strip()
 
 
+USER_OPTIONS_HELP = """
+A space-separated list of user options to pass to Google Chrome.
+
+This is for very special use scenarios, the most important option being:
+
+	--autoplay-policy=no-user-gesture-required
+
+This Google Chrome option instructs Chrome to play videos WITH audio right
+away, without waiting for user interaction before playing the video. With
+this option, KioskForge can generate simple VideoLooper-style kiosks.
+""".strip()
+
+
 USER_PACKAGES_HELP = """
 A space-separated list of user packages to install when forging of the kiosk.
 
@@ -527,5 +540,6 @@ class Kiosk(Fields):
 		self += NaturalField("idle_timeout", "0", IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
+		self += OptionalStringField("user_options", "", USER_OPTIONS_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
 
