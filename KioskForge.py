@@ -783,7 +783,7 @@ class KioskForge(KioskDriver):
 			kernel_options.save(target.basedir + "cmdline.txt")
 
 			# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-			if kiosk.device.data in ["pi4b", "pi5"] and not kiosk.cpu_boost.data:
+			if kiosk.device.data in ["pi4b"] and not kiosk.cpu_boost.data:
 				with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
 					text = stream.read()
 				text = text.replace("arm_boost=1", "arm_boost=0")
