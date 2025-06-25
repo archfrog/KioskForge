@@ -40,4 +40,3 @@ class Version:
 		result += f"Copyright (c) 2024-2025 {self.company}.  All rights reserved."
 		return result
 
-
