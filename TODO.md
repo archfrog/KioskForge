@@ -33,10 +33,10 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.06.26.18.18 H Make feature to automatically copy project files from an USB key.  This for large videos and so on.
+- [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
 - [ ] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?).
-- [ ] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
-- [ ] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
                          This so that `KioskStart.py` can actually wait for an internet connection before it continues.
@@ -138,6 +138,10 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
+                         Dropped because it is meaningless busywork that doesn't add anything.
+- [x] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
+                         Dropped because it will break the documentation that the `.kiosk` file itself is.
 - [x] 2025.06.11.10.38 H Remove leftovers of IPv6 disabling code, this conflicts with task to support IPv6 fully.
 - [x] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.
                          Raspberry Pi Imager seems to generate a bogus boot device.
