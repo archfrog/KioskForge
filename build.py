@@ -355,4 +355,3 @@ class KioskBuild(KioskDriver):
 
 if __name__ == "__main__":
 	sys.exit(KioskBuild().main(sys.argv))
-

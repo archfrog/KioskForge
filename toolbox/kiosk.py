@@ -542,4 +542,3 @@ class Kiosk(Fields):
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
 		self += OptionalStringField("user_options", "", USER_OPTIONS_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
-

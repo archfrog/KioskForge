@@ -162,4 +162,3 @@ if __name__ == "__main__":
 	# pylint: disable-next=invalid-name
 	code = app.main(sys.argv)
 	sys.exit(code)
-

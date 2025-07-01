@@ -39,4 +39,3 @@ class TextBuilder:
 	def __iadd__(self, line : str) -> Any:
 		self.__lines.append(line)
 		return self
-

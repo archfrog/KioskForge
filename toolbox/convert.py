@@ -145,5 +145,3 @@ KEYBOARDS = {
 
 # Build the global variable 'KEYBOARD_REGEX', which represents the 'KEYBOARDS' dictionary as a regular expression.
 KEYBOARD_REGEX = dict_to_regex(KEYBOARDS)
-
-

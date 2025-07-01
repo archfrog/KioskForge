@@ -77,4 +77,3 @@ def invoke_text_safe(command : str, environment : Optional[Dict[str, str]] = Non
 	result = invoke_text(command, environment)
 	if result.status != 0:
 		raise KioskError(result.output)
-

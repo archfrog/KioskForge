@@ -101,4 +101,3 @@ class KioskDriver:
 			input("*** Press ENTER to continue and close this window")
 
 		return status
-

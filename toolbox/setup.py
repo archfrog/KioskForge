@@ -440,4 +440,3 @@ def hostname_create(basename : str) -> str:
 # Source: https://stackoverflow.com/a/63160092
 def password_create(length : int) -> str:
 	return secrets.token_urlsafe(length)
-

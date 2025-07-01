@@ -8,4 +8,3 @@ SOURCES = [
 	"KioskZipper.py",
 	"toolbox"
 ]
-

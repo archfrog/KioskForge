@@ -341,4 +341,3 @@ LOCALES = [
 	"zh_TW.UTF-8",
 	"zu_ZA.UTF-8"
 ]
-

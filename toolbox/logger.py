@@ -111,6 +111,3 @@ class Logger:
 
 	def write(self, text : str = "") -> None:
 		self._write(SYSLOG_LOG_INFO, text)
-
-
-

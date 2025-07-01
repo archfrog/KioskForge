@@ -942,4 +942,3 @@ class KioskForge(KioskDriver):
 
 if __name__ == "__main__":
 	sys.exit(KioskForge().main(sys.argv))
-

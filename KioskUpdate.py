@@ -141,4 +141,3 @@ class KioskUpdate(KioskDriver):
 
 if __name__ == "__main__":
 	sys.exit(KioskUpdate().main(sys.argv))
-

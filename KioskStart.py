@@ -108,4 +108,3 @@ class KioskStart(KioskDriver):
 
 if __name__ == "__main__":
 	sys.exit(KioskStart().main(sys.argv))
-

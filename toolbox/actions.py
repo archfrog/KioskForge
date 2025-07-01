@@ -311,4 +311,3 @@ class PurgePackagesAction(AptAction):
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		AptAction.__init__(self, title, "apt-get autoremove --purge -y " + ' '.join(packages))
-

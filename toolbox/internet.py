@@ -39,4 +39,3 @@ def lan_ip_address() -> str:
 	result = invoke_text("hostname -I")
 	address = result.output.strip() if result.status == 0 else '(unknown)'
 	return address
-

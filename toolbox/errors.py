@@ -93,4 +93,3 @@ class InternalError(Error):
 
 	def __init__(self, text : str) -> None:
 		Error.__init__(self, text)
-

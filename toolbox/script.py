@@ -77,6 +77,3 @@ class Script:
 				result = Result(1, that.text)
 
 		return result
-
-
-

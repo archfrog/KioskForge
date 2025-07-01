@@ -522,4 +522,3 @@ TIMEZONES = [
 	"UTC",
 	"WET"
 ]
-

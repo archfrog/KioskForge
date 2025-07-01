@@ -35,4 +35,3 @@ def ramdisk_get() -> str:
 		result += os.sep
 
 	return result
-
