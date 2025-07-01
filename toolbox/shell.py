@@ -33,4 +33,3 @@ def path_delete_readonly(function : Callable[..., Any], path : str, _exception :
 def tree_delete(path : str) -> None:
 	"""Fixed version of the broken shutil.rmtree() which can't remove read-only files.  Presumably works on all platforms."""
 	shutil.rmtree(path, onexc=path_delete_readonly)
-
