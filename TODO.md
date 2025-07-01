@@ -33,7 +33,9 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.01.09.13 H Switch from .ini-style kiosk files to toml-style kiosk files.  The latter is more flexible.  Useful?
 - [ ] 2025.06.26.18.18 H Make feature to automatically copy project files from an USB key.  This for large videos and so on.
+                         This could happen on every boot using `rsync` to synchronize the changes.
 - [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
 - [ ] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?).
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
