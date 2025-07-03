@@ -88,4 +88,3 @@ Name: "{group}\Template kiosk"; Filename: "{app}\Template.kiosk"
 
 ;[Run]
 ;Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
