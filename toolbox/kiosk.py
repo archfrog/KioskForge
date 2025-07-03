@@ -471,9 +471,16 @@ will be assumed to be public and open to everybody (without a password).
 
 
 WIFI_COUNTRY_HELP = """
-The country code of the "regulatory domain" for the Wi-Fi card.  In
-other words: The two-letter code of the country that the Wi-Fi card is
-being used in.  Often, but not always, the same as the 'keyboard' field.
+The country code of the "regulatory domain" for the Wi-Fi card.
+
+The uppercase two-letter code of the country that the Wi-Fi card is being
+used in.  This is required to determine legal Wi-Fi frequencies, etc.
+
+Documentation of the valid values can be found at:
+
+    https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+
+NOTE: KioskForge does not currently verify the value of this field!
 """.strip()
 
 
@@ -528,7 +535,7 @@ class Kiosk(Fields):
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
 		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}")
-		self += StringField("wifi_country", "us", WIFI_COUNTRY_HELP)
+		self += RegexField("wifi_country", "US", WIFI_COUNTRY_HELP, r"[A-Z]{2}")
 		self += BooleanField("wifi_hidden", "false", WIFI_HIDDEN_HELP)
 		self += BooleanField("wifi_boost", "true", WIFI_BOOST_HELP)
 		self += BooleanField("cpu_boost", "true", CPU_BOOST_HELP)
