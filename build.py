@@ -327,7 +327,7 @@ class KioskBuild(KioskDriver):
 
 		#*** Set up paths and clean out distribution path.
 		# Create object to easily pass around the output paths.
-		paths = Paths(ramdisk, ramdisk + os.sep + "KioskForge", "../bin", "../tmp")
+		paths = Paths(ramdisk, ramdisk + "KioskForge", "../bin", "../tmp")
 
 		# Make sure we don't accidentally ship artifacts from earlier builds.
 		folder_delete_contents(paths.temppath)
