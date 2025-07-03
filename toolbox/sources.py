@@ -2,9 +2,9 @@
 SOURCES = [
 	"KioskForge.py",
 	"KioskOpenbox.py",
+	"KioskReport.py",
 	"KioskSetup.py",
 	"KioskStart.py",
 	"KioskUpdate.py",
-	"KioskZipper.py",
 	"toolbox"
 ]
