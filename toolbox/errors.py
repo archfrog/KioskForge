@@ -80,6 +80,10 @@ class FieldError(InputError):
 	def field(self) -> str:
 		return self.__field
 
+	def __str__(self) -> str:
+		result = "[" + self.field + "] " + self.text
+		return result
+
 
 class KioskError(Error):
 	"""Generic exception used for all kinds of errors while running this script."""
