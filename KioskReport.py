@@ -105,6 +105,19 @@ class KioskReport(KioskDriver):
 			del lines
 			del found
 			del filename
+			del result
+
+			# Create systemd list of units, and their statuses, in case one or more units are failing.
+			filename = "systemctl-list-units.txt"
+			result = invoke_text("systemctl list-units")
+			if result.status != 0:
+				raise KioskError("Unable to query systemctl for list of units and their statuses")
+			with open(filename, "wt", encoding="utf-8") as stream:
+				stream.write(result.output)
+			include.append(filename)
+			cleanup.append(filename)
+			del filename
+			del result
 
 			# Discard non-existent files from the list of files to ZIP.
 			include = list(filter(os.path.isfile, include))
