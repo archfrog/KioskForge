@@ -26,7 +26,7 @@ import os
 import platform
 import sys
 
-from toolbox.errors import CommandError, Error, InternalError, KioskError
+from toolbox.errors import CommandError, Error, FieldError, InternalError, KioskError, TextFileError
 from toolbox.logger import Logger
 from toolbox.version import Version
 
@@ -75,10 +75,14 @@ class KioskDriver:
 				status = EXIT_SUCCESS
 			except CommandError as that:
 				logger.error(f"Syntax: {that.text}")
+			except FieldError as that:
+				logger.error(str(that))
 			except InternalError as that:
 				logger.error(f"Internal error: {that.text}")
 			except KioskError as that:
 				logger.error(f"Error: {that.text}")
+			except TextFileError as that:
+				logger.error(str(that))
 			except Error as that:
 				logger.error(f"Unknown error: {that.text}")
 			except KeyboardInterrupt:
