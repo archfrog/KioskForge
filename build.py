@@ -192,10 +192,11 @@ class KioskBuild(KioskDriver):
 
 		# Generate other artifacts consumed by Inno Setup 6 (README.html, etc.).
 		files = {
-			"CHANGES.md" : f"KioskForge v{version.version} Change Log",
-			"FAQ.md"     : f"KioskForge v{version.version} FAQ",
-			"GUIDE.md"   : f"KioskForge v{version.version} Usage Scenarios Guide",
-			"README.md"  : f"KioskForge v{version.version} README File"
+			"Changes.md"      : f"KioskForge v{version.version} Changes",
+			"Contributing.md" : f"KioskForge v{version.version} Contributing",
+			"FAQ.md"          : f"KioskForge v{version.version} FAQ",
+			"Guide.md"        : f"KioskForge v{version.version} Guide",
+			"Manual.md"       : f"KioskForge v{version.version} Manual",
 		}
 		for file, title in files.items():
 			words = TextBuilder()
@@ -224,13 +225,13 @@ class KioskBuild(KioskDriver):
 			words += "-o"
 			words += paths.temppath + os.sep + os.path.splitext(file)[0] + ".html"
 
-			# Input is this file.
-			words += file
+			# Input is the file, which is located in the 'docs' folder.
+			words += "docs" + os.sep + file
 
 			invoke_list_safe(words.list)
 
-		# For now, simply add the extension ".txt" to the LICENSE file, which must be accepted in the installer.
-		shutil.copyfile("LICENSE", paths.temppath + os.sep + "LICENSE.txt")
+		# Simply copy the LICENSE.txt file to the temporary directory.
+		shutil.copyfile("LICENSE.txt", paths.temppath + os.sep + "LICENSE.txt")
 
 		# Generate a brand new, up-to-date template kiosk by saving an empty, blank kiosk.
 		Kiosk(version).save(paths.temppath + os.sep + "Template.kiosk")

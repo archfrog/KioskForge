@@ -1,5 +1,5 @@
-# KioskForge Usage Scenarios Guide
-This document presents a number of supported scenarios for how to use KioskForge.
+# KioskForge Guide
+This document presents a number of supported scenarios for how to use KioskForge.  Actual samples are work in progress.
 
 ## Displaying a Remote Website
 This is the simplest case, the one that KioskForge was originally made for.  With this scenario, you'll get a finished kiosk ready

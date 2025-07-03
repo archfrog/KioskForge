@@ -1,11 +1,20 @@
-# KioskForge Change Log
+# KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
+
+## Version 0.23 (2025.07.03)
+1. The KioskForge Setup program now creates a `Start` menu group, which contains links to the various sources of documentation.
+2. There is **intentionally** no link to the program as you're supposed to run it by double-clicking a `.kiosk` file or from the
+   command-line (using `CMD.EXE`).  A GUI version is work in progress, but progress is rather slow.
+3. If you have an old link to the `KioskForge.exe` program in your `Start` menu, you can simply uninstall and reinstall KioskForge,
+   this should remove the stale link.  If not, you can simply delete the link manually.
+4. `README.html` has been renamed to `Manual.html`, this only affects those who actually dug out the file from the app folder.
+5. `GUIDE.html` has been renamed to `Guide.html`, this only affects those who actually dug out the file from the app folder.
 
 ## Version 0.22 (2025.06.25)
 1. The option `user_options` has been added.  This allows the user to specify additional options to Google Chrome.  The most
    interesting option to add to Chrome is `--autoplay-policy=no-user-gesture-required`, which allows starting a video automatically
-   when a given web page is loaded (normally this requires user-interaction before the video can play).  This is for making simple
-   `VideoLooper` style kiosks on Pi5, something which VideoLooper does not yet support.
+   when a given web page is loaded (normally this requires user-interaction before the video can play).  This is for making single
+   video `VideoLooper` style kiosks on Pi5, something which VideoLooper does not yet support.
 2. Various internal changes of no importance to the end-user.
 
 ## Version 0.21 (2025.05.15)

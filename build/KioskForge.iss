@@ -35,8 +35,8 @@ ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
 DefaultGroupName={#MyAppName}
-LicenseFile=..\src\LICENSE
-;InfoAfterFile=..\src\LICENSE
+LicenseFile=..\src\LICENSE.txt
+;InfoAfterFile=..\src\LICENSE.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=$$RAMDISK$$
@@ -55,12 +55,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "..\tmp\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\CHANGES.html"; DestDir: "{app}"; Flags: isreadme ignoreversion
+Source: "..\tmp\Changes.html"; DestDir: "{app}"; Flags: isreadme ignoreversion
+Source: "..\tmp\Contributing.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\FAQ.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\GUIDE.html"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\tmp\Guide.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\README.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\tmp\Manual.html"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion readonly
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
@@ -76,7 +77,13 @@ Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; Value
 ;Root: HKCR; Subkey: "Applications\{#MyAppExeName}"; ValueType: string, ValueName: "FriendlyAppName"; ValueDate: "{#MyAppName}"; Flags: uninsdeletekey
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+;Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\Changes"; Filename: "{app}\Changes.html"
+Name: "{group}\Contributing"; Filename: "{app}\Contributing.html"
+Name: "{group}\FAQ"; Filename: "{app}\FAQ.html"
+Name: "{group}\Guide"; Filename: "{app}\Guide.html"
+Name: "{group}\Manual"; Filename: "{app}\Manual.html"
+Name: "{group}\Template kiosk"; Filename: "{app}\Template.kiosk"
 ;Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 ;[Run]
