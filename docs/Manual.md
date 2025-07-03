@@ -202,19 +202,18 @@ to KioskForge.  If you only want to view *errors*, append the option `-p 3`: `ki
 Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to
 [Mikael Egevig](mailto:me@vhm.dk).  The former is the preferred method, but use whichever method suits you best.
 
-When you report a bug, please first log into the kiosk and run this command to create a ZIP file containing the *redacted* kiosk
-files:
+When you report a bug, please first log into the kiosk and run the command shown below to create a ZIP file containing the
+*redacted* kiosk files:
 
 ```bash
-    KioskForge/KioskZipper.py
+    KioskForge/KioskReport.py
 ```
 
 This will create the archive `~/kiosklogs.zip` which you can afterwards download from the kiosk using `scp` or
-[WinSCP](https://winscp.net).  Please attach the `kiosklogs.zip` file to your bug report, be it via mail or via GitHub.
+[WinSCP](https://winscp.net).  Please attach the `kiosklogs.zip` file to your bug report, be it by mail or via GitHub.
 
-All sensitive information (user name, user password, Wi-Fi name, Wi-Fi password, and the public SSH key) have automatically been
-redacted out of the `.kiosk` file before inclusion in the ZIP archive.  You can search the file for the string `REDACTED` to
-verify this.
+All sensitive information (comment, user name, user password, Wi-Fi name, Wi-Fi password, and the public SSH key) have been
+redacted out of the `.kiosk` file before inclusion in the ZIP archive.  You can search the unzipped `Kiosk.kiosk` file for the
+string `REDACTED` to verify this.
 
 **NOTE:** If you are uncomfortable submitting the ZIP archive to GitHub, you are more than welcome to send me a mail with the file.
-

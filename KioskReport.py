@@ -35,7 +35,7 @@ from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
 
 
-def strip_and_unhide(path : str) -> str:
+def strip_path_and_unhide(path : str) -> str:
 	"""Strips the path and removes any leading dots from the specified path."""
 	path = os.path.basename(path)
 	while path[0] == '.':
@@ -43,8 +43,8 @@ def strip_and_unhide(path : str) -> str:
 	return path
 
 
-class KioskZipper(KioskDriver):
-	"""This class contains the 'KioskZipper' code, which prepares a ZIP file containing various logs useful for debugging."""
+class KioskReport(KioskDriver):
+	"""This class contains the 'KioskReport' code, which prepares a ZIP file containing various logs useful for debugging."""
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
@@ -64,7 +64,7 @@ class KioskZipper(KioskDriver):
 
 		# Parse command-line arguments.
 		if len(arguments) != 0:
-			raise CommandError('"KioskZipper.py"')
+			raise CommandError('"KioskReport.py"')
 
 		# Create list of files that we want to include in the ZIP archive.
 		include = [".xsession-errors", ".local/share/xorg/Xorg.0.log"]
@@ -78,7 +78,7 @@ class KioskZipper(KioskDriver):
 			filename = "Kiosk.kiosk"
 			kiosk = Kiosk(self.version)
 			kiosk.load_safe(logger, "KioskForge/KioskForge.kiosk")
-			for field in ["user_name", "user_code", "wifi_name", "wifi_code", "ssh_key"]:
+			for field in ["comment", "user_name", "user_code", "wifi_name", "wifi_code", "ssh_key"]:
 				kiosk.assign(field, "REDACTED")
 			kiosk.save(filename)
 			include.append(filename)
@@ -112,11 +112,11 @@ class KioskZipper(KioskDriver):
 			# Zip up the existing files.
 			filename = "kiosklogs.zip"
 			print(f"Creating archive: {filename}")
-			with zipfile.ZipFile(filename, "w", zipfile.ZIP_DEFLATED) as zipper:
+			with zipfile.ZipFile(filename, "w", zipfile.ZIP_DEFLATED) as archive:
 				for file in include:
-					name = strip_and_unhide(file)
+					name = strip_path_and_unhide(file)
 					print(f"... Adding: {file} as {name}")
-					zipper.write(file, name)
+					archive.write(file, name)
 				del file
 				del name
 			print()
@@ -131,4 +131,4 @@ class KioskZipper(KioskDriver):
 					os.unlink(file)
 
 if __name__ == "__main__":
-	sys.exit(KioskZipper().main(sys.argv))
+	sys.exit(KioskReport().main(sys.argv))
