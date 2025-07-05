@@ -33,6 +33,11 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.05.15.10 H Fix the problem that `KioskStart.py` is started in too many cases; on keyboard login, it should not start.
+                         It appears to work with SSH logins only because `KioskStart.py` specifically ignores those.
+                         Perhaps this can be solved using the output from the `tty` command?  I have found no solution to this yet.
+- [ ] 2025.07.05.14.40 H Create generalized `WaitForEvent` class that can be used when waiting for network and for microSD.  It
+                         should follow the pattern of the current "wait for network" code (60 seconds, one second interval).
 - [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
 - [ ] 2025.07.03.06.54 H Eliminate the `kiosklog` Bash function and introduce `KioskStatus.py` to check and display system status:
                              1. Is X11 running?
