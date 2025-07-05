@@ -21,6 +21,7 @@
 # The complete list of source files and folders, within the KioskForge project, to be analyzed, used by PyInstaller, and so on.
 
 SOURCES = [
+	"KioskConfig.py",
 	"KioskForge.py",
 	"KioskOpenbox.py",
 	"KioskReport.py",

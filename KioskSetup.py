@@ -111,23 +111,23 @@ class KioskSetup(KioskDriver):
 		if os.geteuid() != 0:		# pylint: disable=no-member
 			raise KioskError("You must be root (use 'sudo') to run this script")
 
-		# Check that we have got an active, usable internet connection.
-		index = 0
-		while not internet_active() and index < 6:
-			logger.write("*** NETWORK DOWN: Waiting 5 seconds for the kiosk to come online")
-			index += 1
-			time.sleep(5)
-		if index:
+		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
+		maximum = 60
+		if not internet_active():
+			logger.write(f"*** NETWORK DOWN: Waiting at most {maximum} seconds for the kiosk to come online")
 			logger.write()
-		del index
+			for index in range(maximum):	# pylint: disable=unused-variable
+				time.sleep(1)
+				if internet_active():
+					break
 
 		# If still no network, abort the forge process.
 		if not internet_active():
 			logger.error("*" * 79)
 			logger.error("*** FATAL ERROR: NO INTERNET CONNECTION AVAILABLE!")
-			logger.error("*** (Please check the Wi-Fi name and password - both are case-sensitive.)")
+			logger.error("*** (Please check the cable, or Wi-Fi name and password - both are case-sensitive.)")
 			logger.error("*" * 79)
-			raise KioskError("No active network connections detected")
+			raise KioskError("No active network connections detected (please reboot the kiosk using Ctrl-Alt-Del)")
 
 		# Display LAN IP - not everybody has access to the router in charge of assigning a LAN IP via DHCP.
 		logger.write("*** LAN IP: " + lan_ip_address())
@@ -135,13 +135,14 @@ class KioskSetup(KioskDriver):
 
 		# Parse command-line arguments.
 		if len(arguments) >= 2:
-			raise CommandError("\"KioskSetup.py\" ?step\nWhere 'step' is an optional resume step from the log.")
-		resume = 0
+			raise CommandError("\"KioskSetup.py\" ?step\nWhere 'step' is an optional one-based resume step from the log.")
+
+		resume = 1
 		if len(arguments) == 1:
 			resume = int(arguments[0])
 
-		# This script is launched by a systemd service, so we need to eradicate it and all traces of it (once only).
-		if resume == 0:
+		# This script is launched by a systemd service, so we need to eradicate all traces of it (to avoid starting it again).
+		if resume == 1:
 			result = invoke_text("systemctl disable KioskSetup")
 			if os.path.isfile("/usr/lib/systemd/system/KioskSetup.service"):
 				os.unlink("/usr/lib/systemd/system/KioskSetup.service")
@@ -153,7 +154,7 @@ class KioskSetup(KioskDriver):
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
 		# Notify the KioskForge user that the forge process has begun.
-		logger.write("Forging kiosk (takes about while depending on media speed and kiosk architecture):")
+		logger.write("Forging kiosk (takes a while depending on media speed and kiosk architecture):")
 		logger.write()
 
 		# Build the script to execute.
@@ -222,13 +223,6 @@ class KioskSetup(KioskDriver):
 			lines.text
 		)
 
-		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
-			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
-			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
-			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
-			# NOTE: Package 'net-tools' contains the 'netstat' utility.
-			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
-
 		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 		#...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
@@ -262,6 +256,31 @@ class KioskSetup(KioskDriver):
 			"#PermitEmptyPasswords no",
 			"PermitEmptyPasswords no"
 		)
+
+		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
+			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
+			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
+			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
+			# NOTE: Package 'net-tools' contains the 'netstat' utility.
+			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
+
+		# Run 'KioskConfig.py' to ensure Wi-Fi is boosted for the many downloads that follow below (if the user has enabled it).
+		script += ExternalAction("Configure audio level and Wi-Fi boost (if applicable).", origin + os.sep + "KioskConfig.py")
+
+		# Run 'KioskConfig.py' on every boot by (ab-)using '/etc/rc.local'.
+		# NOTE: Let the user know that I am abusing '/etc/rc.local' so that he/she can report it if it causes him/her problems.
+		lines  = TextBuilder()
+		lines += "#/usr/bin/bash"
+		lines += "# Configure the kiosk according to the user's '.kiosk' configuration file."
+		lines += f"{origin}/KioskConfig.py"
+		script += CreateTextWithUserAndModeAction(
+			"Configure system automatically on every boot using '/etc/rc.local'.",
+			"/etc/rc.local",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR,
+			lines.text
+		)
+		del lines
 
 		# Uninstall package unattended-upgrades as I couldn't get it to work even after spending many hours on it.
 		# NOTE: Remove unattended-upgrades early on as it likes to interfere with APT and the package manager.
@@ -545,26 +564,17 @@ class KioskSetup(KioskDriver):
 			del lines
 			script += ExternalAction("Start Wayland and then Chromium when booting.", "systemctl add-wants graphical.target user-session.service")
 		else:
-			# Append lines to .bash_profile to execute the startup script (only if not already started once).
+			# Append lines to '~/.bashrc' to execute the startup script (which handles redundant requests, etc.).
 			lines  = TextBuilder()
-			lines += "#/usr/bin/bash"
-			lines += "set -e"
 			lines += ""
-			lines += "# Execute the startup script 'KioskStart.py' once only (presumably for the automatically logged in user)."
-			lines += "if [ ! -f /tmp/kiosk_started ]; then"
-			lines += "\ttouch /tmp/kiosk_started"
+			lines += "# Start the kiosk by invoking 'KioskStart.py', which decides if it wants to run now or not."
+			# NOTE: Don't use 'set -e', it logs out whenever an error occurs in the logged in SSH session...
 			lines += f"\t{origin}/KioskStart.py"
-			lines += "\trm -f /tmp/kiosk_started"
-			# Clear the screen to hide any private information such as the LAN IP.
-			lines += "\tclear"
-			# Sleep until the system is rebooted shortly just to disallow kiosk users from entering commands.
-			lines += "\tsleep 1d"
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
-			lines += "fi"
 			script += AppendTextAction(
-				"Appending lines to ~/.bash_profile to start up the kiosk.",
-				f"{os.path.dirname(origin)}/.bash_profile",
+				"Appending lines to ~/.bashrc to start up the kiosk on every boot.",
+				f"{os.path.dirname(origin)}/.bashrc",
 				lines.text
 			)
 			del lines

@@ -51,29 +51,47 @@ class Script:
 	def execute(self) -> Result:
 		result = Result()
 
-		if self.__resume >= len(self.__actions):
-			raise KioskError("Resume offset greater than or equal to the total number of actions")
+		# Check that the given resume value is valid.
+		if self.__resume == 0 or self.__resume > len(self.__actions):
+			raise KioskError(f"Resume offset outside valid range of one through {len(self.__actions)}")
+
+		# Fetch current time to be able to show the delta for each script action.
+		start = timeit.default_timer()
 
 		# Execute each action in turn while handling exceptions and failures.
 		self.__logger.write("STEP ELAPSED  ACTION")
 		index = self.__resume
-		start = timeit.default_timer()
-		for action in self.__actions[self.__resume:]:
+		for action in self.__actions[self.__resume - 1:]:
+			# Compute and display total running time until now.
+			total              = int(timeit.default_timer() - start)
+			(minutes, seconds) = divmod(total, 60)
+			(hours, minutes)   = divmod(minutes, 60)
+			self.__logger.write(f"{index:4d} {hours:02d}:{minutes:02d}:{seconds:02d} {action.title}")
+
+			# Increment step index.
+			index += 1
+
+			# Execute the action while propagating the status code, if possible.
 			try:
-				# Compute and display total running time until now.
-				total = int(timeit.default_timer() - start)
-				(minutes, seconds) = divmod(total, 60)
-				(hours, minutes)   = divmod(minutes, 60)
-
-				self.__logger.write(f"{index:4d} {hours:02d}:{minutes:02d}:{seconds:02d} {action.title}")
-				index += 1
-
+				# Execute the current action.
 				result = action.execute()
+
+				# Report error and abort if the action failed.
 				if result.status != 0:
 					self.__logger.error(result.output)
 					self.__logger.error("*** SCRIPT ABORTED DUE TO ABOVE ERROR")
 					break
-			except (KioskError, InternalError) as that:
+			except KioskError as that:
+				result = Result(result.status, that.text)
+			except InternalError as that:
+				# Handle detected runtime errors, etc.
 				result = Result(1, that.text)
+
+		# Output the total time it took to forge the kiosk.
+		total              = int(timeit.default_timer() - start)
+		(minutes, seconds) = divmod(total, 60)
+		(hours, minutes)   = divmod(minutes, 60)
+		self.__logger.write(f"{index:4d} {hours:02d}:{minutes:02d}:{seconds:02d} FORGE PROCESS FINISHED")
+		del index
 
 		return result
