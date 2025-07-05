@@ -87,7 +87,7 @@ class KioskStart(KioskDriver):
 		if kiosk.type.data in [ "x11", "web" ]:
 			# Only execute the request if $DISPLAY is undefined and $XDG_VTNR is equal to 1 (avoid starting X11 twice).
 			if not os.environ.get("DISPLAY") and os.environ.get("XDG_VTNR") == "1":
-				# Launch X11, which runs '.config/openbox/autostart' to eventually launch Chromium or user app in kiosk mode.
+				# Launch X11, which runs '.config/openbox/autostart', which launches Chromium or the user app in kiosk mode.
 				words  = TextBuilder()
 				words += "startx"
 				if not kiosk.mouse.data:
