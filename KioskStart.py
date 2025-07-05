@@ -55,6 +55,10 @@ class KioskStart(KioskDriver):
 		if platform.system() != "Linux":
 			raise KioskError("This script can only be run on a Linux kiosk machine")
 
+		# Check that we don't have root privileges.
+		if os.geteuid() == 0:
+			raise KioskError("You may not be root when running this script")
+
 		# Parse command-line arguments.
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
 			raise CommandError('"KioskStart.py"')
@@ -67,7 +71,7 @@ class KioskStart(KioskDriver):
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
 		# Assign Wi-Fi power saving state (on or off), if applicable (if the wireless network has been enabled).
-		if kiosk.wifi_name.data:
+		if False and kiosk.wifi_name.data:
 			wifi_boost(kiosk.wifi_boost.data)
 
 		# Configure audio subsystem, if applicable.
