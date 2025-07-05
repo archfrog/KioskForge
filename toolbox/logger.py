@@ -88,6 +88,10 @@ class Logger:
 		if sys.platform == "linux":
 			syslog.openlog(logoption=syslog.LOG_PID, facility=syslog.LOG_LOCAL0)
 
+	def __del__(self) -> None:
+		if sys.platform == "linux":
+			syslog.closelog()
+
 	def __enter__(self) -> Any:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
 		return self
