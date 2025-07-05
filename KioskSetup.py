@@ -107,7 +107,7 @@ class KioskSetup(KioskDriver):
 
 		# Check that we're running on Linux.
 		if sys.platform != "linux":
-			raise KioskError("This script is can only be run on a Linux kiosk machine")
+			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we've got root privileges.
 		if os.geteuid() != 0:		# pylint: disable=no-member

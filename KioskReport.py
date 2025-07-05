@@ -56,7 +56,7 @@ class KioskReport(KioskDriver):
 
 		# Check that we're running on Linux.
 		if platform.system() != "Linux":
-			raise KioskError("This script can currently only be run on a Linux machine")
+			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we're running on a KioskForge kiosk machine.
 		if not os.path.isdir("KioskForge") or not os.path.isfile("KioskForge/KioskForge.kiosk"):

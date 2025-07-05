@@ -53,7 +53,7 @@ class KioskStart(KioskDriver):
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.
 		if platform.system() != "Linux":
-			raise KioskError("This script is can only be run on a Linux kiosk machine")
+			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Parse command-line arguments.
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
