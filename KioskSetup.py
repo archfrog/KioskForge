@@ -40,6 +40,7 @@ from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
 from toolbox.network import internet_active, lan_ip_address
 from toolbox.script import Script
+from toolbox.various import screen_clear
 
 
 # NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
@@ -95,11 +96,9 @@ class KioskSetup(KioskDriver):
 		KioskDriver.__init__(self)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
-		# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).
-		# NOTE: The 'clear' command has no effect for reasons unknown to me so I resorted to using an 'xterm' escape sequence.
-		# Clear screen and move cursor to (1, 1).
 		if sys.platform == "linux":
-			print("\033[2J\033[1;1H", end="")
+			# Clear the screen before we continue, to make the output more comprehensible for the end-user (clear CloudInit noise).
+			screen_clear()
 
 		# Output program banner and an empty line.
 		logger.write(self.version.banner())
@@ -553,8 +552,12 @@ class KioskSetup(KioskDriver):
 			lines += "\ttouch /tmp/kiosk_started"
 			lines += f"\t{origin}/KioskForge/KioskStart.py"
 			lines += "\trm -f /tmp/kiosk_started"
+			# Clear the screen to hide any private information such as the LAN IP.
+			lines += "\tclear"
+			# Sleep until the system is rebooted shortly just to disallow kiosk users from entering commands.
+			lines += "sleep 1d"
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
-			# NOTE: This leads to a pseduo-zombie shell session, but it dies within seconds or minutes 'KioskUpdate.py' reboots.
+			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
 			lines += "fi"
 			script += AppendTextAction(
 				"Appending lines to ~/.bash_profile to start up the kiosk.",

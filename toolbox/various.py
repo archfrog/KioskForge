@@ -35,3 +35,9 @@ def ramdisk_get() -> str:
 		result += os.sep
 
 	return result
+
+def screen_clear() -> None:
+	"""Clears the current Linux console window using escape sequences as the 'clear' command doesn't always work."""
+	# NOTE: The 'clear' command has no effect for reasons unknown to me so I resorted to using an 'xterm' escape sequence.
+	# Clear screen and move cursor to (1, 1).
+	print("\033[2J\033[1;1H", end="")
