@@ -26,6 +26,7 @@ from typing import List
 import glob
 import os
 import sys
+import time
 
 from toolbox.actions import AptAction
 from toolbox.driver import KioskDriver
@@ -34,6 +35,7 @@ from toolbox.internet import internet_active
 from toolbox.invoke import invoke_text, invoke_text_safe
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
+from toolbox.signal import Signal
 
 
 class KioskUpdate(KioskDriver):
@@ -81,7 +83,7 @@ class KioskUpdate(KioskDriver):
 			raise KioskError("This script is can only be run on a Linux kiosk machine")
 
 		# Check that we've got root privileges.
-		if os.geteuid() != 0:			# pylint: disable=E1101
+		if os.geteuid() != 0:   		# pylint: disable=E1101
 			raise KioskError("You must be root (use 'sudo') to run this script")
 
 		# Parse command-line arguments.
@@ -100,11 +102,24 @@ class KioskUpdate(KioskDriver):
 		if internet_active():
 			# Upgrade snaps and clean out the snap cache.
 
-			# Stop X11 using "killall", the only "handle" we have (we cannot kill the Python interpreter running this script...).
+			# Stop Chromium and automatic respawns of it by creating a signal, which is watched for by 'KioskOpenbox.py'.
+			signal = Signal("KioskOpenbox-shutdown-Chromium", kiosk.user_name.data)
+			signal.create()
+			logger.write("Signaled KioskOpenbox.py to shut down Chromium and then exit.")
+
+			# Wait for KioskOpenbox.py to shut down, which means waiting until the signal has been removed.
+			while signal.exists:
+				time.sleep(1)
+			logger.write("KioskOpenbox.py has shut down Chromium and exited.")
+			del signal
+
+			# NOTE: We don't start Chromium using 'snap run chromium', so don't use 'snap stop chromium'.
+			# invoke_text_safe("snap stop chromium")
+
+			# Stop X11 using "killall", the only way we have (we cannot kill the Python interpreter running this script...).
 			invoke_text_safe("killall Xorg")
 
-			# Stop Chromium (the only running snap) before asking snap to upgrade (refresh) all snaps.
-			invoke_text_safe("snap stop chromium")
+			# Ask snap to upgrade (refresh) all snaps.
 			try:
 				# Allow snap to update.
 				invoke_text_safe("snap refresh --unhold")
@@ -112,7 +127,7 @@ class KioskUpdate(KioskDriver):
 				# Refresh all snaps.
 				invoke_text_safe("snap refresh")
 			finally:
-				# Stop snapd from upgrading automatically so it doesn't upgrade randomly (also done in 'KioskSetup.py').
+				# Stop snapd from upgrading automatically so it doesn't upgrade randomly (done first in 'KioskSetup.py').
 				invoke_text_safe("snap refresh --hold")
 
 			# Remove all disabled snaps (prior snap versions) and empty the snap cache.

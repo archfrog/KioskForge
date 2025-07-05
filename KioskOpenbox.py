@@ -24,7 +24,6 @@
 from typing import List
 
 import os
-import platform
 import shlex
 import shutil
 import subprocess
@@ -37,6 +36,7 @@ from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_text
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
+from toolbox.signal import Signal
 
 KIOSKFORGE_TO_XRANDR_ROTATIONS = {
 	'none'  : 'normal',
@@ -61,8 +61,12 @@ class KioskOpenbox(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.
-		if platform.system() != "Linux":
+		if sys.platform != "linux":
 			raise KioskError("This script is can only be run on a Linux kiosk machine")
+
+		# Check that we don't have root privileges.
+		if os.geteuid() == 0:			# pylint: disable=E1101
+			raise KioskError("You may not be root when running this script")
 
 		# Parse command-line arguments.
 		if len(arguments) != 0:
@@ -76,6 +80,7 @@ class KioskOpenbox(KioskDriver):
 		timeout = kiosk.idle_timeout.data
 
 		process = None
+		signal = Signal("KioskOpenbox-shutdown-Chromium", kiosk.user_name.data)
 		try:
 			# Disable all forms of X screen saver/screen blanking/power management.
 			for xset in [ "xset s off", "xset s noblank", "xset -dpms"]:
@@ -118,7 +123,7 @@ class KioskOpenbox(KioskDriver):
 			del command
 
 			# Forever launch Chromium, possibly terminate it, and restart it again if terminated or crashed.
-			while True:
+			while not signal.exists:
 				# Launch Chromium in the background as a detached process.
 				try:
 					# pylint: disable-next=consider-using-with
@@ -131,8 +136,8 @@ class KioskOpenbox(KioskDriver):
 				# Let Chromium start before we begin to check if it has been idle for too long.
 				time.sleep(15)
 
-				# Loop forever, launching Chromium and terminating it if it "times out" (becomes idle for N seconds).
-				while True:
+				# Loop forever (until asked to shut down), launching Chromium and terminating it if it becomes idle for N seconds.
+				while not signal.exists:
 					# Wait one second between checking if Chromium should be restarted.
 					time.sleep(1)
 
@@ -154,7 +159,11 @@ class KioskOpenbox(KioskDriver):
 			# Terminate Chromium if it is still running.
 			if process and not process.poll():
 				process.terminate()
-				del process
+			del process
+
+			# Remove the signal once we've performed the requested task.
+			signal.remove()
+			del signal
 
 
 if __name__ == "__main__":
