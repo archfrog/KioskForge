@@ -758,6 +758,7 @@ class KioskForge(KioskDriver):
 		print(f"    User name    : {kiosk.user_name.data}")
 		print(f"    SSH key      : {'Present' if kiosk.ssh_key.data else 'Not present'}")
 		print(f"    Wi-Fi name   : {kiosk.wifi_name.data}")
+		print(f"    Wi-Fi country: {kiosk.wifi_country.data}")
 		print(f"    Upgrade time : {kiosk.upgrade_time.data}")
 		print(f"    Poweroff time: {kiosk.poweroff_time.data}")
 		print(f"    Rotation     : {kiosk.screen_rotation.data}")
