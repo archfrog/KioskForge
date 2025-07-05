@@ -545,16 +545,20 @@ class KioskSetup(KioskDriver):
 			del lines
 			script += ExternalAction("Start Wayland and then Chromium when booting.", "systemctl add-wants graphical.target user-session.service")
 		else:
-			# Append lines to .bashrc to execute the startup script (only if we're not connecting using SSH).
+			# Append lines to .bash_profile to execute the startup script (only if not already started once).
 			lines  = TextBuilder()
 			lines += ""
-			lines += "# Execute the startup script 'KioskStart.py' (HACK: only if not connected via SSH)."
-			lines += r"if ! pstree -s -p $$ | grep -c '\-sshd(' >/dev/null; then"
-			lines += f"\t{origin}/KioskStart.py"
+			lines += "# Execute the startup script 'KioskStart.py' once only (presumably for the automatically logged in user)."
+			lines += "if [ ! -f /tmp/kiosk_started ]; then"
+			lines += "\ttouch /tmp/kiosk_started"
+			lines += f"\t{origin}/KioskForge/KioskStart.py"
+			lines += "\trm -f /tmp/kiosk_started"
+			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
+			# NOTE: This leads to a pseduo-zombie shell session, but it dies within seconds or minutes 'KioskUpdate.py' reboots.
 			lines += "fi"
 			script += AppendTextAction(
-				"Appending lines to ~/.bashrc to start up the kiosk.",
-				f"{os.path.dirname(origin)}/.bashrc",
+				"Appending lines to ~/.bash_profile to start up the kiosk.",
+				f"{os.path.dirname(origin)}/.bash_profile",
 				lines.text
 			)
 			del lines
