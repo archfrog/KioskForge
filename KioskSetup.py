@@ -88,9 +88,8 @@ layouts:
 """.strip()
 
 
-
 class KioskSetup(KioskDriver):
-	"""This class contains the 'KioskSetup' code, which configures a supported Ubuntu Server system to become a web kiosk."""
+	"""Defines the 'KioskSetup' class, which configures a supported Ubuntu Server system to become a web kiosk."""
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
@@ -153,9 +152,11 @@ class KioskSetup(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Build the script to execute.
-		logger.write("Forging kiosk (takes between 10 and 30 minutes):")
+		# Notify the KioskForge user that the forge process has begun.
+		logger.write("Forging kiosk (takes about while depending on media speed and kiosk architecture):")
 		logger.write()
+
+		# Build the script to execute.
 		script = Script(logger, resume)
 
 		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
@@ -662,6 +663,9 @@ class KioskSetup(KioskDriver):
 		result = script.execute()
 		if result.status != 0:
 			raise KioskError(result.output)
+
+		# Wait a few seconds for the people to be able to spot errors and/or read how long the forge process took.
+		time.sleep(10)
 
 		# NOTE: The reboot takes place immediately, control never returns from the 'execute()' method below!
 		logger.write("*** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
