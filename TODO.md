@@ -101,6 +101,7 @@ snap connect chromium:wayland
                          This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
+- [ ] 2025.07.05.09.06 M See if we can't reduce the output from cloud-init and X11 further (the screen gets half full of text).
 - [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
 - [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
                          Linux distributions as well as different configurations:
