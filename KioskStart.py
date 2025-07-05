@@ -24,7 +24,6 @@
 from typing import List
 
 import os
-import platform
 import sys
 import time
 
@@ -52,11 +51,11 @@ class KioskStart(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.
-		if platform.system() != "Linux":
+		if sys.platform != "linux":
 			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we don't have root privileges.
-		if os.geteuid() == 0:
+		if os.geteuid() == 0:			# pylint: disable=E1101
 			raise KioskError("You may not be root when running this script")
 
 		# Parse command-line arguments.
@@ -71,7 +70,7 @@ class KioskStart(KioskDriver):
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
 		# Assign Wi-Fi power saving state (on or off), if applicable (if the wireless network has been enabled).
-		if False and kiosk.wifi_name.data:
+		if kiosk.wifi_name.data:
 			wifi_boost(kiosk.wifi_boost.data)
 
 		# Configure audio subsystem, if applicable.
