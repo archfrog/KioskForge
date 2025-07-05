@@ -247,13 +247,17 @@ class KioskSetup(KioskDriver):
 			# Create a systemd service to disable Wi-Fi power saving on every boot.
 			lines  = TextBuilder()
 			lines += "[Unit]"
+			lines += "Description=KioskForge (disable Wi-Fi power saving)"
 			lines += "Wants=network-online.target"
-			lines += "After=network-online.target"
+			lines += "After=multi-user.target"
 			lines += ""
 			lines += "[Service]"
-			# NOTE: The system man page recommends 'oneshot' over 'simple' as this is a simple script that runs only once.
 			lines += "Type=oneshot"
 			lines += f"ExecStart={origin}/kiosk-disable-wifi-power-saving.sh"
+			lines += "RemainAfterExit=true"
+			lines += ""
+			lines += "[Install]"
+			lines += "WantedBy=multi-user.target"
 			script += CreateTextWithUserAndModeAction(
 				"Creating systemd unit to disable Wi-Fi power saving on every boot.",
 				"/usr/lib/systemd/system/kiosk-disable-wifi-power-saving.service",
@@ -265,7 +269,7 @@ class KioskSetup(KioskDriver):
 
 			# Enable the new systemd unit.
 			script += ExternalAction(
-				"Enabling systemd service to disable Wi-Fi power saving.",
+				"Enabling systemd service to disable Wi-Fi power saving on every boot.",
 				"systemctl enable kiosk-disable-wifi-power-saving"
 			)
 
@@ -537,6 +541,7 @@ class KioskSetup(KioskDriver):
 			# Create systemd service to run Ubuntu Frame under the kiosk user.
 			lines  = TextBuilder()
 			lines += "[Unit]"
+			lines += "Description=KioskForge (Ubuntu Frame launcher)"
 			lines += "Before=xdg-desktop-autostart.target"
 			lines += "BindsTo=graphical-session.target"
 			lines += "[Service]"
@@ -555,6 +560,7 @@ class KioskSetup(KioskDriver):
 			# Create systemd service to launch Chromium.
 			lines  = TextBuilder()
 			lines += "[Unit]"
+			lines += "Description=KioskForge (Chromium launcher)"
 			lines += "After=ubuntu-frame.service"
 			lines += "[Service]"
 			lines += f"ExecStart=/snap/bin/chromium --kiosk '{kiosk.command.data}'"
@@ -571,6 +577,7 @@ class KioskSetup(KioskDriver):
 			# Start all of the above in one operation.
 			lines  = TextBuilder()
 			lines += "[Unit]"
+			lines += "Description=KioskForge (Chromium launcher)"
 			lines += "Wants=ubuntu-frame.service chromium.service"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Chromium.",
@@ -614,7 +621,7 @@ class KioskSetup(KioskDriver):
 #			# NOTE: I never did manage to get the systemd service to even start up (I've stopped playing with it for now).
 #			lines  = TextBuilder()
 #			lines += "[Unit]"
-#			lines += "Description=KioskForge kiosk service."
+#			lines += "Description=KioskForge (Kiosk launcher)"
 #			lines += "After=network-online.target"
 #			lines += "After=cloud-init.target"
 #			lines += "After=multi-user.target"
