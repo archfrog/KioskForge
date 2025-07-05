@@ -19,6 +19,8 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 # This file implements the 'Signal' class, which is used for inter-process communication using a disk file in '/tmp'.
+#
+# NOTE: This module currently assumes that '/tmp' is located in a non-persistent RAM disk, which is true for Ubuntu (and others).
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import Optional
@@ -26,14 +28,25 @@ from typing import Optional
 import os
 import shutil
 
+SIGNAL_PREFIX  = "/tmp/KioskForge"
+SIGNAL_SUFFIX  = ".signal"
+TEMP_EXTENSION = ".tmp"
+
+
 class Signal:
 	"""A class that implements very simple inter-process signal communication.  Not very robust at present."""
 
 	def __init__(self, name : str, owner : str, group : Optional[str] = None) -> None:
 		"""Create a new Signal() instance with the specified name, owner, and group."""
-		self.__path  = "/tmp/" + name + ".signal"
+		# Initialize the instance.
+		self.__path  = SIGNAL_PREFIX + os.sep + name + SIGNAL_SUFFIX
 		self.__owner = owner
 		self.__group = group or owner
+
+		# Create a directory for the KioskForge signal files and give it user access so that only root and the user can access it.
+		if not os.path.isdir(SIGNAL_PREFIX):
+			os.makedirs(SIGNAL_PREFIX, mode=0o700, exist_ok=False)
+			shutil.chown(SIGNAL_PREFIX, self.__owner, self.__group)
 
 	@property
 	def exists(self) -> bool:
@@ -44,7 +57,7 @@ class Signal:
 		"""Signals an event by 'making a signal' (creating a signal file)."""
 		# Create the file under another name, change ownership, and rename it to the signal file name.
 		# NOTE: Don't create directly and change ownership as it is removed when received (which will fail with the wrong owner).
-		temp = self.__path + ".tmp"
+		temp = self.__path + TEMP_EXTENSION
 		open(temp, "wb").close()		# pylint: disable=consider-using-with
 		os.chmod(temp, 0o600)
 		shutil.chown(temp, self.__owner, self.__group)
