@@ -2,13 +2,18 @@
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
 ## Version 0.23 (2025.07.03)
-1. The KioskForge Setup program now creates a `Start` menu group, which contains links to the various sources of documentation.
-2. There is **intentionally** no link to the program as you're supposed to run it by double-clicking a `.kiosk` file or from the
-   command-line (using `CMD.EXE`).  A GUI version is work in progress, but progress is rather slow.
-3. If you have an old link to the `KioskForge.exe` program in your `Start` menu, you can simply uninstall and reinstall KioskForge,
+1. The very serious `snap` VFS corruption issue (in long-running KioskForge kiosks) has now, hopefully, been fixed.
+2. Fixed an issue with wrong casing of `wifi_country` values by mandating that the value is written in uppercase only (us => US).
+3. The KioskForge Setup program now creates a `Start` menu group, which contains links to the various sources of documentation
+   and to a template kiosk file that can be opened by right-clicking it and then selecting `Edit`.
+4. There is **intentionally** no link to the program as you're supposed to run it by double-clicking a `.kiosk` file or from the
+   command-line (using `CMD.EXE`).  A TUI version is being worked on, but this is a fairly low priority feature.
+5. If you have an old link to the `KioskForge.exe` program in your `Start` menu, you can simply uninstall and reinstall KioskForge,
    this should remove the stale link.  If not, you can simply delete the link manually.
-4. `README.html` has been renamed to `Manual.html`, this only affects those who actually dug out the file from the app folder.
-5. `GUIDE.html` has been renamed to `Guide.html`, this only affects those who actually dug out the file from the app folder.
+6. `README.html` has been renamed to `Manual.html`, this only affects those who actually dug out the file from the app folder.
+7. `GUIDE.html` has been renamed to `Guide.html`, this only affects those who actually dug out the file from the app folder.
+8. The bug report script `KioskZipper.py` has been renamed to `KioskReport.py`.
+9. `KioskReport.py` now generates a list of system units, and their statuses, for the case that one or more `systemd` units fail.
 
 ## Version 0.22 (2025.06.25)
 1. The option `user_options` has been added.  This allows the user to specify additional options to Google Chrome.  The most
