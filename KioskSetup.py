@@ -35,10 +35,10 @@ from toolbox.actions import ReplaceTextAction
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
-from toolbox.internet import internet_active, lan_ip_address
 from toolbox.invoke import invoke_text
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
+from toolbox.network import internet_active, lan_ip_address
 from toolbox.script import Script
 
 
@@ -228,50 +228,6 @@ class KioskSetup(KioskDriver):
 			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
 			# NOTE: Package 'net-tools' contains the 'netstat' utility.
 			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
-			lines  = TextBuilder()
-			lines += "#!/usr/bin/bash"
-			lines += "for netcard in `netstat -i | tail +3 | awk '{ print $1; }' | fgrep w`; do"
-			lines += "    /sbin/iw $netcard set power_save off"
-			lines += "done"
-			lines += "exit 0"
-			script += CreateTextWithUserAndModeAction(
-				"Creating script to disable power-saving on Wi-Fi card.",
-				f"{origin}/kiosk-disable-wifi-power-saving.sh",
-				kiosk.user_name.data,
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH,
-				lines.text
-			)
-			del lines
-			script += ExternalAction("Disabling Wi-Fi power-saving mode.", f"{origin}/kiosk-disable-wifi-power-saving.sh")
-
-			# Create a systemd service to disable Wi-Fi power saving on every boot.
-			lines  = TextBuilder()
-			lines += "[Unit]"
-			lines += "Description=KioskForge (disable Wi-Fi power saving)"
-			lines += "Wants=network-online.target"
-			lines += "After=multi-user.target"
-			lines += ""
-			lines += "[Service]"
-			lines += "Type=oneshot"
-			lines += f"ExecStart={origin}/kiosk-disable-wifi-power-saving.sh"
-			lines += "RemainAfterExit=true"
-			lines += ""
-			lines += "[Install]"
-			lines += "WantedBy=multi-user.target"
-			script += CreateTextWithUserAndModeAction(
-				"Creating systemd unit to disable Wi-Fi power saving on every boot.",
-				"/usr/lib/systemd/system/kiosk-disable-wifi-power-saving.service",
-				"root",
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
-				lines.text
-			)
-			del lines
-
-			# Enable the new systemd unit.
-			script += ExternalAction(
-				"Enabling systemd service to disable Wi-Fi power saving on every boot.",
-				"systemctl enable kiosk-disable-wifi-power-saving"
-			)
 
 		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 		#...Install OpenSSH server.

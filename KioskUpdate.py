@@ -31,10 +31,10 @@ import time
 from toolbox.actions import AptAction
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
-from toolbox.internet import internet_active
 from toolbox.invoke import invoke_text, invoke_text_safe
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
+from toolbox.network import internet_active
 from toolbox.signal import Signal
 
 
