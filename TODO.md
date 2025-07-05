@@ -36,6 +36,8 @@ snap connect chromium:wayland
 - [ ] 2025.07.05.15.10 H Fix the problem that `KioskStart.py` is started in too many cases; on keyboard login, it should not start.
                          It appears to work with SSH logins only because `KioskStart.py` specifically ignores those.
                          Perhaps this can be solved using the output from the `tty` command?  I have found no solution to this yet.
+                         Perhaps the `$PPID` shell variable can be used to determine the parent and see if it is launched by SSH,
+                         console or autologin?  Not very likely, just a tiny idea.
 - [ ] 2025.07.05.14.40 H Create generalized `WaitForEvent` class that can be used when waiting for network and for microSD.  It
                          should follow the pattern of the current "wait for network" code (60 seconds, one second interval).
 - [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
@@ -107,6 +109,8 @@ snap connect chromium:wayland
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
 - [ ] 2025.07.05.09.06 M See if we can't reduce the output from cloud-init and X11 further (the screen gets half full of text).
+- [ ] 2025.07.05.16.20 M Consider making a https API for controlling and examining a running kiosk.
+- [ ] 2025.07.05.16.20 M Consider making a locally deployable website for using the https API suggested above.
 - [ ] 2025.04.26.06.03 M v2.x: Provide a simple scripting language that allows the user to precisely control maintenance, etc.
 - [ ] 2025.05.03.13.22 M Contemplate making an internal scripting engine that makes it a breeze to handle different target
                          Linux distributions as well as different configurations:
