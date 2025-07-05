@@ -135,8 +135,10 @@ class KioskUpdate(KioskDriver):
 
 			# Update apt package indices, upgrade all packages, and clean the apt cache (which may grow to many gigabytes in size).
 			# NOTE: Use 'AptAction' to get automatic waiting for the 'apt' lock file to be released.
+			# NOTE: We purge unused packages PRIOR to updating to ensure we've rebooted before doing this so as to not accidentally
+			# NOTE: purge a running kernel, which may have catastrophic consequences as far as I know.
 			# NOTE: Use "apt-get upgrade -y", not "apt-get dist-upgrade -y", to ensure that the system doesn't suddenly break down.
-			for command in ["apt-get update", "apt-get upgrade -y", "apt-get autoremove --purge", "apt-get clean"]:
+			for command in ["apt-get autoremove --purge", "apt-get update", "apt-get upgrade -y", "apt-get clean"]:
 				result = AptAction(f"Apt maintenance: {command}.", command).execute()
 				if result.status != 0:
 					logger.error(f"Apt failure executing '{command}': {result.output}")
