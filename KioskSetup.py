@@ -546,16 +546,18 @@ class KioskSetup(KioskDriver):
 		else:
 			# Append lines to .bash_profile to execute the startup script (only if not already started once).
 			lines  = TextBuilder()
+			lines += "#/usr/bin/bash"
+			lines += "set -e"
 			lines += ""
 			lines += "# Execute the startup script 'KioskStart.py' once only (presumably for the automatically logged in user)."
 			lines += "if [ ! -f /tmp/kiosk_started ]; then"
 			lines += "\ttouch /tmp/kiosk_started"
-			lines += f"\t{origin}/KioskForge/KioskStart.py"
+			lines += f"\t{origin}/KioskStart.py"
 			lines += "\trm -f /tmp/kiosk_started"
 			# Clear the screen to hide any private information such as the LAN IP.
 			lines += "\tclear"
 			# Sleep until the system is rebooted shortly just to disallow kiosk users from entering commands.
-			lines += "sleep 1d"
+			lines += "\tsleep 1d"
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
 			lines += "fi"
