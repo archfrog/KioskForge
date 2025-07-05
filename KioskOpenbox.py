@@ -46,7 +46,10 @@ KIOSKFORGE_TO_XRANDR_ROTATIONS = {
 }
 
 class KioskOpenbox(KioskDriver):
-	"""This class defines the KioskOpenbox.py script, which starts Chromium, monitors it, and restarts it if necessary."""
+	"""Defines the KioskOpenbox class, which starts Chromium, monitors it, and restarts it if necessary.
+
+	   The script can be shut down gracefully by creating the Signal 'KioskOpenbox-shutdown-Chromium' as seen below.
+	"""
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
