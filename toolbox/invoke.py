@@ -55,11 +55,14 @@ def invoke_list(command : List[str], environment : Optional[Dict[str, str]] = No
 		text=False,
 		env=environment
 	)
+
+	# Convert bytes from command into a UTF-8 text string.
 	try:
-		output = result.stdout.decode('utf-8')
+		output = result.stdout.decode('utf-8').strip()
 	except UnicodeDecodeError:
-		print(result.stdout)
+		print(result.stdout.strip())
 		raise
+
 	return Result(result.returncode, output)
 
 # invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
