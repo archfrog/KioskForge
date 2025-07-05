@@ -33,18 +33,12 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.07.03.10.22 U Make Pi5 bunker kiosk and create ad-hoc stress test to be run for one month or until issues arise.
-- [ ] 2025.07.05.04.07 H Figure out why `wifi_boost` only works while forging the kiosk.  It never runs after that.
 - [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
-- [ ] 2025.07.03.07.06 H Figure out why the kiosk power-save-disable script isn't applied when rebooting (more than once?).
-                         It has run and it works when run manually, so move this code to `KioskStart.py` to ensure it works.
-                         Systemd simply reports it as "loaded" and "dead", which is natural as it terminates after execution.
 - [ ] 2025.07.03.06.54 H Eliminate the `kiosklog` Bash function and introduce `KioskStatus.py` to check and display system status:
                              1. Is X11 running?
                              2. Is Chromium running?
                              3. Is there sufficient free disk space?
                              4. ...
-- [ ] 2025.07.03.06.52 H Start `KioskStart.py` using a suitable `systemd` service, not by using autologin, if possible, that is.
 - [ ] 2025.07.03.06.44 H Find a way to exit the open autologin session that is left behind by `killall Xorg` in `KioskUpdate.py`.
                          This is not a very serious issue as `KioskUpdate.py` either powers off or reboots the system.
                          Beware: If I manually type `exit`, `systemd` relaunches the autologin process and X11 and Chromium start.
@@ -138,6 +132,9 @@ snap connect chromium:wayland
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
+- [ ] 2025.07.03.06.52 L Start `KioskStart.py` using a suitable `systemd` service, not by using autologin, if possible, that is.
+                         Like many, I hate `systemd`s cumbersome method of adding services.  I never got the service to work so I
+                         integrated this functionality into the `KioskStart.py` script, which launches X11, etc.
 - [ ] 2025.05.09.05.36 L The version number shown in Windows Explorer's Details tab is `0.0.0.0`?
                          The problem is in Inno Setup (which I'd love to replace), the info given to Inno is correct.
 - [ ] 2025.05.01.05.17 L Some users will want the screen to go to sleep between guests to the kiosk.
@@ -156,6 +153,11 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.07.05.04.07 H Figure out why `wifi_boost` only works while forging the kiosk.  This is now part of `KioskStart.py`.
+- [x] 2025.07.03.07.06 H Figure out why the kiosk power-save-disable script isn't applied when rebooting (more than once?).
+                         It has run and it works when run manually, so move this code to `KioskStart.py` to ensure it works.
+                         Systemd simply reports it as "loaded" and "dead", which is natural as it terminates after execution.
+- [x] 2025.07.03.10.22 U Make Pi bunker kiosk and create ad-hoc stress test to be run for one month or until issues arise.
 - [x] 2025.06.11.10.50 L Should we add a graceful shutdown feature to 'KioskOpenbox.py' (this appears to strictly mandatory).
 - [x] 2025.07.03.02.03 U Fix `snap` issues: Apparently, `snap` updates in the *background* long after it has exited.  This can
                          occasionally lead to `snap` corruption as KioskUpdate.py reboots the kiosk while `snap` is updating.
