@@ -33,7 +33,24 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.03.10.22 U Make Pi5 bunker kiosk and create ad-hoc stress test to be run for one month or until issues arise.
+- [ ] 2025.07.05.04.07 H Figure out why `wifi_boost` only works while forging the kiosk.  It never runs after that.
+- [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
+- [ ] 2025.07.03.07.06 H Figure out why the kiosk power-save-disable script isn't applied when rebooting (more than once?).
+                         It has run and it works when run manually, so move this code to `KioskStart.py` to ensure it works.
+                         Systemd simply reports it as "loaded" and "dead", which is natural as it terminates after execution.
+- [ ] 2025.07.03.06.54 H Eliminate the `kiosklog` Bash function and introduce `KioskStatus.py` to check and display system status:
+                             1. Is X11 running?
+                             2. Is Chromium running?
+                             3. Is there sufficient free disk space?
+                             4. ...
+- [ ] 2025.07.03.06.52 H Start `KioskStart.py` using a suitable `systemd` service, not by using autologin, if possible, that is.
+- [ ] 2025.07.03.06.44 H Find a way to exit the open autologin session that is left behind by `killall Xorg` in `KioskUpdate.py`.
+                         This is not a very serious issue as `KioskUpdate.py` either powers off or reboots the system.
+                         Beware: If I manually type `exit`, `systemd` relaunches the autologin process and X11 and Chromium start.
+- [ ] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid.
 - [ ] 2025.07.01.09.13 H Switch from .ini-style kiosk files to toml-style kiosk files.  The latter is more flexible.  Useful?
+                         At the very least, begin using sections: `[Chromium]` for Chromium-related options and so forth.
 - [ ] 2025.06.26.18.18 H Make feature to automatically copy project files from an USB key.  This for large videos and so on.
                          This could happen on every boot using `rsync` to synchronize the changes.
 - [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
@@ -121,7 +138,6 @@ snap connect chromium:wayland
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
-- [ ] 2025.06.11.10.50 L Should we add a graceful shutdown feature to 'KioskOpenbox.py' (this is probably not worth the effort)?
 - [ ] 2025.05.09.05.36 L The version number shown in Windows Explorer's Details tab is `0.0.0.0`?
                          The problem is in Inno Setup (which I'd love to replace), the info given to Inno is correct.
 - [ ] 2025.05.01.05.17 L Some users will want the screen to go to sleep between guests to the kiosk.
@@ -140,6 +156,21 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.06.11.10.50 L Should we add a graceful shutdown feature to 'KioskOpenbox.py' (this appears to strictly mandatory).
+- [x] 2025.07.03.02.03 U Fix `snap` issues: Apparently, `snap` updates in the *background* long after it has exited.  This can
+                         occasionally lead to `snap` corruption as KioskUpdate.py reboots the kiosk while `snap` is updating.
+                         Hmm, this *may* not be the cause of the `snap` VFS trashing that I have seen on the Bunker kiosk as the
+	documentation *claims* that `snap` does not update in the background.  It may be a race condition in
+	`KioskUpdate.py`.
+                         This issue is most likely caused by the `KioskOpenbox.py` script trying to restart Chromium even after
+                         `KioskUpdate.py` has SIGTERM'ed Chromium and X11.  `KioskUpdate.py` must watch for a shut-down file!
+                         This has (hopefully) been fixed in v0.23 by introducing inter-process communication between
+                         `KioskUpdate.py`, which created a signal file that `KioskOpenbox.py` watches for, and then
+                         `KioskOpenbox.py` gracefully shuts down Chromium and terminates (after having removed the signal file).
+- [x] 2025.07.03.02.15 U Stop Chromium *before* X11 is stopped.  The current code reverses this order, which is meaningless as
+                         killing X11 will automatically cause Chromium to be killed, as far as I know.
+- [x] 2025.07.03.04.02 H Create `cron` tasks as the very last time before syncing and rebooting so the kiosk doesn't start these
+                         `cron` jobs while actively forging the kiosk.
 - [x] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
                          Dropped because it is meaningless busywork that doesn't add anything.
 - [x] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
@@ -149,12 +180,12 @@ snap connect chromium:wayland
                          Raspberry Pi Imager seems to generate a bogus boot device.
 - [x] 2025.05.28.12.47 H Subiquity, minimal disk/swap configuration:
                          storage:
-						   layout:
-						     name: direct
-							 match:
-							   ssd: true
+                           layout:
+	    name: direct
+	    match:
+	      ssd: true
                            swap:
-						     size: 0
+                             size: 0
 - [x] 2025.05.15.04.34 H Fix snap cleanup in `KioskUpdate.py`: It does not remove old, useless revisions of upgraded snaps.
                          See https://www.debugpoint.com/clean-up-snap/ for more information.
 - [x] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
