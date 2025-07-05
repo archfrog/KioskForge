@@ -56,7 +56,7 @@ def get_network_cards() -> List[str]:
 	# Extact the list of network cards (column 1) from the 'netstat -i' output.
 	cards = []
 	for line in lines[2:]:
-		assert line != "", "Malformed interface line found in 'netstat -i' output"
+		assert line != "", "Empty line found in 'netstat -i' output"
 		fields = list(filter(lambda x: x != "", line.split(" ")))
 		assert len(fields) == 11, "Malformed interface line found in 'netstat -i' output"
 		cards.append(fields[0])
