@@ -18,7 +18,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-# This script is responsible for setting up the Linux kiosk machine according to the user's kiosk configuration.
+# This script is responsible for setting up the Linux kiosk machine (forging it) according to the user's kiosk configuration.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
@@ -29,7 +29,6 @@ import stat
 import sys
 import time
 
-# pylint: disable-next:wildcard-import
 from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, ExternalAction
 from toolbox.actions import InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction, RemoveFolderAction
 from toolbox.actions import ReplaceTextAction
@@ -160,6 +159,9 @@ class KioskSetup(KioskDriver):
 		logger.write()
 		script = Script(logger, resume)
 
+		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
+		script += ExternalAction("Enabling Network Time Protocol (NTP).", "timedatectl set-ntp on")
+
 		# Set environment variable to stop dpkg from running interactively.
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 
@@ -215,13 +217,10 @@ class KioskSetup(KioskDriver):
 		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk | grep -Fv systemd\\["
 		lines += "}"
 		script += AppendTextAction(
-			"Creating 'kiosklog' Bash function for easier debugging, and bug and status reporting.",
+			"Creating 'kiosklog' Bash function for easier debugging and status discovery.",
 			f"{os.path.dirname(origin)}/.bashrc",
 			lines.text
 		)
-
-		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
-		script += ExternalAction("Enabling Network Time Protocol (NTP).", "timedatectl set-ntp on")
 
 		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
 			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
@@ -234,6 +233,7 @@ class KioskSetup(KioskDriver):
 			lines += "for netcard in `netstat -i | tail +3 | awk '{ print $1; }' | fgrep w`; do"
 			lines += "    /sbin/iw $netcard set power_save off"
 			lines += "done"
+			lines += "exit 0"
 			script += CreateTextWithUserAndModeAction(
 				"Creating script to disable power-saving on Wi-Fi card.",
 				f"{origin}/kiosk-disable-wifi-power-saving.sh",
@@ -251,7 +251,8 @@ class KioskSetup(KioskDriver):
 			lines += "After=network-online.target"
 			lines += ""
 			lines += "[Service]"
-			lines += "Type=simple"
+			# NOTE: The system man page recommends 'oneshot' over 'simple' as this is a simple script that runs only once.
+			lines += "Type=oneshot"
 			lines += f"ExecStart={origin}/kiosk-disable-wifi-power-saving.sh"
 			script += CreateTextWithUserAndModeAction(
 				"Creating systemd unit to disable Wi-Fi power saving on every boot.",
@@ -326,6 +327,10 @@ class KioskSetup(KioskDriver):
 
 		# Update and upgrade the system, including snaps (everything).
 		script += ExternalAction("Upgrading all snaps.", "snap refresh")
+
+		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
+		script += ExternalAction("Disabling automatic upgrades of snaps.", "snap refresh --hold")
+
 		# NOTE: Use 'AptAction' to automatically wait for apt's lock to be released if in use.
 		script += AptAction("Updating system package indices.", "apt-get update")
 		script += AptAction("Upgrading all installed packages.", "apt-get dist-upgrade -y")
@@ -352,11 +357,14 @@ class KioskSetup(KioskDriver):
 
 			script += ExternalAction("Configuring starting page in Chromium.", f"sudo snap set chromium url={kiosk.command.data}")
 
-			# ...Stop and remove the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
+			# ...Stop and remove the Common Unix Printing Server (cups) as it is a security risk that we don't need in a kiosk.
 			script += ExternalAction(
 				"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
 				"snap remove --purge cups"
 			)
+
+			# NOTE: Do NOT remove the 'gnome-42-2204' snap as this makes Chromium fail silently!
+			# NOTE: Do NOT remove the 'gtk-common-themes' snap as this makes Chromium crash and refuse to restart!
 
 			# Write almost empty Chromium preferences file to disable translate feature.
 			lines = TextBuilder()
@@ -456,11 +464,14 @@ class KioskSetup(KioskDriver):
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
 				script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
 
-				# ...Stop and disable the Common Unix Printing Server (cups) as we definitely won't be needing it on a kiosk machine.
+				# ...Stop and remove the Common Unix Printing Server (cups) as it is a security risk that we don't need in a kiosk.
 				script += ExternalAction(
 					"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
 					"snap remove --purge cups"
 				)
+
+				# NOTE: Do NOT remove the 'gnome-42-2204' snap as this makes Chromium fail silently!
+				# NOTE: Do NOT remove the 'gtk-common-themes' snap as this makes Chromium crash and refuse to restart!
 
 				# Write almost empty Chromium preferences file to disable translate.
 				lines = TextBuilder()
@@ -490,30 +501,6 @@ class KioskSetup(KioskDriver):
 		# If the user_packages option is specified, install the extra package(s).
 		if kiosk.user_packages.data:
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(kiosk.user_packages.data))
-
-		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
-		if kiosk.upgrade_time.data != "":
-			lines  = TextBuilder()
-			lines += "# Cron job to upgrade, clean, and reboot the system every day."
-			lines += f'{kiosk.upgrade_time.data[3:5]} {kiosk.upgrade_time.data[0:2]} * * *\troot\t{origin}/KioskUpdate.py'
-			script += CreateTextAction(
-				"Creating cron job to upgrade system once a day at the configured time.",
-				"/etc/cron.d/kiosk-upgrade-system",
-				lines.text
-			)
-			del lines
-
-		# Create cron job to power off the system at a given time (only usable when the kiosk is manually turned on again).
-		if kiosk.poweroff_time.data != "":
-			lines  = TextBuilder()
-			lines += "# Cron job to shut down the kiosk machine nicely every day."
-			lines += f"{kiosk.poweroff_time.data[3:5]} {kiosk.poweroff_time.data[0:2]} * * *\troot\tpoweroff"
-			script += CreateTextAction(
-				"Creating cron job to power off the system every day at the configured time.",
-				"/etc/cron.d/kiosk-power-off",
-				lines.text
-			)
-			del lines
 
 		# Create swap file in case the system gets low on memory.
 		if kiosk.swap_size.data > 0:
@@ -666,11 +653,32 @@ class KioskSetup(KioskDriver):
 		# Free disk space by cleaning the apt cache.
 		script += AptAction("Cleaning package cache.", "apt-get clean")
 
-		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
-		script += ExternalAction("Disabling 'snap' automatic upgrades.", "snap refresh --hold")
-
 		# Empty snap cache.
 		script += ExternalAction("Purging snap cache to free disk space", "rm -fr /var/lib/snapd/cache/*")
+
+		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
+		if kiosk.upgrade_time.data != "":
+			lines  = TextBuilder()
+			lines += "# Cron job to upgrade, clean, and reboot the system every day."
+			lines += f'{kiosk.upgrade_time.data[3:5]} {kiosk.upgrade_time.data[0:2]} * * *\troot\t{origin}/KioskUpdate.py'
+			script += CreateTextAction(
+				"Creating cron job to upgrade system once a day at the configured time.",
+				"/etc/cron.d/kiosk-upgrade-system",
+				lines.text
+			)
+			del lines
+
+		# Create cron job to power off the system at a given time (only usable when the kiosk is manually turned on again).
+		if kiosk.poweroff_time.data != "":
+			lines  = TextBuilder()
+			lines += "# Cron job to shut down the kiosk machine nicely every day."
+			lines += f"{kiosk.poweroff_time.data[3:5]} {kiosk.poweroff_time.data[0:2]} * * *\troot\tpoweroff"
+			script += CreateTextAction(
+				"Creating cron job to power off the system every day at the configured time.",
+				"/etc/cron.d/kiosk-power-off",
+				lines.text
+			)
+			del lines
 
 		# Synchronize all changes to disk (may take a while on microSD cards).
 		script += ExternalAction(
