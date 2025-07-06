@@ -170,7 +170,4 @@ class KioskOpenbox(KioskDriver):
 
 
 if __name__ == "__main__":
-	app = KioskOpenbox()
-	# pylint: disable-next=invalid-name
-	code = app.main(sys.argv)
-	sys.exit(code)
+	sys.exit(KioskOpenbox().main(sys.argv))
