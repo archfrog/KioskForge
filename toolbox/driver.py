@@ -25,6 +25,7 @@ import abc
 import os
 import platform
 import sys
+import traceback
 
 from toolbox.errors import CommandError, Error, FieldError, InternalError, KioskError, TextFileError
 from toolbox.logger import Logger
@@ -98,6 +99,7 @@ class KioskDriver:
 				else:
 					text = str(that)
 				logger.error(f"Fatal error: {text}")
+				logger.error(traceback.format_exc())
 
 		# If not running from a console, wait for a keypress so that the user can read the output.
 		if platform.system() == "Windows" and not "PROMPT" in os.environ:
