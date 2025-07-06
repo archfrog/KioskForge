@@ -223,6 +223,13 @@ class KioskSetup(KioskDriver):
 			lines.text
 		)
 
+		# Create '~/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
+		script += CreateTextAction(
+			"Creating ~/.hushlogin to reduce amount of text displayed during automatic login.",
+			f"{os.path.dirname(origin)}/.hushlogin",
+			""
+		)
+
 		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 		#...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
