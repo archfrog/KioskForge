@@ -74,7 +74,8 @@ class KioskStart(KioskDriver):
 			signal.create()
 
 			# Move ~/.xsession-errors to ~/.xsession-errors.old to avoid having it grow indefinitely forever.
-			os.replace("~/.xsession-errors", "~/.xsession-errors.old")
+			if os.path.isfile("~/.xsession-errors"):
+				os.replace("~/.xsession-errors", "~/.xsession-errors.old")
 
 			if kiosk.type.data in [ "x11", "web" ]:
 				# Only execute the request if $DISPLAY is undefined and $XDG_VTNR is equal to 1 (avoid starting X11 twice).
