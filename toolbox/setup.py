@@ -153,7 +153,7 @@ class OptionalStringField(Field):
 
 	@property
 	def type(self) -> str:
-		return "optional, possibly empty string"
+		return "optional string"
 
 	def parse(self, data : str) -> None:
 		self.__data = data
@@ -253,7 +253,7 @@ class OptionalRegexField(RegexField):
 
 	@property
 	def type(self) -> str:
-		return "optional, possibly empty regular expression"
+		return "optional regular expression"
 
 	def parse(self, data : str) -> None:
 		if not data:
@@ -271,7 +271,7 @@ class OptionalTimeField(OptionalStringField):
 
 	@property
 	def type(self) -> str:
-		return "optional, possibly empty time string of the form HH:MM"
+		return "optional time string of the form HH:MM"
 
 	def parse(self, data : str) -> None:
 		if not data:
