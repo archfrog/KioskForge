@@ -564,7 +564,7 @@ class Kiosk(Fields):
 
 	def redact_apply(self) -> None:
 		"""Redacts the kiosk for use by the 'KioskForge.py' script when it writes the kiosk to the installation medium."""
-		self.redact(["user_name", "user_code", "wifi_name", "wifi_code"])
+		self.redact(["user_code", "wifi_code"])
 
 	def redact_report(self) -> None:
 		"""Redacts the kiosk for use by the 'KioskReport.py' script when it includes the redacted kiosk in the Zip archive."""
