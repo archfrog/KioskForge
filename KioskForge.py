@@ -121,8 +121,8 @@ class Recognizer:
 	def identify(self) -> List[Target]:
 		# Scan all mount points/drives and see if there are any of the reserved files we're looking for.
 		targets : List[Target] = []
-		attempts = 0
-		while True:
+		attempt = 1
+		while len(targets) == 0:
 			if platform.system() == "Windows":
 				mounts = os.listdrives()
 			elif platform.system() == "Linux":
@@ -140,19 +140,17 @@ class Recognizer:
 
 			# If zero kiosk images were found, let the user fix the error and try again.
 			if len(targets) == 0:
-				# Wait three seconds once so as to not force the user to hit Ctrl-C because we keep waiting too long.
-				if attempts == 1:
+				if attempt == 60:
+					# NOTE: Windows takes a little while to discover the medium, so we don't fail until one minute has passed.
 					raise KioskError("Unable to locate a known Linux installation medium")
-				attempts += 1
+				elif attempt == 1:
+					print("NOTE: Waiting at most one minute for installation media to be inserted and/or discovered by the host...")
+					print("NOTE: If you have not already done so, please insert the installation media to proceed.")
+					print()
+				attempt += 1
 
-				# NOTE: Windows takes a little while to discover the written image, so we try once more if we fail at first.
-				print("NOTE: Waiting three seconds for installation media to be discovered by the host operating system...")
-				print("NOTE: If you have not already done so, please insert the installation media to proceed.")
-				print()
-				time.sleep(3)
+				time.sleep(1)
 				continue
-
-			break
 
 		return targets
 
