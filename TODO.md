@@ -38,6 +38,7 @@ snap connect chromium:wayland
 - [ ] 2025.07.07.07.21 H Change the application model so that `KioskConfig.py` does the majority of the work on every boot
                          (thus allowing dynamic reconfiguration simply by editing or uploading a new `KioskForge.kiosk` file).
                          This would mean that `KioskConfig.py` should redact the kiosk if not yet redacted.
+                         This would make it possible to automatically update KioskForge itself without reforging each kiosk.
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific things at boot, not while forging.
 - [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
                          `pylintrc.toml` afterwards.
