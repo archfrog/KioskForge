@@ -44,7 +44,7 @@ class KioskUpdate(KioskDriver):
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
 
-	def snap_cleanup(self) -> None:
+	def snap_cleanup(self, logger : Logger) -> None:
 		"""Removes all revisions of snaps to keep disk usage to the bare minimum."""
 		result = invoke_text("snap list --all --color=never --unicode=never")
 		if result.status != 0:
@@ -71,6 +71,7 @@ class KioskUpdate(KioskDriver):
 				continue
 
 			# Remove the old revision of the current snap.
+			logger.write(f"Removing old snap revision {revision} of snap {name}")
 			invoke_text_safe(f'snap remove "{name}" --revision="{revision}"')
 
 		# Empty the snap cache, this may grow to many gigabytes over time.
@@ -131,14 +132,15 @@ class KioskUpdate(KioskDriver):
 				invoke_text_safe("snap refresh --hold")
 
 			# Remove all disabled snaps (prior snap versions) and empty the snap cache.
-			self.snap_cleanup()
+			self.snap_cleanup(logger)
 
 			# Update apt package indices, upgrade all packages, and clean the apt cache (which may grow to many gigabytes in size).
 			# NOTE: Use 'AptAction' to get automatic waiting for the 'apt' lock file to be released.
 			# NOTE: We purge unused packages PRIOR to updating to ensure we've rebooted before doing this so as to not accidentally
 			# NOTE: purge a running kernel, which may have catastrophic consequences as far as I know.
-			# NOTE: Use "apt-get upgrade -y", not "apt-get dist-upgrade -y", to ensure that the system doesn't suddenly break down.
-			for command in ["apt-get autoremove --purge", "apt-get update", "apt-get upgrade -y", "apt-get clean"]:
+			# NOTE: Use "apt upgrade -y", not "apt-get dist-upgrade -y", to ensure that the system doesn't suddenly break down.
+			# NOTE: Use "apt upgrade -y", not "apt-get upgrade -y", because "apt-get" doesn't install new packages (incl. kernels).
+			for command in ["apt-get autoremove --purge", "apt-get update", "apt upgrade -y", "apt-get clean"]:
 				result = AptAction(f"Apt maintenance: {command}.", command).execute()
 				if result.status != 0:
 					logger.error(f"Apt failure executing '{command}': {result.output}")
