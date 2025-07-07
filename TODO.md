@@ -42,7 +42,7 @@ snap connect chromium:wayland
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific things at boot, not while forging.
 - [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
                          `pylintrc.toml` afterwards.
-- [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timer*s, which can solve the issue just as well or even better.
+- [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timers*, which can solve the issue just as well or even better.
 - [ ] 2025.07.07.01.08 M Consider making a `kiosk.py` script which allows various forms of administration: `reboot`, `shutdown`,
                          `status`, `report`, etc.
 - [ ] 2025.07.07.00.55 H Move *touch panel rotation* code from `KioskSetup.py` to `KioskConfig.py` so that it reflects changes
@@ -54,7 +54,7 @@ snap connect chromium:wayland
                          It appears to work with SSH logins only because `KioskStart.py` specifically ignores those.
                          Perhaps this can be solved using the output from the `tty` command?  I have found no solution to this yet.
                          Perhaps the `$PPID` shell variable can be used to determine the parent and see if it is launched by SSH,
-                         console or autologin?  Not very likely, just a tiny idea.
+                         console or autologin?  Not very likely, just a tiny idea.  Probably need to use `pstree` or something.
 - [ ] 2025.07.05.14.40 H Create generalized `WaitForEvent` class that can be used when waiting for network and for microSD.  It
                          should follow the pattern of the current "wait for network" code (60 seconds, one second interval).
 - [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
