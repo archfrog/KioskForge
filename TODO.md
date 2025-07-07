@@ -33,6 +33,20 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
+                         `pylintrc.toml` afterwards.
+- [ ] 2025.07.07.01.58 U Security issue: The user's and Wi-Fi password is stored in plaintext in `KioskForge/KioskForge.kiosk`...
+- [ ] 2025.07.07.01.27 H Verify that `journalctl -b -u init.scope -o short-monotonic --no-pager` does not complain about access
+                         rights for the `KioskConfig` service.
+- [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timer*s, which can solve the issue just as well or even better.
+- [ ] 2025.07.07.01.08 M Consider making a `kiosk.py` script which allows various forms of administration: `reboot`, `shutdown`,
+                         `status`, `report`, etc.
+- [ ] 2025.07.07.00.55 H Move *touch panel rotation* code from `KioskSetup.py` to `KioskConfig.py` so that it reflects changes
+                         made to the users `.kiosk` file in the already forged kiosk.  This avoids a new forge process (lengthy).
+                         This requires the `kioskforge-configure` service to run `Before=getty@tty1` so that it is done when X starts.
+- [ ] 2025.07.06.23.28 H Rename *all* services (in `KioskForge.py` and `KioskSetup.py`) to `kiosk-...` to be comply with `systemd`.
+- [ ] 2025.07.06.23.16 H `KioskConfig.py` has no effect when launched from `/etc/rc.local`, probably because the devices aren't
+                         ready yet.  Solution: Make **censored** `systemd` accept and run my service that runs `KioskConfig.py`.
 - [ ] 2025.07.05.15.10 H Fix the problem that `KioskStart.py` is started in too many cases; on keyboard login, it should not start.
                          It appears to work with SSH logins only because `KioskStart.py` specifically ignores those.
                          Perhaps this can be solved using the output from the `tty` command?  I have found no solution to this yet.
