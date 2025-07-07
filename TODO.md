@@ -33,19 +33,22 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid:
+                         It is very difficult to explain to the end-user what to do and why this is so as it is presently.
+- [ ] 2025.07.07.07.21 H Change the application model so that `KioskConfig.py` does the majority of the work on every boot
+                         (thus allowing dynamic reconfiguration simply by editing or uploading a new `KioskForge.kiosk` file).
+                         This would mean that `KioskConfig.py` should redact the kiosk if not yet redacted.
+- [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific things at boot, not while forging.
 - [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
                          `pylintrc.toml` afterwards.
-- [ ] 2025.07.07.01.27 H Verify that `journalctl -b -u init.scope -o short-monotonic --no-pager` does not complain about access
-                         rights for the `KioskConfig` service.
 - [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timer*s, which can solve the issue just as well or even better.
 - [ ] 2025.07.07.01.08 M Consider making a `kiosk.py` script which allows various forms of administration: `reboot`, `shutdown`,
                          `status`, `report`, etc.
 - [ ] 2025.07.07.00.55 H Move *touch panel rotation* code from `KioskSetup.py` to `KioskConfig.py` so that it reflects changes
                          made to the users `.kiosk` file in the already forged kiosk.  This avoids a new forge process (lengthy).
                          This requires the `kioskforge-configure` service to run `Before=getty@tty1` so that it is done when X starts.
-- [ ] 2025.07.06.23.28 H Rename *all* services (in `KioskForge.py` and `KioskSetup.py`) to `kiosk-...` to be comply with `systemd`.
-- [ ] 2025.07.06.23.16 H `KioskConfig.py` has no effect when launched from `/etc/rc.local`, probably because the devices aren't
-                         ready yet.  Solution: Make **censored** `systemd` accept and run my service that runs `KioskConfig.py`.
+- [ ] 2025.07.06.23.28 H Rename *all* services (in `KioskForge.py` and `KioskSetup.py`) to `kiosk-...` to be comply with `systemd`
+                         (and `pylint`, which prefers Python scripts to be named using all lowercase).
 - [ ] 2025.07.05.15.10 H Fix the problem that `KioskStart.py` is started in too many cases; on keyboard login, it should not start.
                          It appears to work with SSH logins only because `KioskStart.py` specifically ignores those.
                          Perhaps this can be solved using the output from the `tty` command?  I have found no solution to this yet.
@@ -54,7 +57,7 @@ snap connect chromium:wayland
 - [ ] 2025.07.05.14.40 H Create generalized `WaitForEvent` class that can be used when waiting for network and for microSD.  It
                          should follow the pattern of the current "wait for network" code (60 seconds, one second interval).
 - [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
-- [ ] 2025.07.03.06.54 H Eliminate the `kiosklog` Bash function and introduce `KioskStatus.py` to check and display system status:
+- [ ] 2025.07.03.06.54 H Eliminate the `kiosklog` Bash function and introduce `kiosk-status.py` to check and display system status:
                              1. Is X11 running?
                              2. Is Chromium running?
                              3. Is there sufficient free disk space?
@@ -62,11 +65,11 @@ snap connect chromium:wayland
 - [ ] 2025.07.03.06.44 H Find a way to exit the open autologin session that is left behind by `killall Xorg` in `KioskUpdate.py`.
                          This is not a very serious issue as `KioskUpdate.py` either powers off or reboots the system.
                          Beware: If I manually type `exit`, `systemd` relaunches the autologin process and X11 and Chromium start.
-- [ ] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid.
 - [ ] 2025.07.01.09.13 H Switch from .ini-style kiosk files to toml-style kiosk files.  The latter is more flexible.  Useful?
                          At the very least, begin using sections: `[Chromium]` for Chromium-related options and so forth.
 - [ ] 2025.06.26.18.18 H Make feature to automatically copy project files from an USB key.  This for large videos and so on.
                          This could happen on every boot using `rsync` to synchronize the changes.
+                         This is rather complex as it probably requires automounting the USB key, syncing, and then dismounting it.
 - [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
 - [ ] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?).
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
@@ -81,7 +84,6 @@ snap connect chromium:wayland
                          https://chromewebstore.google.com/detail/kiosk-extension/hbpkaaahpgfafhefiacnndahmanhjagi?hl=en
                          https://greasyfork.org/en/scripts/487498-useless-things-series-blur-screen-after-idle/code
 - [ ] 2025.04.09.11.03 H Eliminate the use of `pactl`, use `wpctl` instead (by parsing the output of `wpctl status --name`).
-- [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific thing at boot, not while forging.
 - [ ] 2025.04.09.11.00 H Test the absense of a network connection by using a cable while forging the box and an invalid Wi-Fi.
 - [ ] 2025.04.07.09.39 H The setup program suggests `C:\Program Files\KioskForge` even on a Danish Windows...  Inno setup is to
                          blame.  Apparently, it doesn't support a localized `Program Files` name.  Perhaps a `.msi` installer is
@@ -110,7 +112,6 @@ snap connect chromium:wayland
                          The AUTOSTART code is not implemented in the Subiquity (AutoInstall) writer, so this is broken by now.
 - [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled (???).
-- [ ] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value.
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2025.03.16.03.31 H GUI: Make the Kiosk configuration reader and writer handle multi-line text lines for the `comment` field.
@@ -176,6 +177,11 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value (ELIMINATED).
+- [x] 2025.07.06.23.16 H `KioskConfig.py` has no effect when launched from `/etc/rc.local`, probably because the devices aren't
+                         ready yet.  Solution: Make **censored** `systemd` accept and run my service that runs `KioskConfig.py`.
+- [x] 2025.07.07.01.27 H Verify that `journalctl -b -u init.scope -o short-monotonic --no-pager` does not complain about access
+                         rights for the `KioskConfig` service.
 - [x] 2025.07.07.01.58 U Security issue: The user's and Wi-Fi password is stored in plaintext in `KioskForge/KioskForge.kiosk`...
 - [x] 2025.07.05.04.07 H Figure out why `wifi_boost` only works while forging the kiosk.  This is now part of `KioskStart.py`.
 - [x] 2025.07.03.07.06 H Figure out why the kiosk power-save-disable script isn't applied when rebooting (more than once?).
