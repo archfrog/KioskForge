@@ -28,7 +28,14 @@ from toolbox.errors import KioskError
 
 def file_wipe_once(path : str) -> None:
 	"""Wipes a file once in-place by writing all zeroes to it.  This is adequate for non-professional snoopers only."""
-	handle = os.open(path, os.O_WRONLY | os.O_BINARY)
+
+	# Compute open mode and open the file while bypassing Python built-in 'open' function which creates or truncates the file.
+	mode = os.O_WRONLY
+	if sys.platform == "windows":
+		mode |= os.O_BINARY
+		mode |= os.O_SEQUENTIAL
+	handle = os.open(path, mode)
+	del mode
 	if handle == -1:
 		raise OSError(errno.errorcode, "Unable to open file for wiping: " + path, path)
 
