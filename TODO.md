@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.07.10.58 H Fix the problem that `cups` appears to be reinstalled when doing `snap refresh`.
 - [ ] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid:
                          It is very difficult to explain to the end-user what to do and why this is so as it is presently.
 - [ ] 2025.07.07.07.21 H Change the application model so that `KioskConfig.py` does the majority of the work on every boot
