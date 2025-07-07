@@ -78,12 +78,10 @@ class KioskReport(KioskDriver):
 			filename = "Kiosk.kiosk"
 			kiosk = Kiosk(self.version)
 			kiosk.load_safe(logger, "KioskForge/KioskForge.kiosk")
-			for field in ["comment", "user_name", "user_code", "wifi_name", "wifi_code", "ssh_key"]:
-				kiosk.assign(field, "REDACTED")
+			kiosk.redact_report()
 			kiosk.save(filename)
 			include.append(filename)
 			cleanup.append(filename)
-			del field
 			del filename
 
 			# Create journalctl-kiosk-events.log by extracting kiosk-related information from journalctl.

@@ -817,9 +817,6 @@ class KioskForge(KioskDriver):
 		# Create KioskForge folder on the installation medium.
 		os.makedirs(output)
 
-		# Write configuration to the target.
-		kiosk.save(output + os.sep + "KioskForge.kiosk")
-
 		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
 		for name in SOURCES:
 			if os.path.isfile(origin + os.sep + name):
@@ -845,6 +842,12 @@ class KioskForge(KioskDriver):
 			shutil.copytree(source, destination)
 			del source
 			del destination
+
+		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
+		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the
+		# NOTE: 'KioskForge.kiosk' file that is created in the '~/user/KioskForge' folder by the 'KioskForge.py' script.
+		kiosk.redact_apply()
+		kiosk.save(output + os.sep + "KioskForge.kiosk")
 
 		# Report success to the log.
 		match platform.system():

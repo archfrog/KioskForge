@@ -35,7 +35,6 @@ snap connect chromium:wayland
 # TODO:
 - [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
                          `pylintrc.toml` afterwards.
-- [ ] 2025.07.07.01.58 U Security issue: The user's and Wi-Fi password is stored in plaintext in `KioskForge/KioskForge.kiosk`...
 - [ ] 2025.07.07.01.27 H Verify that `journalctl -b -u init.scope -o short-monotonic --no-pager` does not complain about access
                          rights for the `KioskConfig` service.
 - [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timer*s, which can solve the issue just as well or even better.
@@ -177,6 +176,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.07.07.01.58 U Security issue: The user's and Wi-Fi password is stored in plaintext in `KioskForge/KioskForge.kiosk`...
 - [x] 2025.07.05.04.07 H Figure out why `wifi_boost` only works while forging the kiosk.  This is now part of `KioskStart.py`.
 - [x] 2025.07.03.07.06 H Figure out why the kiosk power-save-disable script isn't applied when rebooting (more than once?).
                          It has run and it works when run manually, so move this code to `KioskStart.py` to ensure it works.

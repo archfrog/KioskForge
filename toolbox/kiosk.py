@@ -18,6 +18,9 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
+from typing import List
+
 from toolbox.convert import KEYBOARDS
 from toolbox.locales import LOCALES
 from toolbox.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
@@ -549,3 +552,20 @@ class Kiosk(Fields):
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
 		self += OptionalStringField("user_options", "", USER_OPTIONS_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
+
+	def redact(self, fields : List[str]) -> None:
+		"""
+			Redacts the specified fields in the kiosk by replacing their values with 'REDACTED'.
+
+			NOTE: Be careful to NOT use any of the redacted fields after they have been set to 'REDACTED'!
+		"""
+		for field in fields:
+			self.assign(field, "REDACTED")
+
+	def redact_apply(self) -> None:
+		"""Redacts the kiosk for use by the 'KioskForge.py' script when it writes the kiosk to the installation medium."""
+		self.redact(["user_name", "user_code", "wifi_name", "wifi_code"])
+
+	def redact_report(self) -> None:
+		"""Redacts the kiosk for use by the 'KioskReport.py' script when it includes the redacted kiosk in the Zip archive."""
+		self.redact(["comment", "user_name", "user_code", "wifi_name", "wifi_code", "ssh_key"])
