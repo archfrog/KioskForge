@@ -18,9 +18,55 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import errno
+import io
 import os
+import sys
 
 from toolbox.errors import KioskError
+
+
+def file_wipe_once(path : str) -> None:
+	"""Wipes a file once in-place by writing all zeroes to it.  This is adequate for non-professional snoopers only."""
+	handle = os.open(path, os.O_WRONLY | os.O_BINARY)
+	if handle == -1:
+		raise OSError(errno.errorcode, "Unable to open file for wiping: " + path, path)
+
+	try:
+		# Fetch stat bits from handle.
+		status = os.fstat(handle)
+		length = status.st_size
+
+		# Linux only: Fetch the underlying block size to speed op the operation as much as possible.
+		if sys.platform == "linux":
+			buffer = bytearray(status.st_blksize)
+		else:
+			buffer = bytearray(io.DEFAULT_BUFFER_SIZE)
+		del status
+
+		offset = 0
+		while offset < length:
+			# Compute how many bytes we will write in this block.
+			extent = min(len(buffer), length - offset)
+
+			# Attempt to write 'extent' zero bytes to the output file.
+			output = os.write(handle, buffer[:extent])
+			if output < extent:
+				raise OSError(errno.errorcode, "Unable to wipe file: " + path, path)
+
+			# Flush the written zero bytes to disk before continuing.
+			os.fsync(handle)
+
+			# Advance to end or next block.
+			offset += extent
+	finally:
+		os.close(handle)
+
+def file_wipe_multiple(path : str, count : int = 10) -> None:
+	"""Wipes a file, in-place, with all zeroes multiple times.  This is almost good enough to handle professional snoopers."""
+	# pylint: disable-next=unused-variable
+	for index in range(count):
+		file_wipe_once(path)
 
 def ramdisk_get() -> str:
 	"""Returns the normalized value of the RAMDISK environment variable or raises a KioskError exception if not found."""
