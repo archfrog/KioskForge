@@ -28,7 +28,7 @@ from typing import Optional
 import os
 import shutil
 
-SIGNAL_PREFIX  = "/tmp/KioskForge"
+SIGNAL_PREFIX  = "/tmp"
 SIGNAL_SUFFIX  = ".signal"
 TEMP_EXTENSION = ".tmp"
 
@@ -42,11 +42,6 @@ class Signal:
 		self.__path  = SIGNAL_PREFIX + os.sep + name + SIGNAL_SUFFIX
 		self.__owner = owner
 		self.__group = group or owner
-
-		# Create a directory for the KioskForge signal files and give it user access so that only root and the user can access it.
-		if not os.path.isdir(SIGNAL_PREFIX):
-			os.makedirs(SIGNAL_PREFIX, mode=0o700, exist_ok=False)
-			shutil.chown(SIGNAL_PREFIX, self.__owner, self.__group)
 
 	@property
 	def exists(self) -> bool:
