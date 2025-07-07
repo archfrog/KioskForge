@@ -143,10 +143,13 @@ class Recognizer:
 				if attempt == 60:
 					# NOTE: Windows takes a little while to discover the medium, so we don't fail until one minute has passed.
 					raise KioskError("Unable to locate a known Linux installation medium")
-				elif attempt == 1:
+
+				if attempt == 1:
+					# Output note to the end-user about KioskForge.py waiting for the user and/or operating system to react.
 					print("NOTE: Waiting at most one minute for installation media to be inserted and/or discovered by the host...")
 					print("NOTE: If you have not already done so, please insert the installation media to proceed.")
 					print()
+
 				attempt += 1
 
 				time.sleep(1)
