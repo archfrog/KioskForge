@@ -115,6 +115,7 @@ class KioskOpenbox(KioskDriver):
 			command += "--overscroll-history-navigation=disabled"
 			command += "--disable-features=TouchpadOverscrollHistoryNavigation"
 			command += "--overscroll-history-navigation=0"
+			command += "--touch-events=enabled"
 			command += "--disable-restore-session-state"
 			command += "--disable-infobars"
 			command += "--disable-crashpad"
