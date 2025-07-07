@@ -224,9 +224,11 @@ class KioskSetup(KioskDriver):
 		)
 
 		# Create '~/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
-		script += CreateTextAction(
+		script += CreateTextWithUserAndModeAction(
 			"Creating ~/.hushlogin to reduce amount of text displayed during automatic login.",
 			f"{os.path.dirname(origin)}/.hushlogin",
+			kiosk.user_name.data,
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			""
 		)
 
@@ -272,22 +274,39 @@ class KioskSetup(KioskDriver):
 			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 
 		# Run 'KioskConfig.py' to ensure Wi-Fi is boosted for the many downloads that follow below (if the user has enabled it).
-		script += ExternalAction("Configure audio level and Wi-Fi boost (if applicable).", origin + os.sep + "KioskConfig.py")
+		script += ExternalAction("Configuring kiosk hardware (if applicable).", origin + os.sep + "KioskConfig.py")
 
-		# Run 'KioskConfig.py' on every boot by (ab-)using '/etc/rc.local'.
-		# NOTE: Let the user know that I am abusing '/etc/rc.local' so that he/she can report it if it causes him/her problems.
+		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()
-		lines += "#/usr/bin/bash"
-		lines += "# Configure the kiosk according to the user's '.kiosk' configuration file."
-		lines += f"{origin}/KioskConfig.py"
+		lines += "[Unit]"
+		lines += "Description=KioskForge kiosk configuration"
+		lines += "Before=multi-user.target"
+		lines += "After=network-online.target"
+		lines += "Wants=network-online.target"
+		lines += ""
+		lines += "[Service]"
+		lines += "Type=oneshot"
+		lines += "Restart=no"
+		# NOTE: This line should SUPPOSEDLY make 'KioskConfig.py' only be invoked once, but it is in fact invoked at least twice.
+		# NOTE: I have spent hours on 'systemd' (the most crazily, insanely complex piece of software in the Linux world), but
+		# NOTE: I haven't been able to make 'KioskConfig.py' only run once as is the intention and purpose of it.
+		lines += "RemainAfterExit=yes"
+		lines += "ExecStart="
+		lines += f"ExecStart={origin}/KioskConfig.py"
+		lines += ""
+		lines += "[Install]"
+		lines += "WantedBy=graphical.target"
 		script += CreateTextWithUserAndModeAction(
-			"Configure system automatically on every boot using '/etc/rc.local'.",
-			"/etc/rc.local",
+			"Configure kiosk automatically on every boot using a systemd service.",
+			"/usr/lib/systemd/system/KioskConfig.service",
 			"root",
-			stat.S_IRUSR | stat.S_IWUSR,
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
 			lines.text
 		)
 		del lines
+
+		# Enable 'KioskConfig' service so that it runs on every boot to automatically configure the kiosk according to its setup.
+		script += ExternalAction("Enabling KioskConfig service.", "systemctl enable KioskConfig.service")
 
 		# Uninstall package unattended-upgrades as I couldn't get it to work even after spending many hours on it.
 		# NOTE: Remove unattended-upgrades early on as it likes to interfere with APT and the package manager.
@@ -509,12 +528,13 @@ class KioskSetup(KioskDriver):
 			lines += f"User={kiosk.user_name.data}"
 			lines += "PAMName=login"
 			lines += "TTYPath=/dev/tty1"
+			lines += "ExecStart="
 			lines += "ExecStart=/usr/bin/systemctl --user start --wait user-session.target"
 			script += CreateTextWithUserAndModeAction(
 				"Creating global systemd script to allocate a session for the user.",
 				"/usr/lib/systemd/system/user-session.service",
 				"root",
-				stat.S_IRUSR | stat.S_IWUSR,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
 				lines.text
 			)
 			del lines
@@ -523,11 +543,12 @@ class KioskSetup(KioskDriver):
 			# Create systemd service to run Ubuntu Frame under the kiosk user.
 			lines  = TextBuilder()
 			lines += "[Unit]"
-			lines += "Description=KioskForge (Ubuntu Frame launcher)"
+			lines += "Description=KioskForge Ubuntu Frame launcher"
 			lines += "Before=xdg-desktop-autostart.target"
 			lines += "BindsTo=graphical-session.target"
 			lines += "[Service]"
 			lines += "ExecStartPre=/usr/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY=wayland-0"
+			lines += "ExecStart="
 			lines += "ExecStart=/snap/bin/ubuntu-frame"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Ubuntu Frame.",
@@ -542,9 +563,10 @@ class KioskSetup(KioskDriver):
 			# Create systemd service to launch Chromium.
 			lines  = TextBuilder()
 			lines += "[Unit]"
-			lines += "Description=KioskForge (Chromium launcher)"
+			lines += "Description=KioskForge Chromium launcher"
 			lines += "After=ubuntu-frame.service"
 			lines += "[Service]"
+			lines += "ExecStart="
 			lines += f"ExecStart=/snap/bin/chromium --kiosk '{kiosk.command.data}'"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Chromium.",
@@ -559,7 +581,7 @@ class KioskSetup(KioskDriver):
 			# Start all of the above in one operation.
 			lines  = TextBuilder()
 			lines += "[Unit]"
-			lines += "Description=KioskForge (Chromium launcher)"
+			lines += "Description=KioskForge Chromium launcher"
 			lines += "Wants=ubuntu-frame.service chromium.service"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Chromium.",
@@ -576,7 +598,7 @@ class KioskSetup(KioskDriver):
 			lines += ""
 			lines += "# Start the kiosk by invoking 'KioskStart.py', which decides if it wants to run now or not."
 			# NOTE: Don't use 'set -e', it logs out whenever an error occurs in the logged in SSH session...
-			lines += f"\t{origin}/KioskStart.py"
+			lines += f"{origin}/KioskStart.py"
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
 			script += AppendTextAction(
@@ -586,14 +608,14 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
-			# Set up automatic login for the named user.
+			# Set up automatic login for the named user using systemd.
 			lines  = TextBuilder()
 			lines += "[Service]"
 			lines += "ExecStart="
 			lines += f"ExecStart=-/sbin/agetty --noissue --autologin {kiosk.user_name.data} %I $TERM"
 			lines += "Type=simple"
 			script += CreateTextWithUserAndModeAction(
-				"Creating systemd auto-login override.",
+				"Creating systemd auto-login override to log in the user and start the graphical desktop environment.",
 				"/etc/systemd/system/getty@tty1.service.d/override.conf",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR,
@@ -604,9 +626,8 @@ class KioskSetup(KioskDriver):
 #			# NOTE: I never did manage to get the systemd service to even start up (I've stopped playing with it for now).
 #			lines  = TextBuilder()
 #			lines += "[Unit]"
-#			lines += "Description=KioskForge (Kiosk launcher)"
+#			lines += "Description=KioskForge kiosk launcher"
 #			lines += "After=network-online.target"
-#			lines += "After=cloud-init.target"
 #			lines += "After=multi-user.target"
 #			lines += ""
 #			lines += "[Service]"
@@ -619,7 +640,7 @@ class KioskSetup(KioskDriver):
 #			lines += "StandardError=tty"
 #			lines += ""
 #			lines += "[Install]"
-#			lines += "WantedBy=cloud-init.target"
+#			lines += "WantedBy=multi-user.target"
 #			script += CreateTextWithUserAndModeAction(
 #				"Creating systemd kiosk service.",
 #				"/usr/lib/systemd/system/kiosk.service",
