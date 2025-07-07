@@ -1,8 +1,9 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
-## Version 0.23 (2025.07.03)
-1. The very serious `snap` VFS corruption issue (in long-running kiosks) has now, hopefully, been fixed.
+## Version 0.23 (2025.07.07)
+1. The very serious `snap` VFS corruption issue (in long-running kiosks) has now, hopefully, been fixed (I could not recreate the
+   issue despite having both a Pi4B and a Pi5 trying to recreate it for two days, upgrading and rebooting every two minutes).
 2. Fixed an issue with wrong casing of `wifi_country` values by forcing the value to be written in uppercase only (`us` => `US`).
 3. KioskForge now waits for at most one minute to provide time to insert the installation medium.
 4. The KioskForge Setup program now creates a `Start` menu group, which contains links to the various documentation files and to a
