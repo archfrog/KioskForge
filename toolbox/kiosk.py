@@ -339,12 +339,12 @@ During the upgrade, the following things take place:
 2. If there is no network access, the system upgrade skips to step 7.
 3. Snaps are upgraded.
 4. Snap's excessive disk usage is reduced to the bare minimum.
-5. Ubuntu's apt package manager packages are upgraded.
-6. The apt repository is emptied so as to not take up disk space.
+5. The apt repository is emptied so as to not take up disk space.
+6. Ubuntu's apt package manager packages are upgraded.
 7. The system is rebooted or powered off according to 'upgrade_post'.
 
 Please notice that the maintenance process gracefully handles lack of
-internet.  In that case, no upgrades will be attemped downloaded.
+internet.  In that case, no upgrades will performed.
 """.strip()
 
 
