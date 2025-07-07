@@ -155,6 +155,7 @@ class KioskSetup(KioskDriver):
 
 		# Wipe and delete '/boot/firmware/network-data' to be sure no thief/hacker later gets access to the Wi-Fi code in it.
 		# NOTE: We run AFTER cloud-init/Subiquity has finished their tasks, so it is safe to remove a cloud-init file.
+		# NOTE: This step is almost meaningless as the password is also available in /etc/netplan/50-* (can only be read by root).
 		wifi_password_file = "/boot/firmware/network-data"
 		if os.path.isfile(wifi_password_file):
 			file_wipe_once(wifi_password_file)
