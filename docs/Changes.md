@@ -23,6 +23,7 @@ This document presents the important changes made to each KioskForge release fro
     `wifi_boost` is `True`.  This fixes the issue that Wi-Fi power saving was only disabled during the boot that forged the kiosk,
     not during subsequent boots.
 14. The `KioskSetup.py` script now takes an optional one-based step number, rather than the previous zero-based step number.
+15. The kiosk no longer displays its LAN IP address on every boot (only on the first boot while the kiosk is being forged).
 
 ## Version 0.22 (2025.06.25)
 1. The option `user_options` has been added.  This allows the user to specify additional options to Google Chrome.  The most
