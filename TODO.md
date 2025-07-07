@@ -179,6 +179,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.07.07.11.43 H Remove the display of "LAN IP" in `KioskStart.py` - the end-user does not need to accidentally know this.
 - [x] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value (ELIMINATED).
 - [x] 2025.07.06.23.16 H `KioskConfig.py` has no effect when launched from `/etc/rc.local`, probably because the devices aren't
                          ready yet.  Solution: Make **censored** `systemd` accept and run my service that runs `KioskConfig.py`.
