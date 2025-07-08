@@ -61,7 +61,7 @@ Source: "..\tmp\FAQ.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\Guide.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\Manual.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion; Attribs: readonly
+Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
