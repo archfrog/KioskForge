@@ -76,6 +76,7 @@ class KioskUpdate(KioskDriver):
 
 		# Empty the snap cache, this may grow to many gigabytes over time.
 		for file in glob.glob("/var/lib/snapd/cache/*"):
+			logger.write(f"Removing snap cache item {file}")
 			os.unlink(file)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
@@ -130,6 +131,10 @@ class KioskUpdate(KioskDriver):
 			finally:
 				# Stop snapd from upgrading automatically so it doesn't upgrade randomly (done first in 'KioskSetup.py').
 				invoke_text_safe("snap refresh --hold")
+
+			# Try to uninstall cups in case it got installed again by a refresh of the Chromium snap.
+			# NOTE: We simply ignore the return value, an instance of 'Result', as we're happy if it fails and if it succeeds.
+			invoke_text("snap remove --purge cups")
 
 			# Remove all disabled snaps (prior snap versions) and empty the snap cache.
 			self.snap_cleanup(logger)
