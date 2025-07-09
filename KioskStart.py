@@ -32,7 +32,6 @@ from toolbox.errors import CommandError, KioskError
 from toolbox.invoke import invoke_list_safe, invoke_text_safe
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
-from toolbox.network import lan_ip_address
 from toolbox.signal import Signal
 from toolbox.various import screen_clear
 
