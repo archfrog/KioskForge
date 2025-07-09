@@ -212,7 +212,7 @@ class KioskBuild(KioskDriver):
 			words += "--standalone"
 
 			# Specify HTML file with CSS to use for the conversion.
-			words += "--include-before-body=build/pandoc-styles.html"
+			words += "--include-in-header=build/pandoc-styles.html"
 
 			# Add a <br> tag after the body to stop Pandoc from terminating the page right after the last sentence (looks ugly).
 			words += "--include-after-body=build/pandoc-footer.html"
