@@ -52,11 +52,11 @@ When you want to display a local website using your new kiosk, you especially ha
 | Comment          | `comment`         | A description of the kiosk and its purpose (for your records).                           |
 | Device type      | `device`          | The device model: `pi4b` or `pi5`.                                                       |
 | Sound card       | `sound_card`      | This should be set to `none` as pictures don't include sound.                            |
-| Mouse cursor     | `mouse`           | This should be disabled (`False`) to hide the mouse cursor.                              |
+| Mouse cursor     | `mouse`           | This should be disabled (`false`) to hide the mouse cursor.                              |
 | Idle timeout     | `idle_timeout`    | This should be set to zero as the user will not be able to navigate away from your site. |
 | User folder      | `user_folder`     | Set to the location, on the host machine, of the folder with the website.                |
-| CPU overclocking | `cpu_boost`       | This could well be disabled (`False`) as displaying images doesn't require too much CPU. |
-| Wi-Fi boost      | `wifi_boost`      | This should probably be disabled (`False`) as local websites require no LAN access.      |
+| CPU overclocking | `cpu_boost`       | This could well be disabled (`false`) as displaying images doesn't require too much CPU. |
+| Wi-Fi boost      | `wifi_boost`      | This should probably be disabled (`false`) as local websites require no LAN access.      |
 
 [^1]: The `command` option is a bit peculiar.  You need to specify a `file://` URL to tell Chromium that it is displaying local
 files.  The URL needs to be *carefully* specified as the kiosk will fail to display anything if it is wrong.  Let's say that you've
