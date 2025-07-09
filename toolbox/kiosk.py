@@ -74,16 +74,14 @@ power to process complex websites and display these.
 DEVICE_HELP = """
 Specifies the hardware type of the kiosk.  Valid values are:
 
-1. pi4b: Raspberry Pi 4B with at least 2 GB RAM.
-2. pi5 : Raspberry Pi 5 with at least 2 GB RAM.
-3. pc  : IBM PC compatible machine with at least 4 GB RAM.
+    pi4b: Raspberry Pi 4B with at least 2 GB RAM.
+    pi5 : Raspberry Pi 5 with at least 2 GB RAM.
 
 This setting affects the 'sound_card' and 'cpu_boost' field as follows:
 
 1. 'sound_card' depends entirely on the target device type.  See the
    'sound_card' field for more information.
-2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.  PCs
-    commonly adjust their CPU's speed dynamically depending on load.
+2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.
 """.strip()
 
 
@@ -216,11 +214,10 @@ touch panel) and screens with a touch panel.
 SOUND_CARD_HELP = """
 The sound card to use, if any.
 
-This depends entirely on the target system:
+This available sound cards depends entirely on the target system:
 
-1. pi4b: none, jack, hdmi1, or hdmi2.
-2. pi5 : none, hdmi1, or hdmi2.
-3. pc  : none or ???.
+    pi4b: none, jack, hdmi1, or hdmi2.
+    pi5 : none, hdmi1, or hdmi2.
 
 If you don't need any audio in your kiosk, you should use the value 'none'.
 
@@ -520,7 +517,7 @@ class Kiosk(Fields):
 
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
 		self += OptionalStringField("comment", "", COMMENT_HELP)
-		self += ChoiceField("device", "pi4b", DEVICE_HELP, ["pi4b", "pi5", "pc"])
+		self += ChoiceField("device", "pi4b", DEVICE_HELP, ["pi4b", "pi5"])
 		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web", "web-wayland"])
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += OptionalRegexField("hostname", "", HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")

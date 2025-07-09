@@ -33,22 +33,20 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.07.07.10.58 H Fix the problem that `cups` appears to be reinstalled when doing `snap refresh`.
-- [ ] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid:
-                         It is very difficult to explain to the end-user what to do and why this is so as it is presently.
+- [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow remove updates of the KioskForge folder in a kiosk.
+- [ ] 2025.07.09.05.55 H Before going public: Consider the name and purpose of each `Kiosk*.py` script and rename it accordingly.
+- [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
+                         2025.07.09.05.50: Chromium now *requires* the option `--touch-events=enabled` to use a touch screen
+	properly.  Perhaps these two options could be merged, somehow, and used to enable/disable touch support?
 - [ ] 2025.07.07.07.21 H Change the application model so that `KioskConfig.py` does the majority of the work on every boot
                          (thus allowing dynamic reconfiguration simply by editing or uploading a new `KioskForge.kiosk` file).
                          This would mean that `KioskConfig.py` should redact the kiosk if not yet redacted.
                          This would make it possible to automatically update KioskForge itself without reforging each kiosk.
 - [ ] 2025.04.09.11.02 H Make KioskForge much more flexible by configuring most system-specific things at boot, not while forging.
-- [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
-                         `pylintrc.toml` afterwards.
-- [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timers*, which can solve the issue just as well or even better.
-- [ ] 2025.07.07.01.08 M Consider making a `kiosk.py` script which allows various forms of administration: `reboot`, `shutdown`,
-                         `status`, `report`, etc.
 - [ ] 2025.07.07.00.55 H Move *touch panel rotation* code from `KioskSetup.py` to `KioskConfig.py` so that it reflects changes
                          made to the users `.kiosk` file in the already forged kiosk.  This avoids a new forge process (lengthy).
-                         This requires the `kioskforge-configure` service to run `Before=getty@tty1` so that it is done when X starts.
+                         This requires that the `kioskforge-configure` service to run `Before=multi-user.target` (?) so that it is
+                         done when X starts.
 - [ ] 2025.07.06.23.28 H Rename *all* services (in `KioskForge.py` and `KioskSetup.py`) to `kiosk-...` to be comply with `systemd`
                          (and `pylint`, which prefers Python scripts to be named using all lowercase).
 - [ ] 2025.07.05.15.10 H Fix the problem that `KioskStart.py` is started in too many cases; on keyboard login, it should not start.
@@ -56,9 +54,7 @@ snap connect chromium:wayland
                          Perhaps this can be solved using the output from the `tty` command?  I have found no solution to this yet.
                          Perhaps the `$PPID` shell variable can be used to determine the parent and see if it is launched by SSH,
                          console or autologin?  Not very likely, just a tiny idea.  Probably need to use `pstree` or something.
-- [ ] 2025.07.05.14.40 H Create generalized `WaitForEvent` class that can be used when waiting for network and for microSD.  It
-                         should follow the pattern of the current "wait for network" code (60 seconds, one second interval).
-- [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all (PC/PI4/PI5), it doesn't on PI4.  If not, don't do it.
+- [ ] 2025.07.03.07.15 H Determine if NTP needs to be enabled at all for PI4/PI5 - it doesn't on PI4.  If not, don't do it.
 - [ ] 2025.07.03.06.54 H Eliminate the `kiosklog` Bash function and introduce `kiosk-status.py` to check and display system status:
                              1. Is X11 running?
                              2. Is Chromium running?
@@ -73,7 +69,6 @@ snap connect chromium:wayland
                          This could happen on every boot using `rsync` to synchronize the changes.
                          This is rather complex as it probably requires automounting the USB key, syncing, and then dismounting it.
 - [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
-- [ ] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?).
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
@@ -110,10 +105,6 @@ snap connect chromium:wayland
                             8. A method of diffing any multi-module configuration to determine what needs to be undone.
                          Furthermore, it would be *awesome* if modules could be tested easily from scripts or the prompt.
 - [ ] 2025.01.29.xx.xx H Make most steps in the setup process optional as not all users need every step.
-- [ ] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
-                         The AUTOSTART code is not implemented in the Subiquity (AutoInstall) writer, so this is broken by now.
-- [ ] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
-- [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled (???).
 - [ ] 2025.02.27.16.48 H Make the configuration include information on what operating system image is being used.  This to allow
                          full reproducibility of already deployed kiosks.  Upgrading cfgs can be done with `sed` or an editor.
 - [ ] 2025.03.16.03.31 H GUI: Make the Kiosk configuration reader and writer handle multi-line text lines for the `comment` field.
@@ -124,6 +115,11 @@ snap connect chromium:wayland
                          This to provide a visual clue on which fields are optional and which are not.
 - [ ] 2024.11.12.12.47 H Wrap all I/O operations in suitable `try`/`except` statements to avoid crashes on I/O errors.
 - [ ] 2025.04.07.03.01 H Add full support for IPv6.  Some users will likely need this, eventually.
+- [ ] 2025.07.07.03.45 M Fix the `too-many-statements` error issued by `pylint` and remove the `disable=too-many-statements` in
+                         `pylintrc.toml` afterwards.
+- [ ] 2025.07.07.01.25 M Stop using `cron`, `systemd` supports *timers*, which can solve the issue just as well or even better.
+- [ ] 2025.07.07.01.08 M Consider making a `kiosk.py` script which allows various forms of administration: `reboot`, `shutdown`,
+                         `status`, `report`, etc.
 - [ ] 2025.07.05.09.06 M See if we can't reduce the output from cloud-init and X11 further (the screen gets half full of text).
 - [ ] 2025.07.05.16.20 M Consider making a https API for controlling and examining a running kiosk.
 - [ ] 2025.07.05.16.20 M Consider making a locally deployable website for using the https API suggested above.
@@ -144,9 +140,9 @@ snap connect chromium:wayland
                          One solution is to always install `locales-all` and only do a `locale-gen` on `en_US.UTF8` and the user
                          language specified in the `.kiosk` file.
 - [ ] 2025.04.27.23.37 M What if the user needs both web and cli apps at the same time?  Need to think this through.
-- [ ] 2025.03.15.18.43 M GUI: Add tab for the target device (Raspberry Pi, PC), where overclocking (wifi, cpu) can be configured.
-- [ ] 2025.03.16.06.07 M GUI: Add option to control overclocking of RPI4 and RPI5.
-- [ ] 2025.03.09.09.55 M GUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
+- [ ] 2025.03.15.18.43 M TUI: Add tab for the target device (Raspberry Pi 4B/5), where overclocking (wifi, cpu) can be configured.
+- [ ] 2025.03.16.06.07 M TUI: Add option to control overclocking of PI4 and PI5 (overclocking the latter is not yet supported).
+- [ ] 2025.03.09.09.55 M TUI (on Linux): Check that tkinter is available and perhaps also that X11/Wayland is installed.
                          The purpose of this task is to finally eliminate MyPy's constant whining over Linux-specific logging code.
 - [ ] 2025.03.19.09.47 M Consider to move SHA512 sums for Ubuntu versions into an .INI file so that it is easy to adjust and expand.
 - [ ] 2024.09.xx.xx.xx M Add support for virtual keyboard to the kiosk (larger task, ref. `onboard` and `Florence`).
@@ -158,6 +154,8 @@ snap connect chromium:wayland
                          kiosk has proven itself for a while.  Wait until the GUI is complete and works as intended.
 - [ ] 2025.03.19.23.18 M Test out and document how to use a `syslog` client to view the status of the kiosk setup scripts.
                          https://github.com/MaxBelkov/visualsyslog
+- [ ] 2025.07.05.14.40 L Create generalized `WaitForEvent` class that can be used when waiting for network and for microSD.  It
+                         should follow the pattern of the current "wait for network" code (60 seconds, one second interval).
 - [ ] 2025.07.03.06.52 L Start `KioskStart.py` using a suitable `systemd` service, not by using autologin, if possible, that is.
                          Like many, I hate `systemd`s cumbersome method of adding services.  I never got the service to work so I
                          integrated this functionality into the `KioskStart.py` script, which launches X11, etc.
@@ -179,6 +177,15 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
+                         The AUTOSTART code is not implemented in the Subiquity (AutoInstall) writer, so this is broken by now.
+- [x] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
+- [x] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?):: PCs are not supported.
+- [x] 2025.07.09.09.52 H Rip out everything related to PC support.  Darren and Rune have accepted that we drop support for PCs due
+                         to the very challenging nature of non-standard PC configurations (USB audio, discrete graphics, etc.).
+- [x] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid:
+                         It is very difficult to explain to the end-user what to do and why this is so as it is presently.
+- [x] 2025.07.07.10.58 H Fix the problem that `CUPS` appears to be reinstalled when doing `snap refresh`. (v0.23 on 2025.07.09)
 - [x] 2025.07.07.12.06 H Make `KioskStart.py` move `~/.xsession-errors` to `~/.xsession-errors.old` as the former grows without limit.
 - [x] 2025.07.07.11.43 H Remove the display of "LAN IP" in `KioskStart.py` - the end-user does not need to accidentally know this.
 - [x] 2025.02.28.02.05 H The `TESTING` variable should use an environment variable rather than a hard-coded value (ELIMINATED).
@@ -209,7 +216,7 @@ snap connect chromium:wayland
                          `cron` jobs while actively forging the kiosk.
 - [x] 2025.05.03.13.17 H Rename `type` option to `mode` as it is (now) more a matter of an operating mode than a type of kiosk.
                          Dropped because it is meaningless busywork that doesn't add anything.
-- [x] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pc`, for instance).
+- [x] 2025.05.28.11.07 H Add feature to override one or more fields from the command-line (`device=pi5`, for instance).
                          Dropped because it will break the documentation that the `.kiosk` file itself is.
 - [x] 2025.06.11.10.38 H Remove leftovers of IPv6 disabling code, this conflicts with task to support IPv6 fully.
 - [x] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.

@@ -1,6 +1,15 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 0.24 (2025.??.??)
+1. Renamed the `user_options` option to `chromium_autoplay` to make life simpler for everybody.  It enables autoplay in Chromium
+   *without* user interaction such as clicking the `Play` button.
+2. Upgraded development and embedded Python to v3.13.5.
+3. Updated the documentation to reflect the fact that `Tkinter` is *not* going to be used as a GUI for KioskForge.  Instead, I plan
+   to make a TUI, perhaps using [Textual](https://github.com/Textualize/textual), as `Tkinter` is too difficult for my needs.
+   Also, I plan to offer full Linux CLI/TUI support in KioskForge and not all Linux boxes have a graphical desktop environment.
+4. Updated the documentation in general, to reflect recent changes, etc.
+
 ## Version 0.23 (2025.07.09)
 1. The very serious `snap` VFS corruption issue (in long-running kiosks) has now, hopefully, been fixed (I could not recreate the
    issue despite having both a Pi4B and a Pi5 trying to recreate it for two days, upgrading and rebooting thousand of times).

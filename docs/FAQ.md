@@ -12,7 +12,7 @@ This section contains various common questions about technical issues with Kiosk
 ### I am unable to connect to my Wi-Fi network?
 This is most likely because you have misspelled the Wi-Fi network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
 
-The values of `wifi_country` and `wifi_hidden` also need to be correct, although this is mostly important when accessing a 5G network using the AC standard.
+The values of `wifi_country` and `wifi_hidden` also need to be correct, although this is mostly important when accessing 5G+ networks using the AC+ standards.
 
 A tip is to try to create a new connection with your phone to see if that works.  If either the Wi-Fi network name or the password is incorrect, it will fail too.
 
@@ -24,11 +24,9 @@ All files created by and used by KioskForge are located in `~/KioskForge`.  Plea
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
-To be honest, I get a bunch of these errors almost every time I install Ubuntu Server on the Raspberry Pi 4+.  I think that they are related to the Wi-Fi network card by Broadcom, but I have no idea what they mean or why they pop up.
+I'm pretty sure these *were* caused by the lack of the `wifi_country` option in pre-v0.20 releases of KioskForge.  Basically, the network driver was complaining that an incorrect channel was attempted selected because the Ubuntu Server Wi-Fi subsystem did not know the correct country for the network card.  The new `wifi_country` option is used to tell the Wi-Fi subsystem the legal set of channels that can and may be used in the kiosk.
 
-This *may* be caused by the code that disables the Wi-Fi power saving feature.  It is controlled by the option `wifi_boost`.
-
-Please ignore these errors - as far as I can tell, the Wi-Fi card works as it should and the kiosk runs reliably as it should.
+I have not seen these errors since v0.20, so please let me know if they suddenly pop up again.
 
 ### The kiosk fails because `apt` is already using a lock file?
 KioskForge tries to take the fact that `apt` is a rude process, that keeps meddling with central lock files at arbitrary times, into consideration (`apt` runs in the background even if the package `unattended-upgrades` has been completely removed), by waiting for the lock files to be unlocked again, so you should not run into this issue.
@@ -36,7 +34,7 @@ KioskForge tries to take the fact that `apt` is a rude process, that keeps meddl
 If you run into this issue, please report it.
 
 ### I get spurious errors while the kiosk is being forged?
-The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming bad and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
+The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming worn and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
 
 Try with another installation media (USB key or another MicroSD card), and the error(s) should disappear.
 
@@ -48,23 +46,27 @@ This section contains various common questions about the development of KioskFor
 ### Will KioskForge support Linux distribution X?
 For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
 
-I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.  Furthermore, Ubuntu supports Raspberry Pi and PCs equally well, something that not all Linux distros do.  It is a hard requirement that both PCs and PIs are equally well supported.
+I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.
 
 Adding support for a single target platform takes weeks or months, as Linux is a mess when it comes to administration of the operating system.  Almost every distro does things in its own way and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
+
+Debian could potentially become a candiate to be supported by KioskForge sometime down the road as because Ubuntu is based upon Debian and also because Ubuntu is getting rather annoying these days (snaps, snaps, snaps, everywhere even thought the technology is only half baked yet).  Chromium (the open source variant of the Chrome web browser) has been quite a bit of pain to work with because it is a snap, not a standard Ubuntu <code>apt</code> package.
+
+### Will KioskForge support PCs?
+No, the problem is that PCs are non-standard in every way, from CPU to graphics to audio and so on.  I prefer to make KioskForge as stable and reliable as at all possible, instead of having to support a crazy number of possible and real PC builds.
+
+Supporting only two very standard target platforms, at the time of this writing, makes my job *a lot* easier and hopefully yields a stable, trustworthy, and flexible product that you and others can use for free.
 
 ### Why was KioskForge written in Python v3.x?
 I originally wrote the first version of KioskForge in Bash, because it was very simple in the beginning, but soon missed Python and its way more intuitive and logical environment.
 
 In short: Because Python v3.x is preinstalled on many Linux distributions and because Python is a great scripting language.
 
-### Why does KioskForge use Tkinter for Python?
-Because it is readily available on all platforms that support Python v3.x and because it is sufficient for the task at hand.
-
-### Why can't you use KioskForge on Linux?
+### Why can't you use KioskForge with Linux?
 This is work in progress, pretty soon you will be able to use KioskForge on both Windows and Linux.  Feel free to request this.
 
-### Why can't you use KioskForge on Apple?
-I don't have any Apple gear and don't feel like spending a fortune on adding support for a platform that I don't use myself.
+### Why can't you use KioskForge on Apple equipment?
+I don't have any Apple boxes and don't feel like spending a fortune on adding support for a platform that I don't use myself.
 
 ### Will KioskForge ever invoke 'Raspberry Pi Imager' (RPI) directly?
 Not likely.
@@ -72,4 +74,3 @@ Not likely.
 It could do this by using the `wmi` package for Python (as RPI requires a physical drive to be specified).  But I am much more focused on making a Linux newbie friendly solution than offering all sorts of gimmicks.  It is important to me, and most users, that they can launch KioskForge simply by double-clicking it without having any technical knowledge of Python, Linux, and kiosks as such, so I won't be exploring this path anytime soon.
 
 Also, I sleep better knowing that people can't accidentally erase important data using KioskForge.
-

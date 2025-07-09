@@ -24,7 +24,7 @@ The total size of the files that KioskForge adds to the kiosk machine is current
 KioskForge currently supports these things:
 
 * Ubuntu Server 24.04.2 (this is a Long Term Support release, which will be supported by Ubuntu until June 2029).
-* 64-bit Raspberry Pi 4B/5 (2+ GB RAM) ARM64 (aarch64) and PC x64/AMD64 machines (4+ GB RAM).
+* 64-bit Raspberry Pi 4B and Raspberry Pi 5 (with 2+ GB RAM) ARM64 (aarch64).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Creating a kiosk that runs a command-line (CLI) application programmed by the user.
 * Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
@@ -33,14 +33,10 @@ KioskForge currently supports these things:
 * Rotating normal and touch-panel displays.
 
 Please notice that the kiosk needs either internet access or a real-time clock (RTC) for its automatic, daily maintenance to work
-properly.  If the kiosk does not have internet access, it should be either a PC or a PI5 with an RTC backup battery.  At this time,
-we cannot recommend using PI4Bs without internet access.  The best is that the kiosk has internet access all the time.
+properly.  If the kiosk does not have internet access, it should be a Pi 5 with an RTC backup battery.  At this time, we cannot
+recommend using PI4Bs without internet access.  The best is that the kiosk has internet access all the time.
 
-**NOTE:** Intel Compute Sticks freeze randomly with Ubuntu Server 24.04.x so they are *not* supported at all.
-
-**NOTE:** The PC target is being worked on at present.
-
-**NOTE:** Prelimary support for Raspberry Pi 5 has been added, but it is not mature yet.  Audio has not been tested yet on Pi5.
+**NOTE:** Support for Raspberry Pi 5 has been added, but it is not mature yet.  Audio has not been tested yet on Pi5.
 
 ## Overview
 This chapter aims to give you a basic understanding of how use KioskForge.
@@ -85,7 +81,7 @@ Once KioskForge has updated the Linux installation medium, it will ask you to sa
 machine.  Just follow the instructions and then power on the kiosk to begin the actual process of forging the desired kiosk.
 
 ## Installation
-This chapter explains the current method of installing KioskForge on a new PC without any KioskForge installation.
+This chapter explains the current method of installing KioskForge for the first time on a new Windows PC.
 
 Please notice that we recommend specific versions of Python and Raspberry Pi Imager as we want to ensure the best, most efficient
 experience for you.  You are free to try with other versions of these tools, but we cannot guarantee that they work.
@@ -165,16 +161,8 @@ The procedure is as follows:
            minutes and try again.  Raspberry Pi Imager sometimes bugs out and refuses to display the entire list of Linux images.
 	    4. Be aware that newer Ubuntu Server server versions may pop up in the list when released so be careful what you select!
         5. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
-        6. When Raspberry Pi Imager is done "burning" the Ubuntu Server version, exit Rufus.
-    2. For IBM PCs and compatible kiosks:
-        1. Download [Rufus](https://rufus.ie).
-        2. Download [Ubuntu Server 24.04.2 x64](https://releases.ubuntu.com/noble/ubuntu-24.04.2-live-server-amd64.iso).
-        3. Launch Rufus.
-        4. Verify that Rufus has picked the correct installation medium in the `Device` field.
-        5. Click the `SELECT` button in the right side of the Rufus window and browse to and select the Ubuntu ISO file.
-        6. Click `START` to "burn" the Ubuntu ISO file to the USB device.
-        7. Exit Rufus.
-	3. When done, leave the installation media in your computer until KioskForge tells you to safely remove it (or dismount it).
+        6. When Raspberry Pi Imager is done "burning" the Ubuntu Server version, exit Raspberry Pi Imager *without* ejecting.
+	2. When done, leave the installation media in your computer until KioskForge tells you to safely remove or dismount it.
 2. Right-click on empty space on your Desktop, or the folder where you want to place the `.kiosk` file, and select `New`, then
    `KioskForge Kiosk`.  Please assign the new kiosk file a meaningful name so that you can easily see what purpose of the kiosk is.
 3. Edit the new kiosk by opening it in `Notepad` (right-click on the kiosk icon and select `Edit`).  Save it using `Ctrl-S`.
