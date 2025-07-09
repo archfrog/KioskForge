@@ -119,9 +119,8 @@ class KioskOpenbox(KioskDriver):
 			command += "--disable-restore-session-state"
 			command += "--disable-infobars"
 			command += "--disable-crashpad"
-			if kiosk.user_options.data:
-				for option in shlex.split(kiosk.user_options.data):
-					command += option
+			if kiosk.chromium_autoplay.data:
+				command += "--autoplay-policy=no-user-gesture-required"
 			command += kiosk.command.data
 			cmdlist  = command.list
 			del command
