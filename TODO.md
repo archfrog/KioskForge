@@ -492,17 +492,18 @@ snap connect chromium:wayland
 	2. Cron job, vacuum logs, days (`vacuum_days`).  Default: 7 days.
 	3. Cron job, update, upgrade, clean, and reboot the system (`upgrade_time`).
 	4. Cron job, shut down the machine (`poweroff_time`).  If blank, no poweroff.
-- [x] 2024.11.03.14.28 H Figure out how to autostart `KioskSetup.py` while having a tty (systemd unit or boot stage)?
-      Works, but KS messages are interleaved with the console login prompt, and so on.  Not very pretty.
-      A preferable solution is to run KioskSetup.py as a quiet script that logs everything reliably.
-	  This has been implemented, in March, 2025, as a permanent feature by setting `AUTOSTART` to `True` as this simplifies life
-	  enormously for the end-user who no longer needs to log into the kiosk machine to start the configuration process.
+- [x] 2024.11.03.14.28 H Figure out how to autostart `KioskSetup.py` (KS) while having a tty (systemd unit or boot stage)?
+                         Works, but KS messages are interleaved with the console login prompt, and so on.  Not very pretty.
+                         A preferable solution is to run KioskSetup.py as a quiet script that logs everything reliably.
+                         This has been implemented, in March, 2025, as a permanent feature by setting `AUTOSTART` to `True` as this
+                         simplifies life enormously for the end-user who no longer needs to log into the kiosk machine to start the
+                         configuration process.
 - [x] 2024.10.30.13.29 M Figure out a safe way to erase a PC disk quickly prior to installing Ubuntu Server (TOO DANGEROUS).
 - [x] 2024.10.30.13.25 H Clean up Logger and console output so that no empty lines appear.
 - [x] 2024.10.30.13.25 H Write Lines class, which handles the task of merging lines correctly.
 - [x] 2024.10.30.13.26 H Determine the cause of odd error with last few lines of `.bash_startx` missing.
 - [x] 2024.10.30.13.34 H Delete line 1372 (`open("lines.txt", ...).write(...)`).
-- [x] 2024.11.08.17.38 D Introduce `IntervalField` class to handle the `snap` time interval (much more advanced than that)
+- [x] 2024.11.08.17.38 D Introduce `IntervalField` class to handle the `snap` time interval (`snap` is more advanced than that).
 - [x] 2025.02.21.16.50 H Ask Darren to get those login credentials for the VHM GitHub account so that I can be added as a user.
                          Nobody knows the credentials and the projects on the `vhm` GitHub account are unused and unknown.
 - [x] 2025.02.26.xx.xx H Create a new GitHub user `vhmdk`.
