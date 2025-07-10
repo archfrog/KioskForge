@@ -22,6 +22,7 @@
 
 SOURCES = [
 	"KioskConfig.py",
+	"KioskDiscoveryServer.py",
 	"KioskForge.py",
 	"KioskOpenbox.py",
 	"KioskReport.py",

@@ -38,7 +38,7 @@ from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.invoke import invoke_text
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
-from toolbox.network import internet_active, lan_ip_address
+from toolbox.network import internet_active, lan_address
 from toolbox.script import Script
 from toolbox.various import file_wipe_once, screen_clear
 
@@ -130,7 +130,7 @@ class KioskSetup(KioskDriver):
 			raise KioskError("No active network connections detected (please reboot the kiosk using Ctrl-Alt-Del)")
 
 		# Display LAN IP - not everybody has access to the router in charge of assigning a LAN IP via DHCP.
-		logger.write("*** LAN IP: " + lan_ip_address())
+		logger.write("*** LAN IP: " + lan_address())
 		logger.write()
 
 		# Parse command-line arguments.
