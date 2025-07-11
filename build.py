@@ -212,10 +212,10 @@ class KioskBuild(KioskDriver):
 			words += "--standalone"
 
 			# Specify HTML file with CSS to use for the conversion.
-			words += "--include-in-header=build/pandoc-styles.html"
+			words += "--include-in-header=assets/pandoc-styles.html"
 
 			# Add a <br> tag after the body to stop Pandoc from terminating the page right after the last sentence (looks ugly).
-			words += "--include-after-body=build/pandoc-footer.html"
+			words += "--include-after-body=assets/pandoc-footer.html"
 
 			# Specify title as Pandoc requires this.
 			words += "--metadata"
@@ -243,7 +243,7 @@ class KioskBuild(KioskDriver):
 		innopath = r"C:\Program Files (x86)\Inno Setup 6\Compil32.exe"
 
 		# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
-		with open("build/KioskForge.iss", "rt", encoding="utf8") as stream:
+		with open("assets/KioskForge.iss", "rt", encoding="utf8") as stream:
 			script = stream.read()
 		script = script.replace("$$RAMDISK$$", paths.ramdisk)
 		script = script.replace("$$VERSION$$", version)
@@ -263,7 +263,7 @@ class KioskBuild(KioskDriver):
 		del exename
 
 	def check(self) -> None:
-		# NOTE: Check.py fails if MyPy or pylint reports ERRORS, not if pylint only reports warnings.
+		# NOTE: Check.py only fails if MyPy, pylint, or Pyrefly reports one ore more errors, not if pylint only reports warnings.
 		words  = TextBuilder()
 		words += "python"
 		words += "check.py"
