@@ -21,7 +21,11 @@ To prepare for developing on KioskForge, follow this procedure:
 2. Create and/or change directory to the parent directory of where you want the KioskForge sources to live.
 3. Checkout the KioskForge repository using Git: `git clone https://github.com/vhmdk/KioskForge`
 4. Change into the KioskForge folder: `cd KioskForge`
-5. Install all dependencies using Pip: `pip install -r requirements.txt`
+5. Windows: Install all dependencies using Pip: `pip install -r requirements.txt`
+6. Linux: Install all dependencies using Pip: `pip install -r requirements.txt --break-system-packages`
+
+**NOTE**: If you do not specify the `--break-system-packages` option, `pip` will ask you to use the `apt` package manager to
+install ancient, incompatible version of `pylint` and so on.  Again, consider using a virtual machine for your installation.
 
 **NOTE**: I'd love to use a virtual environment for KioskForge, but I have virtually no experience with those.
 
