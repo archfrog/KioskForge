@@ -267,8 +267,14 @@ class KioskBuild(KioskDriver):
 		del exename
 
 	def check(self) -> None:
+		# NOTE: Check 'python' first because Winblows redirects 'python3' to the Windows Store...
+		command = shutil.which("python") or shutil.which("python3")
+		if not command:
+			raise KioskError("Cannot find Python interpreter, cannot invoke 'check.py' to analyze KioskForge")
+
 		# NOTE: check.py only fails if MyPy, pylint, or Pyrefly reports one ore more errors, not if pylint only reports warnings.
 		words  = TextBuilder()
+		words += command
 		words += "check.py"
 		invoke_list_safe(words.list)
 
