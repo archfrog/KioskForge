@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.11.02.22 H Check out https://github.com/debloper/piosk and consider to join his project.
 - [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow remove updates of the KioskForge folder in a kiosk.
 - [ ] 2025.07.09.05.55 H Before going public: Consider the name and purpose of each `Kiosk*.py` script and rename it accordingly.
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
