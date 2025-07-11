@@ -68,25 +68,33 @@ def get_network_cards() -> List[str]:
 
 # Source: https://stackoverflow.com/questions/3764291/how-can-i-see-if-theres-an-available-and-active-network-connection-in-python
 def internet_active() -> bool:
+	result = False
+
 	connection = httplib.HTTPSConnection("8.8.8.8", timeout=5)
 	try:
 		connection.request("HEAD", "/")
-		return True
-	except:								# pylint: disable=bare-except
-		return False
+		result = True
+	except:				# pylint: disable=bare-except
+		result = False
 	finally:
 		connection.close()
+
+	return result
 
 
 def lan_address() -> str:
 	"""Returns the LAN address for the active LAN."""
+	result = ""
+
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	try:
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 		s.connect(('<broadcast>', 12345))  # 12345 is random port. 0 fails on Mac.
-		return str(s.getsockname()[0])
+		result = str(s.getsockname()[0])
 	finally:
 		s.close()
+
+	return result
 
 
 def lan_broadcast_address() -> str:

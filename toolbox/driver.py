@@ -66,6 +66,7 @@ class KioskDriver:
 
 			# NOTE: Handle the temporary working directory created by PyInstaller in a transparent fashion for all scripts.
 			if hasattr(sys, "_MEIPASS"):
+				# pyrefly: ignore[missing-attribute]
 				origin = sys._MEIPASS
 
 			try:
@@ -91,10 +92,13 @@ class KioskDriver:
 			except Exception as that:				# pylint: disable=broad-exception-caught
 				# Attempt to get the exception text, if any, through a number of Python-supported means.
 				if hasattr(that, "message"):
+					# pyrefly: ignore[missing-attribute]
 					text = that.message
 				elif hasattr(that, "strerror"):
+					# pyrefly: ignore[missing-attribute]
 					text = that.strerror
 				elif hasattr(that, "text"):
+					# pyrefly: ignore[missing-attribute]
 					text = that.text
 				else:
 					text = str(that)

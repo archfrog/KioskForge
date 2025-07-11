@@ -57,7 +57,12 @@ class TextWriter:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
 		return self
 
-	def __exit__(self, exception_type : type, exception_value : Exception, traceback : types.TracebackType) -> None:
+	def __exit__(
+		self,
+		exception_type : type[BaseException] | None,
+		exception_value : BaseException | None,
+		traceback : types.TracebackType | None
+	) -> None:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
 		self.__stream.close()
 
@@ -96,7 +101,12 @@ class Logger:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
 		return self
 
-	def __exit__(self, exception_type : type, exception_value : Exception, traceback : types.TracebackType) -> None:
+	def __exit__(
+		self,
+		exception_type : type[BaseException] | None,
+		exception_value : BaseException | None,
+		traceback : types.TracebackType | None
+	) -> None:
 		"""Required to support the 'with instance as name: ...' exception wrapper syntactic sugar."""
 		pass							# pylint: disable=unnecessary-pass
 

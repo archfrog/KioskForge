@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Tiny script to generate the official KEYBOARDS, LOCALES, and TIMEZONES .html pages published on kioskforge.org.
 
 import os
 
@@ -13,8 +14,7 @@ if ramdisk[-1] != os.sep:
 	ramdisk += os.sep
 
 # Prepare creating "keyboards.html".
-keyboards_straight = KEYBOARDS
-keyboards_inverted = dict(map(reversed, keyboards_straight.items()))
+keyboards_inverted = dict(zip(KEYBOARDS.values(), KEYBOARDS.keys()))
 
 # Create "keyboards.html" (with two mappings, one from full name to abbreviation and the other the inverse mapping).
 with TextWriter(ramdisk + "keyboards.html") as stream:
