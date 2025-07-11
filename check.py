@@ -55,7 +55,7 @@ class KioskCheck(KioskDriver):
 		del arguments
 
 		# Check that all required tools are installed and accessible.
-		for tool in ["mypy", "pylint"]:
+		for tool in ["mypy", "pylint", "pyrefly"]:
 			if not shutil.which(tool):
 				raise KioskError(f"Unable to locate '{tool}' in PATH")
 
