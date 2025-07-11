@@ -122,9 +122,10 @@ class Recognizer:
 		targets : List[Target] = []
 		attempt = 1
 		while len(targets) == 0:
-			if platform.system() == "Windows":
+			mounts : List[str] = []
+			if sys.platform == "win32":
 				mounts = os.listdrives()
-			elif platform.system() == "Linux":
+			elif sys.platform == "linux":
 				# TODO: mounts = 'df -a -T -h -t vfat'; grep -Fv "/boot/efi"'
 				raise InternalError("Feature not finished - Linux host not yet supported")
 			else:
