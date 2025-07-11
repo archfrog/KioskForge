@@ -26,6 +26,7 @@ from typing import List
 import http.client as httplib
 import os
 import socket
+import time
 
 from toolbox.errors import Error
 from toolbox.invoke import invoke_text, invoke_text_safe
@@ -80,18 +81,22 @@ def internet_active() -> bool:
 def lan_address() -> str:
 	"""Returns the LAN address for the active LAN."""
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-	result = ""
 	try:
 		s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 		s.connect(('<broadcast>', 12345))  # 12345 is random port. 0 fails on Mac.
-		result = str(s.getsockname()[0])
+		return str(s.getsockname()[0])
 	finally:
 		s.close()
 
-	return result
 
 def lan_broadcast_address() -> str:
 	"""Returns the LAN broadcast address (x.y.z.255) for the active LAN."""
 	lan_subnet = '.'.join(lan_address().split('.')[:3])
 	return lan_subnet + '.255'
+
+
+def wait_for_internet_active(duration : int = 60) -> None:
+	for index in range(duration):		# pylint: disable=unused-variable
+		time.sleep(1)
+		if internet_active():
+			break

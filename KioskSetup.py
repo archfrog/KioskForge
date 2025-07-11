@@ -38,8 +38,9 @@ from toolbox.errors import CommandError, InternalError, KioskError
 from toolbox.invoke import invoke_text
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
-from toolbox.network import internet_active, lan_address
+from toolbox.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active
 from toolbox.script import Script
+from toolbox.signal import Signal
 from toolbox.various import file_wipe_once, screen_clear
 
 
@@ -112,14 +113,10 @@ class KioskSetup(KioskDriver):
 			raise KioskError("You must be root (use 'sudo') to run this script")
 
 		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
-		maximum = 60
 		if not internet_active():
-			logger.write(f"*** NETWORK DOWN: Waiting at most {maximum} seconds for the kiosk to come online")
+			logger.write("*** NETWORK DOWN: Waiting at most 60 seconds for the kiosk to come online")
 			logger.write()
-			for index in range(maximum):	# pylint: disable=unused-variable
-				time.sleep(1)
-				if internet_active():
-					break
+			wait_for_internet_active()
 
 		# If still no network, abort the forge process.
 		if not internet_active():
@@ -169,9 +166,6 @@ class KioskSetup(KioskDriver):
 		# Build the script to execute.
 		script = Script(logger, resume)
 
-		# Ensure NTP is enabled (already active in Ubuntu Server 24.04+).
-		script += ExternalAction("Enabling Network Time Protocol (NTP).", "timedatectl set-ntp on")
-
 		# Set environment variable to stop dpkg from running interactively.
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 
@@ -193,9 +187,9 @@ class KioskSetup(KioskDriver):
 			"$nrconf{restart} = 'a';"
 		)
 
-		# Configure 'apt' to never update package indices on its own.  We do this in a cron job below.
+		# Configure 'apt' to never update package lists on its own.  We do this in a cron job below.
 		script += ReplaceTextAction(
-			"Configuring 'apt' to never update package indices on its own.",
+			"Configuring 'apt' to never update package lists on its own.",
 			"/etc/apt/apt.conf.d/10periodic",
 			'APT::Periodic::Update-Package-Lists "1";',
 			'APT::Periodic::Update-Package-Lists "0";'
@@ -241,6 +235,20 @@ class KioskSetup(KioskDriver):
 			""
 		)
 
+		# Install US English and user-specified locales (purge all others).
+		script += ExternalAction("Configuring system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
+
+		# Configure system to use user-specified locale (keep messages and error texts in US English).
+		script += ExternalAction("Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
+
+		# Set timezone to use user's choice.
+		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
+
+		# Configure and activate firewall, allowing only SSH at port 22.
+		script += ExternalAction("Disabling firewall log.", "ufw logging off")
+		script += ExternalAction("Allowing SSH through firewall.", "ufw allow ssh")
+		script += ExternalAction("Enabling firewall.", "ufw --force enable")
+
 		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 		#...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
@@ -285,6 +293,43 @@ class KioskSetup(KioskDriver):
 		# Run 'KioskConfig.py' to ensure Wi-Fi is boosted for the many downloads that follow below (if the user has enabled it).
 		script += ExternalAction("Configuring kiosk hardware (if applicable).", origin + os.sep + "KioskConfig.py")
 
+		# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
+		lines  = TextBuilder()
+		lines += "[Unit]"
+		lines += "Description=KioskForge kiosk discovery service"
+		lines += "After=network-online.target"
+		lines += "Before=multi-user.target"
+		lines += "Wants=network-online.target"
+		lines += ""
+		lines += "[Service]"
+		lines += "Type=simple"
+		lines += "Restart=yes"
+		lines += "ExecStart="
+		lines += f"ExecStart={origin}/KioskDiscoveryServer.py"
+		lines += ""
+		lines += "[Install]"
+		lines += "WantedBy=multi-user.target"
+		script += CreateTextWithUserAndModeAction(
+			"Creating configuration file to start kiosk discovery service on every boot.",
+			"/usr/lib/systemd/system/KioskDiscoveryService.service",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+			lines.text
+		)
+		del lines
+
+		# Enable AND start 'KioskDiscoveryService' systemd service so that it runs on every boot and also immediately.
+		script += ExternalAction(
+			"Starting kiosk discovery service now and on every boot.",
+			"systemctl enable --now KioskDiscoveryService.service"
+		)
+
+		# Allow UDP broadcasts through the firewall.
+		script += ExternalAction(
+			"Adding firewall rule to allow the kiosk discovery service.",
+			f"ufw allow in proto udp to {lan_broadcast_address()}/24"
+		)
+
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()
 		lines += "[Unit]"
@@ -322,20 +367,6 @@ class KioskSetup(KioskDriver):
 		script += PurgePackagesAction("Purging package unattended-upgrades.", ["unattended-upgrades"])
 		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
 
-		# Install US English and user-specified locales (purge all others).
-		script += ExternalAction("Configuring system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
-
-		# Configure system to use user-specified locale (keep messages and error texts in US English).
-		script += ExternalAction("Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
-
-		# Set timezone to use user's choice.
-		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
-
-		# Configure and activate firewall, allowing only SSH at port 22.
-		script += ExternalAction("Disabling firewall log.", "ufw logging off")
-		script += ExternalAction("Allowing SSH through firewall.", "ufw allow ssh")
-		script += ExternalAction("Enabling firewall.", "ufw --force enable")
-
 		# Remove some packages that we don't need in kiosk mode to save some memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
@@ -346,7 +377,7 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("Disabling automatic upgrades of snaps.", "snap refresh --hold")
 
 		# NOTE: Use 'AptAction' to automatically wait for apt's lock to be released if in use.
-		script += AptAction("Updating system package indices.", "apt-get update")
+		script += AptAction("Updating system package lists.", "apt-get update")
 		script += AptAction("Upgrading all installed packages.", "apt-get dist-upgrade -y")
 
 		# Install audio system (Pipewire) only if explicitly enabled.
@@ -413,11 +444,11 @@ class KioskSetup(KioskDriver):
 			if kiosk.device.data == "pi5":
 				script += InstallPackagesNoRecommendsAction("Installing Rasperry Pi System Configuration tool", ["raspi-config"])
 				script += ExternalAction(
-					"Downloading X11 graphics driver for Pi5",
+					"Downloading X11 graphics driver for Pi5.",
 					"wget -q https://archive.raspberrypi.org/debian/pool/main/g/gldriver-test/gldriver-test_0.15_all.deb"
 				)
-				script += AptAction("Installing X11 graphics driver for Pi5", "apt-get install -y ./gldriver-test_0.15_all.deb")
-				script += ExternalAction("Removing downloaded graphics driver for Pi5", "rm -f gldriver-test_0.15_all.deb")
+				script += AptAction("Installing X11 graphics driver for Pi5.", "apt-get install -y ./gldriver-test_0.15_all.deb")
+				script += ExternalAction("Removing downloaded graphics driver for Pi5.", "rm -f gldriver-test_0.15_all.deb")
 
 				# Create X11 configuration file to use Pi5 graphics driver.
 				lines  = TextBuilder()
@@ -706,10 +737,14 @@ class KioskSetup(KioskDriver):
 			"sync"
 		)
 
-		# Execute the script.
+		# Execute the script (simply hang on errors so that the user can read any error messages).
 		result = script.execute()
 		if result.status != 0:
 			raise KioskError(result.output)
+
+		# Signal other running KioskForge components to shut down gracefully.
+		signal = Signal("kiosk-shutdown", owner=kiosk.user_name.data)
+		signal.create()
 
 		# Wait a few seconds for the people to be able to spot errors and/or read how long the forge process took.
 		time.sleep(10)
