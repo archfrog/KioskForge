@@ -240,7 +240,9 @@ class KioskBuild(KioskDriver):
 		Kiosk(version).save(paths.temppath + os.sep + "Template.kiosk")
 
 	def build_installer(self, paths : Paths, version : str) -> None:
-		innopath = r"C:\Program Files (x86)\Inno Setup 6\Compil32.exe"
+		command = r"C:\Program Files (x86)\Inno Setup 6\Compil32.exe"
+		if not os.path.isfile(command):
+			raise KioskError("Inno Setup not found, cannot build Windows setup program")
 
 		# Expand $$RAMDISK$$ and $$VERSION$$ macros in source .iss file and store the output in ../tmp.
 		with open("assets/KioskForge.iss", "rt", encoding="utf8") as stream:
@@ -252,10 +254,12 @@ class KioskBuild(KioskDriver):
 
 		# Build command-line for Inno Setup 6 and call it to build the final KioskForge-x.yy-Setup.exe install program.
 		words  = TextBuilder()
-		words += innopath
+		words += command
 		words += "/cc"
 		words += paths.temppath + os.sep + "KioskForge.iss"
 		invoke_list_safe(words.list)
+		del command
+		del words
 
 		# Copy output from RAM disk to local work tree.
 		exename = f"KioskForge-{version}-Setup.exe"
@@ -263,19 +267,18 @@ class KioskBuild(KioskDriver):
 		del exename
 
 	def check(self) -> None:
-		# NOTE: Check.py only fails if MyPy, pylint, or Pyrefly reports one ore more errors, not if pylint only reports warnings.
+		# NOTE: check.py only fails if MyPy, pylint, or Pyrefly reports one ore more errors, not if pylint only reports warnings.
 		words  = TextBuilder()
-		words += "python"
 		words += "check.py"
 		invoke_list_safe(words.list)
 
 	def ship(self, paths : Paths, version : str) -> None:
-		scp = shutil.which("scp")
-		if not scp:
+		command = shutil.which("scp")
+		if not command:
 			raise KioskError("SCP not found, cannot ship built KioskForge installer.")
 
 		words  = TextBuilder()
-		words += scp
+		words += command
 
 		# Use the .ssh/config file found at HOME, not at some idiotic Windows-style "C:\Users\Foo\.ssh\config".
 		words += "-F"
@@ -292,8 +295,12 @@ class KioskBuild(KioskDriver):
 		invoke_list_safe(words.list)
 
 	def tag(self, version : str) -> None:
+		command = shutil.which("git")
+		if not command:
+			raise KioskError("Git not found, cannot tag the source code.")
+
 		words  = TextBuilder()
-		words += "git"
+		words += command
 		words += "tag"
 		words += "-a"
 		words += version
@@ -351,9 +358,9 @@ class KioskBuild(KioskDriver):
 		if sys.platform == "win32":
 			self.build_installer(paths, self.version.version)
 
-		# Copy the new 'KioskForge-x.yy-Setup.exe' via SSH to the web server hosting kioskforge.org.
+		# Copy the new 'KioskForge-x.yy-Setup.exe' via SSH/scp to the web server hosting kioskforge.org.
 		# NOTE: Only ship if explicitly requested as this will fail on all systems but my own PCs.
-		if settings.ship and os.environ.get("HOME"):
+		if settings.ship and sys.platform == "win32" and os.environ.get("HOME"):
 			self.ship(paths, self.version.version)
 
 
