@@ -39,6 +39,7 @@ The actual list of [PyPi](https://pypi.org) packages that KioskForge uses is as 
 | `PyInstaller`             | Generates the single-file `.exe` for running KioskForge on Windows without install Pyton, etc. |
 | `pyinstaller-versionfile` | Generates a version file, for use by `PyInstaller`, which contains `.exe` version information. |
 | `pylint`                  | A static source code linter, which primarily attempts to ensure good code quality.             |
+| `pyrefly`                 | Yet another static source code analyzer, which catches stuff that the others don't.            |
 
 ### Environment
 Set up these environment variables:
