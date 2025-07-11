@@ -48,7 +48,8 @@ class KioskDiscoveryServer(KioskDriver):
 			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we haven't got root privileges.
-		if os.geteuid() != 0:		# pylint: disable=no-member
+		# pylint: disable-next=no-member
+		if os.geteuid() != 0:			# pyrefly: ignore[missing-attribute]
 			raise KioskError("You must be root to run this script")
 
 		# Parse command-line arguments.

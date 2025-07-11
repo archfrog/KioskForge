@@ -109,7 +109,8 @@ class KioskSetup(KioskDriver):
 			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we've got root privileges.
-		if os.geteuid() != 0:		# pylint: disable=no-member
+		# pylint: disable-next=no-member
+		if os.geteuid() != 0:		# pyrefly: ignore[missing-attribute]
 			raise KioskError("You must be root (use 'sudo') to run this script")
 
 		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.

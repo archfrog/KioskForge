@@ -24,7 +24,6 @@
 from typing import List
 
 import os
-import shlex
 import shutil
 import subprocess
 import sys
@@ -33,7 +32,7 @@ import time
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_text
+from toolbox.invoke import invoke_list_safe, invoke_text, invoke_text_safe
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
 from toolbox.signal import Signal
@@ -68,7 +67,8 @@ class KioskOpenbox(KioskDriver):
 			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we don't have root privileges.
-		if os.geteuid() == 0:			# pylint: disable=E1101
+		# pylint: disable-next=E1101
+		if os.geteuid() == 0:		# pyrefly: ignore[missing-attribute]
 			raise KioskError("You may not be root when running this script")
 
 		# Parse command-line arguments.
@@ -82,13 +82,11 @@ class KioskOpenbox(KioskDriver):
 		# Fetch timeout value (0 = disabled, other = number of seconds) from configuration file.
 		timeout = kiosk.idle_timeout.data
 
-		process = None
 		signal = Signal("KioskOpenbox-shutdown-Chromium", kiosk.user_name.data)
 		try:
 			# Disable all forms of X screen saver/screen blanking/power management.
-			for xset in [ "xset s off", "xset s noblank", "xset -dpms"]:
-				subprocess.check_call(shlex.split(xset), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-			del xset
+			for command in [ "xset s off", "xset s noblank", "xset -dpms"]:
+				invoke_text_safe(command)
 
 			if kiosk.screen_rotation.data != "none":
 				# Ask 'xrandr' to rotate the screen as per the `screen_rotation` setting.
@@ -98,7 +96,7 @@ class KioskOpenbox(KioskDriver):
 				command += "HDMI-1"
 				command += "--rotate"
 				command += KIOSKFORGE_TO_XRANDR_ROTATIONS[kiosk.screen_rotation.data]
-				subprocess.check_call(command.list, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+				invoke_list_safe(command.list)
 				del command
 
 			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
@@ -145,24 +143,25 @@ class KioskOpenbox(KioskDriver):
 					time.sleep(1)
 
 					# If Chromium has exited (crashed), exit to outer loop to restart it.
-					if process.poll():
+					if "process" in locals() and process.poll():
 						logger.error("Restarting Chromium after crash.")
 						break
 
 					# If X has been idle for more than N seconds, terminate Chromium and exit to outer loop to restart it.
 					if timeout and self.x_idle_time() >= timeout:
 						process.terminate()
-						process = None
+						del process
 
 						# Reset X's idle timer to ensure that inaccuracies do not accumulate over time.
-						subprocess.check_call(shlex.split("xset s reset"), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+						invoke_text_safe("xset s reset")
 
 						break
 		finally:
 			# Terminate Chromium if it is still running.
-			if process and not process.poll():
-				process.terminate()
-			del process
+			if "process" in locals():
+				if not process.poll():		# pyrefly: ignore[unbound-name]
+					process.terminate()		# pyrefly: ignore[unbound-name]
+				del process					# pyrefly: ignore[unbound-name]
 
 			# Remove the signal once we've performed the requested task.
 			signal.remove()
