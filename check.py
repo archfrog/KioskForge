@@ -47,6 +47,8 @@ class KioskCheck(KioskDriver):
 		del logger
 		del origin
 
+		sources = SOURCES + ["build.py", "check.py"]
+
 		# Parse command-line arguments.
 		if arguments:
 			raise CommandError('"check.py"')
@@ -66,7 +68,7 @@ class KioskCheck(KioskDriver):
 		words += "--cache-dir"
 		words += ramdisk + self.version.product + os.sep + "MyPy"
 		words += "--strict"
-		for source in SOURCES:
+		for source in sources:
 			words += source
 
 		result = invoke_list(words.list)
@@ -84,7 +86,7 @@ class KioskCheck(KioskDriver):
 		words += "-j"
 		words += "0"
 
-		for word in SOURCES + ["build.py", "check.py"]:
+		for word in sources:
 			words += word
 
 		# Create PYLINTHOME environment variable as this seems the only to move the pylint persistent data to my RAM disk.
@@ -103,6 +105,20 @@ class KioskCheck(KioskDriver):
 		if result.status & 3:
 			raise KioskError("Pylint failed its static checks")
 		del environment
+		del result
+		del words
+
+		#************************* Ask Pyrefly to statically check all files in the current folder tree. *************************
+		words  = TextBuilder()
+		words += "pyrefly"
+		words += "check"
+
+		result = invoke_list(words.list)
+		if result.status != 0:
+			print("Pyrefly message:")
+			print()
+			print(result.output)
+			raise KioskError("Pyrefly failed its static checks")
 		del result
 		del words
 
