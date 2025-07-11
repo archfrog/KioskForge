@@ -393,10 +393,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write()
 
 			# Compute locations of source files.
-			if self.target.kind == "PI":
-				source = "/boot/firmware"
-			else:
-				raise InternalError(f"Unknown kiosk machine kind: {self.target.kind}")
+			source = "/boot/firmware"
 
 			# Write commands to copy and then make this script executable (this is done late in the boot process).
 			stream.write("runcmd:")
@@ -534,26 +531,23 @@ class KioskForge(KioskDriver):
 		print()
 
 		# Append options to quiet both the kernel and systemd.
-		if target.kind == "PI":
-			kernel_options = KernelOptions()
-			kernel_options.load(target.basedir + "cmdline.txt")
-			#...Ask the kernel to shut up.
-			kernel_options.append("quiet")
-			#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
-			kernel_options.append("log_level=3")
-			#...Ask systemd to shut up.
-			kernel_options.append("systemd.show_status=auto")
-			kernel_options.save(target.basedir + "cmdline.txt")
+		kernel_options = KernelOptions()
+		kernel_options.load(target.basedir + "cmdline.txt")
+		#...Ask the kernel to shut up.
+		kernel_options.append("quiet")
+		#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
+		kernel_options.append("log_level=3")
+		#...Ask systemd to shut up.
+		kernel_options.append("systemd.show_status=auto")
+		kernel_options.save(target.basedir + "cmdline.txt")
 
-			# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-			if kiosk.device.data in ["pi4b"] and not kiosk.cpu_boost.data:
-				with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
-					text = stream.read()
-				text = text.replace("arm_boost=1", "arm_boost=0")
-				with open(target.basedir + "config.txt", "wt", encoding="utf8") as stream:
-					stream.write(text)
-		else:
-			raise InternalError(f"Unknown target kind: {target.kind}")
+		# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
+		if kiosk.device.data == "pi4b" and not kiosk.cpu_boost.data:
+			with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
+				text = stream.read()
+			text = text.replace("arm_boost=1", "arm_boost=0")
+			with open(target.basedir + "config.txt", "wt", encoding="utf8") as stream:
+				stream.write(text)
 
 		# Create installer configurator instance and ask it to generate the appropriate installer configuration.
 		configurator : Optional[Configurator] = None
