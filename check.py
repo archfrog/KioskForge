@@ -36,6 +36,13 @@ from toolbox.sources import SOURCES
 from toolbox.various import ramdisk_get
 
 
+def which(name : str) -> str:
+	found = shutil.which(name)
+	if not found:
+		raise KioskError(f"Cannot find program '{name}' in PATH")
+	return found
+
+
 class KioskCheck(KioskDriver):
 	"""Defines the check.py script, which is responsible for invoking MyPy (portably) to check all Python source files."""
 
@@ -64,7 +71,7 @@ class KioskCheck(KioskDriver):
 
 		#***** Ask MyPy to statically check all Python source files in the current folder and in the 'toolbox' folder. ***********
 		words  = TextBuilder()
-		words += "mypy"
+		words += which("mypy")
 		words += "--cache-dir"
 		words += ramdisk + self.version.product + os.sep + "MyPy"
 		words += "--strict"
@@ -82,7 +89,7 @@ class KioskCheck(KioskDriver):
 
 		#************************* Ask pylint to statically check all Python source files in the current folder. *****************
 		words  = TextBuilder()
-		words += "pylint"
+		words += which("pylint")
 		words += "-j"
 		words += "0"
 
@@ -110,7 +117,7 @@ class KioskCheck(KioskDriver):
 
 		#************************* Ask Pyrefly to statically check all files in the current folder tree. *************************
 		words  = TextBuilder()
-		words += "pyrefly"
+		words += which("pyrefly")
 		words += "check"
 
 		result = invoke_list(words.list)
