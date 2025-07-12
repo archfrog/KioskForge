@@ -16,6 +16,13 @@ The values of `wifi_country` and `wifi_hidden` also need to be correct, although
 
 A tip is to try to create a new connection with your phone to see if that works.  If either the Wi-Fi network name or the password is incorrect, it will fail too.
 
+### What kind of storage medium should I use?
+As a rule of thumb, we recommend MicroSD cards over USB keys because the latter tend to become very hot and then malfunction.
+
+As for MicroSD cards, it depends on how long the kiosk is expected to operate.  If it is to be deployed for weeks, months, or a few years, virtually any MicroSD card should do.  If you plan the kiosk to operate for a decade or so, then you should probably buy an "industrial grade" card, which includes wear leveling, which again reduces wear on the card very significantly.  I know that SanDisk and Kingston both produce MicroSD cards named "... Industrial", both of which include wear leveling.  These cards are typically a couple of times more expensive than plain, non-wear-leveling cards, but I think the money is well spent because if your kiosk suddenly dies from a MicroSD failure, you'll probably waste hours dismounting, reforging, and remounting the kiosk.
+
+If you have experience or knowledge that contradict the above, please feel free to alert me on mail.
+
 ### How much space does KioskForge take up on the kiosk machine?
 As of this writing, less than half a megabyte.  This is negible and should not cause any concern on your part.
 
