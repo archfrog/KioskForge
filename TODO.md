@@ -33,18 +33,22 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.12.23.21 M Should KioskForge copy the markdown docs to the kiosk, just for posterity (kiosks can live a long time)?
+- [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrade X.kiosk` add new options with their default values and warn about doing so.
+- [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrader folder` upgrade all `*.kiosk` files in the folder tree (i.e. recursively).
 - [ ] 2025.07.12.22.37 H `KioskSetup.py` should **not** change the ownership of all the files in the user's home folder.  Instead,
                          make sure that all files are created with the correct ownership right from the beginning, if possible.
-- [ ] 2025.07.12.22.02 H Can `KioskStart.py` possibly spawn the child so it replaces `KioskStart.py` in memory?  Would save 20+ MB RAM.
+- [ ] 2025.07.12.22.02 H Can `KioskStart.py` execX the child so it replaces `KioskStart.py` in memory?  Would save 20+ MB RAM.
+                         `os.execve(path, args, env)` is the function to experiment with.
 - [ ] 2025.07.11.11.16 H Specify `DontZap`, `DontZoom`, and `DontVTSwitch` in `xorg.conf` file to prevent keyboard tampering.
                          `find` cannot find `xorg.conf` anywhere in the kiosk.  Check out where I store X11 config...
 - [ ] 2025.07.11.08.46 H Add default value to option header in help text so that the users can easily see the default value.
 - [ ] 2025.07.11.02.22 H Check out https://github.com/debloper/piosk and consider to join his project.
-- [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow remove updates of the KioskForge folder in a kiosk.
+- [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow remote updates of the KioskForge folder in a kiosk.
 - [ ] 2025.07.09.05.55 H Before going public: Consider the name and purpose of each `Kiosk*.py` script and rename it accordingly.
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
                          2025.07.09.05.50: Chromium now *requires* the option `--touch-events=enabled` to use a touch screen
-	properly.  Perhaps these two options could be merged, somehow, and used to enable/disable touch support?
+                         properly.  Perhaps these two options could be merged, somehow, and used to enable/disable touch support?
 - [ ] 2025.07.07.07.21 H Change the application model so that `KioskConfig.py` does the majority of the work on every boot
                          (thus allowing dynamic reconfiguration simply by editing or uploading a new `KioskForge.kiosk` file).
                          This would mean that `KioskConfig.py` should redact the kiosk if not yet redacted.
