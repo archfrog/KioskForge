@@ -33,6 +33,10 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.12.22.02 H Can `KioskStart.py` possibly spawn the child so it replaces `KioskStart.py` in memory?  Would save 20+ MB RAM.
+- [ ] 2025.07.11.11.16 H Specify `DontZap`, `DontZoom`, and `DontVTSwitch` in `xorg.conf` file to prevent keyboard tampering.
+                         `find` cannot find `xorg.conf` anywhere in the kiosk.  Check out where I store X11 config...
+- [ ] 2025.07.11.08.46 H Add default value to option header in help text so that the users can easily see the default value.
 - [ ] 2025.07.11.02.22 H Check out https://github.com/debloper/piosk and consider to join his project.
 - [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow remove updates of the KioskForge folder in a kiosk.
 - [ ] 2025.07.09.05.55 H Before going public: Consider the name and purpose of each `Kiosk*.py` script and rename it accordingly.
@@ -178,6 +182,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.07.11.12.31 H Create class to manipulate `/etc/fstab`.  To change `ext4` `default` into `default,noatime,commit=1000`.
+- [x] 2025.07.11.08.51 H Invoke `KioskUpdate.py` from `KioskSetup.py` instead of duplicating all the update/clean/etc. code.
 - [x] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.
                          The AUTOSTART code is not implemented in the Subiquity (AutoInstall) writer, so this is broken by now.
 - [x] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
