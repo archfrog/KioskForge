@@ -409,7 +409,7 @@ class Fields:
 				stream.write(f"#{78 * '*'}")
 
 				# Write the field name and its type.
-				stream.write(f"# Option '{field.name}' ({field.type}):")
+				stream.write(f"# Option '{field.name}' ({field.type})")
 				stream.write("#")
 
 				# Write the hint text.
