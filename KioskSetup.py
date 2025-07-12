@@ -384,7 +384,7 @@ class KioskSetup(KioskDriver):
 		# Remove some packages that we don't need in kiosk mode to save some memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
-		# Clean, Updatem, and upgrade the system (including snaps)
+		# Clean, Update, and upgrade the system (including snaps)
 		script += ExternalAction("Upgrading everything (both packages and snaps).", origin + os.sep + "KioskUpdate.py --initial")
 
 		# Configure the kiosk according to its type.
@@ -685,21 +685,6 @@ class KioskSetup(KioskDriver):
 #			# Enable the new systemd unit.
 #			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
 
-		# Free disk space by purging unused packages.
-		script += AptAction("Purging all unused packages to free disk space.", "apt-get autoremove --purge -y")
-
-		# Free disk space by cleaning the apt cache.
-		script += AptAction("Cleaning package cache.", "apt-get clean")
-
-		# Empty snap cache.
-		script += ExternalAction("Purging snap cache to free disk space", "rm -fr /var/lib/snapd/cache/*")
-
-		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
-		script += ExternalAction(
-			"Setting ownership of all files in user's home directory to that user.",
-			f"chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {os.path.dirname(origin)}"
-		)
-
 		# Create disk swap file in case the system gets very low on memory.
 		if kiosk.swap_size.data > 0:
 			script += ExternalAction("Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
@@ -812,6 +797,12 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
+
+		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
+		script += ExternalAction(
+			"Setting ownership of all files in user's home directory to that user.",
+			f"chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {os.path.dirname(origin)}"
+		)
 
 		# Synchronize all changes to disk (may take a while on microSD cards).
 		script += ExternalAction(
