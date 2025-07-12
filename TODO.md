@@ -33,6 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.12.22.37 H `KioskSetup.py` should **not** change the ownership of all the files in the user's home folder.  Instead,
+                         make sure that all files are created with the correct ownership right from the beginning, if possible.
 - [ ] 2025.07.12.22.02 H Can `KioskStart.py` possibly spawn the child so it replaces `KioskStart.py` in memory?  Would save 20+ MB RAM.
 - [ ] 2025.07.11.11.16 H Specify `DontZap`, `DontZoom`, and `DontVTSwitch` in `xorg.conf` file to prevent keyboard tampering.
                          `find` cannot find `xorg.conf` anywhere in the kiosk.  Check out where I store X11 config...
