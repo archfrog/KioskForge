@@ -19,7 +19,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+from typing import Callable, List
 
 import abc
 import os
@@ -58,6 +58,22 @@ class InternalAction(Action):
 	@abc.abstractmethod
 	def execute(self) -> Result:
 		raise NotImplementedError("Abstract method called")
+
+
+class CustomAction(InternalAction):
+	"""Calls a supplied function to perform whatever task needs performed."""
+
+	def __init__(self, title : str, callback : Callable[[], None]) -> None:
+		super().__init__(title)
+		self.__callback = callback
+
+	def execute(self) -> Result:
+		try:
+			self.__callback()
+		except Exception as that:		# pylint: disable=broad-exception-caught
+			return Result(1, str(that))
+
+		return Result()
 
 
 class DeleteFileAction(InternalAction):

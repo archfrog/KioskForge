@@ -440,6 +440,23 @@ maintenance controlled by the 'upgrade_time' field.
 """.strip()
 
 
+WEAR_REDUCTION_HELP = """
+Move certain system files, including swap, to memory.
+
+If enabled, KioskForge will set up a compressed swap file about one quarter
+of the size of the RAM available in the system, which is compressed using
+the 'zstd' compression algorithm, which is fairly fast and efficient.
+
+Furthermore, KioskForge will move /tmp to a RAM disk.
+
+The above changes reduce wear on the storage medium and also make the system
+more snappy and less laggy, this in particular for slow storage medias.
+
+The recommended setting is enabled.  If you run into problems with this
+setting, you can always disable it.
+""".strip()
+
+
 WIFI_BOOST_HELP = """
 If Wi-Fi power-saving should be enabled.
 
@@ -536,6 +553,7 @@ class Kiosk(Fields):
 		self += BooleanField("wifi_hidden", "false", WIFI_HIDDEN_HELP)
 		self += BooleanField("wifi_boost", "true", WIFI_BOOST_HELP)
 		self += BooleanField("cpu_boost", "true", CPU_BOOST_HELP)
+		self += BooleanField("wear_reduction", "true", WEAR_REDUCTION_HELP)
 		self += NaturalField("swap_size", "4", SWAP_SIZE_HELP, 0, 128)
 		self += NaturalField("vacuum_size", "256", VACUUM_SIZE_HELP, 0, 4096)
 		self += ChoiceField("upgrade_post", "reboot", UPGRADE_POST_HELP, ["poweroff", "reboot"])

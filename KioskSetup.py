@@ -21,7 +21,7 @@
 # This script is responsible for setting up the Linux kiosk machine (forging it) according to the user's kiosk configuration.
 
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+from typing import cast, List
 
 import os
 import shlex
@@ -29,12 +29,13 @@ import stat
 import sys
 import time
 
-from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, ExternalAction
-from toolbox.actions import InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction, RemoveFolderAction
-from toolbox.actions import ReplaceTextAction
+from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
+from toolbox.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
+from toolbox.actions import RemoveFolderAction, ReplaceTextAction
 from toolbox.builder import TextBuilder
 from toolbox.driver import KioskDriver
 from toolbox.errors import CommandError, InternalError, KioskError
+from toolbox.fstab import Filesystems, Mount
 from toolbox.invoke import invoke_text
 from toolbox.kiosk import Kiosk
 from toolbox.logger import Logger
@@ -111,7 +112,7 @@ class KioskSetup(KioskDriver):
 		# Check that we've got root privileges.
 		# pylint: disable-next=no-member
 		if os.geteuid() != 0:		# pyrefly: ignore[missing-attribute]
-			raise KioskError("You must be root (use 'sudo') to run this script")
+			raise KioskError("You must be root to run this script")
 
 		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
 		if not internet_active():
@@ -166,6 +167,10 @@ class KioskSetup(KioskDriver):
 
 		# Build the script to execute.
 		script = Script(logger, resume)
+
+		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which honors 'upgrade_time=HH:MM').
+		# NOTE: Putting all snap upgrades on hold does NOT prevent installing new snaps: Tested and verified.
+		script += ExternalAction("Disabling automatic upgrades of snaps.", "snap refresh --hold")
 
 		# Set environment variable to stop dpkg from running interactively.
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
@@ -236,14 +241,14 @@ class KioskSetup(KioskDriver):
 			""
 		)
 
+		# Set timezone to use user's choice.
+		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
+
 		# Install US English and user-specified locales (purge all others).
 		script += ExternalAction("Configuring system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
 
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
 		script += ExternalAction("Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
-
-		# Set timezone to use user's choice.
-		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
 
 		# Configure and activate firewall, allowing only SSH at port 22.
 		script += ExternalAction("Disabling firewall log.", "ufw logging off")
@@ -291,45 +296,16 @@ class KioskSetup(KioskDriver):
 			# NOTE: Package 'net-tools' contains the 'netstat' utility.
 			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 
+		# Install audio system (Pipewire) only if explicitly enabled.
+		if kiosk.sound_card.data != "none":
+			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
+			# Install Pipewire AND pulseaudio-utils as the script 'KioskStart.py' uses 'pactl' from the latter package.
+			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
+
 		# Run 'KioskConfig.py' to ensure Wi-Fi is boosted for the many downloads that follow below (if the user has enabled it).
+		# NOTE: We don't use the --now option to 'systemctl enable KioskConfig' as we don't know when it will be run and we don't
+		# NOTE: want the network card to possibly be reset in the middle of the grand system upgrade.
 		script += ExternalAction("Configuring kiosk hardware (if applicable).", origin + os.sep + "KioskConfig.py")
-
-		# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
-		lines  = TextBuilder()
-		lines += "[Unit]"
-		lines += "Description=KioskForge kiosk discovery service"
-		lines += "After=network-online.target"
-		lines += "Before=multi-user.target"
-		lines += "Wants=network-online.target"
-		lines += ""
-		lines += "[Service]"
-		lines += "Type=simple"
-		lines += "Restart=yes"
-		lines += "ExecStart="
-		lines += f"ExecStart={origin}/KioskDiscoveryServer.py"
-		lines += ""
-		lines += "[Install]"
-		lines += "WantedBy=multi-user.target"
-		script += CreateTextWithUserAndModeAction(
-			"Creating configuration file to start kiosk discovery service on every boot.",
-			"/usr/lib/systemd/system/KioskDiscoveryService.service",
-			"root",
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
-			lines.text
-		)
-		del lines
-
-		# Enable AND start 'KioskDiscoveryService' systemd service so that it runs on every boot and also immediately.
-		script += ExternalAction(
-			"Starting kiosk discovery service now and on every boot.",
-			"systemctl enable --now KioskDiscoveryService.service"
-		)
-
-		# Allow UDP broadcasts through the firewall.
-		script += ExternalAction(
-			"Adding firewall rule to allow the kiosk discovery service.",
-			f"ufw allow in proto udp to {lan_broadcast_address()}/24"
-		)
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()
@@ -363,6 +339,43 @@ class KioskSetup(KioskDriver):
 		# Enable 'KioskConfig' service so that it runs on every boot to automatically configure the kiosk according to its setup.
 		script += ExternalAction("Enabling KioskConfig service.", "systemctl enable KioskConfig.service")
 
+		# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
+		lines  = TextBuilder()
+		lines += "[Unit]"
+		lines += "Description=KioskForge kiosk discovery service"
+		lines += "After=network-online.target"
+		lines += "Before=multi-user.target"
+		lines += "Wants=network-online.target"
+		lines += ""
+		lines += "[Service]"
+		lines += "Type=simple"
+		lines += "Restart=yes"
+		lines += "ExecStart="
+		lines += f"ExecStart={origin}/KioskDiscoveryServer.py"
+		lines += ""
+		lines += "[Install]"
+		lines += "WantedBy=multi-user.target"
+		script += CreateTextWithUserAndModeAction(
+			"Creating configuration file to start kiosk discovery service on every boot.",
+			"/usr/lib/systemd/system/KioskDiscoveryService.service",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+			lines.text
+		)
+		del lines
+
+		# Enable AND start 'KioskDiscoveryService' systemd service so that it runs on every boot and also immediately.
+		script += ExternalAction(
+			"Enabling and starting kiosk discovery service.",
+			"systemctl enable --now KioskDiscoveryService.service"
+		)
+
+		# Allow UDP broadcasts through the firewall.
+		script += ExternalAction(
+			"Adding firewall rule to allow the kiosk discovery service.",
+			f"ufw allow in proto udp to {lan_broadcast_address()}/24"
+		)
+
 		# Uninstall package unattended-upgrades as I couldn't get it to work even after spending many hours on it.
 		# NOTE: Remove unattended-upgrades early on as it likes to interfere with APT and the package manager.
 		script += PurgePackagesAction("Purging package unattended-upgrades.", ["unattended-upgrades"])
@@ -371,21 +384,8 @@ class KioskSetup(KioskDriver):
 		# Remove some packages that we don't need in kiosk mode to save some memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
-		# Update and upgrade the system, including snaps (everything).
-		script += ExternalAction("Upgrading all snaps.", "snap refresh")
-
-		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which follows 'upgrade_time=HH:MM').
-		script += ExternalAction("Disabling automatic upgrades of snaps.", "snap refresh --hold")
-
-		# NOTE: Use 'AptAction' to automatically wait for apt's lock to be released if in use.
-		script += AptAction("Updating system package lists.", "apt-get update")
-		script += AptAction("Upgrading all installed packages.", "apt-get dist-upgrade -y")
-
-		# Install audio system (Pipewire) only if explicitly enabled.
-		if kiosk.sound_card.data != "none":
-			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
-			# Install Pipewire AND pulseaudio-utils as the script 'KioskStart.py' uses 'pactl' from the latter package.
-			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
+		# Clean, Updatem, and upgrade the system (including snaps)
+		script += ExternalAction("Upgrading everything (both packages and snaps).", origin + os.sep + "KioskUpdate.py --initial")
 
 		# Configure the kiosk according to its type.
 		if kiosk.type.data == "web-wayland":
@@ -401,7 +401,8 @@ class KioskSetup(KioskDriver):
 			# NOTE: The line below appears to be irrelevant for browsing local files in the HOME folder.
 			# script += ExternalAction("Making Chromium able to access to local files.", "snap connect chromium:removable-media")
 
-			script += ExternalAction("Configuring starting page in Chromium.", f"sudo snap set chromium url={kiosk.command.data}")
+			# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
+			script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
 
 			# ...Stop and remove the Common Unix Printing Server (cups) as it is a security risk that we don't need in a kiosk.
 			script += ExternalAction(
@@ -423,6 +424,8 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
+
+			script += ExternalAction("Configuring starting page in Chromium.", f"snap set chromium url={kiosk.command.data}")
 
 			# Tell Wayland to rotate the screen as per the kiosk configuration.
 			if kiosk.screen_rotation.data != "none":
@@ -547,17 +550,6 @@ class KioskSetup(KioskDriver):
 		# If the user_packages option is specified, install the extra package(s).
 		if kiosk.user_packages.data:
 			script += InstallPackagesAction("Installing user-specified (custom) packages", shlex.split(kiosk.user_packages.data))
-
-		# Create swap file in case the system gets low on memory.
-		if kiosk.swap_size.data > 0:
-			script += ExternalAction("Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
-			script += ExternalAction("Setting permissions on new swap file.", "chmod 600 /swapfile")
-			script += ExternalAction("Formatting swap file.", "mkswap /swapfile")
-			script += AppendTextAction(
-				"Creating '/etc/fstab' entry for the new swap file.",
-				"/etc/fstab",
-				"/swapfile\tnone\tswap\tsw\t0\t0"
-			)
 
 		if kiosk.type.data == "web-wayland":
 			# If using Wayland.
@@ -693,12 +685,6 @@ class KioskSetup(KioskDriver):
 #			# Enable the new systemd unit.
 #			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
 
-		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
-		script += ExternalAction(
-			"Setting ownership of all files in user's home directory to that user.",
-			f"chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {os.path.dirname(origin)}"
-		)
-
 		# Free disk space by purging unused packages.
 		script += AptAction("Purging all unused packages to free disk space.", "apt-get autoremove --purge -y")
 
@@ -707,6 +693,101 @@ class KioskSetup(KioskDriver):
 
 		# Empty snap cache.
 		script += ExternalAction("Purging snap cache to free disk space", "rm -fr /var/lib/snapd/cache/*")
+
+		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
+		script += ExternalAction(
+			"Setting ownership of all files in user's home directory to that user.",
+			f"chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {os.path.dirname(origin)}"
+		)
+
+		# Create disk swap file in case the system gets very low on memory.
+		if kiosk.swap_size.data > 0:
+			script += ExternalAction("Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
+			script += ExternalAction("Setting permissions on new swap file.", "chmod 600 /swapfile")
+			script += ExternalAction("Formatting swap file.", "mkswap /swapfile")
+			script += AppendTextAction(
+				"Creating '/etc/fstab' entry for the new swap file.",
+				"/etc/fstab",
+				"/swapfile\tnone\tswap\tsw\t0\t0"
+			)
+
+		if kiosk.wear_reduction.data:
+			# Attempt to reduce wear on micro-SD storage by moving swap, /tmp, and /var/log to memory.
+			# NOTE: See https://linuxblog.io/raspberry-pi-performance-add-zram-kernel-parameters/ for more information.
+			script += AptAction("Installing zram-tools to configure compressed swap file in memory.", "apt install -y zram-tools")
+
+			script += ReplaceTextAction(
+				"Configuring zram swap to use the zstd compression algorithm.",
+				"/etc/default/zramswap",
+				"#ALGO=lz4",
+				"ALGO=zstd"
+			)
+
+			script += ReplaceTextAction(
+				"Configuring zram swap to use one quarter of available memory.",
+				"/etc/default/zramswap",
+				"#PERCENT=50",
+				"PERCENT=25"
+			)
+
+			# Configure the kernel for using the RAM swap file aggressively (to speed up the system and reduce media wear).
+			# NOTE: See https://linuxblog.io/raspberry-pi-performance-add-zram-kernel-parameters/ for more information.
+			lines  = TextBuilder()
+			lines += "# Created by KioskForge to enable aggressive swap mode per the 'ram_boost=true' option."
+			lines += "# See https://linuxblog.io/raspberry-pi-performance-add-zram-kernel-parameters/ for more information."
+			lines += "vm.vfs_cache_pressure=500"
+			lines += "vm.swappiness=100"
+			lines += "vm.dirty_background_ratio=1"
+			lines += "vm.dirty_ratio=50"
+			script += CreateTextWithUserAndModeAction(
+				"Setting kernel swap mode to aggressive.",
+				"/etc/sysctl.d/20-kiosk-zram-swap-aggressive.conf",
+				kiosk.user_name.data,
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
+				lines.text
+			)
+			del lines
+
+			def fstab_append_options_to_ext4() -> None:
+				fstab = Filesystems()
+				fstab.load("/etc/fstab")
+
+				for line in fstab.lines:
+					if not isinstance(line, Mount):
+						continue
+
+					mount = cast(Mount, line)
+					if mount.type != "ext4":
+						continue
+
+					# Add the 'noatime' (don't update access time) to the system 'ext4' partition.
+					mount.options = mount.options + ["noatime"]
+
+					# Change commit value from the default (5) to 1.000 and add 'noatime' to reduce wear on the micro-SD even further.
+					# NOTE: I don't dare increasing the commit value to 1.000 seconds as some kiosks are powered off abruptly.
+					# See: https://forums.raspberrypi.com/viewtopic.php?t=328888 for more information.
+					# mount.options = mount.options + "commit=1000"]
+
+				fstab.save("/etc/fstab")
+
+			script += CustomAction(
+				"Setting the 'noatime' flag on the system ext4 partition to reduce storage wear.",
+				fstab_append_options_to_ext4
+			)
+			del fstab_append_options_to_ext4
+
+			# Move /tmp to a RAM disk - we have no persistent data in /tmp and it SHOULD be wiped on every boot, anyway.
+			lines  = TextBuilder()
+			lines += "tmpfs /tmp tmpfs defaults,noatime,size=128m 0 0"
+			script += AppendTextAction("Moving /tmp to a RAM disk.", "/etc/fstab", lines.text)
+			del lines
+
+			# Move /var/log to a RAM disk - most frequently, nobody looks at these logs anyway (I don't dare do this yet!).
+			# NOTE: This would effectively mean losing all logs on every reboot, not very good for debugging and status checks.
+			# lines  = TextBuilder()
+			# lines += "tmpfs /var/log tmpfs defaults,noatime,nosuid,size=256m 0 0"
+			# script += AppendTextAction("Moving /var/log to a RAM disk.", "/etc/fstab", lines.text)
+			# del lines
 
 		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
 		if kiosk.upgrade_time.data != "":

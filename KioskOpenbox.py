@@ -119,6 +119,8 @@ class KioskOpenbox(KioskDriver):
 			command += "--disable-crashpad"
 			if kiosk.chromium_autoplay.data:
 				command += "--autoplay-policy=no-user-gesture-required"
+			if kiosk.wear_reduction.data:
+				command += "--disk-cache-dir=/tmp/Chromium"
 			command += kiosk.command.data
 			cmdlist  = command.list
 			del command
