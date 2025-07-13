@@ -5,6 +5,8 @@ This document presents the important changes made to each KioskForge release fro
 1. Fixed the issue that `KioskForge.py` crashed if an unknown option was encountered (even if it was known in an earlier version).
 2. Renamed the `user_options` option to `chromium_autoplay` to make life simpler for everybody.  It enables autoplay in Chromium
    *without* user interaction such as clicking the `Play` button.
+3. `KioskForge.py`'s `verify` and `upgrade` commands now takes a file OR a folder.  If a folder, all `.kiosk` files in it are
+   verified or upgraded (recursively).  The command will stop on the first failed file encountered.
 3. Upgraded development and embedded Python to v3.13.5.
 4. Updated the documentation to reflect the fact that `Tkinter` is *not* going to be used as a GUI for KioskForge.  Instead, I'll
    try out [Flet](https://flet.dev), a Flutter-based UI toolkit for Python, as I am not very fond of Tkinter (after battling it).

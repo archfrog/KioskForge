@@ -29,6 +29,7 @@
 from typing import List, Optional
 
 import copy
+import glob
 import hashlib
 import os
 import platform
@@ -689,9 +690,35 @@ class KioskForge(KioskDriver):
 			case "apply":
 				self.apply(logger, origin, filename)
 			case "upgrade":
-				self.upgrade(logger, filename)
+				# Create list of fileS to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
+				if os.path.isfile(filename):
+					filenames = [filename]
+				else:
+					filenames = list(filter(lambda x: x.endswith('.kiosk'), glob.glob(filename + os.sep + "**", recursive=True)))
+
+				# Process each file while aborting on the first exception.
+				for filename in filenames:
+					if filename != filenames[0]:
+						print()
+						print("*" * 79)
+						print()
+
+					self.upgrade(logger, filename)
 			case "verify":
-				self.verify(logger, filename)
+				# Create list of fileS to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
+				if os.path.isfile(filename):
+					filenames = [filename]
+				else:
+					filenames = list(filter(lambda x: x.endswith('.kiosk'), glob.glob(filename + os.sep + "**", recursive=True)))
+
+				# Process each file while aborting on the first exception.
+				for filename in filenames:
+					if filename != filenames[0]:
+						print()
+						print("*" * 79)
+						print()
+
+					self.verify(logger, filename)
 			case _:
 				raise KioskError(f"Invalid command specified: {command}")
 
