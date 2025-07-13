@@ -2,14 +2,15 @@
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
 ## Version 0.24 (2025.??.??)
-1. Renamed the `user_options` option to `chromium_autoplay` to make life simpler for everybody.  It enables autoplay in Chromium
+1. Fixed the issue that `KioskForge.py` crashed if an unknown option was encountered (even if it was known in an earlier version).
+2. Renamed the `user_options` option to `chromium_autoplay` to make life simpler for everybody.  It enables autoplay in Chromium
    *without* user interaction such as clicking the `Play` button.
-2. Upgraded development and embedded Python to v3.13.5.
-3. Updated the documentation to reflect the fact that `Tkinter` is *not* going to be used as a GUI for KioskForge.  Instead, I'll
+3. Upgraded development and embedded Python to v3.13.5.
+4. Updated the documentation to reflect the fact that `Tkinter` is *not* going to be used as a GUI for KioskForge.  Instead, I'll
    try out [Flet](https://flet.dev), a Flutter-based UI toolkit for Python, as I am not very fond of Tkinter (after battling it).
-4. Updated the documentation in general, to reflect recent changes, etc.
-5. Changed the project to use the [uv](https://github.com/astral-sh/uv) Python package manager instead of `pip`.
-6. Changed the project to work in a virtual environment instead of installing dependencies globally.
+5. Updated the documentation in general, to reflect recent changes, etc.
+6. Changed the project to use the [uv](https://github.com/astral-sh/uv) Python package manager instead of `pip`.
+7. Changed the project to work in a virtual environment instead of installing dependencies globally.
 
 ## Version 0.23 (2025.07.09)
 1. The very serious `snap` VFS corruption issue (in long-running kiosks) has now, hopefully, been fixed (I could not recreate the

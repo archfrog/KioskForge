@@ -365,6 +365,10 @@ class Fields:
 					raise InputError("Missing delimiter (=) in line")
 				( name, data ) = ( line[:index].strip(), line[index + 1:].strip() )
 
+				# Check that the field is known to us.
+				if not name in self.__fields:
+					raise InputError(f"Unknown field: {name}")
+
 				# Check that the field has not already been assigned more than once (it is set first time by the constructor).
 				if not allow_redefinitions and self.__edited[name]:
 					raise InputError(f"Illegal redefinition of field '{name}'")
