@@ -78,6 +78,7 @@ class KioskDiscoveryServer(KioskDriver):
 			server.bind((lan_broadcast_address(), SERVICE))
 
 			while not shutdown_signal.exists:
+				# Wait indefinitely for a command from a KioskForge client.
 				(command, remote) = server.recvfrom(1024)
 				if command == COMMAND:
 					logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
