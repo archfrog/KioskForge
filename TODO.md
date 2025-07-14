@@ -33,6 +33,9 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.07.14.17.30 H The `toolkit` project must be split out, into its own Git repo, to allow using it from the GUI component.
+- [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
+                         cloning a forged kiosk.  This requires that the `KioskConfig.py` script is updated to do this.
 - [ ] 2025.07.12.23.21 M Should KioskForge copy the markdown docs to the kiosk, just for posterity (kiosks can live a long time)?
 - [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrade X.kiosk` add new options with their default values and warn about doing so.
 - [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrader folder` upgrade all `*.kiosk` files in the folder tree (i.e. recursively).
