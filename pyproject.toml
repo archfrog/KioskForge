@@ -1,7 +1,7 @@
 [project]
 name = "KioskForge"
 version = "0.24.0"
-description = "KioskForge generates Raspberry Pi kiosk running Ubuntu Server"
+description = "KioskForge generates Raspberry Pi kiosks on top of Ubuntu Server"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
