@@ -598,7 +598,7 @@ class KioskForge(KioskDriver):
 
 		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
 		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the
-		# NOTE: 'KioskForge.kiosk' file that is created in the '~/user/KioskForge' folder by the 'KioskForge.py' script.
+		# NOTE: 'KioskForge.kiosk' file that is created in the '/home/username/KioskForge' folder by the 'KioskForge.py' script.
 		kiosk.redact_apply()
 		kiosk.save(output + os.sep + "KioskForge.kiosk")
 
