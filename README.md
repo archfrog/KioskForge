@@ -1,3 +1,4 @@
+# KioskForge ReadMe
 [KioskForge](https://kioskforge.org) generates kiosks on top of Ubuntu Server 24.04.
 
 ## Introduction
