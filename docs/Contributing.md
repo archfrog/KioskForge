@@ -17,16 +17,16 @@ Contributions to KioskForge are very welcome, be it actual GitHub pull requests 
 ### Preparation
 To prepare for developing on KioskForge, follow this procedure:
 
-2. Install [Python v3.13.5](https://www.python.org/downloads/release/python-3135/) (to be able to use Python globally).
-1. Install [uv](https://github.com/astral-sh/uv) as per the `Installation` section on that page.
-2. Create and/or change directory to the parent directory of where you want the KioskForge sources to live.
-3. Checkout the KioskForge repository using Git: `git clone https://github.com/vhmdk/KioskForge`
-4. Change into the KioskForge folder: `cd KioskForge`
-5. Activate the virtual environment on Windows: `.venv\Scripts\activate`
-6. Activate the virtual environment on Linux/Mac: `source .venv/bin/activate`
-7. Download and install required dependencies: `uv sync`
-8. Run the static analyzers on Windows: `check.py`
-9. Run the static analyzers on Linux: `./check.py`
+1. Install [Python v3.13.5](https://www.python.org/downloads/release/python-3135/) (to be able to use Python globally).
+2. Install [uv](https://github.com/astral-sh/uv) as per the `Installation` section on that page.
+3. Create and/or change directory to the parent directory of where you want the KioskForge sources to live.
+4. Checkout the KioskForge repository using Git: `git clone https://github.com/vhmdk/KioskForge`
+5. Change into the KioskForge folder: `cd KioskForge`
+6. Activate the virtual environment on Windows: `.venv\Scripts\activate`
+7. Activate the virtual environment on Linux/Mac: `source .venv/bin/activate`
+8. Download and install required dependencies: `uv sync`
+9. Run the static analyzers on Windows: `check.py`
+10. Run the static analyzers on Linux: `./check.py`
 
 ### Dependencies
 The actual list of [PyPi](https://pypi.org) packages that KioskForge uses is as follows:
