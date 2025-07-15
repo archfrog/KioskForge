@@ -35,7 +35,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
 DefaultGroupName={#MyAppName}
-LicenseFile=..\src\LICENSE.txt
+LicenseFile=..\src\LICENSE.md
 ;InfoAfterFile=..\src\LICENSE.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
@@ -59,8 +59,9 @@ Source: "..\tmp\Changes.html"; DestDir: "{app}"; Flags: isreadme ignoreversion
 Source: "..\tmp\Contributing.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\FAQ.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\Guide.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\tmp\LICENSE.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\Manual.html"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\tmp\Readme.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -82,7 +83,9 @@ Name: "{group}\Changes"; Filename: "{app}\Changes.html"
 Name: "{group}\Contributing"; Filename: "{app}\Contributing.html"
 Name: "{group}\FAQ"; Filename: "{app}\FAQ.html"
 Name: "{group}\Guide"; Filename: "{app}\Guide.html"
+Name: "{group}\License"; Filename: "{app}\License.html"
 Name: "{group}\Manual"; Filename: "{app}\Manual.html"
+Name: "{group}\Read Me"; Filename: "{app}\Readme.html"
 Name: "{group}\Template kiosk"; Filename: "{app}\Template.kiosk"
 ;Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 

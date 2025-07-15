@@ -196,7 +196,9 @@ class KioskBuild(KioskDriver):
 			"Contributing.md" : f"KioskForge v{version.version} Contributing",
 			"FAQ.md"          : f"KioskForge v{version.version} FAQ",
 			"Guide.md"        : f"KioskForge v{version.version} Guide",
+			"LICENSE.md"      : f"KioskForge v{version.version} License",
 			"Manual.md"       : f"KioskForge v{version.version} Manual",
+			"README.md"       : f"KioskForge v{version.version} ReadMe",
 		}
 		for file, title in files.items():
 			words = TextBuilder()
@@ -226,15 +228,17 @@ class KioskBuild(KioskDriver):
 
 			# Output to this path.
 			words += "-o"
-			words += paths.temppath + os.sep + os.path.splitext(file)[0] + ".html"
+			words += paths.temppath + os.sep + os.path.splitext(file)[0].capitalize() + ".html"
 
-			# Input is the file, which is located in the 'docs' folder.
-			words += "docs" + os.sep + file
+			# Input is the file, which is typically located in the 'docs' folder, else in the current project root folder.
+			if os.path.isfile("docs" + os.sep + file):
+				words += "docs" + os.sep + file
+			elif os.path.isfile(file):
+				words += file
+			else:
+				raise KioskError(f"Unable to locate file: {file}")
 
 			invoke_list_safe(words.list)
-
-		# Simply copy the LICENSE.txt file to the temporary directory.
-		shutil.copyfile("LICENSE.txt", paths.temppath + os.sep + "LICENSE.txt")
 
 		# Generate a brand new, up-to-date template kiosk by saving an empty, blank kiosk.
 		Kiosk(version).save(paths.temppath + os.sep + "Template.kiosk")
