@@ -328,7 +328,7 @@ class KioskSetup(KioskDriver):
 		lines += "[Install]"
 		lines += "WantedBy=graphical.target"
 		script += CreateTextWithUserAndModeAction(
-			"Configure kiosk automatically on every boot using a systemd service.",
+			"Configuring systemd to run KioskConfig.py on every boot.",
 			"/usr/lib/systemd/system/KioskConfig.service",
 			"root",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
