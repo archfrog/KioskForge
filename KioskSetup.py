@@ -244,11 +244,20 @@ class KioskSetup(KioskDriver):
 		# Set timezone to use user's choice.
 		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
 
+		# Uninstall package unattended-upgrades as I couldn't get it to work even after spending many hours on it.
+		# NOTE: Remove unattended-upgrades very early on as it likes to interfere with APT and the package manager.
+		script += PurgePackagesAction("Purging package unattended-upgrades.", ["unattended-upgrades"])
+		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
+
 		# Install US English and user-specified locales (purge all others).
 		script += ExternalAction("Configuring system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
 
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
 		script += ExternalAction("Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
+
+		# Update package lists to avoid getting all sorts of bizarre HTTP errors due to outdated package lists.
+		# NOTE: If this step is left out, you risk getting tons of HTTP 404 errors when trying to install, say, the audio packages.
+		script += AptAction("Updating package lists before installing anything.", "apt-get update")
 
 		# Configure and activate firewall, allowing only SSH at port 22.
 		script += ExternalAction("Disabling firewall log.", "ufw logging off")
@@ -256,7 +265,7 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("Enabling firewall.", "ufw --force enable")
 
 		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
-		#...Install OpenSSH server.
+		# ...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
 
 		# ...Install SSH public key, if any, so that the user can SSH into the box in case of errors or other issues.
@@ -299,8 +308,20 @@ class KioskSetup(KioskDriver):
 		# Install audio system (Pipewire) only if explicitly enabled.
 		if kiosk.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
-			# Install Pipewire AND pulseaudio-utils as the script 'KioskStart.py' uses 'pactl' from the latter package.
-			script += InstallPackagesAction("Installing Pipewire audio subsystem.", ["pipewire", "pulseaudio-utils"])
+
+			if True:
+				# Install Pipewire AND pulseaudio-utils as the script 'KioskStart.py' uses 'pactl' from the latter package.
+				# NOTE: Pipewire has worked beautifully, but now it suddenly fails to initialize and run.  Added to TODO.md.
+				script += InstallPackagesAction(
+					"Installing Pipewire audio subsystem.",
+					["pipewire", "wireplumber", "pipewire-audio", "pulseaudio-utils"]
+				)
+			else:
+				# Several users report issues with Pipewire on Ubuntu 24.04.1, so let's go the pulseaudio way instead.
+				script += InstallPackagesAction(
+					"Installing PulseAudio audio subsystem.",
+					["pulseaudio", "pulseaudio-utils", "gstreamer1.0-pulseaudio"]
+				)
 
 		# Run 'KioskConfig.py' to ensure Wi-Fi is boosted for the many downloads that follow below (if the user has enabled it).
 		# NOTE: We don't use the --now option to 'systemctl enable KioskConfig' as we don't know when it will be run and we don't
@@ -376,12 +397,7 @@ class KioskSetup(KioskDriver):
 			f"ufw allow in proto udp to {lan_broadcast_address()}/24"
 		)
 
-		# Uninstall package unattended-upgrades as I couldn't get it to work even after spending many hours on it.
-		# NOTE: Remove unattended-upgrades early on as it likes to interfere with APT and the package manager.
-		script += PurgePackagesAction("Purging package unattended-upgrades.", ["unattended-upgrades"])
-		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
-
-		# Remove some packages that we don't need in kiosk mode to save some memory.
+		# Remove some packages that we don't need in kiosk mode to save a tiny bit of memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
 		# Clean, Update, and upgrade the system (including snaps)
