@@ -84,11 +84,11 @@ class KioskConfig(KioskDriver):
 			card_path = kiosk.device.data + '.' + kiosk.sound_card.data
 			if card_path not in CARDS:
 				raise KioskError(f"Unknown sound card: {card_path}")
-			invoke_text_safe(f"pactl set-default-sink {CARDS[card_path]}")
+			invoke_text_safe(f"sudo -u {kiosk.user_name.data} pactl set-default-sink {CARDS[card_path]}")
 			del card_path
 
 			# Set the audio level to user-specified percentage on a logarithmic scale.
-			invoke_text_safe(f"wpctl set-volume @DEFAULT_AUDIO_SINK@ {kiosk.sound_level.data / 100.0:.2f}")
+			invoke_text_safe(f"sudo -u {kiosk.user_name.data} wpctl set-volume @DEFAULT_AUDIO_SINK@ {kiosk.sound_level.data / 100.0:.2f}")
 
 
 if __name__ == "__main__":
