@@ -23,7 +23,7 @@ import io
 import os
 import sys
 
-from toolbox.errors import KioskError
+from kiosklib.errors import KioskError
 
 
 def file_wipe_once(path : str) -> None:

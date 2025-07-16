@@ -25,10 +25,10 @@ import re
 import secrets
 import time
 
-from toolbox.convert import BOOLEANS
-from toolbox.errors import Error, FieldError, InputError, InternalError, KioskError, TextFileError
-from toolbox.logger import Logger, TextWriter
-from toolbox.version import Version
+from kiosklib.convert import BOOLEANS
+from kiosklib.errors import Error, FieldError, InputError, InternalError, KioskError, TextFileError
+from kiosklib.logger import Logger, TextWriter
+from kiosklib.version import Version
 
 
 class Field:

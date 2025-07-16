@@ -23,7 +23,7 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List, TextIO
 
-from toolbox.errors import KioskError
+from kiosklib.errors import KioskError
 
 
 class Empty:

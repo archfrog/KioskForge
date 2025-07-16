@@ -24,7 +24,7 @@ from typing import Dict, List, Optional
 import shlex
 import subprocess
 
-from toolbox.errors import KioskError
+from kiosklib.errors import KioskError
 
 
 class Result:

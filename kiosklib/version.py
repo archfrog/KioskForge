@@ -17,17 +17,25 @@
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# The complete list of source files and folders, within the KioskForge project, to be analyzed, used by PyInstaller, and so on.
 
-SOURCES = [
-	"KioskConfig.py",
-	"KioskDiscoveryServer.py",
-	"KioskForge.py",
-	"KioskOpenbox.py",
-	"KioskReport.py",
-	"KioskSetup.py",
-	"KioskStart.py",
-	"KioskUpdate.py",
-	"toolbox"
-]
+PRODUCT = "KioskForge"
+VERSION = "0.25"
+COMPANY = "Vendsyssel Historiske Museum"
+CONTACT = "Mikael Egevig <me@vhm.dk>"
+WEBSITE = "https://kioskforge.org/"
+
+class Version:
+	"""A simple wrapper around everything related to version information about the running script."""
+
+	def __init__(self, basename : str) -> None:
+		self.product = PRODUCT
+		self.program = basename + ".py"
+		self.version = VERSION
+		self.company = COMPANY
+		self.contact = CONTACT
+
+	def banner(self) -> str:
+		result  = f"{self.program} v{self.version} - {WEBSITE} - {CONTACT}"
+		result += "\n"
+		result += f"Copyright (c) 2024-2025 {self.company}.  All rights reserved."
+		return result

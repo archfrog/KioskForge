@@ -27,13 +27,13 @@ import os
 import sys
 import socket
 
-from toolbox.discovery import COMMAND, SERVICE
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger
-from toolbox.network import internet_active, lan_broadcast_address, wait_for_internet_active
-from toolbox.signal import Signal
+from kiosklib.discovery import COMMAND, SERVICE
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger
+from kiosklib.network import internet_active, lan_broadcast_address, wait_for_internet_active
+from kiosklib.signal import Signal
 
 
 class KioskDiscoveryServer(KioskDriver):

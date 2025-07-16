@@ -30,15 +30,15 @@ import sys
 
 import pyinstaller_versionfile
 
-from toolbox.builder import TextBuilder
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_list_safe
-from toolbox.logger import Logger
-from toolbox.kiosk import Kiosk
-from toolbox.sources import SOURCES
-from toolbox.various import ramdisk_get
-from toolbox.version import Version
+from kiosklib.builder import TextBuilder
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.invoke import invoke_list_safe
+from kiosklib.logger import Logger
+from kiosklib.kiosk import Kiosk
+from kiosklib.sources import SOURCES
+from kiosklib.various import ramdisk_get
+from kiosklib.version import Version
 
 
 # Delete all items IN the specified folder, without removing or altering the folder itself.

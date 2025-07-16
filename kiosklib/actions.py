@@ -27,8 +27,8 @@ import shutil
 import stat
 import time
 
-from toolbox.errors import InternalError, KioskError
-from toolbox.invoke import invoke_text, Result
+from kiosklib.errors import InternalError, KioskError
+from kiosklib.invoke import invoke_text, Result
 
 
 class Action:

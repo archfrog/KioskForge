@@ -16,7 +16,7 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 
 
 ## Tasks in the Source Code
-**NOTE:** Use `grep -FR TODO: *.py toolbox/*.py` to see the current list of task items embedded in the source code.  These are
+**NOTE:** Use `grep -FR TODO: *.py kiosklib/*.py` to see the current list of task items embedded in the source code.  These are
 also reported by `pylint`, which is automatically invoked by the `check.py` script.
 
 
@@ -84,7 +84,7 @@ snap connect chromium:wayland
                          This is rather complex as it probably requires automounting the USB key, syncing, and then dismounting it.
 - [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
-- [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `toolbox.setup.HELP_TEXT`.
+- [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `kiosklib.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.
                          This so that `KioskStart.py` can actually wait for an internet connection before it continues.
 - [ ] 2025.05.03.04.38 H Add support for Wayland, it appears that Pi5 uses a framebuffer (= very slow) under X11.  My early tests
@@ -146,7 +146,7 @@ snap connect chromium:wayland
                          Each script command is mapped internally to a driver, such as UbuntuServerScript or UbuntuCoreScript.
                          This scripting language should be completely hidden to the end-user and just simplify KioskForge.
 - [ ] 2025.04.26.11.16 M Add support for keyboards (and locales?) that are only part of an Ubuntu language pack.  In other words,
-                         the list of supported keyboards in `toolbox.convert` is *incomplete*.  See `Yiddish` for instance.
+                         the list of supported keyboards in `kiosklib.convert` is *incomplete*.  See `Yiddish` for instance.
                          To see all languages partially or completely supported by Ubuntu, click `View all languages` on
                          [Translation Status by Language](https://translations.launchpad.net/ubuntu/noble).  The Ubuntu package
                          to install, to get all locales, is `locales-all`.  It is a 10 MB download that expands to 238 MB on disk.

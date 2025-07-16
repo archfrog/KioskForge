@@ -28,8 +28,8 @@ import os
 import socket
 import time
 
-from toolbox.errors import Error
-from toolbox.invoke import invoke_text, invoke_text_safe
+from kiosklib.errors import Error
+from kiosklib.invoke import invoke_text, invoke_text_safe
 
 
 def wifi_boost(state : bool) -> None:

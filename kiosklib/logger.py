@@ -25,7 +25,7 @@ import os
 import sys
 import types
 
-from toolbox.errors import InternalError
+from kiosklib.errors import InternalError
 
 # Try to import syslog (Linux only).
 if sys.platform == "linux":

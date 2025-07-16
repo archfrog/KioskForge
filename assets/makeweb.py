@@ -3,10 +3,10 @@
 
 import os
 
-from toolbox.convert import KEYBOARDS
-from toolbox.locales import LOCALES
-from toolbox.logger import TextWriter
-from toolbox.timezones import TIMEZONES
+from kiosklib.convert import KEYBOARDS
+from kiosklib.locales import LOCALES
+from kiosklib.logger import TextWriter
+from kiosklib.timezones import TIMEZONES
 
 # Fetch and normalize RAMDISK environment variable.
 ramdisk = os.environ["RAMDISK"]

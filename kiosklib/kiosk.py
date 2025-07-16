@@ -21,12 +21,12 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
 
-from toolbox.convert import KEYBOARDS
-from toolbox.locales import LOCALES
-from toolbox.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
-from toolbox.setup import OptionalTimeField, PasswordField, password_create, RegexField, StringField
-from toolbox.timezones import TIMEZONES
-from toolbox.version import Version
+from kiosklib.convert import KEYBOARDS
+from kiosklib.locales import LOCALES
+from kiosklib.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
+from kiosklib.setup import OptionalTimeField, PasswordField, password_create, RegexField, StringField
+from kiosklib.timezones import TIMEZONES
+from kiosklib.version import Version
 
 
 COMMAND_HELP = """

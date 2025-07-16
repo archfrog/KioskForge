@@ -28,14 +28,14 @@ import os
 import sys
 import time
 
-from toolbox.actions import AptAction
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_text, invoke_text_safe
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger
-from toolbox.network import internet_active
-from toolbox.signal import Signal
+from kiosklib.actions import AptAction
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.invoke import invoke_text, invoke_text_safe
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger
+from kiosklib.network import internet_active
+from kiosklib.signal import Signal
 
 
 class KioskUpdate(KioskDriver):

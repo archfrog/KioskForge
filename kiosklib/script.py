@@ -23,10 +23,10 @@ from typing import Any, List
 
 import timeit
 
-from toolbox.actions import Action
-from toolbox.errors import InternalError, KioskError
-from toolbox.invoke import Result
-from toolbox.logger import Logger
+from kiosklib.actions import Action
+from kiosklib.errors import InternalError, KioskError
+from kiosklib.invoke import Result
+from kiosklib.logger import Logger
 
 class Script:
 	"""Simple abstraction of a sequence of actions that can be resumed from any point in the list of actions."""

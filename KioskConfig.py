@@ -27,12 +27,12 @@ import os
 import sys
 import time
 
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_text_safe
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger
-from toolbox.network import wifi_boost
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.invoke import invoke_text_safe
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger
+from kiosklib.network import wifi_boost
 
 CARDS = {
 	'pi4b.jack'  : 'alsa_output.platform-bcm2835_audio.stereo-fallback',

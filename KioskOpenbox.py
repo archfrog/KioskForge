@@ -29,13 +29,13 @@ import subprocess
 import sys
 import time
 
-from toolbox.builder import TextBuilder
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_list_safe, invoke_text, invoke_text_safe
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger
-from toolbox.signal import Signal
+from kiosklib.builder import TextBuilder
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger
+from kiosklib.signal import Signal
 
 KIOSKFORGE_TO_XRANDR_ROTATIONS = {
 	'none'  : 'normal',

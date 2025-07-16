@@ -29,20 +29,20 @@ import stat
 import sys
 import time
 
-from toolbox.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
-from toolbox.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
-from toolbox.actions import RemoveFolderAction, ReplaceTextAction
-from toolbox.builder import TextBuilder
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, InternalError, KioskError
-from toolbox.fstab import Filesystems, Mount
-from toolbox.invoke import invoke_text
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger
-from toolbox.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active
-from toolbox.script import Script
-from toolbox.signal import Signal
-from toolbox.various import file_wipe_once, screen_clear
+from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
+from kiosklib.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
+from kiosklib.actions import RemoveFolderAction, ReplaceTextAction
+from kiosklib.builder import TextBuilder
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, InternalError, KioskError
+from kiosklib.fstab import Filesystems, Mount
+from kiosklib.invoke import invoke_text
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger
+from kiosklib.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active
+from kiosklib.script import Script
+from kiosklib.signal import Signal
+from kiosklib.various import file_wipe_once, screen_clear
 
 
 # NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.

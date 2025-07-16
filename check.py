@@ -27,13 +27,13 @@ import os
 import shutil
 import sys
 
-from toolbox.builder import TextBuilder
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_list
-from toolbox.logger import Logger
-from toolbox.sources import SOURCES
-from toolbox.various import ramdisk_get
+from kiosklib.builder import TextBuilder
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.invoke import invoke_list
+from kiosklib.logger import Logger
+from kiosklib.sources import SOURCES
+from kiosklib.various import ramdisk_get
 
 
 def which(name : str) -> str:
@@ -69,7 +69,7 @@ class KioskCheck(KioskDriver):
 		# Check that the user has set up the RAMDISK environment variable and make sure it is normalized while we're at it.
 		ramdisk = ramdisk_get()
 
-		#***** Ask MyPy to statically check all Python source files in the current folder and in the 'toolbox' folder. ***********
+		#***** Ask MyPy to statically check all Python source files in the current folder and in the 'kiosklib' folder. ***********
 		words  = TextBuilder()
 		words += which("mypy")
 		words += "--cache-dir"

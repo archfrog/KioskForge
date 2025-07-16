@@ -27,9 +27,9 @@ import platform
 import sys
 import traceback
 
-from toolbox.errors import CommandError, Error, FieldError, InternalError, KioskError, TextFileError
-from toolbox.logger import Logger
-from toolbox.version import Version
+from kiosklib.errors import CommandError, Error, FieldError, InternalError, KioskError, TextFileError
+from kiosklib.logger import Logger
+from kiosklib.version import Version
 
 # Standard, C-like exit code definitions.
 EXIT_SUCCESS = os.EX_OK

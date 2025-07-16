@@ -39,14 +39,14 @@ import time
 
 import bcrypt
 
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, InternalError, KioskError
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger, TextWriter
-from toolbox.setup import hostname_create
-from toolbox.shell import tree_delete
-from toolbox.sources import SOURCES
-from toolbox.version import Version
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, InternalError, KioskError
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger, TextWriter
+from kiosklib.setup import hostname_create
+from kiosklib.shell import tree_delete
+from kiosklib.sources import SOURCES
+from kiosklib.version import Version
 
 
 def password_crypt(text : str) -> str:

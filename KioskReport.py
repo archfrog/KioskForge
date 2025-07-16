@@ -28,11 +28,11 @@ import platform
 import sys
 import zipfile
 
-from toolbox.driver import KioskDriver
-from toolbox.errors import CommandError, KioskError
-from toolbox.invoke import invoke_text
-from toolbox.kiosk import Kiosk
-from toolbox.logger import Logger
+from kiosklib.driver import KioskDriver
+from kiosklib.errors import CommandError, KioskError
+from kiosklib.invoke import invoke_text
+from kiosklib.kiosk import Kiosk
+from kiosklib.logger import Logger
 
 
 def strip_path_and_unhide(path : str) -> str:
