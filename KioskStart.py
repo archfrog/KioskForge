@@ -64,6 +64,8 @@ class KioskStart(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
+		logger.write("Starting kiosk.")
+
 		# Disallow redundant launches of this script (there can only be ONE instance ;-)).
 		signal = Signal("kiosk-running", owner=kiosk.user_name.data)
 		if signal.exists:
@@ -73,11 +75,11 @@ class KioskStart(KioskDriver):
 			# Create the signal that prevents this script from being launched multiple times thus running concurrently.
 			signal.create()
 
-			# Move ~/.xsession-errors to ~/.xsession-errors.old to avoid having it grow indefinitely forever.
-			if os.path.isfile("~/.xsession-errors"):
-				os.replace("~/.xsession-errors", "~/.xsession-errors.old")
-
 			if kiosk.type.data in [ "x11", "web" ]:
+				# Move ~/.xsession-errors to ~/.xsession-errors.old to avoid having it grow indefinitely forever.
+				if os.path.isfile("~/.xsession-errors"):
+					os.replace("~/.xsession-errors", "~/.xsession-errors.old")
+
 				# Only execute the request if $DISPLAY is undefined and $XDG_VTNR is equal to 1 (avoid starting X11 twice).
 				if not os.environ.get("DISPLAY") and os.environ.get("XDG_VTNR") == "1":
 					# Launch X11, which runs '.config/openbox/autostart', which launches Chromium or the user app in kiosk mode.
