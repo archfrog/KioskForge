@@ -198,7 +198,7 @@ class KioskUpdate(KioskDriver):
 			else:
 				logger.write("Unable to purge, vacuum, update, upgrade, and clean system.")
 
-		logger.write("System updater stopping.")
+		logger.write("Kiosk updater stopping.")
 
 		# Execute the requested post-upgrade action (only if not invoked from 'KioskSetup.py').
 		if not initial:
