@@ -56,7 +56,7 @@ class KioskDiscoveryServer(KioskDriver):
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
 			raise CommandError('"KioskDiscoveryServer.py"')
 
-		logger.write("Discovery service starting.")
+		logger.write("Starting kiosk iscovery service.")
 
 		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
 		if not internet_active():
@@ -86,7 +86,7 @@ class KioskDiscoveryServer(KioskDriver):
 				else:
 					logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
 
-			logger.write("Discovery server shutting down")
+			logger.write("Shutting down kiosk discovery service.")
 		finally:
 			server.close()
 
