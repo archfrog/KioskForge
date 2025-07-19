@@ -75,10 +75,10 @@ class KioskUpdate(KioskDriver):
 			logger.write(f"Removing snap {name} revision {revision}.")
 			invoke_text_safe(f'snap remove "{name}" --revision="{revision}"')
 
-		# Empty the snap cache, this may grow to many gigabytes over time.
+		# Empty the snapd cache as this may grow to MANY gigabytes over time.
 		for file in glob.glob("/var/lib/snapd/cache/*"):
 			if os.path.isfile(file):
-				logger.write(f"Removing snap cache item {file}.")
+				logger.write(f"Removing snapd cache item {os.path.basename(file)}.")
 				os.unlink(file)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
