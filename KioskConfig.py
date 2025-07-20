@@ -28,7 +28,6 @@ import sys
 
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
-from kiosklib.invoke import invoke_text, invoke_text_safe
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.network import wifi_boost

@@ -103,8 +103,12 @@ def lan_broadcast_address() -> str:
 	return lan_subnet + '.255'
 
 
-def wait_for_internet_active(duration : int = 60) -> None:
-	for index in range(duration):		# pylint: disable=unused-variable
+def wait_for_internet_active(duration : int = 0) -> None:
+	"""Wait for the internet to become accessible.  Zero means 'wait forever', other values mean 'wait N seconds'."""
+	elapsed = 0
+	while not internet_active():
 		time.sleep(1)
-		if internet_active():
+		elapsed += 1
+
+		if duration and elapsed >= duration:
 			break

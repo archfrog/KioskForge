@@ -34,10 +34,10 @@ snap connect chromium:wayland
 ## Open Tasks
 # TODO:
 - [ ] 2025.07.19.04.29 H `KioskDiscoveryServer.py` must wait **indefinitely** for the network to become available!
+                         And what if there is no internet, but LAN only?  Review all networking code to fix possible issues.
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H Rename the `toolkit` project to `kiosklib` to prepare for putting it in its own Git repository.
 - [ ] 2025.07.14.17.30 H The `toolkit` project must be split out, into its own Git repo, to allow using it from the GUI component.
-
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
                          cloning a forged kiosk.  This requires that the `KioskConfig.py` script is updated to do this.
 - [ ] 2025.07.12.23.21 M Should KioskForge copy the markdown docs to the kiosk, just for posterity (kiosks can live a long time)?

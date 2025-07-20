@@ -118,7 +118,7 @@ class KioskSetup(KioskDriver):
 		if not internet_active():
 			logger.write("*** NETWORK DOWN: Waiting at most 60 seconds for the kiosk to come online")
 			logger.write()
-			wait_for_internet_active()
+			wait_for_internet_active(60)
 
 		# If still no network, abort the forge process.
 		if not internet_active():

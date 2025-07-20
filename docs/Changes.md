@@ -1,6 +1,10 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 0.25 (2025.07.20)
+1. Fixed the broken PipeWire (audio subsystem) initialization, which was broken by an Ubuntu (kernel?) update.
+2.
+
 ## Version 0.24 (2025.07.16)
 1. Fixed the issue that `KioskForge.py` crashed if an unknown option was encountered (even if it was known in an earlier version).
 2. Renamed the `user_options` option to `chromium_autoplay` to make life simpler for everybody.  It enables autoplay in Chromium
