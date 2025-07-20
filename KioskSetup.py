@@ -39,7 +39,7 @@ from kiosklib.fstab import Filesystems, Mount
 from kiosklib.invoke import invoke_text
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
-from kiosklib.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active
+from kiosklib.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active, wifi_boost
 from kiosklib.script import Script
 from kiosklib.signal import Signal
 from kiosklib.various import file_wipe_once, screen_clear
@@ -304,37 +304,23 @@ class KioskSetup(KioskDriver):
 			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
 			# NOTE: Package 'net-tools' contains the 'netstat' utility.
 			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
+			script += CustomAction("Boosting Wi-Fi speed by disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
 
-		# Install audio system (Pipewire) only if explicitly enabled.
+		# Install PipeWire audio system only if explicitly enabled.
 		if kiosk.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
 
-			if True:
-				# Install Pipewire AND pulseaudio-utils as the script 'KioskStart.py' uses 'pactl' from the latter package.
-				# NOTE: Pipewire has worked beautifully, but now it suddenly fails to initialize and run.  Added to TODO.md.
-				script += InstallPackagesAction(
-					"Installing Pipewire audio subsystem.",
-					["pipewire", "wireplumber", "pipewire-audio", "pulseaudio-utils"]
-				)
-			else:
-				# Several users report issues with Pipewire on Ubuntu 24.04.1, so let's go the pulseaudio way instead.
-				script += InstallPackagesAction(
-					"Installing PulseAudio audio subsystem.",
-					["pulseaudio", "pulseaudio-utils", "gstreamer1.0-pulseaudio"]
-				)
-
-		# Run 'KioskConfig.py' to ensure Wi-Fi is boosted for the many downloads that follow below (if the user has enabled it).
-		# NOTE: We don't use the --now option to 'systemctl enable KioskConfig' as we don't know when it will be run and we don't
-		# NOTE: want the network card to possibly be reset in the middle of the grand system upgrade.
-		script += ExternalAction("Configuring kiosk hardware (if applicable).", origin + os.sep + "KioskConfig.py")
+			# Install PipeWire audio subsystem, which is configured in 'KioskStart.py' (all attempts of configuring PipeWire in
+			# 'KioskConfig.py' failed with 'sudo', 'os.seteuid()', and so on).
+			script += InstallPackagesAction("Installing PipeWire audio subsystem.", ["pipewire-audio"])
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()
 		lines += "[Unit]"
 		lines += "Description=KioskForge kiosk configuration"
-		lines += "Before=multi-user.target"
-		lines += "After=network-online.target"
 		lines += "Wants=network-online.target"
+		lines += "After=pipewire-pulse.service pipewire.service"
+		lines += "Before=graphical.target"
 		lines += ""
 		lines += "[Service]"
 		lines += "Type=oneshot"
@@ -347,7 +333,8 @@ class KioskSetup(KioskDriver):
 		lines += f"ExecStart={origin}/KioskConfig.py"
 		lines += ""
 		lines += "[Install]"
-		lines += "WantedBy=graphical.target"
+		lines += "# Start KioskConfig.py as soon as the user logs in."
+		lines += "WantedBy=default.target"
 		script += CreateTextWithUserAndModeAction(
 			"Configuring systemd to run KioskConfig.py on every boot.",
 			"/usr/lib/systemd/system/KioskConfig.service",
@@ -356,9 +343,6 @@ class KioskSetup(KioskDriver):
 			lines.text
 		)
 		del lines
-
-		# Enable 'KioskConfig' service so that it runs on every boot to automatically configure the kiosk according to its setup.
-		script += ExternalAction("Enabling KioskConfig service.", "systemctl enable KioskConfig.service")
 
 		# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()

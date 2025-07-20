@@ -33,13 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.07.16.05.45 U Both Pipewire and PulseAudio fail to initialize on Pi4B and Pi5.  Why?  It has worked beautifully.
-                         This *may* be caused by my new Samsung G70D monitor, perhaps it rejects HDMI audio when not displaying the
-                         particular device that is trying to initialize.  Tests suggest that it is *not* the new monitor.
-                         2025-07-17T01:01:09+02:00 kiosk32948 KioskStart.py[1207]: Setting the Pipewire default sink.
-                         2025-07-17T01:01:09+02:00 kiosk32948 KioskStart.py[1207]: ... Failed, waiting one second before trying again.
-                         It is now only the Pipewire subsystem that fails to initialize.  I have no clue why as of yet.
-
+- [ ] 2025.07.19.04.29 H `KioskDiscoveryServer.py` must wait **indefinitely** for the network to become available!
+- [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H Rename the `toolkit` project to `kiosklib` to prepare for putting it in its own Git repository.
 - [ ] 2025.07.14.17.30 H The `toolkit` project must be split out, into its own Git repo, to allow using it from the GUI component.
 
@@ -200,6 +195,19 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.07.16.05.45 U Both Pipewire and PulseAudio fail to initialize on Pi4B and Pi5.  Why?  It has worked beautifully.
+                         This *may* be caused by my new Samsung G70D monitor, perhaps it rejects HDMI audio when not displaying the
+                         particular device that is trying to initialize.  Tests suggest that it is *not* the new monitor.
+                         2025-07-17T01:01:09+02:00 kiosk32948 KioskStart.py[1207]: Setting the Pipewire default sink.
+                         2025-07-17T01:01:09+02:00 kiosk32948 KioskStart.py[1207]: ... Failed, waiting one second before trying again.
+                         It is now only the Pipewire subsystem that fails to initialize.  I have no clue why as of yet.
+                         2025.07.19.00.00: This turns out to be because the PulseAudio device IDs have changed on the Pi5.  Why???
+                         They appear to be hex adresses or something, so perhaps they change whenever the kernel changes?  If so,
+                         I **definitely** need to find another, better way of selecting the default sink.  Alternatively, it may be
+                         that the Pi5 automatically selects the correct audio sink, I don't know about either (device ID/default)
+                         on the Pi4b as of now.
+                         2025.07.19.02.58: I have now written an ad-hoc parser for `wpctl status` output so that the device names
+                         are no longer needed.  Currently, the code only supports one monitor as I only have one monitor.
 - [x] 2025.07.11.12.31 H Create class to manipulate `/etc/fstab`.  To change `ext4` `default` into `default,noatime,commit=1000`.
 - [x] 2025.07.11.08.51 H Invoke `KioskUpdate.py` from `KioskSetup.py` instead of duplicating all the update/clean/etc. code.
 - [x] 2025.03.24.03.24 H Test forging a PC target.  It is probably broken by now.  Also, it needs to be automatic, not manual.

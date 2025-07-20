@@ -25,15 +25,17 @@ from typing import List
 
 import os
 import sys
+import time
 
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
-from kiosklib.invoke import invoke_list_safe, invoke_text_safe
+from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.signal import Signal
 from kiosklib.various import screen_clear
+from kiosklib.wpctl import wpctl_status_parse_sinks
 
 
 class KioskStart(KioskDriver):
@@ -74,6 +76,50 @@ class KioskStart(KioskDriver):
 		try:
 			# Create the signal that prevents this script from being launched multiple times thus running concurrently.
 			signal.create()
+
+			# Configure audio subsystem, if applicable.
+			if kiosk.sound_card.data != "none":
+				# NOTE: I spent half a night trying out different solutions and none of them worked when done in 'KioskConfig.py',
+				# NOTE: so I finally resigned to accepting that 'wpctl' decides how I structure my scripts and put the code here.
+				# NOTE: The attempts involved using 'sudo' and lowering privileges to that of the user, none of them worked.
+				#if sys.platform == "linux":
+				#	# pwd_item = pwd.getpwnam(kiosk.user_name.data)
+				#	# NOTE: os.setegid() MUST be called before os.seteuid(), otherwise it raises a PermissionError exception.
+				#	#os.setegid(pwd_item.pw_gid)
+				#	os.setegid(29) 		# audio group
+				#	os.seteuid(pwd_item.pw_uid)
+				#	del pwd_item
+
+				# Grab 'wpctl status' output, repeat until we succeed.
+				# NOTE: Welcome to systemd...  The PipeWire server is NOT up when the condition 'After=pipewire.target' is true.
+				# NOTE: So we use 1970ish style code, where a little delay is inserted in the code, just to make the turd pretty.
+				time.sleep(5)
+
+				# Loop over calling 'wpctl status' until we get meaningful results.
+				# NOTE: If the 'time.sleep(5)' above is not present, we simply get an empty list of sinks.  Hooray for systemd!
+				while True:
+					result = invoke_text("wpctl status")
+					if result.status == 0:
+						break
+					logger.write("Waiting three seconds for PipeWire to be ready for commands.")
+					time.sleep(3)
+
+				# Grab the list of active sinks (typically only one) from the 'wpctl status' output.
+				sinks = wpctl_status_parse_sinks(result.output)
+				del result
+
+				# Make sure we have at least one sink to set the volume of.
+				if len(sinks) == 0:
+					raise KioskError("Unable to locate any PipeWire sinks")
+
+				# Set the audio level of the discovered sink(s) to the user-specified percentage on a logarithmic scale.
+				for sink in sinks:
+					invoke_text_safe(f"wpctl set-volume {sink} {kiosk.sound_level.data / 100.0:.2f}")
+
+				# Go back to being root.
+				#if sys.platform == "linux":
+				#	os.seteuid(0)
+				#	os.setegid(0)
 
 			if kiosk.type.data in [ "x11", "web" ]:
 				# Move ~/.xsession-errors to ~/.xsession-errors.old to avoid having it grow indefinitely forever.
