@@ -58,7 +58,7 @@ class KioskDiscoveryServer(KioskDriver):
 
 		logger.write("Starting kiosk discovery service.")
 
-		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
+		# Check that we have got an active, usable internet connection, otherwise wait indefinitely for it come up.
 		if not internet_active():
 			logger.write("*** NETWORK DOWN: Waiting indefinitely for the kiosk to come online")
 			wait_for_internet_active()
@@ -72,7 +72,6 @@ class KioskDiscoveryServer(KioskDriver):
 
 		# Create an UDP socket.
 		server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-
 		try:
 			# Bind the UDP socket to the broadcast address of the local LAN.
 			server.bind((lan_broadcast_address(), SERVICE))
@@ -86,7 +85,7 @@ class KioskDiscoveryServer(KioskDriver):
 				else:
 					logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
 
-			logger.write("Shutting down kiosk discovery service.")
+			logger.write("Stopping kiosk discovery service.")
 		finally:
 			server.close()
 
