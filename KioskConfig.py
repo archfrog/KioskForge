@@ -63,7 +63,7 @@ class KioskConfig(KioskDriver):
 			logger.write("Boosting Wi-Fi by disabling power-saving mode.")
 			wifi_boost(kiosk.wifi_boost.data)
 
-		logger.write("Shutting down kiosk configurator.")
+		logger.write("Stopping kiosk configurator.")
 
 
 if __name__ == "__main__":
