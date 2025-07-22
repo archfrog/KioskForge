@@ -23,7 +23,6 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import List
 
-import os
 import sys
 import socket
 
@@ -31,7 +30,7 @@ from kiosklib.discovery import COMMAND, SERVICE
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError
 from kiosklib.logger import Logger
-from kiosklib.network import internet_active, lan_address, lan_broadcast_address, wait_for_internet_active
+from kiosklib.network import lan_address, lan_broadcast_address
 
 
 class KioskDiscoveryClient(KioskDriver):
@@ -44,11 +43,6 @@ class KioskDiscoveryClient(KioskDriver):
 		# Parse command-line arguments.
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
 			raise CommandError('"KioskDiscoveryClient.py"')
-
-		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
-		if not internet_active():
-			logger.write("*** NETWORK DOWN: Waiting indefinitely for the kiosk to come online")
-			wait_for_internet_active(60)
 
 		# Compute the x.y.z prefix of our own LAN address to filter out packets NOT originating from the LAN.
 		lan_subnet = '.'.join(lan_address().split('.')[:3])
@@ -79,7 +73,7 @@ class KioskDiscoveryClient(KioskDriver):
 		finally:
 			client.close()
 
-		for kiosk in found.keys():
+		for kiosk in found:
 			print(f"{kiosk}")
 
 
