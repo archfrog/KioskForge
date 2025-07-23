@@ -606,14 +606,6 @@ class KioskForge(KioskDriver):
 			del source
 			del destination
 
-		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
-		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the
-		# NOTE: 'KioskForge.kiosk' file that is created in the '/home/username/KioskForge' folder by the 'KioskForge.py' script.
-		kiosk.redact_prepare()
-
-		# NOTE: Don't "unedit" the kiosk as we're saving a new copy, which does not modify the original, input copy.
-		kiosk.save(output + os.sep + "KioskForge.kiosk")
-
 		# Report success to the log.
 		match platform.system():
 			case "Windows":
@@ -626,8 +618,15 @@ class KioskForge(KioskDriver):
 		print()
 		del action
 
-		# NOTE: Save the changes we've made, if any, so as to ensure that everything is safe and sane.
+		# NOTE: Save the changes we've made, before we redact the kiosk, so as to ensure that everything is safe and sane.
+		# NOTE: This implicitly upgrades the kiosk to the current version!
 		kiosk.save(filename)
+
+		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
+		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the
+		# NOTE: 'KioskForge.kiosk' file that is created in the '/home/username/KioskForge' folder by the 'KioskForge.py' script.
+		kiosk.redact_prepare()
+		kiosk.save(output + os.sep + "KioskForge.kiosk")
 
 		print("Kiosk prepared successfully.")
 
