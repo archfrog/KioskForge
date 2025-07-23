@@ -24,8 +24,9 @@ from typing import List
 from kiosklib.convert import KEYBOARDS
 from kiosklib.locales import LOCALES
 from kiosklib.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
-from kiosklib.setup import OptionalTimeField, PasswordField, password_create, RegexField, StringField
+from kiosklib.setup import OptionalTimeField, PasswordField, RegexField, StringField
 from kiosklib.timezones import TIMEZONES
+from kiosklib.various import password_create
 from kiosklib.version import Version
 
 
@@ -574,9 +575,9 @@ class Kiosk(Fields):
 		for field in fields:
 			self.assign(field, "REDACTED")
 
-	def redact_apply(self) -> None:
-		"""Redacts the kiosk for use by the 'KioskForge.py' script when it writes the kiosk to the installation medium."""
-		self.redact(["user_code", "wifi_code"])
+	def redact_prepare(self) -> None:
+		"""Redacts the kiosk for use by the 'KioskForge.py' script when it prepares the installation medium for use."""
+		self.redact(["wifi_code"])
 
 	def redact_report(self) -> None:
 		"""Redacts the kiosk for use by the 'KioskReport.py' script when it includes the redacted kiosk in the Zip archive."""

@@ -37,24 +37,14 @@ import shutil
 import sys
 import time
 
-import bcrypt
-
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, InternalError, KioskError
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
-from kiosklib.setup import hostname_create
 from kiosklib.shell import tree_delete
 from kiosklib.sources import SOURCES
+from kiosklib.various import hostname_create, password_hash, password_hashed
 from kiosklib.version import Version
-
-
-def password_crypt(text : str) -> str:
-	if len(text) < 1 or len(text) > 72:
-		raise ValueError("Argument 'text' must be between 1 and 72 charaters in length")
-
-	data = text.encode('utf-8')
-	return bcrypt.hashpw(data, bcrypt.gensalt()).decode('utf-8')
 
 
 class Target:
@@ -349,7 +339,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			stream.write(f'passwd: "{password_crypt(self.kiosk.user_code.data)}"')
+			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
@@ -463,17 +453,37 @@ class KioskForge(KioskDriver):
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
 
-	def apply(self, logger : Logger, origin : str, filename : str) -> None:
-		print(f"Applying kiosk: {filename}")
+	def create(self, filename : str) -> None:
+		print(f"Creating kiosk: {filename}")
+		print()
+
+		# Create the new kiosk using the default value for each fields.
+		kiosk = Kiosk(self.version)
+
+		# Check that the output does not already exist.
+		if os.path.exists(filename):
+			raise KioskError(f"Kiosk file already exists: {filename}")
+
+		# Write the new kiosk.
+		kiosk.save(filename)
+
+		print("Kiosk created successfully.")
+
+	def prepare(self, logger : Logger, origin : str, filename : str) -> None:
+		print(f"Preparing kiosk: {filename}")
 		print()
 
 		# Load the kiosk.
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, filename)
 
-		# Assign host name to setup instance, if the user has not provided one.
+		# Assign host name to the kiosk, if the user has not provided one.
 		if not kiosk.hostname.data:
-			kiosk.assign("hostname", hostname_create("kiosk"))
+			kiosk.assign("hostname", hostname_create("kioskforge"))
+
+		# Hash the user's password, if not already done.
+		if not password_hashed(kiosk.user_code.data):
+			kiosk.assign("user_code", password_hash(kiosk.user_code.data))
 
 		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 		targets = Recognizer().identify()
@@ -599,7 +609,9 @@ class KioskForge(KioskDriver):
 		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
 		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the
 		# NOTE: 'KioskForge.kiosk' file that is created in the '/home/username/KioskForge' folder by the 'KioskForge.py' script.
-		kiosk.redact_apply()
+		kiosk.redact_prepare()
+
+		# NOTE: Don't "unedit" the kiosk as we're saving a new copy, which does not modify the original, input copy.
 		kiosk.save(output + os.sep + "KioskForge.kiosk")
 
 		# Report success to the log.
@@ -611,26 +623,13 @@ class KioskForge(KioskDriver):
 			case _:
 				raise KioskError(f"Unknown host operating system: {platform.system()}")
 		print(f"Preparation of boot image successfully completed - please {action} {target.basedir} safely.")
+		print()
 		del action
 
-		print()
-		print("Kiosk prepared successfully.")
-
-	def create(self, filename : str) -> None:
-		print(f"Creating kiosk: {filename}")
-		print()
-
-		# Create the new kiosk.
-		kiosk = Kiosk(self.version)
-
-		# Check that the output does not already exist.
-		if os.path.exists(filename):
-			raise KioskError(f"Kiosk file already exists: {filename}")
-
-		# Write the new kiosk.
+		# NOTE: Save the changes we've made, if any, so as to ensure that everything is safe and sane.
 		kiosk.save(filename)
 
-		print("Kiosk created successfully.")
+		print("Kiosk prepared successfully.")
 
 	def upgrade(self, logger : Logger, filename : str) -> None:
 		print(f"Upgrading kiosk: {filename}")
@@ -677,7 +676,7 @@ class KioskForge(KioskDriver):
 
 		# Parse command-line arguments.
 		if len(arguments) != 2:
-			raise CommandError("\"KioskForge.py\" (apply|create|verify|upgrade) kiosk-file")
+			raise CommandError("\"KioskForge.py\" (create|prepare|upgrade|verify) kiosk-file")
 
 		# "Parse" the command-line arguments.
 		command  = arguments[0]
@@ -687,10 +686,10 @@ class KioskForge(KioskDriver):
 		match command:
 			case "create":
 				self.create(filename)
-			case "apply":
-				self.apply(logger, origin, filename)
+			case "prepare":
+				self.prepare(logger, origin, filename)
 			case "upgrade":
-				# Create list of fileS to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
+				# Create list of files to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
 				if os.path.isfile(filename):
 					filenames = [filename]
 				else:

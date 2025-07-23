@@ -83,7 +83,7 @@ snap connect chromium:wayland
 - [ ] 2025.06.26.18.18 H Make feature to automatically copy project files from an USB key.  This for large videos and so on.
                          This could happen on every boot using `rsync` to synchronize the changes.
                          This is rather complex as it probably requires automounting the USB key, syncing, and then dismounting it.
-- [ ] 2025.06.26.13.26 H Add warning or error message to KioskForge if there is too little space left on the device after `apply`.
+- [ ] 2025.06.26.13.26 H Add error to KioskForge if there is too little space left on the device after `prepare`.
 - [ ] 2025.05.11.01.43 H Re-enable `too-many-branches` in `pylintrc.toml` and fix the source code so that pylint doesn't reject it.
 - [ ] 2025.05.03.13.17 H Finish documentation of `web-wayland` value for `type` option in `kiosklib.setup.HELP_TEXT`.
 - [ ] 2025.05.03.05.05 H Add a `network=[none|lan|internet]`, which tells KioskForge if the kiosk has internet access or not.

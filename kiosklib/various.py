@@ -21,9 +21,14 @@
 import errno
 import io
 import os
+import secrets
+from string import ascii_lowercase
 import sys
 
-from kiosklib.errors import KioskError
+# Import the bcrypt PyPi package, which is a dependency in the 'uv' 'pyproject.toml' file.
+import bcrypt
+
+from kiosklib.errors import InternalError, KioskError
 
 
 def file_wipe_once(path : str) -> None:
@@ -69,11 +74,45 @@ def file_wipe_once(path : str) -> None:
 	finally:
 		os.close(handle)
 
+
 def file_wipe_multiple(path : str, count : int = 10) -> None:
 	"""Wipes a file, in-place, with all zeroes multiple times.  This is almost good enough to handle professional snoopers."""
 	# pylint: disable-next=unused-variable
 	for index in range(count):
 		file_wipe_once(path)
+
+
+def hostname_create(basename : str) -> str:
+	"""Creates a random host name of the form '{basename}{number}', where number is an integer from zero to 2**32."""
+	number = secrets.randbelow(2**32)
+	return f"{basename}{number}"
+
+
+# Source: https://stackoverflow.com/a/63160092
+def password_create(length : int) -> str:
+	return secrets.token_urlsafe(length)
+
+
+def password_hash(text : str) -> str:
+	"""Hashes an unhashed password, already hashed passwords are returned unaltered."""
+	if password_hashed(text):
+		raise InternalError("Password may not be hashed when passed to password_hash()")
+
+	# Verify the that the length of the password fits the constraints of bcrypt.
+	if len(text) < 1 or len(text) > 72:
+		raise ValueError("Argument 'text' must be between 1 and 72 charaters in length")
+
+	# Convert UTF-8 string into a byte string.
+	data = text.encode('utf-8')
+
+	# Create and return a hashed password.
+	return bcrypt.hashpw(data, bcrypt.gensalt()).decode('utf-8')
+
+
+def password_hashed(text : str) -> bool:
+	"""Returns True if a password APPEARS hashed already, otherwise False."""
+	return len(text) >= 4 and text[:2] == "$2" and text[2] in ascii_lowercase and text[3] == "$"
+
 
 def ramdisk_get() -> str:
 	"""Returns the normalized value of the RAMDISK environment variable or raises a KioskError exception if not found."""
@@ -88,6 +127,7 @@ def ramdisk_get() -> str:
 		result += os.sep
 
 	return result
+
 
 def screen_clear() -> None:
 	"""Clears the current Linux console window using escape sequences as the 'clear' command doesn't always work."""

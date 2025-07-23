@@ -22,12 +22,12 @@
 from typing import Any, Dict, List
 
 import re
-import secrets
 import time
 
 from kiosklib.convert import BOOLEANS
 from kiosklib.errors import Error, FieldError, InputError, InternalError, KioskError, TextFileError
 from kiosklib.logger import Logger, TextWriter
+from kiosklib.various import password_hashed
 from kiosklib.version import Version
 
 
@@ -208,15 +208,12 @@ class PasswordField(StringField):
 		if not data:
 			raise FieldError(self.name, "Password cannot be empty")
 
-		# Disallow passwords starting with a dollar sign, including encrypted passwords.
-		if data[0] == '$':
-			raise FieldError(self.name, "Password cannot begin with a dollar sign ($)")
-
-		# Apparently, the maximum length of a password input to 'bcrypt' is 72 characters.
-		if len(data) > 72:
+		# Allow hashed password, without enforcing a length restriction.
+		# NOTE: Apparently, the maximum length of a password input to 'bcrypt' is 72 characters.
+		if not password_hashed(data) and len(data) > 72:
 			raise FieldError(self.name, "Password too long - cannot exceed 72 characters")
 
-		# Finally, store the encrypted password.
+		# Finally, store the hashed or unhashed password.
 		StringField.parse(self, data)
 
 
@@ -319,6 +316,7 @@ class Fields:
 		self.__fields[name].parse(data)
 		self.__edited[name] = True
 
+	@property
 	def edited(self) -> bool:
 		result = False
 		for value in self.__edited.values():
@@ -430,17 +428,3 @@ class Fields:
 
 				# Output an empty line between fields and after the last field.
 				stream.write("")
-
-		# The kiosk is pristine, unedited and without changes just after having been saved.
-		self.unedit()
-
-
-def hostname_create(basename : str) -> str:
-	"""Creates a unique host name of the form '{basename}{number}', where number is an integer from zero to 2**16."""
-	number = secrets.randbelow(2**16)
-	return f"{basename}{number}"
-
-
-# Source: https://stackoverflow.com/a/63160092
-def password_create(length : int) -> str:
-	return secrets.token_urlsafe(length)
