@@ -83,8 +83,8 @@ def file_wipe_multiple(path : str, count : int = 10) -> None:
 
 
 def hostname_create(basename : str) -> str:
-	"""Creates a random host name of the form '{basename}{number}', where number is an integer from zero to 2**32."""
-	number = secrets.randbelow(2**32)
+	"""Creates a random host name of the form '{basename}{number}', where number is an integer from zero to 99,999."""
+	number = secrets.randbelow(100000)
 	return f"{basename}{number}"
 
 

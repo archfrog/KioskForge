@@ -103,8 +103,8 @@ and dashes (-).  It must be 1 to 63 characters long.
 Most commonly, you don't need to worry about the kiosk host name at all.
 
 If this field is left empty, the forge process will automatically create a
-host name of the form "kioskNNNNN", where NNNNN is a number in the
-range 0 through 65,365.
+host name of the form "kioskN", where N is a number in the range 0 through
+99,999.
 
 IMPORTANT:
 You should never have two machines with the same host name on a local area

@@ -479,7 +479,7 @@ class KioskForge(KioskDriver):
 
 		# Assign host name to the kiosk, if the user has not provided one.
 		if not kiosk.hostname.data:
-			kiosk.assign("hostname", hostname_create("kioskforge"))
+			kiosk.assign("hostname", hostname_create("kiosk"))
 
 		# Hash the user's password, if not already done.
 		if not password_hashed(kiosk.user_code.data):

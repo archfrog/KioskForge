@@ -210,7 +210,7 @@ class KioskSetup(KioskDriver):
 		lines += '    "--force-confold";'
 		lines += '}'
 		script += CreateTextWithUserAndModeAction(
-			"Creating 'apt' configuration file to keep existing configuration files during upgrades.",
+			"Instructing 'apt' to keep existing configuration files during upgrades.",
 			"/etc/apt/apt.conf.d/00local",
 			"root",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,

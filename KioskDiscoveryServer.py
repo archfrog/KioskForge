@@ -36,7 +36,7 @@ from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
-from kiosklib.network import lan_broadcast_address
+from kiosklib.network import internet_active, lan_broadcast_address, wait_for_internet_active
 
 
 class KioskDiscoveryServer(KioskDriver):
@@ -65,25 +65,34 @@ class KioskDiscoveryServer(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Create an UDP socket.
-		server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		try:
-			# Bind the UDP socket to the broadcast address of the local LAN.
-			server.bind((lan_broadcast_address(), SERVICE))
+		# Wait for network (internet) to come up.
+		# I just loathe systemd...  That crap piece of software does not even guarantee that the network is up when you wait for
+		# the network-online.target as the systemd unit that launches this script does with an "After=network-online.target" line.
+		# What's the point of a system manager when it can't even guarantee that stuff is up and running when asked to do so?
+		if not internet_active():
+			print("NOTE: Network down, waiting at most 60 seconds for it to come up.")
+			wait_for_internet_active(60)
 
-			while True:
-				# Wait indefinitely for a command from a KioskForge client.
-				(command, remote) = server.recvfrom(1024)
-				if command == COMMAND:
-					logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
-					server.sendto(command, remote)
-				else:
-					logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
+		# If internet now, start the discovery server.
+		if internet_active():
+			# Create an UDP socket.
+			server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+			try:
+				# Bind the UDP socket to the broadcast address of the local LAN.
+				server.bind((lan_broadcast_address(), SERVICE))
 
-			logger.write("Stopping kiosk discovery service.")
-		finally:
-			server.close()
+				while True:
+					# Wait indefinitely for a command from a KioskForge client.
+					(command, remote) = server.recvfrom(1024)
+					if command == COMMAND:
+						logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
+						server.sendto(command, remote)
+					else:
+						logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
+			finally:
+				server.close()
 
+		logger.write("Stopping kiosk discovery service.")
 
 if __name__ == "__main__":
 	sys.exit(KioskDiscoveryServer().main(sys.argv))
