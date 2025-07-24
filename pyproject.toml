@@ -1,6 +1,6 @@
 [project]
 name = "KioskForge"
-version = "0.24.0"
+version = "0.25.0"
 description = "KioskForge generates Raspberry Pi kiosks on top of Ubuntu Server"
 readme = "README.md"
 requires-python = ">=3.12"
