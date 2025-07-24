@@ -375,8 +375,6 @@ class Fields:
 				self.assign(name, data)
 			except Error as that:
 				result.append(TextFileError(path, number, that.text))
-			except AttributeError:
-				result.append(TextFileError(path, number, f"Unknown field ignored: {name}"))
 
 		# Check that all fields were assigned by the configuration files.
 		for name in self.__fields:
