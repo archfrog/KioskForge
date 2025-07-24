@@ -5,10 +5,10 @@ description = "KioskForge generates Raspberry Pi kiosks on top of Ubuntu Server"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "bcrypt>=4.3.0",
-    "mypy>=1.16.1",
-    "pyinstaller>=6.14.2",
-    "pyinstaller-versionfile>=3.0.1",
-    "pylint>=3.3.7",
-    "pyrefly>=0.23.1",
+    "bcrypt==4.3.0",
+    "mypy==1.17.0",
+    "pyinstaller==6.14.2",
+    "pyinstaller-versionfile==3.0.1",
+    "pylint==3.3.7",
+    "pyrefly==0.25.0",
 ]
