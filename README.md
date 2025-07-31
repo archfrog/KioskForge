@@ -17,7 +17,7 @@ The basic idea behind KioskForge is that it should be **easy**, **safe**, and **
 **NOTE:** Presently, KioskForge can only be used from Windows desktops.  Linux support is work in progress.
 
 ## Features
-KioskForge v0.24 supports the following features:
+KioskForge supports the following features:
 
 * Deployment of Ubuntu Server 24.04 (a Long Term Support release, which is supported until June 2029).
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5.
