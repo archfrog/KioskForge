@@ -581,11 +581,15 @@ class KioskForge(KioskDriver):
 		os.makedirs(output)
 
 		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-		for name in SOURCES:
+		for name in SOURCES + ["docs"]:
 			if os.path.isfile(origin + os.sep + name):
 				shutil.copyfile(origin + os.sep + name, output + os.sep + name)
 			else:
 				shutil.copytree(origin + os.sep + name, output + os.sep + name)
+
+		# Copy documentation files found in the root folder into the "docs" folder so as to keep all documentation together.
+		for name in ["LICENSE.md", "README.md"]:
+			shutil.copyfile(origin + os.sep + name, output + os.sep + "docs" + os.sep + name)
 
 		# Copy user folder, if any, to the install medium so that it can be copied onto the target.
 		if kiosk.user_folder.data:
