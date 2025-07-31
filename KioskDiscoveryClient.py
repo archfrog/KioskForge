@@ -66,8 +66,10 @@ class KioskDiscoveryClient(KioskDriver):
 
 					if '.'.join(address.split(".")[:3]) == lan_subnet and command == COMMAND:
 						found[address] = True
+					elif command != COMMAND:
+						logger.error(f"({address}:{port}) Ignoring invalid packet")
 					else:
-						logger.error(f"({address}:{port}) Ignoring packet from outside LAN.")
+						logger.error(f"({address}:{port}) Ignoring packet from outside LAN")
 				except TimeoutError:
 					break
 		finally:
