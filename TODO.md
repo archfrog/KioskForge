@@ -180,7 +180,7 @@ snap connect chromium:wayland
                          the main executable is executable on such systems.  So we need `KioskForge-m.nn.tar.gz` and
                          `KioskForge-m.nn.zip`, the latter for Windows users.  Ideally, there'd only be one executable for each
                          platform.
-                         There is now only a single installer image for Windows.  This needs to made for Linux as well.
+                         There is now only a single installer image for Windows.  This needs to be made for Linux as well.
 - [ ] 2025.03.27.14.05 L Dynamic Reconfiguration: That `KioskSetup.py` is run every configuration change and automatically
                          installs, removes, and configures packages and the system according to the configuration on every boot.
 - [ ] 2025.03.19.10.07 L Consider to add color support to the TUI version of the script, most noticable red colors for errors.
