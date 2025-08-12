@@ -18,7 +18,7 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
+from string import punctuation
 from typing import List
 
 from kiosklib.convert import KEYBOARDS
@@ -44,15 +44,11 @@ web browser, such as a Pi kiosk that detects motion and then plays a sound.
 
 
 COMMENT_HELP = """
-A comment for your records about the kiosk machine.
+A short description of the the kiosk machine.  The string may at most be 128
+characters long and cannot contain quotes (") and vertical bars (|).
 
-Please describe the kiosk's intended usage and other important notes.
-
-You should probably record the permanent LAN IP address, if any, here.
-Talk to your network administrator to get a static DCHP lease.
-
-A vertical bar (|) indicates a new line, this way you can write multiple
-lines of text in a single line in the 'comment' field.
+Please describe the kiosk's intended usage.  The string is later used to
+identify the kiosk when you browse the local network for active kiosks.
 """.strip()
 
 
@@ -533,8 +529,24 @@ class Kiosk(Fields):
 	def __init__(self, version : Version) -> None:
 		Fields.__init__(self, version)
 
+		# Build regex for comments, it is a bit complicated.
+		# ...Quote slash, it is not quoted in string.punctuation.
+		comment_regex = punctuation.replace("\\", "\\\\")
+		# ...Allow spaces.
+		comment_regex = comment_regex + " "
+		# ... Quote terminating brace (]) as it is not quoted in string.punctuation.
+		comment_regex = comment_regex.replace(']', r'\]')
+		# ...Disallow vertical slash (|).
+		comment_regex = comment_regex.replace('|', '')
+		# ...Disallow quotes (") as we may LATER need to quote the comment somewhere.
+		comment_regex = comment_regex.replace('"', '')
+		# ...Change the string into a character class match, which also allows for printable Unicode characters.
+		comment_regex = r"[\w|" + comment_regex + "]"
+		# ...Limit the string to between 1 and 128 characters.
+		comment_regex = comment_regex + "{1,128}"
+
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
-		self += OptionalStringField("comment", "", COMMENT_HELP)
+		self += OptionalRegexField("comment", "", COMMENT_HELP, comment_regex)
 		self += ChoiceField("device", "pi4b", DEVICE_HELP, ["pi4b", "pi5"])
 		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web", "web-wayland"])
 		self += StringField("command", "https://google.com", COMMAND_HELP)
