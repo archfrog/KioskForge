@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H The `toolkit` project must be split out, into its own Git repo, to allow using it from the GUI component.
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
@@ -191,6 +192,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.08.12.21.59 H Limit the `comment` setting to, say, 128 non-control and non-| characters so that it can be sent over UDP.
 - [x] 2025.07.12.23.21 M KioskForge should copy the markdown docs to the kiosk, just for posterity (kiosks can live a long time).
 - [x] 2025.07.14.17.30 H Rename the `toolkit` project to `kiosklib` to prepare for putting it in its own Git repository.
 - [x] 2025.07.19.04.29 H `KioskDiscoveryServer.py` must wait **indefinitely** for the network to become available!
