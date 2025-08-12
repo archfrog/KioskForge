@@ -313,7 +313,7 @@ class Fields:
 
 	def assign(self, name : str, data : str) -> None:
 		"""Attempts to assign a field by calling the 'parse()' method on it and then save the edit in 'self.__edited'."""
-		self.__fields[name].parse(data)
+		self.__fields[name].parse(data.rstrip())
 		self.__edited[name] = True
 
 	@property
@@ -347,8 +347,12 @@ class Fields:
 			# Remove trailing whitespaces.
 			line = line.rstrip()
 
-			# Ignore empty lines and comment lines.
-			if line == "" or line[0] in ['#', ';']:
+			# Ignore empty lines.
+			if len(line) == 0:
+				continue
+
+			# Ignore comment lines.
+			if line[0] in ['#', ';']:
 				continue
 
 			# Append some exceptions to the 'result' list of errors detected while parsing the file.
