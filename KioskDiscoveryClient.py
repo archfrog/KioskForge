@@ -56,27 +56,37 @@ class KioskDiscoveryClient(KioskDriver):
 		found = {}
 		try:
 			# Broadcast request to all the kiosks on the local area network (LAN) to send us their IP addresses by replying.
-			client.sendto(COMMAND, (lan_broadcast_address(), SERVICE))
+			client.sendto(COMMAND.encode('utf-8'), (lan_broadcast_address(), SERVICE))
 
 			while True:
 				# Wait for a command from a KioskForge client.
 				try:
-					(command, remote) = client.recvfrom(1024)
-					(address, port)   = remote
+					(command, remote)  = client.recvfrom(1024)
+					(address, service) = remote
 
-					if '.'.join(address.split(".")[:3]) == lan_subnet and command == COMMAND:
-						found[address] = True
-					elif command != COMMAND:
-						logger.error(f"({address}:{port}) Ignoring invalid packet")
-					else:
-						logger.error(f"({address}:{port}) Ignoring packet from outside LAN")
+					# Ensure we only accept replies from the current LAN.
+					if '.'.join(address.split('.')[:3]) != lan_subnet:
+						logger.error(f"({address}:{service}) Ignoring packet from outside LAN")
+						continue
+
+					# Compute prefix and length of prefix of reply from broadcast server.
+					prefix_data = f"{COMMAND}: "
+					prefix_size = len(prefix_data)
+					suffix_data = command[prefix_size:].decode('utf-8')
+
+					if command[:prefix_size].decode('utf-8') != prefix_data:
+						logger.error(f"({address}:{service}) Ignoring invalid packet")
+						continue
+
+					found[address] = suffix_data
 				except TimeoutError:
 					break
 		finally:
 			client.close()
 
-		for kiosk in found:
-			print(f"{kiosk}")
+		# Print out the found addresses and their host names.
+		for address, hostname in found.items():
+			print(f"{address} {hostname}")
 
 
 if __name__ == "__main__":

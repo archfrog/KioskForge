@@ -86,7 +86,7 @@ class KioskDiscoveryServer(KioskDriver):
 					(command, remote) = server.recvfrom(1024)
 					if command == COMMAND:
 						logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
-						server.sendto(command, remote)
+						server.sendto(f"{COMMAND} {kiosk.hostname.data}".encode('utf-8'), remote)
 					else:
 						logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
 			finally:

@@ -24,4 +24,4 @@
 SERVICE = 24948
 
 # The one and only command that the broadcast server understands and handles.
-COMMAND = b"IDENTITY"
+COMMAND = "IDENTITY"
