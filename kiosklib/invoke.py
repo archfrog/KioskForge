@@ -65,17 +65,17 @@ def invoke_list(command : List[str], environment : Optional[Dict[str, str]] = No
 
 	return Result(result.returncode, output)
 
-# invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
+# Variant of 'invoke_list()' that checks the status code and throws a KioskError exception if it is non-zero.
 def invoke_list_safe(command : List[str], environment : Optional[Dict[str, str]] = None) -> None:
 	result = invoke_list(command, environment)
 	if result.status != 0:
 		raise KioskError(result.output)
 
-# Alias for 'invoke_list' that asks 'shlex.split()' to split a single string command into its equivalent list of tokens.
+# Variant of 'invoke_list()' that asks 'shlex.split()' to split a single string command into its equivalent list of tokens.
 def invoke_text(command : str, environment : Optional[Dict[str, str]] = None) -> Result:
 	return invoke_list(shlex.split(command), environment)
 
-# invoke_text that checks the status code and throws a KioskError exception if it is non-zero.
+# Variant of 'invoke_list()' that splits a string and checks the status code and throws a KioskError exception if it is non-zero.
 def invoke_text_safe(command : str, environment : Optional[Dict[str, str]] = None) -> None:
 	result = invoke_text(command, environment)
 	if result.status != 0:
