@@ -43,7 +43,7 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
 from kiosklib.shell import tree_delete
 from kiosklib.sources import SOURCES
-from kiosklib.various import hostname_create, password_hash, password_hashed
+from kiosklib.various import hostname_create, password_hash
 from kiosklib.version import Version
 
 
@@ -341,6 +341,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
+			# Hash the password so thieves, hackers, etc. cannot simply read the password in the file in /boot/firmware.
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
@@ -483,9 +484,8 @@ class KioskForge(KioskDriver):
 		if not kiosk.hostname.data:
 			kiosk.assign("hostname", hostname_create("kiosk"))
 
-		# Hash the user's password, if not already done.
-		if not password_hashed(kiosk.user_code.data):
-			kiosk.assign("user_code", password_hash(kiosk.user_code.data))
+		# Hash the user's password, if not already done (this change is only saved to the installation image!).
+		kiosk.assign("user_code", password_hash(kiosk.user_code.data))
 
 		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
 		targets = Recognizer().identify()
@@ -623,10 +623,6 @@ class KioskForge(KioskDriver):
 		print(f"Preparation of boot image successfully completed - please {action} {target.basedir} safely.")
 		print()
 		del action
-
-		# NOTE: Save the changes we've made, before we redact the kiosk, so as to ensure that everything is safe and sane.
-		# NOTE: This implicitly upgrades the kiosk to the current version!
-		kiosk.save(filename)
 
 		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
 		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the

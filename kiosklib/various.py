@@ -95,8 +95,10 @@ def password_create(length : int) -> str:
 
 def password_hash(text : str) -> str:
 	"""Hashes an unhashed password, already hashed passwords are returned unaltered."""
+
+	# If the password is already hashed, simply return it unaltered.
 	if password_hashed(text):
-		raise InternalError("Password may not be hashed when passed to password_hash()")
+		return text
 
 	# Verify the that the length of the password fits the constraints of bcrypt.
 	if len(text) < 1 or len(text) > 72:
