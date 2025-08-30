@@ -149,10 +149,12 @@ class Recognizer:
 		return targets
 
 
+# SHA512 sums of 'initrd.img' in the root of the installation medium, this is used to detect the version and accept or reject it.
 SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 = 'ce3eb9b96c3e458380f4cfd731b2dc2ff655bdf837cad00c2396ddbcded64dbc1d20510c22bf211498ad788c8c81ba3ea04c9e33d8cf82538be0b1c4133b2622'
 SHA512_UBUNTU_SERVER__24_04_1_ARM64 = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
 SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = '32825b5b770f94996f05a9f2fa95e8f7670944de5990a258d10d95c5bd0062123a707d8b943d23e7b0d54e8c3ff8440b0fd7ebbb8dc42bc20da8a77b3f3f6408'
 SHA512_UBUNTU_SERVER__24_04_2_ARM64 = '5c62b93b8d19e8d7ac23aa9759a23893af5dd1ab5f80e4fb71f7b4fd3ddd0f84f7c82f9342ea4c9fdba2c350765c2c83eaaa6dcaac236f9a13f6644386e6a1d2'
+SHA512_UBUNTU_DESKTOP_24_04_3_ARM64 = '91448b069c7f8a6ca01fd36495e39b942ed64ba8ea6293ec0effa4e0792bd39476d7a95429109469c80cba18139657a3f2f5cc152b846460dafec80738abb475'
 SHA512_UBUNTU_SERVER__24_04_3_ARM64 = '34a9bbbc07b05c749025b7dee2199c6df5acc9461d7cbfdae6d81f88ad42a54dc40361f0f548b8609bbaa46f29b12254ee8242856377e8cc998a34b92375e1a3'
 SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 = 'fa8750e5f71adc4d0cff50c985e499d7dc0ce18132489a52d4c3df9d0c321100d5b1d93c5804dd9c88986e2a8e67cbd413d325576081f3d2b20046987bb26b63'
 SHA512_UBUNTU_SERVER__25_04_0_ARM64 = 'ef1f10d7cc59d8761490b0e0f3be0882d4781870e920d66f0b7ae440a940bf19fa689cc16ee06a0c81b5333b7ecc65fdb4137e050db1133a77fd117c03034157'
@@ -162,6 +164,7 @@ PI_OPERATING_SYSTEMS = {
 	SHA512_UBUNTU_SERVER__24_04_1_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.1", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.2", "arm64", "cloudinit"),
 	SHA512_UBUNTU_SERVER__24_04_2_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.2", "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_24_04_3_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.3", "arm64", "cloudinit"),
 	SHA512_UBUNTU_SERVER__24_04_3_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.3", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "25.04", "arm64", "cloudinit"),
 	SHA512_UBUNTU_SERVER__25_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "25.04", "arm64", "cloudinit"),
@@ -505,14 +508,14 @@ class KioskForge(KioskDriver):
 		)
 		print()
 
-		# Only accept Ubuntu Server images for AMD64/ARM64 for now.
+		# Only accept Ubuntu Server images for ARM64 for now.
 		accept = True
 		accept &= (target.product == "Ubuntu")
 		accept &= (target.edition == "Server")
 		accept &= (target.version in ["24.04.1", "24.04.2", "24.04.3"])
-		accept &= (target.cpukind in ["amd64", "arm64"])
+		accept &= (target.cpukind in ["arm64"])
 		if not accept:
-			raise KioskError("Only Ubuntu Server 24.04.x images for AMD64/ARM64 CPUs are supported")
+			raise KioskError("Only Ubuntu Server 24.04.x images for Raspberry Pi 4B+ are supported")
 		del accept
 
 		# Display a synopsis of the selected kiosk, incuding the comment, hostname, and possibly more.
