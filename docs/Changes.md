@@ -1,11 +1,12 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
-## Version 0.25 (2025.07.23)
-1. Fixed the broken PipeWire (audio subsystem) initialization, which was broken by an Ubuntu (kernel?) update.
-2. Renamed the `KioskForge` `apply` command to `prepare` as it really prepares an installation medium for use.
-3. The user's password is now hashed (sort of encrypted) by `KioskForge` when it prepares an installation medium for use. This,
-   unfortunately, means that `KioskForge` will **update** the kiosk file in the above case so it is no longer strictly read-only.
+## Version 0.25 (2025.08.30)
+1. Fixed the broken PipeWire audio subsystem initialization, which was broken by an Ubuntu (kernel?) update.
+2. KioskForge now supports Ubuntu Server 24.04.3 for Raspberry Pis.
+3. Upgraded development and embedded Python to v3.13.7.
+4. Renamed the `KioskForge` `apply` command to `prepare` as it really prepares an installation medium for use.
+5. The user's password is now hashed (made unreadable) by `KioskForge` on the installation medium for security reasons.
 
 ## Version 0.24 (2025.07.16)
 1. Fixed the issue that `KioskForge.py` crashed if an unknown option was encountered (even if it was known in an earlier version).
