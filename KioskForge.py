@@ -501,9 +501,9 @@ class KioskForge(KioskDriver):
 				raise KioskError("More than one installation medium detected - please remove all but one")
 		del targets
 
-		# Report the kind of image that was discovered.
+		# Report the kind of image that was discovered (we only support Pis, so don't report {target.kind}).
 		print(
-			f"Discovered {target.kind} {target.product} {target.edition} {target.version}" +
+			f"Discovered {target.product} {target.edition} {target.version}" +
 			f" ({target.cpukind.upper()}) installation medium at {target.basedir}"
 		)
 		print()
