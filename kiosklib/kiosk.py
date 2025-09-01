@@ -536,7 +536,7 @@ class Kiosk(Fields):
 		comment_regex = comment_regex + " "
 		# ... Quote terminating brace (]) as it is not quoted in string.punctuation.
 		comment_regex = comment_regex.replace(']', r'\]')
-		# ...Disallow vertical slash (|).
+		# ...Disallow vertical slash (|) as we use it as a field separator in discovery messages sent over the LAN.
 		comment_regex = comment_regex.replace('|', '')
 		# ...Disallow quotes (") as we may LATER need to quote the comment somewhere.
 		comment_regex = comment_regex.replace('"', '')

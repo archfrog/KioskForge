@@ -82,13 +82,21 @@ class KioskDiscoveryServer(KioskDriver):
 				server.bind((lan_broadcast_address(), SERVICE))
 
 				while True:
-					# Wait indefinitely for a command from a KioskForge client.
-					(command, remote) = server.recvfrom(1024)
-					if command == COMMAND:
-						logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
-						server.sendto(f"{COMMAND} {kiosk.hostname.data}".encode('utf-8'), remote)
-					else:
+					# Wait indefinitely for a message from a KioskForge client.
+					(message, remote) = server.recvfrom(1024)
+
+					# Convert the message from bytes into UTF-8.
+					command = message.decode('utf-8')
+					del message
+
+					# Ignore invalid commands.
+					if command != COMMAND:
 						logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
+						continue
+
+					# Reply to valid command.
+					logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
+					server.sendto(f"{COMMAND}: {kiosk.hostname.data}|{kiosk.comment.data}".encode('utf-8'), remote)
 			finally:
 				server.close()
 
