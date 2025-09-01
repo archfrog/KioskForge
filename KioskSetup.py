@@ -306,6 +306,9 @@ class KioskSetup(KioskDriver):
 			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 			script += CustomAction("Boosting Wi-Fi speed by disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
 
+		# Install InfoZip unzip as we need this in the KioskUpgrade.py script, which is run before the kiosk itself starts.
+		script += InstallPackagesAction("Installing 'unzip' required by the KioskForge upgrader.", ["unzip"])
+
 		# Install PipeWire audio system only if explicitly enabled.
 		if kiosk.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
