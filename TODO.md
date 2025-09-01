@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
 - [ ] 2025.09.01.05.20 H Eliminate the user-defined user name and start using the hardcoded `kiosk` user instead: Simplification.
 - [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
 - [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
