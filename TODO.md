@@ -36,7 +36,7 @@ snap connect chromium:wayland
 - [ ] 2925.09.01.02.21 H The discovery server must send the `comment` as the user may have used automatic hostname generation.
 - [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
-- [ ] 2025.07.14.17.30 H The `toolkit` project must be split out, into its own Git repo, to allow using it from the GUI component.
+- [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow using it from the GUI component.
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
                          cloning a forged kiosk.  This requires that the `KioskConfig.py` script is updated to do this.
 - [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrade X.kiosk` add new options with their default values and warn about doing so.
