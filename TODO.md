@@ -195,6 +195,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.09.01.09.20 H The discovery server must also provide the version of KioskForge installed on the each kiosk.
 - [x] 2025.09.01.02.21 H The discovery server must send the `comment` as the user may have used automatic hostname generation.
 - [x] 2025.08.12.21.59 H Limit the `comment` setting to, say, 128 non-control and non-| characters so that it can be sent over UDP.
 - [x] 2025.07.12.23.21 M KioskForge should copy the markdown docs to the kiosk, just for posterity (kiosks can live a long time).
