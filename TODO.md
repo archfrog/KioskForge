@@ -33,7 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2925.09.01.02.21 H The discovery server must send the `comment` as the user may have used automatic hostname generation.
+- [ ] 2025.09.01.05.20 H Eliminate the user-defined user name and start using the hardcoded `kiosk` user instead: Simplification.
+- [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
 - [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow using it from the GUI component.
@@ -193,6 +194,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.09.01.02.21 H The discovery server must send the `comment` as the user may have used automatic hostname generation.
 - [x] 2025.08.12.21.59 H Limit the `comment` setting to, say, 128 non-control and non-| characters so that it can be sent over UDP.
 - [x] 2025.07.12.23.21 M KioskForge should copy the markdown docs to the kiosk, just for posterity (kiosks can live a long time).
 - [x] 2025.07.14.17.30 H Rename the `toolkit` project to `kiosklib` to prepare for putting it in its own Git repository.
