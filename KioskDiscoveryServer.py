@@ -96,7 +96,7 @@ class KioskDiscoveryServer(KioskDriver):
 
 					# Reply to valid command.
 					logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
-					server.sendto(f"{COMMAND}: {kiosk.hostname.data}|{kiosk.comment.data}".encode('utf-8'), remote)
+					server.sendto(f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}".encode('utf-8'), remote)
 			finally:
 				server.close()
 

@@ -291,6 +291,10 @@ class Fields:
 		self.__fields : Dict[str, Field] = {}
 		self.__edited : Dict[str, bool] = {}
 
+	@property
+	def version(self) -> Version:
+		return self.__version
+
 	# Make the class backwards compatible with the old 'Setup' class, which used a named data member for each option.
 	def __getattr__(self, name : str) -> Field:
 		if name not in self.__fields:
