@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2925.09.01.02.21 H The discovery server must send the `comment` as the user may have used automatic hostname generation.
 - [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H The `toolkit` project must be split out, into its own Git repo, to allow using it from the GUI component.
