@@ -28,7 +28,7 @@ import sys
 # Import the bcrypt PyPi package, which is a dependency in the 'uv' 'pyproject.toml' file.
 import bcrypt
 
-from kiosklib.errors import InternalError, KioskError
+from kiosklib.errors import KioskError
 
 
 def file_wipe_once(path : str) -> None:
