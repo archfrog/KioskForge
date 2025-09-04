@@ -346,7 +346,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write("lock_passwd: false")
 			# Hash the password so thieves, hackers, etc. cannot simply read the password in the file in /boot/firmware.
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
-			# NOTE: The line below is way too dangerous if somebody gets through to the shell.
+			# NOTE: The line below is very dangerous if somebody gets through to the shell, but we may need passwordless 'sudo'.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
 			stream.dedent()
@@ -433,7 +433,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write("package_upgrade: false")
 			stream.write()
 
-			# Write commands to install and/or enable Network Time Protocol (NTP).
+			# Write commands to install and enable Network Time Protocol (NTP).
 			stream.write("ntp:")
 			stream.indent()
 			stream.write("enabled: true")
