@@ -219,28 +219,44 @@ class KioskForgeApp(tk.Tk):
 		self.config(menu=menu)
 
 		file_menu = tk.Menu(menu, tearoff=False)
-		menu.add_cascade(label='File', accelerator="Alt+F", menu=file_menu)
-		file_menu.add_command(label='New', accelerator="Ctrl+N", command=self.handle_menu_file_new)
-		file_menu.add_command(label='Open...', accelerator="Ctrl+O", command=self.handle_menu_file_open)
+		menu.add_cascade(label='File', accelerator="Alt-F", menu=file_menu)
+		file_menu.add_command(label='New', accelerator="Ctrl-N", command=self.handle_menu_file_new)
+		file_menu.add_command(label='Open...', accelerator="Ctrl-O", command=self.handle_menu_file_open)
 		file_menu.add_command(label='Save', accelerator="Ctrl-S", command=self.handle_menu_file_save)
-		file_menu.add_command(label='Save as...', command=self.handle_menu_file_save_as)
+		file_menu.add_command(label='Save as...', accelerator="Ctrl-V", command=self.handle_menu_file_save_as)
 		file_menu.add_separator()
-		file_menu.add_command(label='Exit', accelerator="Alt+F4", command=self.handle_menu_file_exit)
+		file_menu.add_command(label='Exit', accelerator="Alt-F4", command=self.handle_menu_file_exit)
 
-		forge_menu = tk.Menu(menu, tearoff=False)
-		menu.add_cascade(label='Kiosk', accelerator="Alt+K", menu=forge_menu)
-		forge_menu.add_command(label='Browse', accelerator="Ctrl-B", command=self.handle_menu_kiosk_browse)
-		forge_menu.add_separator()
-		forge_menu.add_command(label='Edit (guided)', accelerator="Ctrl-E", command=self.handle_menu_kiosk_edit_guided)
-		forge_menu.add_command(label='Edit (tabbed)', accelerator="Ctrl-T", command=self.handle_menu_kiosk_edit_tabbed)
-		forge_menu.add_separator()
-		forge_menu.add_command(label='Forge', accelerator="Ctrl-F", command=self.handle_menu_kiosk_forge)
+		kiosk_menu = tk.Menu(menu, tearoff=False)
+		menu.add_cascade(label='Kiosk', accelerator="Alt-K", menu=kiosk_menu)
+		kiosk_menu.add_command(label='Browse', accelerator="Ctrl-B", command=self.handle_menu_kiosk_browse)
+		kiosk_menu.add_separator()
+		kiosk_menu.add_command(label='Edit (guided)', accelerator="Ctrl-G", command=self.handle_menu_kiosk_edit_guided)
+		kiosk_menu.add_command(label='Edit (tabbed)', accelerator="Ctrl-T", command=self.handle_menu_kiosk_edit_tabbed)
+		kiosk_menu.add_separator()
+		kiosk_menu.add_command(label='Install', accelerator="Ctrl-I", command=self.handle_menu_kiosk_install)
 
 		help_menu = tk.Menu(menu, tearoff=False)
-		menu.add_cascade(label='Help', accelerator="Alt+H", menu=help_menu)
-		help_menu.add_command(label='FAQ', accelerator="Alt-A", command=self.handle_menu_help_faq)
+		menu.add_cascade(label='Help', accelerator="Alt-H", menu=help_menu)
+		help_menu.add_command(label='FAQ', accelerator="Ctrl-A", command=self.handle_menu_help_faq)
 		help_menu.add_command(label='Manual', accelerator="Ctrl-H", command=self.handle_menu_help_manual)
 		help_menu.add_command(label='About', accelerator="Ctrl-A", command=self.handle_menu_help_about)
+
+		# File menu keyboard shortcuts.
+		self.bind_all('<Control-n>', lambda event: self.handle_menu_file_new())
+		self.bind_all('<Control-o>', lambda event: self.handle_menu_file_open())
+		self.bind_all('<Control-s>', lambda event: self.handle_menu_file_save())
+		self.bind_all('<Control-v>', lambda event: self.handle_menu_file_save_as())
+
+		# Kiosk menu keyboard shortcuts.
+		self.bind_all('<Control-b>', lambda event: self.handle_menu_kiosk_browse())
+		self.bind_all('<Control-g>', lambda event: self.handle_menu_kiosk_edit_guided())
+		self.bind_all('<Control-t>', lambda event: self.handle_menu_kiosk_edit_tabbed())
+		self.bind_all('<Control-i>', lambda event: self.handle_menu_kiosk_install())
+
+		# About menu keyboard shortcuts.
+		self.bind_all('<Control-a>', lambda event: self.handle_menu_help_about())
+		self.bind_all('<Control-h>', lambda event: self.handle_menu_help_manual())
 
 	@property
 	def filename(self) -> str:
@@ -513,8 +529,8 @@ class KioskForgeApp(tk.Tk):
 		self.handle_unfinished()
 		return
 
-	def handle_menu_kiosk_forge(self):
-		# Forge the kiosk by updating the installation media so the installation automatically creates the new kiosk.
+	def handle_menu_kiosk_install(self):
+		# Install the kiosk by updating the installation media so the installation automatically forges the new kiosk.
 		self.handle_unfinished()
 		return
 
