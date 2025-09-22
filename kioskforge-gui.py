@@ -231,8 +231,7 @@ class KioskForgeApp(tk.Tk):
 		menu.add_cascade(label='Kiosk', accelerator="Alt-K", underline=0, menu=kiosk_menu)
 		kiosk_menu.add_command(label='Browse', accelerator="Ctrl-B", command=self.handle_menu_kiosk_browse)
 		kiosk_menu.add_separator()
-		kiosk_menu.add_command(label='Edit (guided)', accelerator="Ctrl-G", command=self.handle_menu_kiosk_edit_guided)
-		kiosk_menu.add_command(label='Edit (tabbed)', accelerator="Ctrl-T", command=self.handle_menu_kiosk_edit_tabbed)
+		kiosk_menu.add_command(label='Edit', accelerator="Ctrl-E", command=self.handle_menu_kiosk_edit)
 		kiosk_menu.add_separator()
 		kiosk_menu.add_command(label='Install', accelerator="Ctrl-I", command=self.handle_menu_kiosk_install)
 
@@ -251,8 +250,7 @@ class KioskForgeApp(tk.Tk):
 
 		# Kiosk menu keyboard shortcuts.
 		self.bind_all('<Control-b>', lambda event: self.handle_menu_kiosk_browse())
-		self.bind_all('<Control-g>', lambda event: self.handle_menu_kiosk_edit_guided())
-		self.bind_all('<Control-t>', lambda event: self.handle_menu_kiosk_edit_tabbed())
+		self.bind_all('<Control-e>', lambda event: self.handle_menu_kiosk_edit())
 		self.bind_all('<Control-i>', lambda event: self.handle_menu_kiosk_install())
 
 		# About menu keyboard shortcuts.
@@ -382,48 +380,37 @@ class KioskForgeApp(tk.Tk):
 		browser = KioskBrowser(frame1)
 		browser.pack(side=tk.TOP, fill=tk.BOTH)
 
-	def handle_menu_kiosk_edit_guided(self):
-		self.handle_unfinished()
-		return
+	def handle_menu_kiosk_edit(self):
+		if not self.filename:
+			tk.messagebox.showerror("Error", "No kiosk loaded!")
+			return
 
-		# Thoughts:
-		#
-		# To keep things simple for the user, each category should be displayed on its own page.  One for networking (incl. Wifi),
-		# etc.  The list of options are currently:
-		#
-		# General    : comment (should probably be a multi-line edit field).
-		# Browser    : idle_timeout
-		# Browser    : website
-		# Browser    : keyboard layout
-		# Browser    : locale
-		# Browser    : timezone
-		# Network    : hostname (TODO: Perhaps generate random host name as an initial suggestion or a button to do this?)
-		# Network    : wifi_boost on/off
-		# Network    : wifi_code
-		# Network    : wifi_name
-		# Network    : ssh_key
-		# Platform   : audio (0 through 100).
-		# Platform   : mouse (on or off)
-		# Platform   : swap_size (0 = disabled, > 0 = active)
-		# Platform   : user_code
-		# Platform   : user_name
-		# System     : poweroff_time
-		# System     : snap_time
-		# System     : upgrade_time
-		# System     : vacuum_days
-		# System     : cpu_boost on/off
-		#
-		# I currently imagine the kiosk editor as a series of windows, with 'Previous' and 'Next' buttons in the bottom, each of
-		# which is used to edit a particular subset of options: General, Browser, Network, Platform, and System.  There is no
-		# 'Done' or 'Forge' button, although this is probably a tiny, tiny bit tedious, as I only want people to commit their
-		# changes when they are completely ready.
-		#
-		# Time picker from Stack Overflow: https://stackoverflow.com/questions/57034118/time-picker-for-tkinter
-		#
-		# Needed options (TODO: Add the options given below):
-		#
-		# Browser    : On-Screen Keyboard (on/off) (TODO: Lots of work.)
-		# Network    : IPv6 Support
+		errors = self.__kiosk.load_list(self.filename)
+		if not errors:
+			errors = ["Kiosk is valid."]
+
+		# Create a frame to track all subwidgets of the editor (the editor itself and the log window below).
+		frame = tk.Frame(self)
+		frame.pack(side=tk.TOP, fill=tk.BOTH)
+
+		# TODO: Add vertical scroll bar as the Text() widget does not resize itself when the window is shrunk.
+		fixed_font = tkfont.nametofont("TkFixedFont")
+		fixed_font.configure(size=12)
+		fixed_font.configure(weight=tkfont.NORMAL)
+
+		text = tk.Text(frame, font=fixed_font)
+		text.pack(side=tk.TOP, fill=tk.BOTH)
+
+		status = tk.Text(frame, font=fixed_font)
+
+		status.bind("<1>", lambda event: status.focus_set())
+
+		status.pack(side=tk.BOTTOM, fill=tk.BOTH)
+		status.insert('1.0', '\n'.join(errors))
+		# Make the status part read-only (to insert text, first enable it again, insert, and then disable once again).
+		status.config(state=tk.DISABLED)
+
+		return
 
 		# TODO: Finish up 'handle_menu_kiosk_edit'.
 		errors = self.__kiosk.check()
@@ -614,7 +601,10 @@ def main(arguments : List[str]) -> int:
 	(homedir, basename) = os.path.split(arguments[0])
 	if homedir[-1] != os.sep:
 		homedir += os.sep
+
 	forge = KioskForgeApp(homedir)
+
+	print(forge.tk.call("info", "patchlevel"))
 
 	forge.mainloop()
 
