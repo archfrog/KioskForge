@@ -31,7 +31,7 @@ from kiosklib.logger import Logger
 class Script:
 	"""Simple abstraction of a sequence of actions that can be resumed from any point in the list of actions."""
 
-	def __init__(self, logger : Logger, resume : int) -> None:
+	def __init__(self, logger : Logger, resume : int = 1) -> None:
 		self.__actions : List[Action] = []
 		self.__logger = logger
 		self.__resume = resume
