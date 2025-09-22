@@ -219,16 +219,16 @@ class KioskForgeApp(tk.Tk):
 		self.config(menu=menu)
 
 		file_menu = tk.Menu(menu, tearoff=False)
-		menu.add_cascade(label='File', accelerator="Alt-F", menu=file_menu)
+		menu.add_cascade(label='File', accelerator="Alt-F", underline=0, menu=file_menu)
 		file_menu.add_command(label='New', accelerator="Ctrl-N", command=self.handle_menu_file_new)
 		file_menu.add_command(label='Open...', accelerator="Ctrl-O", command=self.handle_menu_file_open)
 		file_menu.add_command(label='Save', accelerator="Ctrl-S", command=self.handle_menu_file_save)
 		file_menu.add_command(label='Save as...', accelerator="Ctrl-V", command=self.handle_menu_file_save_as)
 		file_menu.add_separator()
-		file_menu.add_command(label='Exit', accelerator="Alt-F4", command=self.handle_menu_file_exit)
+		file_menu.add_command(label='Exit', accelerator="Ctrl-X", command=self.handle_menu_file_exit)
 
 		kiosk_menu = tk.Menu(menu, tearoff=False)
-		menu.add_cascade(label='Kiosk', accelerator="Alt-K", menu=kiosk_menu)
+		menu.add_cascade(label='Kiosk', accelerator="Alt-K", underline=0, menu=kiosk_menu)
 		kiosk_menu.add_command(label='Browse', accelerator="Ctrl-B", command=self.handle_menu_kiosk_browse)
 		kiosk_menu.add_separator()
 		kiosk_menu.add_command(label='Edit (guided)', accelerator="Ctrl-G", command=self.handle_menu_kiosk_edit_guided)
@@ -237,7 +237,7 @@ class KioskForgeApp(tk.Tk):
 		kiosk_menu.add_command(label='Install', accelerator="Ctrl-I", command=self.handle_menu_kiosk_install)
 
 		help_menu = tk.Menu(menu, tearoff=False)
-		menu.add_cascade(label='Help', accelerator="Alt-H", menu=help_menu)
+		menu.add_cascade(label='Help', accelerator="Alt-H", underline=0, menu=help_menu)
 		help_menu.add_command(label='FAQ', accelerator="Ctrl-A", command=self.handle_menu_help_faq)
 		help_menu.add_command(label='Manual', accelerator="Ctrl-H", command=self.handle_menu_help_manual)
 		help_menu.add_command(label='About', accelerator="Ctrl-A", command=self.handle_menu_help_about)
@@ -247,6 +247,7 @@ class KioskForgeApp(tk.Tk):
 		self.bind_all('<Control-o>', lambda event: self.handle_menu_file_open())
 		self.bind_all('<Control-s>', lambda event: self.handle_menu_file_save())
 		self.bind_all('<Control-v>', lambda event: self.handle_menu_file_save_as())
+		self.bind_all('<Control-x>', lambda event: self.handle_menu_file_exit())
 
 		# Kiosk menu keyboard shortcuts.
 		self.bind_all('<Control-b>', lambda event: self.handle_menu_kiosk_browse())
