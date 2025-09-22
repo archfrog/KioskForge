@@ -248,6 +248,10 @@ class KioskForgeApp(tk.Tk):
 
 	@filename.setter
 	def filename(self, value : str) -> None:
+		# Make the title bar display a Windows-style path with backslashes instead of slashes.
+		if sys.platform == "win32":
+			value = value.replace('/', os.sep)
+
 		self.__kiosk_filename = value
 		if value:
 			self.title(f"{self.__banner} - {value}")
