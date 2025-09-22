@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
 - [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
 - [ ] 2025.09.01.05.20 H Eliminate the user-defined user name and start using the hardcoded `kiosk` user instead: Simplification.
 - [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
