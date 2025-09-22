@@ -96,7 +96,7 @@ class KioskCheck(KioskDriver):
 		for word in sources:
 			words += word
 
-		# Create PYLINTHOME environment variable as this seems the only to move the pylint persistent data to my RAM disk.
+		# Create PYLINTHOME environment variable as this seems the only way to move the pylint persistent data to my RAM disk.
 		# A command-line option to specify the persistent directory path would have been pretty nifty.
 		# NOTE: Yes, I do prefer that my tools' persistent files are rebuilt once in a while (whenever I reboot).
 		environment = os.environ | {"PYLINTHOME" : ramdisk + self.version.product + os.sep + "pylint"}
