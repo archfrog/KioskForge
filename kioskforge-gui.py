@@ -603,9 +603,6 @@ def main(arguments : List[str]) -> int:
 		homedir += os.sep
 
 	forge = KioskForgeApp(homedir)
-
-	print(forge.tk.call("info", "patchlevel"))
-
 	forge.mainloop()
 
 	# TODO: Save window position(s) and size(s).
