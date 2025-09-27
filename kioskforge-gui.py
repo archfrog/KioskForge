@@ -306,7 +306,7 @@ class KioskForgeApp(tk.Tk):
 		self.filename = ""
 
 	def handle_menu_file_open(self):
-		# TODO: Save last 'initialdir' and reuse it if it has been set.
+		# TODO: Save last 'initialdir' and reuse it if it has been set (not possible?).
 		filename = tkfile.askopenfilename(
 			initialdir=os.getcwd(),
 			title="Select a kiosk to load",
