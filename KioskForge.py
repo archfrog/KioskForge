@@ -625,12 +625,12 @@ class KioskForge(KioskDriver):
 		# Report success to the log.
 		match platform.system():
 			case "Windows":
-				action = "eject"
+				action = "eject " + target.basedir[:2]
 			case "Linux":
-				action = "unmount"
+				action = "unmount " + target.basedir
 			case _:
 				raise KioskError(f"Unknown host operating system: {platform.system()}")
-		print(f"Preparation of boot image successfully completed - please {action} {target.basedir} safely.")
+		print(f"Please {action} safely before removing the medium.")
 		print()
 		del action
 
