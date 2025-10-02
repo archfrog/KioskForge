@@ -321,8 +321,6 @@ class CloudinitConfigurator(Configurator):
 
 	def _save_user_data(self, path : str) -> None:
 		with TextWriter(path) as stream:
-			output = f"/home/{self.kiosk.user_name.data}"
-
 			# Write header to let the user know who generated this particular file.
 			stream.write("#cloud-config")
 			stream.write(
@@ -338,16 +336,26 @@ class CloudinitConfigurator(Configurator):
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
 			stream.indent()
-			stream.write(f"- name: {self.kiosk.user_name.data}")
+			# Create the 'kiosk' user which will be used exclusively for running the kiosk.
+			stream.write("- name: kiosk")
 			stream.indent()
-			stream.write("gecos: Administrator")
-			stream.write("groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo")
+			stream.write("gecos: Kiosk user")
+			stream.write("groups: users,audio,netdev,video,plugdev,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
 			# Hash the password so thieves, hackers, etc. cannot simply read the password in the file in /boot/firmware.
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is very dangerous if somebody gets through to the shell, but we may need passwordless 'sudo'.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
+			stream.dedent()
+			# Create the 'shell' user which will allow the end-user to log into the kiosk to inspect and modify it.
+			stream.write("- name: shell")
+			stream.indent()
+			stream.write("gecos: Shell user")
+			stream.write("groups: users,adm,netdev,plugdev,input,gpio,spi,i2c,sudo")
+			stream.write("shell: /bin/bash")
+			stream.write("lock_passwd: false")
+			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			stream.dedent()
 			stream.dedent()
 			stream.write()
@@ -371,14 +379,14 @@ class CloudinitConfigurator(Configurator):
 			stream.write("content: |")
 			stream.indent()
 			stream.write("[Unit]")
-			stream.write("Description=KioskForge kiosk forge driver")
+			stream.write("Description=KioskForge forge process driver")
 			stream.write("After=network-online.target")
 			stream.write("After=cloud-init.target")
 			stream.write("After=multi-user.target")
 			stream.write()
 			stream.write("[Service]")
 			stream.write("Type=simple")
-			stream.write(f"ExecStart={output}/KioskForge/KioskSetup.py")
+			stream.write("ExecStart=/home/kiosk/KioskForge/KioskSetup.py")
 			stream.write("StandardOutput=tty")
 			stream.write("StandardError=tty")
 			stream.write()
@@ -396,19 +404,19 @@ class CloudinitConfigurator(Configurator):
 			# Write commands to copy and then make this script executable (this is done late in the boot process).
 			stream.write("runcmd:")
 			stream.indent()
-			stream.write(f"- cp -pR {source}/KioskForge {output}")
-			stream.write(f"- chown -R {self.kiosk.user_name.data}:{self.kiosk.user_name.data} {output}/KioskForge")
-			stream.write(f"- chmod -R u+x {output}/KioskForge")
-			stream.write(f"- chmod a-x {output}/KioskForge/KioskForge.kiosk")
+			stream.write(f"- cp -pR {source}/KioskForge /home/kiosk")
+			stream.write("- chown -R kiosk:kiosk /home/kiosk/KioskForge")
+			stream.write("- chmod -R u+x /home/kiosk/KioskForge")
+			stream.write("- chmod a-x /home/kiosk/KioskForge/KioskForge.kiosk")
 
 			# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
 			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
 			if self.kiosk.user_folder.data:
 				basename = os.path.basename(os.path.abspath(self.kiosk.user_folder.data))
 				user_source = source + '/' + basename
-				user_target = output + '/' + basename
-				stream.write(f"- cp -pR {user_source} {output}")
-				stream.write(f"- chown -R {self.kiosk.user_name.data}:{self.kiosk.user_name.data} {user_target}")
+				user_target = '/home/kiosk/' + basename
+				stream.write(f"- cp -pR {user_source} /home/kiosk")
+				stream.write(f"- chown -R kiosk:kiosk {user_target}")
 				stream.write(f"- chmod -R u+x {user_target}")
 				del user_source
 				del user_target
@@ -531,7 +539,6 @@ class KioskForge(KioskDriver):
 		print(f"    Keyboard     : {kiosk.keyboard.data}")
 		print(f"    Locale       : {kiosk.locale.data}")
 		print(f"    Sound card   : {kiosk.sound_card.data}")
-		print(f"    User name    : {kiosk.user_name.data}")
 		print(f"    SSH key      : {'Present' if kiosk.ssh_key.data else 'Not present'}")
 		print(f"    Wi-Fi name   : {kiosk.wifi_name.data}")
 		print(f"    Wi-Fi country: {kiosk.wifi_country.data}")
@@ -632,6 +639,7 @@ class KioskForge(KioskDriver):
 		# NOTE: 'KioskForge.kiosk' file that is created in the '/home/username/KioskForge' folder by the 'KioskForge.py' script.
 		kiosk.redact_prepare()
 		kiosk.save(output + os.sep + "KioskForge.kiosk")
+		del output
 
 		print("Kiosk prepared successfully.")
 

@@ -58,11 +58,8 @@ class KioskUpgrade(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Compute the absolute path of the user's home folder.
-		userhome = "/home/" + kiosk.user_name.data + os.sep
-
 		# If no KioskForge upgrade is available, simply exit this script again.
-		if not os.path.isfile(userhome + "KioskForge.zip"):
+		if not os.path.isfile("/home/kiosk/KioskForge.zip"):
 			return
 
 		logger.write("KioskForge upgrade found so performing upgrade.")
@@ -70,23 +67,18 @@ class KioskUpgrade(KioskDriver):
 		# TODO: Handle the case that a new .kiosk file was uploaded (not yet possible as KioskSetup.py needs to do its magic).
 
 		# Make sure there's no new version of KioskForge from a failed earlier upgrade.
-		invoke_list_safe(["rm", "-fr", userhome + "KioskForge.new"])
+		invoke_list_safe(["rm", "-fr", "/home/kiosk/KioskForge.new"])
 
-		# Unzip the upgrade into ~/KioskForge.new before moving it into place as the current kiosk (~/KioskForge).
-		invoke_list_safe(
-			["sudo", "-u", kiosk.user_name.data, "unzip", userhome + "KioskForge.zip", "-d", userhome + "KioskForge.new"]
-		)
+		# Unzip the upgrade into /home/kiosk/KioskForge.new before moving it into place as the current kiosk (~/KioskForge).
+		invoke_list_safe(["sudo", "-u", "kiosk", "unzip", "/home/kiosk/KioskForge.zip", "-d", "/home/kiosk/KioskForge.new"])
 
 		# Copy over the .kiosk file from the current kiosk to the new kiosk.
 		invoke_list_safe(
-			[
-				"sudo", "-u", kiosk.user_name.data,
-				"cp", "-p", userhome + "KioskForge" + os.sep + "KioskForge.kiosk", userhome + "KioskForge.new"
-			]
+			["sudo", "-u", "kiosk", "cp", "-p", "/home/kiosk/KioskForge" + os.sep + "KioskForge.kiosk", "/home/kiosk/KioskForge.new"]
 		)
 
 		# Change file permissions as ZIP doesn't store those.
-		for file in [userhome + "KioskForge.new"] + glob.glob(userhome + "KioskForge.new" + os.sep + "**"):
+		for file in ["/home/kiosk/KioskForge.new"] + glob.glob("/home/kiosk/KioskForge.new" + os.sep + "**"):
 			(_, ext) = os.path.splitext(file)
 			del _
 
@@ -98,16 +90,16 @@ class KioskUpgrade(KioskDriver):
 				print(f"Warning: Skipping unknown file: {file}")
 
 		# If an old version of KioskForge exists, remove it.
-		invoke_list_safe(["rm", "-fr", userhome + "KioskForge.old"])
+		invoke_list_safe(["rm", "-fr", "/home/kiosk/KioskForge.old"])
 
 		# Save the current version of KioskForge for "easy" manual recovery, if the upgrade fails.
-		os.rename(userhome + "KioskForge", userhome + "KioskForge.old")
+		os.rename("/home/kiosk/KioskForge", "/home/kiosk/KioskForge.old")
 
 		# Move the new version of KioskForge into place.
-		os.rename(userhome + "KioskForge.new", userhome + "KioskForge")
+		os.rename("/home/kiosk/KioskForge.new", "/home/kiosk/KioskForge")
 
 		# Remove the upgrade archive so that we don't perform the upgrade again on the next boot and forever after until removed.
-		invoke_list_safe(["rm", "-f", userhome + "KioskForge.zip"])
+		invoke_list_safe(["rm", "-f", "/home/kiosk/KioskForge.zip"])
 
 		logger.write("Kiosk upgrader rebooting after successfully upgrading KioskForge.")
 

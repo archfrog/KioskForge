@@ -353,7 +353,7 @@ internet.  In that case, no upgrades will performed.
 
 
 USER_CODE_HELP = """
-The password for the user whose name is given in the 'user_name' field.
+The password for the 'kiosk' and 'shell' users.
 
 There is technically no maximum limit to the length of the password, but you
 should always use between 16 and 132 characters.
@@ -557,7 +557,6 @@ class Kiosk(Fields):
 		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
 		self += BooleanField("mouse", "false", MOUSE_HELP)
-		self += RegexField("user_name", "kiosk", USER_NAME_HELP, r"[A-Za-z0-9_]{1,32}")
 		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
@@ -593,4 +592,4 @@ class Kiosk(Fields):
 
 	def redact_report(self) -> None:
 		"""Redacts the kiosk for use by the 'KioskReport.py' script when it includes the redacted kiosk in the Zip archive."""
-		self.redact(["comment", "user_name", "user_code", "wifi_name", "wifi_code", "ssh_key"])
+		self.redact(["comment", "user_code", "wifi_name", "wifi_code", "ssh_key"])

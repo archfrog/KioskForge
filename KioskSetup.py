@@ -169,7 +169,7 @@ class KioskSetup(KioskDriver):
 		script = Script(logger, resume)
 
 		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which honors 'upgrade_time=HH:MM').
-		# NOTE: Putting all snap upgrades on hold does NOT prevent installing new snaps: Tested and verified.
+		# NOTE: Putting all AUTOMATIC snap upgrades on hold does NOT prevent installing new snaps: Tested and verified.
 		script += ExternalAction("Disabling automatic upgrades of snaps.", "snap refresh --hold")
 
 		# Set environment variable to stop dpkg from running interactively.
@@ -228,15 +228,15 @@ class KioskSetup(KioskDriver):
 		lines += "}"
 		script += AppendTextAction(
 			"Creating 'kiosklog' Bash function for easier debugging and status discovery.",
-			f"{os.path.dirname(origin)}/.bashrc",
+			"/home/shell/.bashrc",
 			lines.text
 		)
 
-		# Create '~/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
+		# Create '~kiosk/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
 		script += CreateTextWithUserAndModeAction(
-			"Creating ~/.hushlogin to reduce amount of text displayed during automatic login.",
-			f"{os.path.dirname(origin)}/.hushlogin",
-			kiosk.user_name.data,
+			"Creating ~kiosk/.hushlogin to reduce amount of text displayed during automatic login.",
+			"/home/kiosk/.hushlogin",
+			"kiosk",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			""
 		)
@@ -268,11 +268,11 @@ class KioskSetup(KioskDriver):
 		# ...Install OpenSSH server.
 		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
 
-		# ...Install SSH public key, if any, so that the user can SSH into the box in case of errors or other issues.
+		# ...Install SSH public key, if any, so that the user can SSH into the box as 'shell' in case of errors or other issues.
 		if kiosk.ssh_key.data:
 			script += AppendTextAction(
-				"Installing public SSH key in user's home directory.",
-				f"{os.path.dirname(origin)}/.ssh/authorized_keys",
+				"Installing public SSH key in ~shell/.ssh.",
+				"/home/shell/.ssh/authorized_keys",
 				kiosk.ssh_key.data + "\n"
 			)
 			#...Disable root login, if not already disabled.
@@ -290,13 +290,13 @@ class KioskSetup(KioskDriver):
 				"PasswordAuthentication no"
 			)
 
-		#...Disable empty passwords (probably superflous, but it doesn't hurt).
-		script += ReplaceTextAction(
-			"Disabling empty SSH password login.",
-			"/etc/ssh/sshd_config",
-			"#PermitEmptyPasswords no",
-			"PermitEmptyPasswords no"
-		)
+			#...Disable empty passwords (probably superflous, but it doesn't hurt).
+			script += ReplaceTextAction(
+				"Disabling empty SSH password login.",
+				"/etc/ssh/sshd_config",
+				"#PermitEmptyPasswords no",
+				"PermitEmptyPasswords no"
+			)
 
 		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
 			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
@@ -333,7 +333,7 @@ class KioskSetup(KioskDriver):
 		# NOTE: I haven't been able to make 'KioskConfig.py' only run once as is the intention and purpose of it.
 		lines += "RemainAfterExit=yes"
 		lines += "ExecStart="
-		lines += f"ExecStart={origin}/KioskConfig.py"
+		lines += "ExecStart=/home/kiosk/KioskForge/KioskConfig.py"
 		lines += ""
 		lines += "[Install]"
 		lines += "# Start KioskConfig.py as soon as the user logs in."
@@ -359,7 +359,7 @@ class KioskSetup(KioskDriver):
 		lines += "Type=simple"
 		lines += "Restart=yes"
 		lines += "ExecStart="
-		lines += f"ExecStart={origin}/KioskDiscoveryServer.py"
+		lines += "ExecStart=/home/kiosk/KioskForge/KioskDiscoveryServer.py"
 		lines += ""
 		lines += "[Install]"
 		lines += "WantedBy=multi-user.target"
@@ -421,8 +421,8 @@ class KioskSetup(KioskDriver):
 			lines += '{"translate":{"enabled":false}}'
 			script += CreateTextWithUserAndModeAction(
 				"Disabling Translate feature in Chromium web browser.",
-				f"{os.path.dirname(origin)}/snap/chromium/common/chromium/Default/Preferences",
-				kiosk.user_name.data,
+				"/home/kiosk/snap/chromium/common/chromium/Default/Preferences",
+				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR,
 				lines.text
 			)
@@ -502,11 +502,11 @@ class KioskSetup(KioskDriver):
 			# NOTE: For this reason, we start the Python script indirectly through an-hoc Dash script.
 			lines  = TextBuilder()
 			lines += "#!/usr/bin/dash"
-			lines += f"{origin}/KioskOpenbox.py"
+			lines += "/home/kiosk/KioskForge/KioskOpenbox.py"
 			script += CreateTextWithUserAndModeAction(
 				"Creating OpenBox startup script.",
-				f"{os.path.dirname(origin)}/.config/openbox/autostart",
-				kiosk.user_name.data,
+				"/home/kiosk/.config/openbox/autostart",
+				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
 				lines.text
 			)
@@ -530,8 +530,8 @@ class KioskSetup(KioskDriver):
 				lines += '{"translate":{"enabled":false}}'
 				script += CreateTextWithUserAndModeAction(
 					"Disabling Translate feature in Chromium web browser.",
-					f"{os.path.dirname(origin)}/snap/chromium/common/chromium/Default/Preferences",
-					kiosk.user_name.data,
+					"/home/kiosk/snap/chromium/common/chromium/Default/Preferences",
+					"kiosk",
 					stat.S_IRUSR | stat.S_IWUSR,
 					lines.text
 				)
@@ -561,7 +561,7 @@ class KioskSetup(KioskDriver):
 			lines  = TextBuilder()
 			lines += "[Service]"
 			lines += "# This is what causes a user session to be allocated for the kiosk user."
-			lines += f"User={kiosk.user_name.data}"
+			lines += "User=kiosk"
 			lines += "PAMName=login"
 			lines += "TTYPath=/dev/tty1"
 			lines += "ExecStart="
@@ -588,8 +588,8 @@ class KioskSetup(KioskDriver):
 			lines += "ExecStart=/snap/bin/ubuntu-frame"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Ubuntu Frame.",
-				f"{os.path.dirname(origin)}/.config/systemd/user/ubuntu-frame.service",
-				kiosk.user_name.data,
+				"/home/kiosk/.config/systemd/user/ubuntu-frame.service",
+				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR,
 				lines.text
 			)
@@ -606,8 +606,8 @@ class KioskSetup(KioskDriver):
 			lines += f"ExecStart=/snap/bin/chromium --kiosk '{kiosk.command.data}'"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Chromium.",
-				f"{os.path.dirname(origin)}/.config/systemd/user/chromium.service",
-				kiosk.user_name.data,
+				"/home/kiosk/.config/systemd/user/chromium.service",
+				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR,
 				lines.text
 			)
@@ -621,25 +621,27 @@ class KioskSetup(KioskDriver):
 			lines += "Wants=ubuntu-frame.service chromium.service"
 			script += CreateTextWithUserAndModeAction(
 				"Creating user-specific systemd service to launch Chromium.",
-				f"{os.path.dirname(origin)}/.config/systemd/user/user-session.target",
-				kiosk.user_name.data,
+				"/home/kiosk/.config/systemd/user/user-session.target",
+				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR,
 				lines.text
 			)
 			del lines
 			script += ExternalAction("Start Wayland and then Chromium when booting.", "systemctl add-wants graphical.target user-session.service")
 		else:
-			# Append lines to '~/.bashrc' to execute the startup script (which handles redundant requests, etc.).
+			# Append lines to '~kiosk/.bashrc' to execute the startup script (which handles redundant requests, etc.).
 			lines  = TextBuilder()
-			lines += ""
-			lines += "# Start the kiosk by invoking 'KioskStart.py', which decides if it wants to run now or not."
+			lines += "#!/usr/bin/bash"
+			lines += "# Start the kiosk."
 			# NOTE: Don't use 'set -e', it logs out whenever an error occurs in the logged in SSH session...
-			lines += f"{origin}/KioskStart.py"
+			lines += "/home/kiosk/KioskForge/KioskStart.py"
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
-			script += AppendTextAction(
-				"Appending lines to ~/.bashrc to start up the kiosk on every boot.",
-				f"{os.path.dirname(origin)}/.bashrc",
+			script += CreateTextWithUserAndModeAction(
+				"Creating ~kiosk/.bash_login to start up the kiosk at every boot.",
+				"/home/kiosk/.bash_login",
+				"kiosk",
+				stat.S_IRUSR | stat.S_IWUSR,
 				lines.text
 			)
 			del lines
@@ -648,7 +650,7 @@ class KioskSetup(KioskDriver):
 			lines  = TextBuilder()
 			lines += "[Service]"
 			lines += "ExecStart="
-			lines += f"ExecStart=-/sbin/agetty --noissue --autologin {kiosk.user_name.data} %I $TERM"
+			lines += "ExecStart=-/sbin/agetty --noissue --autologin kiosk %I $TERM"
 			lines += "Type=simple"
 			script += CreateTextWithUserAndModeAction(
 				"Creating systemd auto-login override to log in the user and start the graphical desktop environment.",
@@ -667,11 +669,11 @@ class KioskSetup(KioskDriver):
 #			lines += "After=multi-user.target"
 #			lines += ""
 #			lines += "[Service]"
-#			lines += f"User={kiosk.user_name.data}"
-#			lines += f"Group={kiosk.user_name.data}"
+#			lines += "User=kiosk"
+#			lines += "Group=kiosk"
 #			lines += "Type=simple"
 #			lines += "ExecStart="
-#			lines += f"ExecStart={origin}/KioskStart.py"
+#			lines += "ExecStart=/home/kiosk/KioskForge/KioskStart.py"
 #			lines += "StandardOutput=tty"
 #			lines += "StandardError=tty"
 #			lines += ""
@@ -730,7 +732,7 @@ class KioskSetup(KioskDriver):
 			script += CreateTextWithUserAndModeAction(
 				"Setting kernel swap mode to aggressive.",
 				"/etc/sysctl.d/20-kiosk-zram-swap-aggressive.conf",
-				kiosk.user_name.data,
+				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 				lines.text
 			)
@@ -781,7 +783,7 @@ class KioskSetup(KioskDriver):
 		if kiosk.upgrade_time.data != "":
 			lines  = TextBuilder()
 			lines += "# Cron job to upgrade, clean, and reboot the system every day."
-			lines += f'{kiosk.upgrade_time.data[3:5]} {kiosk.upgrade_time.data[0:2]} * * *\troot\t{origin}/KioskUpdate.py'
+			lines += f"{kiosk.upgrade_time.data[3:5]} {kiosk.upgrade_time.data[0:2]} * * *\troot\t/home/kiosk/KioskForge/KioskUpdate.py"
 			script += CreateTextAction(
 				"Creating cron job to upgrade system once a day at the configured time.",
 				"/etc/cron.d/kiosk-upgrade-system",
@@ -803,8 +805,8 @@ class KioskSetup(KioskDriver):
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
-			"Setting ownership of all files in user's home directory to that user.",
-			f"chown -R {kiosk.user_name.data}:{kiosk.user_name.data} {os.path.dirname(origin)}"
+			"Setting ownership of all files in the kiosk user's home directory to 'kiosk'.",
+			f"chown -R kiosk:kiosk {os.path.dirname(origin)}"
 		)
 
 		# Synchronize all changes to disk (may take a while on microSD cards).
@@ -819,7 +821,7 @@ class KioskSetup(KioskDriver):
 			raise KioskError(result.output)
 
 		# Signal other running KioskForge components to shut down gracefully.
-		signal = Signal("kiosk-shutdown", owner=kiosk.user_name.data)
+		signal = Signal("kiosk-shutdown", "kiosk")
 		signal.create()
 
 		# Wait a few seconds for the people to be able to spot errors and/or read how long the forge process took.

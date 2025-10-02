@@ -116,7 +116,7 @@ class KioskUpdate(KioskDriver):
 			# Don't execute the code below if this script was invoked from the 'KioskSetup.py' script (to increase code sharing).
 			if not initial:
 				# Stop Chromium and automatic respawns of it by creating a signal, which is watched for by 'KioskOpenbox.py'.
-				signal = Signal("KioskOpenbox-shutdown-Chromium", kiosk.user_name.data)
+				signal = Signal("KioskOpenbox-shutdown-Chromium", "kiosk")
 				signal.create()
 				logger.write("Signaled KioskOpenbox.py to shut down Chromium and then exit.")
 
@@ -133,16 +133,8 @@ class KioskUpdate(KioskDriver):
 				invoke_text_safe("killall Xorg")
 
 			# Ask snap to upgrade (refresh) all snaps.
-			try:
-				# Allow snap to update.
-				invoke_text_safe("snap refresh --unhold")
-
-				# Refresh all snaps.
-				logger.write("Upgrading all snaps.")
-				invoke_text_safe("snap refresh")
-			finally:
-				# Stop snapd from upgrading automatically so it doesn't upgrade randomly (done first in 'KioskSetup.py').
-				invoke_text_safe("snap refresh --hold")
+			logger.write("Upgrading all snaps.")
+			invoke_text_safe("snap refresh")
 
 			# Try to uninstall cups in case it got installed again by a refresh of the Chromium snap.
 			# NOTE: We simply ignore the return value, an instance of 'Result', as we're happy whether it fails or it succeeds.

@@ -82,7 +82,7 @@ class KioskOpenbox(KioskDriver):
 		# Fetch timeout value (0 = disabled, other = number of seconds) from configuration file.
 		timeout = kiosk.idle_timeout.data
 
-		signal = Signal("KioskOpenbox-shutdown-Chromium", kiosk.user_name.data)
+		signal = Signal("KioskOpenbox-shutdown-Chromium", "kiosk")
 		try:
 			# Disable all forms of X screen saver/screen blanking/power management.
 			for command in [ "xset s off", "xset s noblank", "xset -dpms"]:

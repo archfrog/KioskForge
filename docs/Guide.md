@@ -59,9 +59,9 @@ When you want to display a local website using your new kiosk, you especially ha
 | Wi-Fi boost      | `wifi_boost`      | This should probably be disabled (`false`) as local websites require no LAN access.      |
 
 [^1]: The `command` option is a bit peculiar.  You need to specify a `file://` URL to tell Chromium that it is displaying local
-files.  The URL needs to be *carefully* specified as the kiosk will fail to display anything if it is wrong.  Let's say that you've
-set `user_name` to `test` and `user_folder` equal to `Website`.  Then your URL needs to be: `file:///home/test/Website/index.html`,
-which is the value that you should give in the `command` option.
+files.  The URL needs to be written *carefully* as the kiosk will fail to display anything if it is wrong.  Let's say that you've
+set `user_folder` equal to `Website`.  Then your URL needs to be: `file:///home/kiosk/Website/index.html`, which is the value that
+you should give in the `command` option.
 
 You still need to supply values for all the other options that are described in the kiosk file (`*.kiosk`).
 
