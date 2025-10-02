@@ -33,6 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.10.02.08.12 H Update documentation (`docs/*`) to reflect changes in v0.25.
+- [ ] 2025.10.02.08.13 H Document that the user *should* place all kiosks on a new and separate subnet for security reasons.
 - [ ] 2025.10.02.03.36 H Eliminate the `user_folder` kiosk setting as it should be a predefined name to simply the documentation (`KioskFiles`?)
                          How to determine the source location of the kiosk files, if this option is removed?
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be handled somehow.
