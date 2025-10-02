@@ -344,7 +344,10 @@ class KioskSetup(KioskDriver):
 			for unit in units:
 				# The weird systemctl syntax is from here: https://www.reddit.com/r/podman/comments/12931nx/comment/lbnwejv/
 				# NOTE: Don't try using 'sudo' together with 'systemctl', you get a weird bus error and the operation fails.
-				script += ExternalAction(f"... Disabling PipeWire unit '{unit}'.", f"systemctl --user -M shell@ mask {unit}")
+				script += ExternalAction(
+					f"... Disabling PipeWire unit '{unit}' for user 'shell'.",
+					f"systemctl --user -M shell@ mask {unit}"
+				)
 			del units
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
