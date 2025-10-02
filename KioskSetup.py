@@ -29,9 +29,9 @@ import stat
 import sys
 import time
 
-from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
-from kiosklib.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
-from kiosklib.actions import RemoveFolderAction, ReplaceTextAction
+from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CreateTreeAction
+from kiosklib.actions import CustomAction, ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
+from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, InternalError, KioskError
@@ -165,21 +165,26 @@ class KioskSetup(KioskDriver):
 		logger.write("Forging kiosk (takes a while depending on media speed and kiosk architecture):")
 		logger.write()
 
+		# Set environment variable to stop dpkg from running interactively.
+		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
+
 		# Build the script to execute.
 		script = Script(logger, resume)
 
+		script += CustomAction("Preparing system for forge process:", lambda: True)
+
+		# Stop the unattended-packages package as it causes endless problems for people using apt programmatically.
+		script += ExternalAction("... Stopping service unattended-upgrades.", "systemctl stop unattended-upgrades")
+
 		# Instruct snap to never upgrade by itself (we upgrade in the 'KioskUpdate.py' script, which honors 'upgrade_time=HH:MM').
 		# NOTE: Putting all AUTOMATIC snap upgrades on hold does NOT prevent installing new snaps: Tested and verified.
-		script += ExternalAction("Disabling automatic upgrades of snaps.", "snap refresh --hold")
-
-		# Set environment variable to stop dpkg from running interactively.
-		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
+		script += ExternalAction("... Disabling automatic upgrades of snaps.", "snap refresh --hold")
 
 		# Set environment variable on every boot to stop dpkg from running interactively.
 		lines  = TextBuilder()
 		lines += 'DEBIAN_FRONTEND="noninteractive"'
 		script += AppendTextAction(
-			"Configuring 'apt', 'dpkg', etc. to never interact with the user.",
+			"... Configuring 'apt', etc. to never interact with the user.",
 			"/etc/environment",
 			lines.text
 		)
@@ -187,7 +192,7 @@ class KioskSetup(KioskDriver):
 
 		# Disable interactive activity from needrestart (otherwise it could get stuck in a TUI dialogue during an upgrade).
 		script += ReplaceTextAction(
-			"Configuring 'needrestart' to NOT use interactive dialogues during upgrades.",
+			"... Configuring 'needrestart' to never interact with the user.",
 			"/etc/needrestart/needrestart.conf",
 			"$nrconf{restart} = 'i';",
 			"$nrconf{restart} = 'a';"
@@ -195,7 +200,7 @@ class KioskSetup(KioskDriver):
 
 		# Configure 'apt' to never update package lists on its own.  We do this in a cron job below.
 		script += ReplaceTextAction(
-			"Configuring 'apt' to never update package lists on its own.",
+			"... Configuring 'apt' to never update package lists automatically.",
 			"/etc/apt/apt.conf.d/10periodic",
 			'APT::Periodic::Update-Package-Lists "1";',
 			'APT::Periodic::Update-Package-Lists "0";'
@@ -210,7 +215,7 @@ class KioskSetup(KioskDriver):
 		lines += '    "--force-confold";'
 		lines += '}'
 		script += CreateTextWithUserAndModeAction(
-			"Instructing 'apt' to keep existing configuration files during upgrades.",
+			"... Instructing 'dpkg' to keep existing configuration files on upgrades.",
 			"/etc/apt/apt.conf.d/00local",
 			"root",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -218,28 +223,32 @@ class KioskSetup(KioskDriver):
 		)
 		del lines
 
-		# Append lines to .bashrc to create 'kiosklog' function used for quickly viewing the Kiosk*.py log entries.
+		# Create ~shell/.bash_aliases to add the 'kiosklog' command used for quickly viewing the Kiosk*.py log entries.
 		lines  = TextBuilder()
-		lines += ""
+		lines += "#!/usr/bin/bash"
 		lines += "# Function that displays all syslog entries made by Kiosk*.py."
 		lines += "kiosklog() {"
 		lines += "\t# Use 'kiosklog -p 3' only see kiosk-related errors, instead of all messages."
 		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk | grep -Fv systemd\\["
 		lines += "}"
-		script += AppendTextAction(
-			"Creating 'kiosklog' Bash function for easier debugging and status discovery.",
-			"/home/shell/.bashrc",
+		script += CreateTextWithUserAndModeAction(
+			"Creating 'kiosklog' command for user 'shell' for status discovery.",
+			"/home/shell/.bash_aliases",
+			"shell",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			lines.text
 		)
 
-		# Create '~kiosk/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
-		script += CreateTextWithUserAndModeAction(
-			"Creating ~kiosk/.hushlogin to reduce amount of text displayed during automatic login.",
-			"/home/kiosk/.hushlogin",
-			"kiosk",
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
-			""
-		)
+		# Create '~shell/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
+		# NOTE: This is very beneficial as it reports things like temperature, swap usage, and so on.
+		if False:
+			script += CreateTextWithUserAndModeAction(
+				"Creating ~shell/.hushlogin to enable silent logins.",
+				"/home/shell/.hushlogin",
+				"shell",
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
+				""
+			)
 
 		# Set timezone to use user's choice.
 		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
@@ -250,41 +259,39 @@ class KioskSetup(KioskDriver):
 		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
 
 		# Install US English and user-specified locales (purge all others).
-		script += ExternalAction("Configuring system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
-
+		script += CustomAction("Configuring system locale:", lambda: True)
+		script += ExternalAction("... Generating system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
-		script += ExternalAction("Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
+		script += ExternalAction("... Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
 
 		# Update package lists to avoid getting all sorts of bizarre HTTP errors due to outdated package lists.
 		# NOTE: If this step is left out, you risk getting tons of HTTP 404 errors when trying to install, say, the audio packages.
 		script += AptAction("Updating package lists before installing anything.", "apt-get update")
 
 		# Configure and activate firewall, allowing only SSH at port 22.
-		script += ExternalAction("Disabling firewall log.", "ufw logging off")
-		script += ExternalAction("Allowing SSH through firewall.", "ufw allow ssh")
-		script += ExternalAction("Enabling firewall.", "ufw --force enable")
-
-		# Install and configure SSH server to require a key and disallow root access if a public key is specified.
-		# ...Install OpenSSH server.
-		script += InstallPackagesAction("Installing OpenSSH server.", ["openssh-server"])
+		script += CustomAction("Configuring firewall:", lambda: True)
+		script += ExternalAction("... Disabling firewall log.", "ufw logging off")
+		script += ExternalAction("... Allowing SSH through firewall.", "ufw allow ssh")
+		script += ExternalAction("... Enabling firewall.", "ufw --force enable")
 
 		# ...Install SSH public key, if any, so that the user can SSH into the box as 'shell' in case of errors or other issues.
 		if kiosk.ssh_key.data:
-			script += AppendTextAction(
-				"Installing public SSH key in ~shell/.ssh.",
-				"/home/shell/.ssh/authorized_keys",
-				kiosk.ssh_key.data + "\n"
-			)
+			script += CustomAction("Configuring Secure Shell (ssh):", lambda: True)
+
+			# Install and configure SSH server to require a key and disallow root access if a public key is specified.
+			# ...Install OpenSSH server.
+			script += InstallPackagesAction("... Installing OpenSSH server.", ["openssh-server"])
+
 			#...Disable root login, if not already disabled.
 			script += ReplaceTextAction(
-				"Disabling root login using SSH.",
+				"... Disabling root login using SSH.",
 				"/etc/ssh/sshd_config",
 				"#PermitRootLogin prohibit-password",
 				"PermitRootLogin no"
 			)
 			#...Disable password-only authentication if not already disabled.
 			script += ReplaceTextAction(
-				"Disabling password authentication (requiring private SSH key to log in).",
+				"... Disabling password authentication altogether.",
 				"/etc/ssh/sshd_config",
 				"#PasswordAuthentication yes",
 				"PasswordAuthentication no"
@@ -292,10 +299,17 @@ class KioskSetup(KioskDriver):
 
 			#...Disable empty passwords (probably superflous, but it doesn't hurt).
 			script += ReplaceTextAction(
-				"Disabling empty SSH password login.",
+				"... Disabling empty SSH password login.",
 				"/etc/ssh/sshd_config",
 				"#PermitEmptyPasswords no",
 				"PermitEmptyPasswords no"
+			)
+
+			# Install public SSH key for the 'shell' user.
+			script += AppendTextAction(
+				"... Installing public SSH key for user 'shell'.",
+				"/home/shell/.ssh/authorized_keys",
+				kiosk.ssh_key.data + "\n"
 			)
 
 		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
@@ -303,19 +317,35 @@ class KioskSetup(KioskDriver):
 			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
 			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
 			# NOTE: Package 'net-tools' contains the 'netstat' utility.
-			script += InstallPackagesAction("Installing network tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
-			script += CustomAction("Boosting Wi-Fi speed by disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
+			script += CustomAction("Enabling Wi-Fi Boost:", lambda: True)
+			script += InstallPackagesAction("... Installing tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
+			script += CustomAction("... Disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
 
 		# Install InfoZip unzip as we need this in the KioskUpgrade.py script, which is run before the kiosk itself starts.
-		script += InstallPackagesAction("Installing 'unzip' required by the KioskForge upgrader.", ["unzip"])
+		script += InstallPackagesAction("Installing Unzip required by the KioskForge upgrader.", ["unzip"])
 
 		# Install PipeWire audio system only if explicitly enabled.
 		if kiosk.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
 
+			script += CustomAction("Configuring audio subsystem:", lambda: True)
+
 			# Install PipeWire audio subsystem, which is configured in 'KioskStart.py' (all attempts of configuring PipeWire in
 			# 'KioskConfig.py' failed with 'sudo', 'os.seteuid()', and so on).
-			script += InstallPackagesAction("Installing PipeWire audio subsystem.", ["pipewire-audio"])
+			script += InstallPackagesAction("... Installing PipeWire packages.", ["pipewire-audio"])
+
+			# Disable the PipeWire audio subsystem for the 'shell' user to save some memory (50+ MB, I think).
+			script += CreateTreeAction("... Creating systemd user folder.", "/home/shell/.config/systemd/user", 0o700, "shell")
+
+			# ... Disable all PipeWire systemd services and sockets for the user 'shell' to save some memory.
+			# NOTE: The services were found using the 'systemctl list-units --all | fgrep -i pipewire' command on the kiosk.
+			# NOTE: The 'filter-chain' service has been left out as I am unsure whether or not it needs to be masked.
+			units = [ "pipewire.service", "pipewire-pulse", "wireplumber.service" ]
+			for unit in units:
+				# The weird systemctl syntax is from here: https://www.reddit.com/r/podman/comments/12931nx/comment/lbnwejv/
+				# NOTE: Don't try using 'sudo' together with 'systemctl', you get a weird bus error and the operation fails.
+				script += ExternalAction(f"... Disabling PipeWire unit '{unit}'.", f"systemctl --user -M shell@ mask {unit}")
+			del units
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()
@@ -347,10 +377,13 @@ class KioskSetup(KioskDriver):
 		)
 		del lines
 
+		#************************************ Kiosk Browser Service **************************************************************
+		script += CustomAction("Configuring kiosk server:", lambda: True)
+
 		# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()
 		lines += "[Unit]"
-		lines += "Description=KioskForge kiosk discovery service"
+		lines += "Description=KioskForge kiosk server"
 		lines += "After=network-online.target"
 		lines += "Before=multi-user.target"
 		lines += "Wants=network-online.target"
@@ -364,31 +397,34 @@ class KioskSetup(KioskDriver):
 		lines += "[Install]"
 		lines += "WantedBy=multi-user.target"
 		script += CreateTextWithUserAndModeAction(
-			"Creating configuration file to start kiosk discovery service on every boot.",
-			"/usr/lib/systemd/system/KioskDiscoveryService.service",
+			"... Creating systemd service.",
+			"/usr/lib/systemd/system/kiosk-server.service",
 			"root",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
 			lines.text
 		)
 		del lines
 
-		# Enable AND start 'KioskDiscoveryService' systemd service so that it runs on every boot and also immediately.
-		script += ExternalAction(
-			"Enabling and starting kiosk discovery service.",
-			"systemctl enable --now KioskDiscoveryService.service"
-		)
+		# Enable AND start 'kiosk-server' systemd service so that it runs immediately and also on every future boot.
+		script += ExternalAction("... Enabling and starting systemd service.", "systemctl enable --now kiosk-server.service")
 
 		# Allow UDP broadcasts through the firewall.
+		# TODO: This should eventually support /16 for multiple subnets or, perhaps better, a list of valid subnets.
+		subnet = lan_broadcast_address() + "/24"
 		script += ExternalAction(
-			"Adding firewall rule to allow the kiosk discovery service.",
-			f"ufw allow in proto udp to {lan_broadcast_address()}/24"
+			"... Opening firewall port to allow broadcast messages from LAN subnet.",
+			f"ufw allow in proto udp to {subnet} from {subnet}"
 		)
+		del subnet
+		if False:
+			# TODO: Figure out how enable remote manament securely so that users on the Wi-Fi cannot sniff passwords, etc.
+			script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
 
 		# Remove some packages that we don't need in kiosk mode to save a tiny bit of memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
 
 		# Clean, Update, and upgrade the system (including snaps)
-		script += ExternalAction("Upgrading everything (both packages and snaps).", origin + os.sep + "KioskUpdate.py --initial")
+		script += ExternalAction("Upgrading system (packages and snaps).", "/home/kiosk/KioskForge/KioskUpdate.py --initial")
 
 		# Configure the kiosk according to its type.
 		if kiosk.type.data == "web-wayland":
@@ -513,12 +549,14 @@ class KioskSetup(KioskDriver):
 			del lines
 
 			if kiosk.type.data == "web":
+				script += CustomAction("Installing Chromium web browser:", lambda: True)
+
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
-				script += ExternalAction("Installing Chromium web browser.", "snap install chromium")
+				script += ExternalAction("... Installing 'chromium' snap.", "snap install chromium")
 
 				# ...Stop and remove the Common Unix Printing Server (cups) as it is a security risk that we don't need in a kiosk.
 				script += ExternalAction(
-					"Purging Common Unix Printing System (cups) installed automatically with Chromium.",
+					"... Purging Common Unix Printing System (cups) installed with Chromium.",
 					"snap remove --purge cups"
 				)
 
@@ -529,7 +567,7 @@ class KioskSetup(KioskDriver):
 				lines = TextBuilder()
 				lines += '{"translate":{"enabled":false}}'
 				script += CreateTextWithUserAndModeAction(
-					"Disabling Translate feature in Chromium web browser.",
+					"... Disabling Translate feature in Chromium web browser.",
 					"/home/kiosk/snap/chromium/common/chromium/Default/Preferences",
 					"kiosk",
 					stat.S_IRUSR | stat.S_IWUSR,
@@ -539,7 +577,7 @@ class KioskSetup(KioskDriver):
 
 				# Install 'xprintidle' used to detect X idle periods and restart the browser (required even if idle_timeout == 0).
 				script += InstallPackagesNoRecommendsAction(
-					"Installing 'xprintidle' used to restart browser whenever idle timeout expires.",
+					"... Installing 'xprintidle' used to restart Chromium when idle timeout expires.",
 					["xprintidle"]
 				)
 			elif kiosk.type.data == "x11":
@@ -653,7 +691,7 @@ class KioskSetup(KioskDriver):
 			lines += "ExecStart=-/sbin/agetty --noissue --autologin kiosk %I $TERM"
 			lines += "Type=simple"
 			script += CreateTextWithUserAndModeAction(
-				"Creating systemd auto-login override to log in the user and start the graphical desktop environment.",
+				"Creating systemd auto-login override to start the kiosk.",
 				"/etc/systemd/system/getty@tty1.service.d/override.conf",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR,
@@ -692,29 +730,33 @@ class KioskSetup(KioskDriver):
 
 		# Create disk swap file in case the system gets very low on memory.
 		if kiosk.swap_size.data > 0:
-			script += ExternalAction("Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
-			script += ExternalAction("Setting permissions on new swap file.", "chmod 600 /swapfile")
-			script += ExternalAction("Formatting swap file.", "mkswap /swapfile")
+			script += CustomAction("Enabling secondary swap file:", lambda: True)
+
+			script += ExternalAction("... Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
+			script += ExternalAction("... Setting permissions on new swap file.", "chmod 600 /swapfile")
+			script += ExternalAction("... Formatting swap file.", "mkswap /swapfile")
 			script += AppendTextAction(
-				"Creating '/etc/fstab' entry for the new swap file.",
+				"... Creating '/etc/fstab' entry.",
 				"/etc/fstab",
 				"/swapfile\tnone\tswap\tsw\t0\t0"
 			)
 
 		if kiosk.wear_reduction.data:
+			script += CustomAction("Enabling wear reduction on system medium:", lambda: True)
+
 			# Attempt to reduce wear on micro-SD storage by moving swap, /tmp, and /var/log to memory.
 			# NOTE: See https://linuxblog.io/raspberry-pi-performance-add-zram-kernel-parameters/ for more information.
-			script += AptAction("Installing zram-tools to configure compressed swap file in memory.", "apt install -y zram-tools")
+			script += AptAction("... Installing 'zram-tools' to configure compressed swap file in memory.", "apt install -y zram-tools")
 
 			script += ReplaceTextAction(
-				"Configuring zram swap to use the zstd compression algorithm.",
+				"... Configuring zram swap to use the zstd compression algorithm.",
 				"/etc/default/zramswap",
 				"#ALGO=lz4",
 				"ALGO=zstd"
 			)
 
 			script += ReplaceTextAction(
-				"Configuring zram swap to use one quarter of available memory.",
+				"... Configuring zram swap to use one quarter of available memory.",
 				"/etc/default/zramswap",
 				"#PERCENT=50",
 				"PERCENT=25"
@@ -730,7 +772,7 @@ class KioskSetup(KioskDriver):
 			lines += "vm.dirty_background_ratio=1"
 			lines += "vm.dirty_ratio=50"
 			script += CreateTextWithUserAndModeAction(
-				"Setting kernel swap mode to aggressive.",
+				"... Setting kernel swap mode to aggressive.",
 				"/etc/sysctl.d/20-kiosk-zram-swap-aggressive.conf",
 				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -761,7 +803,7 @@ class KioskSetup(KioskDriver):
 				fstab.save("/etc/fstab")
 
 			script += CustomAction(
-				"Setting the 'noatime' flag on the system ext4 partition to reduce storage wear.",
+				"... Setting the 'noatime' flag on the system ext4 partition.",
 				fstab_append_options_to_ext4
 			)
 			del fstab_append_options_to_ext4
@@ -769,15 +811,16 @@ class KioskSetup(KioskDriver):
 			# Move /tmp to a RAM disk - we have no persistent data in /tmp and it SHOULD be wiped on every boot, anyway.
 			lines  = TextBuilder()
 			lines += "tmpfs /tmp tmpfs defaults,noatime,size=128m 0 0"
-			script += AppendTextAction("Moving /tmp to a RAM disk.", "/etc/fstab", lines.text)
+			script += AppendTextAction("... Moving /tmp to an ad-hoc RAM disk.", "/etc/fstab", lines.text)
 			del lines
 
 			# Move /var/log to a RAM disk - most frequently, nobody looks at these logs anyway (I don't dare do this yet!).
-			# NOTE: This would effectively mean losing all logs on every reboot, not very good for debugging and status checks.
-			# lines  = TextBuilder()
-			# lines += "tmpfs /var/log tmpfs defaults,noatime,nosuid,size=256m 0 0"
-			# script += AppendTextAction("Moving /var/log to a RAM disk.", "/etc/fstab", lines.text)
-			# del lines
+			if False:
+				# NOTE: This would effectively mean losing all logs on every reboot, not very good for debugging and status checks.
+				lines  = TextBuilder()
+				lines += "tmpfs /var/log tmpfs defaults,noatime,nosuid,size=256m 0 0"
+				script += AppendTextAction("... Moving /var/log to a RAM disk.", "/etc/fstab", lines.text)
+				del lines
 
 		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
 		if kiosk.upgrade_time.data != "":
@@ -811,7 +854,7 @@ class KioskSetup(KioskDriver):
 
 		# Synchronize all changes to disk (may take a while on microSD cards).
 		script += ExternalAction(
-			"Flushing disk buffers before rebooting (may take a while when using slow media).",
+			"Flushing disk buffers before rebooting (may take a while on a slow medium).",
 			"sync"
 		)
 

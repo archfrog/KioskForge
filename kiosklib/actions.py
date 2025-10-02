@@ -90,10 +90,8 @@ class DeleteFileAction(InternalAction):
 	def execute(self) -> Result:
 		try:
 			os.unlink(self.path)
-		except OSError as that:
-			if not that.strerror:
-				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
-			return Result(1, that.strerror)
+		except OSError:
+			return Result(1, f"Could not delete file '{self.path}'")
 
 		return Result()
 
@@ -111,7 +109,6 @@ class TryDeleteFileAction(DeleteFileAction):
 			result = DeleteFileAction.execute(self)
 		return result
 
-
 class RemoveFolderAction(InternalAction):
 	"""Removes the specified folder."""
 
@@ -127,10 +124,8 @@ class RemoveFolderAction(InternalAction):
 		try:
 			shutil.rmtree(self.path)
 			result = Result()
-		except FileNotFoundError as that:
-			if not that.strerror:
-				raise InternalError("Attribute 'strerror' of FileNotFoundError instance is empty") from that
-			result = Result(1, that.strerror)
+		except FileNotFoundError:
+			result = Result(1, f"Could not remove directory '{self.path}'")
 		return result
 
 
@@ -327,3 +322,12 @@ class PurgePackagesAction(AptAction):
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		AptAction.__init__(self, title, "apt-get autoremove --purge -y " + ' '.join(packages))
+
+
+class CreateTreeAction(ExternalAction):
+	"""
+		Creates the specified folder tree with the given privileges (use 'mkdir' because it creates the intermediate directories
+		correctly, whereas os.makedirs() and shutil.chown() doesn't get the ownership right on those.
+	"""
+	def __init__(self, title : str, path : str, mode : int, user : str, group : str = "")-> None:
+		ExternalAction.__init__(self, title, f"sudo -u {user} -g {group or user} mkdir -m={oct(mode)[2:].zfill(3)} -p {path}")
