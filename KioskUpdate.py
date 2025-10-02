@@ -142,7 +142,7 @@ class KioskUpdate(KioskDriver):
 			invoke_text("snap remove --purge cups")
 
 			# Remove all disabled snaps (prior snap versions) and empty the snap cache.
-			logger.write("Cleaning out disabled (outdated) snaps and the snap cache.")
+			logger.write("Removing outdated snaps and clearing the snap cache.")
 			self.snap_cleanup(logger)
 
 			# Keep track of failures.
