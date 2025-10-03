@@ -15,6 +15,7 @@ import tkinter as tk
 import tkinter.font as tkfont
 import tkinter.ttk as ttk
 import tkinter.filedialog as tkfile
+import sv_ttk
 
 from kiosklib.driver import KioskDriver
 from kiosklib.kiosk import Kiosk
@@ -150,7 +151,7 @@ class KioskBrowser(SortableTreeview):
 		style.configure('Treeview.Heading', font=('TkDefaultFont', 10, 'bold'))
 
 		# Fix broken height of Treeview rows as ttk.Treeview doesn't bother to do this so the rows overlap visually.
-		style.configure("Treeview", rowheight=30)
+		style.configure("Treeview", rowheight=36)
 
 		self.tag_configure("even", background="white")
 		self.tag_configure("odd", background="lightgray")
@@ -604,11 +605,6 @@ def main(arguments : List[str]) -> int:
 		homedir += os.sep
 
 	forge = KioskForgeApp(homedir)
-
-	# Change theme to Windows Native as the default theme is rather boring.
-	style = ttk.Style(forge)
-	style.theme_use('winnative')
-
 	forge.mainloop()
 
 	# TODO: Save window position(s) and size(s).
