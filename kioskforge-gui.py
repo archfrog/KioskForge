@@ -15,7 +15,6 @@ import tkinter as tk
 import tkinter.font as tkfont
 import tkinter.ttk as ttk
 import tkinter.filedialog as tkfile
-import sv_ttk
 
 from kiosklib.driver import KioskDriver
 from kiosklib.kiosk import Kiosk
