@@ -604,6 +604,11 @@ def main(arguments : List[str]) -> int:
 		homedir += os.sep
 
 	forge = KioskForgeApp(homedir)
+
+	# Change theme to Windows Native as the default theme is rather boring.
+	style = ttk.Style(forge)
+	style.theme_use('winnative')
+
 	forge.mainloop()
 
 	# TODO: Save window position(s) and size(s).
