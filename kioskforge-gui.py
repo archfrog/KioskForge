@@ -135,10 +135,10 @@ class KioskBrowser(SortableTreeview):
 
 	def __init__(self, parent) -> None:
 		columns = [
-			TreeviewColumn("LAN IP",    "version", 100, "w"),
-			TreeviewColumn("Host Name", "str",     100, "w"),
-			TreeviewColumn("Version",   "version", 100, "w"),
 			TreeviewColumn("Status",    "str",     100, "w"),
+			TreeviewColumn("Host Name", "str",     100, "w"),
+			TreeviewColumn("LAN IP",    "version", 100, "w"),
+			TreeviewColumn("Version",   "version", 100, "w"),
 			TreeviewColumn("Comment",   "str",     200, "w"),
 		]
 		headings = [*map(lambda x: x.name, columns)]
@@ -162,9 +162,9 @@ class KioskBrowser(SortableTreeview):
 
 		# Assign test data.
 		rows = [
-			["192.168.1.20", "ubuntu", "0.24", "Running", "Mikael's web server"],
-			["192.168.1.30", "pi4b",   "0.25", "Offline", "Mikael's pi4B kiosk"],
-			["192.168.1.50", "pi5",    "0.23", "Running", "Mikael's Pi5 kiosk"],
+			["Running", "ubuntu", "192.168.1.20", "0.24", "Mikael's web server"],
+			["Offline", "pi4b",   "192.168.1.30", "0.25", "Mikael's pi4B kiosk"],
+			["Running", "pi5",    "192.168.1.50", "0.23", "Mikael's Pi5 kiosk"],
 		]
 		self.assign(rows)
 
