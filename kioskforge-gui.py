@@ -186,11 +186,6 @@ SUPPORTED_FILE_TYPES = [
 ]
 
 
-class Target:
-
-	pass
-
-
 class KioskForgeApp(tk.Tk):
 
 	def __init__(self, origin : str, master=None) -> None:
@@ -524,9 +519,10 @@ class KioskForgeApp(tk.Tk):
 		return
 
 		# Report success to the user.
+		basedir = "?:"
 		tk.messagebox.showinfo(
 			"Success",
-			"Preparation of boot image successfully completed - please eject/unmount %s safely." % target.basedir
+			"Preparation of boot image successfully completed - please eject/unmount %s safely." % basedir
 		)
 
 	def handle_menu_help_about(self):
