@@ -572,7 +572,7 @@ class KioskForgeApp(tk.Tk):
 
 		# If no documentation file found, report error and return.
 		if not found:
-			tk.messagebox.showerror("Unable to locate file!", f"Unable to open the file '{basename}'")
+			tk.messagebox.showerror("Unable to locate file!", f"Unable to find any documentation in '{basename}'")
 			return
 
 		# Open a web browser to display the file (this may cause associated apps to be opened on Winblows).
