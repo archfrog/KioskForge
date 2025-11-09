@@ -163,14 +163,14 @@ The procedure is as follows:
 	    1. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
         2. This link points to a pretty good guide on how to use
 	       [Raspberry Pi Imager](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager).
-        3. You'll find `Ubuntu Server 24.04.x` in the category `Other general-purpose OS` in Raspberry Pi Imager.  64-bit only.
+        3. You'll find `Ubuntu Server 24.04.x` in the subcategory `Ubuntu` of the category `Other general-purpose OS`.
            If you do not see `Ubuntu` in the `Other general-purpose OS` list, Raspberry Pi Imager is to blame.  Just wait a few
            minutes and try again.  Raspberry Pi Imager sometimes bugs out and refuses to display the entire list of Linux images.
 	    4. Be aware that newer Ubuntu Server server versions may pop up in the list when released so be careful what you select!
         5. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
-        6. When Raspberry Pi Imager is done "burning" the Ubuntu Server version, exit Raspberry Pi Imager *without* ejecting.
+        6. When Raspberry Pi Imager is done "burning" the Ubuntu Server version, exit Raspberry Pi Imager.
         7. If Raspberry Pi Imager ejects the medium so KioskForge can't find it, simply unplug it, and insert it again.
-	2. When done, leave the installation media in your computer until KioskForge tells you to safely remove or dismount it.
+	2. When done, leave the installation media in your computer until KioskForge tells you to safely remove or unmount it.
 2. Right-click on empty space on your Desktop, or the folder where you want to place the `.kiosk` file, and select `New`, then
    `KioskForge Kiosk`.  Please assign the new kiosk file a meaningful name so that you can easily see what purpose of the kiosk is.
 3. Edit the new kiosk by opening it in `Notepad` (right-click on the kiosk icon and select `Edit`).  Save it using `Ctrl-S`.
