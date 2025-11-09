@@ -270,13 +270,15 @@ snap connect chromium:wayland
 - [x] 2025.05.28.11.14 H Document that PC kiosks need to be written with [Rufus](https://rufus.ie), not Raspberry Pi Imager.
                          Raspberry Pi Imager seems to generate a bogus boot device.
 - [x] 2025.05.28.12.47 H Subiquity, minimal disk/swap configuration:
-                         storage:
-                           layout:
-	    name: direct
-	    match:
-	      ssd: true
-                           swap:
-                             size: 0
+```json
+    storage:
+      layout:
+        name: direct
+        match:
+          ssd: true
+        swap:
+          size: 0
+```
 - [x] 2025.05.15.04.34 H Fix snap cleanup in `KioskUpdate.py`: It does not remove old, useless revisions of upgraded snaps.
                          See https://www.debugpoint.com/clean-up-snap/ for more information.
 - [x] 2025.04.26.09.45 H Re-enable `too-many-branches` in `pylintrc.toml` and fix `build.py` so that it doesn't fail anymore.
