@@ -30,6 +30,21 @@ All files created by and used by KioskForge are located in `~/KioskForge`.  Plea
 
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
+### How do I become `root` after login?
+You should generally try to avoid becoming `root`, but if you really need to, you can use this procedure:
+
+```bash
+# Log into the kiosk as the 'shell' user using SSH or local login.
+# Execute the commands below and fill in the requested passwords.
+sudo -s
+# Enter password for the 'shell' user.
+passwd
+# Enter NEW password for the 'root' user.
+# Retype NEW password for the 'root' user.
+```
+
+This step can only be done the very first time to `su` to root.  Unfortunately, there's no way we can do this automatically.
+
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
 I'm pretty sure these *were* caused by the lack of the `wifi_country` option in pre-v0.20 releases of KioskForge.  Basically, the network driver was complaining that an incorrect channel was attempted selected because the Ubuntu Server Wi-Fi subsystem did not know the correct country for the network card.  The new `wifi_country` option is used to tell the Wi-Fi subsystem the legal set of channels that can and may be used in the kiosk.
 
