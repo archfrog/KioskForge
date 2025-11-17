@@ -413,8 +413,11 @@ class CloudinitConfigurator(Configurator):
 			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
 			if self.kiosk.user_folder.data:
 				basename = os.path.basename(os.path.abspath(self.kiosk.user_folder.data))
+
 				user_source = source + '/' + basename
 				user_target = '/home/kiosk/' + basename
+				del basename
+
 				stream.write(f"- cp -pR {user_source} /home/kiosk")
 				stream.write(f"- chown -R kiosk:kiosk {user_target}")
 				stream.write(f"- chmod -R u+x {user_target}")
@@ -605,13 +608,14 @@ class KioskForge(KioskDriver):
 
 		# Copy user folder, if any, to the install medium so that it can be copied onto the target.
 		if kiosk.user_folder.data:
-			if kiosk.user_folder.data == "KioskForge":
-				raise KioskError("User folder cannot be 'KioskForge' as this is a reserved folder on the target")
-
 			# Use 'abspath' to the handle the case that the user folder is identical to '.'.
 			source = os.path.abspath(os.path.join(os.path.dirname(filename), kiosk.user_folder.data))
+
 			# Extract the last portion of the source's full path to get the name of the folder on the install medium.
 			basename = os.path.basename(source)
+			if basename.lower() == "kioskforge":
+				raise KioskError("The user_folder setting cannot be 'KioskForge' as this is a reserved name")
+
 			destination = target.basedir + os.sep + basename
 			del basename
 
