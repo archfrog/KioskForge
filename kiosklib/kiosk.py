@@ -393,7 +393,7 @@ to the kiosk so that a new folder '/home/username/Website' is created and
 populated by the files it contains on the host.
 
 If you are creating a 'web' type kiosk that browses a remote website, you
-generally don't need to specify a value for this setting.
+normally don't need to specify a value for this setting.
 """.strip()
 
 
