@@ -394,6 +394,10 @@ populated by the files it contains on the host.
 
 If you are creating a 'web' type kiosk that browses a remote website, you
 normally don't need to specify a value for this setting.
+
+NOTE:
+The path in 'user_folder' cannot end in 'KioskForge' or variants thereof as
+this name is reserved for the KioskForge program and its files.
 """.strip()
 
 
