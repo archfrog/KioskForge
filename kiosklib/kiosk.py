@@ -401,23 +401,6 @@ this name is reserved for the KioskForge program and its files.
 """.strip()
 
 
-USER_NAME_HELP = """
-The user name of the non-root primary Linux user.
-
-Technically, a user name can be from 1 to 256 characters, but most Linux
-tools only a maximum of 32 characters, so this is the limit in KioskForge.
-The user name may only consist of US letters, digits, and underscores (_).
-
-This is the user who runs X11, Chromium and/or any custom user apps.
-
-This user is very central to the kiosk as everything, but the forge process
-itself, runs under this user.
-
-For most users, though, you just need to specify a valid name and only worry
-about it if you use SSH to access the kiosk.
-""".strip()
-
-
 USER_PACKAGES_HELP = """
 A space-separated list of user packages to install when forging of the kiosk.
 
