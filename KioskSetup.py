@@ -381,47 +381,49 @@ class KioskSetup(KioskDriver):
 		del lines
 
 		#************************************ Kiosk Browser Service **************************************************************
-		script += CustomAction("Configuring kiosk server:", lambda: True)
+		if kiosk.visible.data:
+			script += CustomAction("Configuring kiosk server:", lambda: True)
 
-		# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
-		lines  = TextBuilder()
-		lines += "[Unit]"
-		lines += "Description=KioskForge kiosk server"
-		lines += "After=network-online.target"
-		lines += "Before=multi-user.target"
-		lines += "Wants=network-online.target"
-		lines += ""
-		lines += "[Service]"
-		lines += "Type=simple"
-		lines += "Restart=yes"
-		lines += "ExecStart="
-		lines += "ExecStart=/home/kiosk/KioskForge/KioskDiscoveryServer.py"
-		lines += ""
-		lines += "[Install]"
-		lines += "WantedBy=multi-user.target"
-		script += CreateTextWithUserAndModeAction(
-			"... Creating systemd service.",
-			"/usr/lib/systemd/system/kiosk-server.service",
-			"root",
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
-			lines.text
-		)
-		del lines
+			# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to start it.
+			lines  = TextBuilder()
+			lines += "[Unit]"
+			lines += "Description=KioskForge kiosk server"
+			lines += "After=network-online.target"
+			lines += "Before=multi-user.target"
+			lines += "Wants=network-online.target"
+			lines += ""
+			lines += "[Service]"
+			lines += "Type=simple"
+			lines += "Restart=yes"
+			lines += "ExecStart="
+			lines += "ExecStart=/home/kiosk/KioskForge/KioskDiscoveryServer.py"
+			lines += ""
+			lines += "[Install]"
+			lines += "WantedBy=multi-user.target"
+			script += CreateTextWithUserAndModeAction(
+				"... Creating systemd service.",
+				"/usr/lib/systemd/system/kiosk-server.service",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+				lines.text
+			)
+			del lines
 
-		# Enable AND start 'kiosk-server' systemd service so that it runs immediately and also on every future boot.
-		script += ExternalAction("... Enabling and starting systemd service.", "systemctl enable --now kiosk-server.service")
+			# Enable AND start 'kiosk-server' systemd service so that it runs immediately and also on every future boot.
+			script += ExternalAction("... Enabling and starting systemd service.", "systemctl enable --now kiosk-server.service")
 
-		# Allow UDP broadcasts through the firewall.
-		# TODO: This should eventually support /16 for multiple subnets or, perhaps better, a list of valid subnets.
-		subnet = lan_broadcast_address() + "/24"
-		script += ExternalAction(
-			"... Opening firewall port to allow broadcast messages from LAN subnet.",
-			f"ufw allow in proto udp to {subnet} from {subnet}"
-		)
-		del subnet
-		if False:
-			# TODO: Figure out how enable remote management securely so that users on the Wi-Fi cannot sniff passwords, etc.
-			script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
+			# Allow UDP broadcasts through the firewall.
+			# TODO: This should eventually support /16 for multiple subnets or, perhaps better, a list of valid subnets.
+			subnet = lan_broadcast_address() + "/24"
+			script += ExternalAction(
+				"... Opening firewall port to allow broadcast messages from LAN subnet.",
+				f"ufw allow in proto udp to {subnet} from {subnet}"
+			)
+			del subnet
+
+			if False:
+				# TODO: Figure out how enable remote management securely so that users on the Wi-Fi cannot sniff passwords, etc.
+				script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
 
 		# Remove some packages that we don't need in kiosk mode to save a tiny bit of memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])

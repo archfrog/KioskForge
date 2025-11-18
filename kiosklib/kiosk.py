@@ -424,6 +424,23 @@ maintenance controlled by the 'upgrade_time' field.
 """.strip()
 
 
+VISIBLE_HELP = """
+If the kiosk should be visible to KioskForge on the local area network.
+
+Valid values are 'true' (enabled) and 'false' (disabled).
+
+You should enable this option if you want to be able to discover and manage
+the kiosk in future versions of KioskForge that include a GUI tool for this.
+
+If you enable this option, a tiny broadcast server will be started at every
+boot so that KioskForge can send a broadcast signal to discover all kiosks.
+
+If you disable this option, the broadcast server will not be started at all.
+
+NOTE: You should use a dedicated LAN subnet to your kiosks when using this.
+""".strip()
+
+
 WEAR_REDUCTION_HELP = """
 Move certain system files, including swap, to memory.
 
@@ -562,6 +579,7 @@ class Kiosk(Fields):
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
 		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
+		self += BooleanField("visible", "true", VISIBLE_HELP)
 		self += BooleanField("chromium_autoplay", "false", CHROMIUM_AUTOPLAY_HELP)
 
 	def redact(self, fields : List[str]) -> None:
