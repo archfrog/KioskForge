@@ -312,7 +312,7 @@ class KioskBuild(KioskDriver):
 		words  = TextBuilder()
 		words += command
 
-		# Use the .ssh/config file found at HOME, not at some idiotic Windows-style "C:\Users\Foo\.ssh\config".
+		# Use the .ssh/config file found at HOME, not some idiotic Windows-style "C:\Users\Foo\.ssh\config".
 		words += "-F"
 		words += os.environ["HOME"] + ".ssh/config"
 
@@ -320,9 +320,8 @@ class KioskBuild(KioskDriver):
 		words += "-p"
 
 		# Specify source file and target directory.
-		# TODO: Change SCP target directory to the real one once we go public.
 		words += paths.ramdisk + f"KioskForge-{version}-Setup.exe"
-		words += "web:web/pub/egevig.org/vhm"
+		words += "web:web/pub/kioskforge.org/downloads"
 
 		invoke_list_safe(words.list)
 
