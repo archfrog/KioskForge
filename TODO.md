@@ -38,7 +38,6 @@ snap connect chromium:wayland
 - [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
 - [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
 - [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
-- [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow using it from the GUI component.
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
@@ -196,6 +195,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
+                         This has been fixed with the introduction of the `visible` option in v0.25.
 - [x] 2025.11.18.15.32 H Move the `CHROMIUM_AUTOPLAY_HELP` help text to its proper location just before `COMMAND_HELP` in `kiosk.py`.
 - [x] 2025.07.12.23.13 H Make `KioskForge.py upgrader folder` upgrade all `*.kiosk` files in the folder tree (i.e. recursively).
 - [x] 2025.10.02.03.36 D Eliminate the `user_folder` kiosk setting as it should be a predefined name to simply the documentation (`KioskFiles`?)
