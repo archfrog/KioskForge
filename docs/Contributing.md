@@ -53,7 +53,7 @@ The environment variables should be set at all times when working on KioskForge,
 
 Run the script `check.py` (all platforms) to make MyPy and pylint test the code and report any discovered warnings and errors.
 
-Run the script `build.py` (all platforms) to build the platform-specific installer, which is normally downloadable from
+Run the script `build.py` (Windows only) to build the platform-specific installer, which is normally downloadable from
 [KioskForge.org](https://kioskforge.org).
 
 **NOTE**:
