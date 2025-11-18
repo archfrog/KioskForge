@@ -33,6 +33,7 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2025.11.18.22.41 H Fix `version.py` and `driver.py` so that the printed app extension is correct (currently always `.py`).
 - [ ] 2025.10.02.08.12 H Update documentation (`docs/*`) to reflect changes in v0.25.
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be handled somehow.
 - [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
