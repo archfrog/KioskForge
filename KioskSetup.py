@@ -240,15 +240,14 @@ class KioskSetup(KioskDriver):
 		)
 
 		# Create '~shell/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
-		# NOTE: This is very beneficial as it reports things like temperature, swap usage, and so on.
-		if False:
-			script += CreateTextWithUserAndModeAction(
-				"Creating ~shell/.hushlogin to enable silent logins.",
-				"/home/shell/.hushlogin",
-				"shell",
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
-				""
-			)
+		# NOTE: To see the MOTD system status info, use the Ubuntu command 'landscape-sysinfo'.
+		script += CreateTextWithUserAndModeAction(
+			"Creating ~shell/.hushlogin to enable silent logins.",
+			"/home/shell/.hushlogin",
+			"shell",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
+			""
+		)
 
 		# Set timezone to use user's choice.
 		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
@@ -421,9 +420,8 @@ class KioskSetup(KioskDriver):
 			)
 			del subnet
 
-			if False:
-				# TODO: Figure out how enable remote management securely so that users on the Wi-Fi cannot sniff passwords, etc.
-				script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
+			# TODO: Figure out how enable remote management securely so that users on the Wi-Fi cannot sniff passwords, etc.
+			# script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
 
 		# Remove some packages that we don't need in kiosk mode to save a tiny bit of memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
@@ -820,12 +818,11 @@ class KioskSetup(KioskDriver):
 			del lines
 
 			# Move /var/log to a RAM disk - most frequently, nobody looks at these logs anyway (I don't dare do this yet!).
-			if False:
-				# NOTE: This would effectively mean losing all logs on every reboot, not very good for debugging and status checks.
-				lines  = TextBuilder()
-				lines += "tmpfs /var/log tmpfs defaults,noatime,nosuid,size=256m 0 0"
-				script += AppendTextAction("... Moving /var/log to a RAM disk.", "/etc/fstab", lines.text)
-				del lines
+			# NOTE: This would effectively mean losing all logs on every reboot, not very good for debugging and status checks.
+			#lines  = TextBuilder()
+			#lines += "tmpfs /var/log tmpfs defaults,noatime,nosuid,size=256m 0 0"
+			#script += AppendTextAction("... Moving /var/log to a RAM disk.", "/etc/fstab", lines.text)
+			#del lines
 
 		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
 		if kiosk.upgrade_time.data != "":
