@@ -34,13 +34,9 @@ snap connect chromium:wayland
 ## Open Tasks
 # TODO:
 - [ ] 2025.10.02.08.12 H Update documentation (`docs/*`) to reflect changes in v0.25.
-- [ ] 2025.10.02.08.13 H Document that the user *should* place all kiosks on a new and separate subnet for security reasons.
-- [ ] 2025.10.02.03.36 H Eliminate the `user_folder` kiosk setting as it should be a predefined name to simply the documentation (`KioskFiles`?)
-                         How to determine the source location of the kiosk files, if this option is removed?
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be handled somehow.
 - [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
 - [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
-- [ ] 2025.09.01.05.20 H Eliminate the user-defined user name and start using the hardcoded `kiosk` user instead: Simplification.
 - [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
 - [ ] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
@@ -48,7 +44,6 @@ snap connect chromium:wayland
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
                          cloning a forged kiosk.  This requires that the `KioskConfig.py` script is updated to do this.
 - [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrade X.kiosk` add new options with their default values and warn about doing so.
-- [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrader folder` upgrade all `*.kiosk` files in the folder tree (i.e. recursively).
 - [ ] 2025.07.12.22.37 H `KioskSetup.py` should **not** change the ownership of all the files in the user's home folder.  Instead,
                          make sure that all files are created with the correct ownership right from the beginning, if possible.
 - [ ] 2025.07.12.22.02 H Can `KioskStart.py` execX the child so it replaces `KioskStart.py` in memory?  Would save 20+ MB RAM.
@@ -201,6 +196,11 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.07.12.23.13 H Make `KioskForge.py upgrader folder` upgrade all `*.kiosk` files in the folder tree (i.e. recursively).
+- [x] 2025.10.02.03.36 D Eliminate the `user_folder` kiosk setting as it should be a predefined name to simply the documentation (`KioskFiles`?)
+                         How to determine the source location of the kiosk files, if this option is removed?  Dropped.
+- [x] 2025.10.02.08.13 H Document that the user *should* place all kiosks on a new and separate subnet for security reasons.
+- [x] 2025.09.01.05.20 H Eliminate the user-defined user name and start using the hardcoded `kiosk` user instead: Simplification.
 - [x] 2025.11.09.21.29 H Ensure all users (`root`, `kiosk`, and `shell`) have the same password and that `su` is possible.
                          The password of `root` cannot be assigned programatically so the FAQ now describes how to do this.
 - [x] 2025.09.01.09.20 H The discovery server must also provide the version of KioskForge installed on the each kiosk.
