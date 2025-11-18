@@ -32,10 +32,9 @@ KioskForge currently supports these things:
 * Rotating normal and touch-panel displays.
 
 Please notice that the kiosk needs either internet access or a real-time clock (RTC) for its automatic, daily maintenance to work
-properly.  If the kiosk does not have internet access, it should be a Pi 5 with an RTC backup battery.  At this time, we cannot
-recommend using PI4Bs without internet access.  The best is that the kiosk has internet access all the time.
-
-**NOTE:** Support for Raspberry Pi 5 has been added, but it is not mature yet.  Audio has not been tested yet on Pi5.
+properly.  If the kiosk does not have internet access, it should be a Pi 5 with an RTC backup battery, otherwise the kiosk may
+reboot at seemingly random times because the system clock is wrong.  At this time, we cannot recommend using Raspberry Pi 4B
+without internet access.  It is best that the kiosk has internet access all the time or during a fixed, daily interval of time.
 
 ## Security
 Ideally, you use a tool like [KeePassXC](https://keepassxc.org/) to manage the passwords to your kiosks and make sure that each
@@ -55,15 +54,15 @@ possible and to automate the creation (forging) of the kiosk as much as possible
 KioskForge works by modifying a supported Ubuntu Server installation medium according to the settings the user has given in a
 `.kiosk` file (an INI-style configuration file).  The format of the `.kiosk` file is very simple and does not require significant
 technical knowledge.  After the installation medium has been configured by KioskForge, it is inserted into the target machine,
-which is then powered on, and the actual "forge process" takes place.  Over a period of 5 to 30 minutes, the forge process
-configures, updates, modifies, and prepares the target kiosk machine to work as a kiosk machine (on a permanent basis, not
-requiring any maintenance whatsoever after the initial deployment).
+which is then powered on, and the actual "forge process" takes place.  Over less than thirty minutes, the forge process configures,
+updates, modifies, and prepares the target kiosk machine to work as a kiosk machine (on a permanent basis, not requiring any
+maintenance whatsoever after the initial deployment).
 
 ### Starting KioskForge with a given kiosk file
 You can easily open any `.kiosk` file in KioskForge simply by double-clicking the file if you have installed KioskForge using the
 Windows installer.  This is the recommended way of loading a `.kiosk` file in KioskForge on Windows systems.
 
-Alternatively, you can supply the path of the kiosk file on the command-line if starting KioskForge from a console window.
+Alternatively, you can supply the path of the kiosk file on the command-line if starting `KioskForge.exe` from a console window.
 
 ### Creating a new kiosk file from scratch
 To create a new, blank `.kiosk` file, use the `New` right-click context menu in Windows Explorer.
