@@ -22,7 +22,7 @@ The total size of the files that KioskForge adds to the kiosk machine is current
 ## Features
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.x (this is a Long Term Support release, which will be supported by Ubuntu until June 2029).
+* Ubuntu Server 24.04.x (this is a Long Term Support release, which will be supported by Ubuntu until April 2029).
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5 (with 2+ GB RAM) ARM64 (aarch64).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Creating a kiosk that runs a command-line (CLI) application programmed by the user.
