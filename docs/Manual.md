@@ -193,8 +193,8 @@ If you SSH into the kiosk or use a local keyboard to log in, you can use the `ki
 to KioskForge.
 
 ## Bugs and Ideas
-Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to
-[Mikael Egevig](mailto:me@vhm.dk).  The former is the preferred method, but use whichever method suits you best.
+Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to the team at
+[KioskForge team](mailto:contact@kioskforge.org).  The former is the preferred method, but use whichever method suits you best.
 
 When you report a bug, please first log into the kiosk and run the command shown below to create a ZIP file containing the
 *redacted* kiosk files:
@@ -213,4 +213,4 @@ All sensitive information (comment, user password, Wi-Fi name, Wi-Fi password, a
 the `.kiosk` file before inclusion in the ZIP archive.  You can search the unzipped `Kiosk.kiosk` file for the string `REDACTED`
 to verify this.
 
-**NOTE:** If you are uncomfortable submitting the ZIP archive to GitHub, you are more than welcome to send me a mail with the file.
+**NOTE:** If you are uncomfortable submitting the ZIP archive to GitHub, you are more than welcome to send it attached to a mail.

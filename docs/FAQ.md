@@ -4,7 +4,9 @@ This is the official *Frequently Asked Questions (FAQ)* list for the KioskForge 
 Please feel free to submit more questions in the issue tracker at GitHub.  Alternatively you can mail me the issue and I'll create a new issue, if needed.
 
 ## Contacting the Developer
-The developer is named *Mikael Egevig* and can be contacted directly by mail at `me@vhm.dk`.  If you have a GitHub account, please use the official issue tracker in the KioskForge repository found at https://github.com/vhmdk/KioskForge.
+The team can be contacted directly by mail at `contact@kioskforge.org`.
+
+If you have a GitHub account, please use the official issue tracker in the KioskForge repository found at https://github.com/vhmdk/KioskForge.
 
 ## Technical Issues
 This section contains various common questions about technical issues with KioskForge.
