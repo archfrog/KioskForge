@@ -55,13 +55,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "..\tmp\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\Changes.html"; DestDir: "{app}"; Flags: isreadme ignoreversion
-Source: "..\tmp\Contributing.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\FAQ.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\Guide.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\LICENSE.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\Manual.html"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\tmp\Readme.html"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\tmp\docs\Changes.html"; DestDir: "{app}\docs"; Flags: isreadme ignoreversion
+Source: "..\tmp\docs\Contributing.html"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\tmp\docs\FAQ.html"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\tmp\docs\Guide.html"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\tmp\docs\License.html"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\tmp\docs\Manual.html"; DestDir: "{app}\docs"; Flags: ignoreversion
+Source: "..\tmp\docs\Readme.html"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "..\tmp\Template.kiosk"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -79,13 +79,13 @@ Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; Value
 
 [Icons]
 ;Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Changes"; Filename: "{app}\Changes.html"
-Name: "{group}\Contributing"; Filename: "{app}\Contributing.html"
-Name: "{group}\FAQ"; Filename: "{app}\FAQ.html"
-Name: "{group}\Guide"; Filename: "{app}\Guide.html"
-Name: "{group}\License"; Filename: "{app}\License.html"
-Name: "{group}\Manual"; Filename: "{app}\Manual.html"
-Name: "{group}\Read Me"; Filename: "{app}\Readme.html"
+Name: "{group}\Documentation\Changes"; Filename: "{app}\docs\Changes.html"
+Name: "{group}\Documentation\Contributing"; Filename: "{app}\docs\Contributing.html"
+Name: "{group}\Documentation\FAQ"; Filename: "{app}\docs\FAQ.html"
+Name: "{group}\Documentation\Guide"; Filename: "{app}\docs\Guide.html"
+Name: "{group}\Documentation\License"; Filename: "{app}\docs\License.html"
+Name: "{group}\Documentation\Manual"; Filename: "{app}\docs\Manual.html"
+Name: "{group}\Documentation\Read Me"; Filename: "{app}\docs\Readme.html"
 Name: "{group}\Template kiosk"; Filename: "{app}\Template.kiosk"
 ;Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
