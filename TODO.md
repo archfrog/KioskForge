@@ -196,6 +196,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.11.18.15.32 H Move the `CHROMIUM_AUTOPLAY_HELP` help text to its proper location just before `COMMAND_HELP` in `kiosk.py`.
 - [x] 2025.07.12.23.13 H Make `KioskForge.py upgrader folder` upgrade all `*.kiosk` files in the folder tree (i.e. recursively).
 - [x] 2025.10.02.03.36 D Eliminate the `user_folder` kiosk setting as it should be a predefined name to simply the documentation (`KioskFiles`?)
                          How to determine the source location of the kiosk files, if this option is removed?  Dropped.

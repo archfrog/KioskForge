@@ -30,6 +30,16 @@ from kiosklib.various import password_create
 from kiosklib.version import Version
 
 
+CHROMIUM_AUTOPLAY_HELP = """
+Whether or not Chromium should autoplay videos without user interaction.
+
+This option is meant primarly for simple VideoLooper-style kiosks (VL does
+not yet support the Raspberry Pi 5) where a video needs to be played as
+soon as Chromium opens the web site with the video on it, without waiting
+for user interaction such as clicking the 'Play' button.
+""".strip()
+
+
 COMMAND_HELP = """
 This is the action that the kiosk should take when it starts up.
 
@@ -79,16 +89,6 @@ This setting affects the 'sound_card' and 'cpu_boost' field as follows:
 1. 'sound_card' depends entirely on the target device type.  See the
    'sound_card' field for more information.
 2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.
-""".strip()
-
-
-CHROMIUM_AUTOPLAY_HELP = """
-Whether or not Chromium should autoplay videos without user interaction.
-
-This option is meant primarly for simple VideoLooper-style kiosks (VL does
-not yet support the Raspberry Pi 5) where a video needs to be played as
-soon as Chromium opens the web site with the video on it, without waiting
-for user interaction such as clicking the 'Play' button.
 """.strip()
 
 
