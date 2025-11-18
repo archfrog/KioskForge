@@ -8,8 +8,7 @@ advanced users to set up a kiosk that runs a CLI or GUI app of the user's choice
 
 KioskForge takes two inputs:
 
-1. An Ubuntu Server 24.04.x installation medium (created using [Raspberry Pi Imager](https://www.raspberrypi.com/software/) or
-   [Rufus](https://rufus.ie)).
+1. An Ubuntu Server 24.04.x installation medium created using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 2. A "kiosk file", which is a configuration file that specifies the values of all the settings that KioskForge supports.
 
 The first, the Ubuntu Server installation medium, is automatically located by KioskForge, if it is present on the host system.
