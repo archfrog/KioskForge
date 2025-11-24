@@ -20,7 +20,7 @@ To prepare for developing on KioskForge, follow this procedure:
 1. Install [Python v3.13.7](https://www.python.org/downloads/release/python-3137/) (to be able to use Python globally).
 2. Install [uv](https://github.com/astral-sh/uv) as per the `Installation` section on that page.
 3. Create and/or change directory to the parent directory of where you want the KioskForge sources to live.
-4. Checkout the KioskForge repository using Git: `git clone https://github.com/vhmdk/KioskForge`
+4. Checkout the KioskForge repository using Git: `git clone https://github.com/archfrog/KioskForge`
 5. Change into the KioskForge folder: `cd KioskForge`
 6. Activate the virtual environment on Windows: `.venv\Scripts\activate`
 7. Activate the virtual environment on Linux/Mac: `source .venv/bin/activate`

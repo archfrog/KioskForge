@@ -113,7 +113,7 @@ should work fine, especially v3.10+, but I don't test against these and don't us
 Then fetch KioskForge from GitHub using the following command:
 
 ```bash
-    git clone https://github.com/vhmdk/KioskForge
+    git clone https://github.com/archfrog/KioskForge
 ```
 
 You need to make sure that the script, `KioskForge.py`, has execute permissions (use `chmod u+x KioskForge.py` to accomplish that),
@@ -193,8 +193,8 @@ If you SSH into the kiosk or use a local keyboard to log in, you can use the `ki
 to KioskForge.
 
 ## Bugs and Ideas
-Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/vhmdk/KioskForge/issues) or by mail to the team at
-[KioskForge team](mailto:contact@kioskforge.org).  The former is the preferred method, but use whichever method suits you best.
+Please report bugs and ideas on [KioskForge Issues at GitHub](https://github.com/archfrog/KioskForge/issues) or by mail to the team
+at [KioskForge team](mailto:contact@kioskforge.org).  The former is the preferred method, but use whichever method suits you best.
 
 When you report a bug, please first log into the kiosk and run the command shown below to create a ZIP file containing the
 *redacted* kiosk files:
