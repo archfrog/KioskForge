@@ -406,7 +406,8 @@ class KioskBuild(KioskDriver):
 					self.ship(paths.temppath + os.sep + "docs" + os.sep + document, "web:web/pub/kioskforge.org/docs")
 
 				# Ship the program executable to the web server so that people can download it (i.e. release it).
-				self.ship(paths.ramdisk + f"KioskForge-{self.version.version}-Setup.exe", "web:web/pub/kioskforge.org/downloads")
+				# NOTE: The executable is now uploaded to the project's GitHub Releases page.
+				# self.ship(paths.ramdisk + f"KioskForge-{self.version.version}-Setup.exe", "web:web/pub/kioskforge.org/downloads")
 
 
 if __name__ == "__main__":
