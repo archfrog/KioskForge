@@ -1,6 +1,10 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 0.26 (2025.11.25)
+1. Fixed bad links to the GitHub repository in the documentation.
+2. Disabled shipping the built executable to my personal web server as we now distribute via GitHub's `Releases` feature.
+
 ## Version 0.25 (2025.11.18)
 1. KioskForge now also supports Ubuntu Server 24.04.3 for Raspberry Pis.
 2. A new option, `visible`, was added that specifies whether or not the kiosk is discoverable by KioskForge itself.
