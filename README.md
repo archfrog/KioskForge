@@ -37,8 +37,7 @@ Currently, the primary source of documentation for KioskForge is the documentati
 files with links in the `Start` menu's `KioskForge` folder.  The documentation can also be found as Markdown in `docs`.
 
 ## History
-KioskForge was made for the Danish museum [Vendsyssel Historiske Museum](https://vhm.dk) as the museum has a constant need for
-deploying kiosks.
+KioskForge was made for a Danish museum that has a constant need for deploying kiosks.
 
 KioskForge started out as a manual procedure for configuring a new Raspberry Pi 4B machine to become a web browser kiosk.  As there
 was a huge need to automate the process, the manual procedure was made into a Bash script.  As the project grew quickly and as Bash
