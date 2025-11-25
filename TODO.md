@@ -232,8 +232,7 @@ snap connect chromium:wayland
                          The AUTOSTART code is not implemented in the Subiquity (AutoInstall) writer, so this is broken by now.
 - [x] 2024.11.26.xx.xx H Fix the broken PC install.  The script is copied to `/`, not `/home/user` (the code runs as root...).
 - [x] 2025.06.11.10.32 H Finish and test PC support (is the user folder copied correctly to the kiosk?):: PCs are not supported.
-- [x] 2025.07.09.09.52 H Rip out everything related to PC support.  Darren and Rune have accepted that we drop support for PCs due
-                         to the very challenging nature of non-standard PC configurations (USB audio, discrete graphics, etc.).
+- [x] 2025.07.09.09.52 H Rip out everything related to PC support as PCs are generally too non-standard to easily support.
 - [x] 2025.07.03.03.57 H Change `user_options` into `chrome_autoplay` (`boolean`) as the current approach is close to stupid:
                          It is very difficult to explain to the end-user what to do and why this is so as it is presently.
 - [x] 2025.07.07.10.58 H Fix the problem that `CUPS` appears to be reinstalled when doing `snap refresh`. (v0.23 on 2025.07.09)
@@ -557,11 +556,6 @@ snap connect chromium:wayland
 - [x] 2024.10.30.13.26 H Determine the cause of odd error with last few lines of `.bash_startx` missing.
 - [x] 2024.10.30.13.34 H Delete line 1372 (`open("lines.txt", ...).write(...)`).
 - [x] 2024.11.08.17.38 D Introduce `IntervalField` class to handle the `snap` time interval (`snap` is more advanced than that).
-- [x] 2025.02.21.16.50 H Ask Darren to get those login credentials for the VHM GitHub account so that I can be added as a user.
-                         Nobody knows the credentials and the projects on the `vhm` GitHub account are unused and unknown.
-- [x] 2025.02.26.xx.xx H Create a new GitHub user `vhmdk`.
-- [x] 2026.02.27.14.10 H Create a new repository `KioskForge` on GitHub for the user `vhmdk`.
-- [x] 2025.02.21.17.43 H Ask Darren and Rune what their expectations and wishes for KioskForge v2.x are.
 - [x] 2025.02.22.13.58 H Rename the `KioskMaker` project to something else - the name is already taken by an Italian entity.
                          Names such as `KioskBuilder`, `KioskSetup`, `OpenKiosk`, `Kiosk Master` were all taken but `KioskForge`
                          turned out to be free, according to Google, so I chose that and have registered the .org domain already.
