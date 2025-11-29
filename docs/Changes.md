@@ -1,6 +1,11 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 0.27 (????.??.??)
+1. Made `KioskForge.py prepare` accept an optional extra argument that specifies the target location.  This way, KioskForge can
+   also be used on Linux and Mac, albeit without automatic detection of the location of the installation medium.
+2. Greatly improved the help text for the `KioskForge.py` command so that it now enumerates the four variants of that command.
+
 ## Version 0.26 (2025.11.25)
 1. Fixed bad links to the GitHub repository in the documentation.
 2. Disabled shipping the built executable to my personal web server as we now distribute via GitHub's `Releases` feature.

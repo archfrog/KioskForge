@@ -182,11 +182,9 @@ class PiRecognizer(Recognizer):
 		Recognizer.__init__(self)
 
 	def _identify(self, path : str) -> Optional[Target]:
-		if not os.path.isfile(path + "cmdline.txt"):
-			return None
-
-		if not os.path.isfile(path + "initrd.img"):
-			return None
+		for name in ["cmdline.txt", "initrd.img", "meta-data", "user-data", "network-config"]:
+			if not os.path.isfile(path + name):
+				return None
 
 		with open(path + "initrd.img", "rb") as stream:
 			sha512 = hashlib.sha512(stream.read()).hexdigest()
@@ -469,6 +467,23 @@ class CloudinitConfigurator(Configurator):
 		self._save_user_data(folder + "user-data")
 
 
+SYNTAX = """
+There are four variants of the 'KioskForge' command:
+
+1. "KioskForge.py" "create" kiosk-file
+Creates a new kiosk file with the name given as the first argument.
+
+2. "KioskForge.py" "prepare" kiosk-file [target-location]
+Prepares the specified location or an auto-detected installation medium to forge a kiosk.
+
+3. "KioskForge.py" "upgrade" kiosk-file-or-folder
+Upgrades a single kiosk file or all kiosk files in a folder tree to the current version.
+
+4. "KioskForge.py" "verify" kiosk-file-or-folder
+Verifies that a single kiosk file or all kiosk files in a folder tree are valid.
+""".strip()
+
+
 class KioskForge(KioskDriver):
 	"""This class contains the 'KioskForge' code, which prepares a boot image for running 'KioskSetup' on a kiosk machine."""
 
@@ -491,7 +506,7 @@ class KioskForge(KioskDriver):
 
 		print("Kiosk created successfully.")
 
-	def prepare(self, logger : Logger, origin : str, filename : str) -> None:
+	def prepare(self, logger : Logger, origin : str, filename : str, location : str) -> None:
 		print(f"Preparing kiosk: {filename}")
 		print()
 
@@ -506,16 +521,23 @@ class KioskForge(KioskDriver):
 		# Hash the user's password, if not already done (this change is only saved to the installation image!).
 		kiosk.assign("user_code", password_hash(kiosk.user_code.data))
 
-		# Identify the kind and path of the kiosk machine image (currently only works on Windows).
-		targets = Recognizer().identify()
-		match len(targets):
-			case 0:
-				raise KioskError("Unable to locate/identify installation medium on this machine")
-			case 1:
-				target = targets[0]
-			case _:
-				raise KioskError("More than one installation medium detected - please remove all but one")
-		del targets
+		# Check the optional location or automatically attempt to identify an installation medium.
+		target : Optional[Target] = None
+		if location:
+			target = PiRecognizer()._identify(location)
+			if not target:
+				raise KioskError("No valid installation medium found at path: " + location)
+		else:
+			# Identify the kind and path of the kiosk machine image (currently only works on Windows).
+			targets = Recognizer().identify()
+			match len(targets):
+				case 0:
+					raise KioskError("Unable to locate/identify installation medium on this machine")
+				case 1:
+					target = targets[0]
+				case _:
+					raise KioskError("More than one installation medium detected - please remove all but one")
+			del targets
 
 		# Report the kind of image that was discovered (we only support Pis, so don't report {target.kind}).
 		print(
@@ -689,24 +711,29 @@ class KioskForge(KioskDriver):
 		print(self.version.banner())
 		print()
 
-		# Check that we're running on Windows.
-		if platform.system() != "Windows":
-			raise KioskError("This script can currently only be run on a Windows machine")
-
 		# Parse command-line arguments.
-		if len(arguments) != 2:
-			raise CommandError("\"KioskForge.py\" (create|prepare|upgrade|verify) kiosk-file")
-
-		# "Parse" the command-line arguments.
-		command  = arguments[0]
-		filename = arguments[1]
+		match len(arguments):
+			case 1:
+				raise KioskError("Missing kiosk-file argument")
+			case 2:
+				command  = arguments[0]
+				filename = arguments[1]
+				location = ""
+			case 3:
+				command  = arguments[0]
+				filename = arguments[1]
+				if command != "prepare":
+					raise KioskError("Extraneous argument: " + arguments[2])
+				location = os.path.realpath(arguments[2])
+			case _:
+				raise CommandError(SYNTAX)
 
 		# Forge, create, check, or upgrade the specified kiosk.
 		match command:
 			case "create":
 				self.create(filename)
 			case "prepare":
-				self.prepare(logger, origin, filename)
+				self.prepare(logger, origin, filename, location)
 			case "upgrade":
 				# Create list of files to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
 				if os.path.isfile(filename):

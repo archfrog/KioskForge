@@ -34,13 +34,12 @@ snap connect chromium:wayland
 ## Open Tasks
 # TODO:
 - [ ] 2025.11.18.22.41 H Fix `version.py` and `driver.py` so that the printed app extension is correct (currently always `.py`).
-- [ ] 2025.10.02.08.12 H Update documentation (`docs/*`) to reflect changes in v0.25.
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be handled somehow.
 - [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
 - [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
 - [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
-- [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow using it from the GUI component.
+- [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow it to be used in the GUI app.
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
                          cloning a forged kiosk.  This requires that the `KioskConfig.py` script is updated to do this.
 - [ ] 2025.07.12.23.13 H Make `KioskForge.py upgrade X.kiosk` add new options with their default values and warn about doing so.
@@ -196,6 +195,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.11.27.22.34 H Add temporary Linux support by allowing the Linux user to specify a path for `prepare`.
+- [x] 2025.10.02.08.12 H Update documentation (`docs/*`) to reflect changes in v0.25.
 - [x] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).
                          This has been fixed with the introduction of the `visible` option in v0.25.
 - [x] 2025.11.18.15.32 H Move the `CHROMIUM_AUTOPLAY_HELP` help text to its proper location just before `COMMAND_HELP` in `kiosk.py`.
