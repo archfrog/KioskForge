@@ -6,16 +6,6 @@ KioskForge saves you hundreds of hours of research and configuration of a new Ra
 needed to pay for commercial kiosk solutions.  Furthermore, making your own kiosk is a tough ride with respect to security and
 system optimizations.
 
-The level of IT expertise needed to use KioskForge, as an end-user, is about *intermediate*.  You don't have to know Linux or how
-to run programs on Linux, all you need to know is how to edit a well documented text file, make an installation medium, and invoke
-KioskForge to make its modifications of the installation medium.  After the forge process is over, something which takes 5 to 30
-minutes depending on the speed of the medium and the target Raspberry Pi (5 is much faster than 4B), you simply turn off the kiosk
-(using either SSH, and the Linux `poweroff` command, or by simply unplugging the Pi) and deploy it where you need it deployed.
-
-The basic idea behind KioskForge is that it should be **easy**, **safe**, and **automatic** to deploy a new kiosk.
-
-**NOTE:** Presently, KioskForge can only be used from Windows desktops.  Linux support is work in progress.
-
 ## Features
 KioskForge supports the following features:
 
@@ -30,7 +20,35 @@ KioskForge supports the following features:
 * Ethernet and/or Wi-Fi networking.
 * Configuring basic Linux things such as host name, keyboard layout, locale, time zone, etc.
 
-**NOTE:** *We recommend that all KioskForge kiosks have 24/7 internet access to facilitate automatic upgrades of the kiosk.*
+## Target Audience
+The level of IT expertise needed to use KioskForge, as an end-user, is about *intermediate*.  You don't have to know Linux or how
+to run programs on Linux, all you need to know is how to edit a well documented text file, make an installation medium, and invoke
+KioskForge to make its modifications of the installation medium.  After the forge process is over, something which takes 5 to 30
+minutes depending on the speed of the medium and the target Raspberry Pi (5 is much faster than 4B), you simply turn off the kiosk
+(using either SSH and the Linux `poweroff` command, or by simply unplugging the Pi) and deploy it where you need it deployed.
+
+The basic idea behind KioskForge is that it should be **easy**, **safe**, and **automatic** to deploy a new kiosk.
+
+## Getting Started (Windows)
+This procedure, which has only been tested on Windows 11, gets you going quickly with KioskForge:
+
+1. [Download](https://github.com/archfrog/KioskForge/releases) the most recent version of KioskForge.
+2. Install KioskForge.
+3. Create a `.kiosk` file using the Desktop/Explorer right-click context menu `New` and `Kiosk file`.
+4. Right-clock the `.kiosk` file and select `Edit` to edit it and fill out the information you need to supply.
+5. Save the modified `.kiosk` file.
+6. Insert a MicroSD or USB installation medium (we recommend MicroSD cards as these don't overheat so easily).
+7. Install [Raspberry Pi Imager v1.9.6](https://github.com/raspberrypi/rpi-imager/releases/download/v1.9.6/imager-1.9.6.exe).
+8. [Prepare the installation medium](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager) with Ubuntu Server 24.04.x.
+9. Exit Raspberry Pi Imager once it has written and verified the installation medium.
+10. Pull out and reinsert your installation medium as Raspberry Pi Imager ejects it by default after preparing it.
+11. Double-click the previously edited `.kiosk` file to make KioskForge prepare the installation medium for its first boot.  You
+    should verify the information shown on the screen and then hit `Enter` to proceed. If you want to exit, hit `Ctrl-C`.
+12. Safely eject the installation medium.
+13. Insert the installation medium in your target Raspberry Pi and power it up.  The kiosk will start up after 5 to 30 minutes.
+14. Pull the power from the Raspberry Pi once your kiosk has started.  The Pi should now be ready to be deployed.
+
+**NOTE:** Presently, KioskForge can only be used from Windows desktops.  Linux support is work in progress.
 
 ## Documentation
 Currently, the primary source of documentation for KioskForge is the documentation installed with the Windows installer as `.html`
