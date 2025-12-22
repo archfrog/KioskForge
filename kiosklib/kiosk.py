@@ -42,6 +42,10 @@ This option is meant primarly for simple VideoLooper-style kiosks (VL does
 not yet support the Raspberry Pi 5) where a video needs to be played as
 soon as Chromium opens the web site with the video on it, without waiting
 for user interaction such as clicking the 'Play' button.
+
+Examples:
+    chromium_autoplay=true   (To make videos play upon load)
+    chromium_autoplay=false  (To make videos play when started by user)
 """.strip()
 
 
@@ -55,6 +59,10 @@ For 'x11' and 'cli' type kiosks, this field specifies an actual Linux
 command (script or binary) that is launched upon starting up.  The latter
 two types are used for custom solutions that do not necessarily require a
 web browser, such as a Pi kiosk that detects motion and then plays a sound.
+
+Examples:
+    command=https://youtube.com                   (for a 'web' type kiosk)
+    command=file:///home/kiosk/Website/script.sh  (for a 'cli' type kiosk)
 """.strip()
 
 
@@ -64,6 +72,10 @@ characters long and cannot contain quotes (") and vertical bars (|).
 
 Please describe the kiosk's intended usage.  The string is later used to
 identify the kiosk when you browse the local network for active kiosks.
+
+Examples:
+    comment=Room 12, back, kiosk that displays our website.
+    comment=Bunker kiosk in the bunker exhibition.
 """.strip()
 
 
@@ -80,6 +92,10 @@ significant issue, then you should enable this setting.
 
 This setting is most useful with 'web' type kiosks as these need lots of
 power to process complex websites and display these.
+
+Examples:
+    cpu_boost=true   (to enable overclocking)
+    cpu_boost=false  (to disable overclocking)
 """.strip()
 
 
@@ -94,6 +110,10 @@ This setting affects the 'sound_card' and 'cpu_boost' field as follows:
 1. 'sound_card' depends entirely on the target device type.  See the
    'sound_card' field for more information.
 2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.
+
+Examples:
+    device=pi4b  (when using a Raspberry Pi 4B)
+    device=pi5   (when using a Raspberry Pi 5)
 """.strip()
 
 
@@ -110,6 +130,10 @@ host name of the form "kioskN", where N is a number in the range 0 through
 IMPORTANT:
 You should never have two machines with the same host name on a local area
 network (LAN).  This may cause issues with Windows and other systems.
+
+Examples:
+    hostname=kiosk117.museum.com
+    hostname=bunker1
 """.strip()
 
 
@@ -122,6 +146,10 @@ This field has no effect for kiosk types other than 'web'.
 Some visitors to kiosks like to sabotage the kiosk, which is the primary
 reason why this field exists.  Also, it is nice to be able to reset a web
 kiosk back to its starting page after a given period of user inactivity.
+
+Examples:
+    idle_timeout=0    (To disable Chromium restarts)
+    idle_timeout=300  (To restart Chromium every five minutes)
 """.strip()
 
 
@@ -131,7 +159,11 @@ kiosk remotely using SSH and also the web browser, if any.
 
 The complete list of valid keyboard layouts can be found at:
 
-https://kioskforge.org/keyboards.html
+    https://kioskforge.org/keyboards.html
+
+Examples:
+    keyboard=us  (To use a US keyboard layout)
+    keyboard=dk  (To use a Danish keyboard layout)
 """.strip()
 
 
@@ -150,6 +182,10 @@ Those that end in '.UTF-8'.  No warranties are given for other locales.
 A complete list of valid locales can be found at:
 
 https://manpages.ubuntu.com/manpages/noble/man3/DateTime::Locale::Catalog.3pm.html
+
+Examples:
+    locale=en_US.UTF-8  (To use a US English locale)
+    locale=da_DK.UTF-8  (To use a Danish locale)
 """.strip()
 
 
@@ -160,11 +196,15 @@ Valid values are 'true' (enabled) and 'false' (disabled).
 
 You generally want to avoid enabling the mouse on kiosks with touch screens
 as this makes the mouse cursor visible to the user.
+
+Examples:
+    mouse=false  (when using a touch screen)
+    mouse=true   (when using a physical mouse)
 """.strip()
 
 
 POWEROFF_TIME_HELP = """
-The time of day to power off the system.
+The time of day to power off the system (24-hour clock only).
 
 An empty string disables this field, otherwise it must be a time string of
 the form HH:MM, which is the hour and minute of when the operation is done.
@@ -195,6 +235,10 @@ network access to set the system time after they have rebooted, which again
 affects the scheduled processes as they cannot run at a known time if the
 kiosk's real-time clock is not set accurately.  The result is that RPI4Bs
 should only be used for kiosks that are normally on the internet.
+
+Examples:
+    poweroff_time=17:30  (To shut down the kiosk at 5:30 PM)
+    poweroff_time=       (To never shut down the kiosk)
 """.strip()
 
 
@@ -210,6 +254,10 @@ The valid values are:
 
 Please notice that this setting affects both standard screens (without a
 touch panel) and screens with a touch panel.
+
+Examples:
+    screen_rotation=none  (To display the screen without rotation)
+    screen_rotation=left  (To rotate the screen 90 degrees to the left)
 """.strip()
 
 
@@ -224,6 +272,10 @@ This available sound cards depends entirely on the target system:
 If you don't need any audio in your kiosk, you should use the value 'none'.
 
 Please notice that the jack stick on the Pi4B requires amplification.
+
+Examples:
+    sound_card=none   (To disable sound altogether)
+    sound_card=hdmi1  (To output sound to HDMI-1)
 """.strip()
 
 
@@ -238,6 +290,10 @@ it effectively disables audio altogether.
 A good value to use, which should avoid clipping (reduction of audio
 quality), is 80 if 'sound_card' has been set to something other than 'none'.
 If 'sound_card' is 'none', this value will be completely ignored.
+
+Examples:
+    sound_level=0  (To turn down the volume completely)
+    sound_level=80 (To make the sound audible without clipping)
 """.strip()
 
 
@@ -256,6 +312,10 @@ To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
 
 IMPORTANT:
 If you lose your private key, you cannot access the kiosk using SSH anymore.
+
+Examples:
+    ssh_key=     (To only allow physical logins)
+    ssh_key=...  (To allow login via SSH)
 """.strip()
 
 
@@ -271,6 +331,10 @@ You need to ensure that there is sufficient space on the installation medium
 you can safely use 4 gigabytes on an installation medium that is 16 gigabytes
 or larger.  The Linux operating system itself uses less than 8 gigabytes but
 there must always be ample room for system logs, fetched upgrades, and so on.
+
+Examples:
+    swap_size=0  (To disable the swap file, this is NOT recommended)
+    swap_size=4  (To create and use a swap file that is 4 gigabytes in size)
 """.strip()
 
 
@@ -287,7 +351,11 @@ zones for all regions of Earth, just search for "Africa/" or "Europe/", etc.
 
 The complete list of valid time zones can be found at:
 
-https://kioskforge.org/timezones.html
+    https://kioskforge.org/timezones.html
+
+Examples:
+    timezone=America/Los_Angeles  (To use the L.A. time zone)
+    timezone=Europe/Berlin        (To use the Berlin time zone)
 """.strip()
 
 
@@ -311,6 +379,11 @@ The 'web' type is by far the most commonly used type, but the 'cli' type is
 very useful for things like making a designated kiosk that starts playing a
 given sound whenever somebody approaches the kiosk machine (using a motion
 detector).
+
+Examples:
+    type=web  (The most common usage, displays a web page)
+    type=x11  (Runs an X11 application, very rarely used)
+    type=cli  (Runs a CLI application such as a Python script)
 """.strip()
 
 
@@ -332,11 +405,15 @@ start up again, and is typically implemented using a simple time switch.
 
 If you set this field to "poweroff", you can safely disregard the
 "poweroff_time" field as there's no sense in powering off twice in a day.
+
+Examples:
+    upgrade_post=reboot    (To reboot the kiosk after upgrading)
+    upgrade_post=poweroff  (To shut down the kiosk after upgrading)
 """.strip()
 
 
 UPGRADE_TIME_HELP = """
-The time of day to upgrade the system.
+The time of day to upgrade the system (24 hour clock only).
 
 If empty, this field is disabled.  This is not recommended as virtually
 all kiosks should be rebooted at least once a day so as to reduce the
@@ -354,6 +431,10 @@ During the upgrade, the following things take place:
 
 Please notice that the maintenance process gracefully handles lack of
 internet.  In that case, no upgrades will performed.
+
+Examples:
+    upgrade_time=        (To disable upgrades, very unsafe!)
+    upgrade_time=06:30   (To upgrade the kiosk every day at 6:30 AM)
 """.strip()
 
 
@@ -373,6 +454,9 @@ password.
 If you opt to not enable the secure SSH access method, you should provide a
 secure password of minimum 32 random characters so as to not allow hackers
 into the kiosk.
+
+Examples:
+    user_code=:mysillylongpassword:
 """.strip()
 
 
@@ -403,6 +487,10 @@ normally don't need to specify a value for this setting.
 NOTE:
 The path in 'user_folder' cannot end in 'KioskForge' or variants thereof as
 this name is reserved for the KioskForge program and its files.
+
+Examples:
+    user_folder=         (If no user-supplied files need to be copied over)
+    user_folder=Website  (If the folder 'Website' needs to be copied over)
 """.strip()
 
 
@@ -414,6 +502,10 @@ If empty, this feature is disabled.
 This field is rarely necessary, but if you are forging a 'cli' or 'x11' type
 kiosk, you may need to install additional Ubuntu packages while forging the
 kiosk.
+
+Examples:
+    user_packages=                  (The most common case)
+    user_packages=python3-gpiozero  (To add a Python package)
 """.strip()
 
 
@@ -426,6 +518,10 @@ A good value that provides room for weeks of logging of a kiosk is 256.
 
 System logs are cleaned out as the first step of the mandatory daily
 maintenance controlled by the 'upgrade_time' field.
+
+Examples:
+    vacuum_size=0     (To retain logs indefinitely, not recommended!)
+    vacuum_size=1024  (To retain one gigabyte of logs on disk)
 """.strip()
 
 
@@ -443,6 +539,10 @@ boot so that KioskForge can send a broadcast signal to discover all kiosks.
 If you disable this option, the broadcast server will not be started at all.
 
 NOTE: You should use a dedicated LAN subnet to your kiosks when using this.
+
+Examples:
+    visible=false  (Future versions of KioskForge cannot find the kiosk)
+    visible=true   (Future versions of KioskForge find the kiosk on the LAN)
 """.strip()
 
 
@@ -460,6 +560,10 @@ more snappy and less laggy, this in particular for slow storage medias.
 
 The recommended setting is enabled.  If you run into problems with this
 setting, you can always disable it.
+
+Examples:
+    wear_reduction=false  (no wear reduction, not recommended!)
+    wear_reduction=true   (full wear reduction, the common case)
 """.strip()
 
 
@@ -473,6 +577,10 @@ and the kiosk will access the internet quite a bit faster.
 If your kiosk is a 'web' type kiosk, you should probably enable this field.
 In most other cases, this field has no significant effect and should be
 disabled.
+
+Examples:
+    wifi_boost=false  (To enable power-saving and reduce bandwidth)
+    wifi_boost=true   (To disable power-saving and increase bandwidth)
 """.strip()
 
 
@@ -487,6 +595,10 @@ This setting is case sensitive so that "Pass" is different from "pass".
 
 If empty and the 'wifi_name' setting is non-empty, the Wi-Fi connection
 will be assumed to be public and open to everybody (without a password).
+
+Examples:
+    wifi_code=     (For an open Wi-Fi network without a password)
+    wifi_code=...  (For a standard Wi-Fi network with a password)
 """.strip()
 
 
@@ -501,6 +613,10 @@ Documentation of the valid values can be found at:
     https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
 
 NOTE: KioskForge does not currently verify the value of this field!
+
+Examples:
+    wifi_country=US  (To use Wi-Fi in a kiosk located in the US)
+    wifi_country=DE  (To use Wi-Fi in a kiosk located in Germany)
 """.strip()
 
 
@@ -514,6 +630,10 @@ publicly visible network and the value 'true' indicates that it is a
 hidden network, which may slow down network scanning time a bit.
 
 Most users will want to use the default value of 'false' here.
+
+Examples:
+    wifi_hidden=false  (This is generally what you need)
+    wifi_hidden=true   (If the Wi-Fi 'wifi_name' is hidden)
 """.strip()
 
 
@@ -529,6 +649,10 @@ This setting is case sensitive so that "MyWiFi" is different from "mywifi".
 
 If empty, Wi-Fi is disabled altogether and no Wi-Fi network is configured.
 In this case, 'wifi_code', 'wifi_country', and 'wifi_hidden' are ignored.
+
+Examples:
+    wifi_name=FooNet            (If the Wi-Fi network is named 'FooNet')
+    wifi_name=My Wi-Fi Network  (-"- 'My Wi-Fi Network')
 """.strip()
 
 
