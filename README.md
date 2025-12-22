@@ -1,5 +1,5 @@
 # KioskForge ReadMe
-[KioskForge](https://kioskforge.org) generates kiosks on top of Ubuntu Server 24.04.
+[KioskForge](https://kioskforge.org) generates Raspberry Pi kiosks running Ubuntu Server 24.04.
 
 ## Introduction
 KioskForge saves you hundreds of hours of research and configuration of a new Raspberry Pi kiosk, and possibly also a load of money
@@ -52,7 +52,7 @@ This procedure, which has only been tested on Windows 11, gets you going quickly
 
 ## Documentation
 Currently, the primary source of documentation for KioskForge is the documentation installed with the Windows installer as `.html`
-files with links in the `Start` menu's `KioskForge` folder.  The documentation can also be found as Markdown in `docs`.
+files with links in the `Start` menu's `KioskForge` folder.  The documentation can also be found as Markdown in the `docs` folder.
 
 ## History
 KioskForge was made for a Danish museum that has a constant need for deploying kiosks.
@@ -63,5 +63,5 @@ doesn't offer strong scripting features (OOP, exceptions, etc.), the project was
 
 Today, KioskForge is a nearly automatic tool for creating new Raspberry Pi 4B and Raspberry Pi 5 kiosks from scratch.  The only
 part of the process that is still manual, is the actual creation of the installation medium used to set up the kiosk.  However,
-once the installation medium has been made, using [Raspberry Pi Imager](https://www.raspberrypi.com/software/), KioskForge takes
+once the installation medium has been made using [Raspberry Pi Imager](https://www.raspberrypi.com/software/), KioskForge takes
 over and the rest of the installation process is as automatic as it can possibly be.
