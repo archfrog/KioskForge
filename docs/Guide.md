@@ -61,7 +61,7 @@ When you want to display a local website using your new kiosk, you especially ha
 [^1]: The `command` option is a bit peculiar.  You need to specify a `file://` URL to tell Chromium that it is displaying local
 files.  The URL needs to be written *carefully* as the kiosk will fail to display anything if it is wrong.  Let's say that you've
 set `user_folder` equal to `Website`.  Then your URL needs to be: `file:///home/kiosk/Website/index.html`, which is the value that
-you should give in the `command` option.
+you should use in the `command` option.
 
 You still need to supply values for all the other options that are described in the kiosk file (`*.kiosk`).
 
@@ -73,9 +73,9 @@ KioskForge together with these tools.  Expect to redeploy a few times until all 
 
 The important options to be aware of, when forging a kiosk with touch screen, are these:
 
-| Name              | Option name        | Comment                                                                           |
-| ----------------- | ------------------ | ----------------------------------------------------------------------------------|
-| Screen Rotation   | `screen_rotation`  | If the screen needs to be rotated, use a value other than `none`.                 |
-| Chromium Autoplay | `chromium_autolay` | If videos need to play immediately upon page load (no user interaction required). |
+| Name              | Option name         | Comment                                                                           |
+| ----------------- | ------------------- | ----------------------------------------------------------------------------------|
+| Screen Rotation   | `screen_rotation`   | If the screen needs to be rotated, use a value other than `none`.                 |
+| Chromium Autoplay | `chromium_autoplay` | If videos need to play immediately upon page load (no user interaction required). |
 
 You still need to supply values for all the other options that are described in the kiosk file (`*.kiosk`).
