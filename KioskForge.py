@@ -161,6 +161,8 @@ SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = '32825b5b770f94996f05a9f2fa95e8f7670944de5
 SHA512_UBUNTU_SERVER__24_04_2_ARM64 = '5c62b93b8d19e8d7ac23aa9759a23893af5dd1ab5f80e4fb71f7b4fd3ddd0f84f7c82f9342ea4c9fdba2c350765c2c83eaaa6dcaac236f9a13f6644386e6a1d2'
 SHA512_UBUNTU_DESKTOP_24_04_3_ARM64 = '91448b069c7f8a6ca01fd36495e39b942ed64ba8ea6293ec0effa4e0792bd39476d7a95429109469c80cba18139657a3f2f5cc152b846460dafec80738abb475'
 SHA512_UBUNTU_SERVER__24_04_3_ARM64 = '34a9bbbc07b05c749025b7dee2199c6df5acc9461d7cbfdae6d81f88ad42a54dc40361f0f548b8609bbaa46f29b12254ee8242856377e8cc998a34b92375e1a3'
+SHA512_UBUNTU_DESKTOP_24_04_4_ARM64 = '8a3c23f47bbe795980af07e36bc89c3ecdfa0b781d823921b40df19b99d5065a42ad40b8e9811201563a7f8aad2b509e830fbd436f4dca682f48f94044891e84'
+SHA512_UBUNTU_SERVER__24_04_4_ARM64 = 'd7bed3552d99b0dc9c53cac8984b33c0513b7386442f17ce637d9467b522ab921d18d4bcb3cb6819bf8f6c9243150587fc9f9374ef444994b9a3f6542b1f011c'
 SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 = 'fa8750e5f71adc4d0cff50c985e499d7dc0ce18132489a52d4c3df9d0c321100d5b1d93c5804dd9c88986e2a8e67cbd413d325576081f3d2b20046987bb26b63'
 SHA512_UBUNTU_SERVER__25_04_0_ARM64 = 'ef1f10d7cc59d8761490b0e0f3be0882d4781870e920d66f0b7ae440a940bf19fa689cc16ee06a0c81b5333b7ecc65fdb4137e050db1133a77fd117c03034157'
 
@@ -171,6 +173,8 @@ PI_OPERATING_SYSTEMS = {
 	SHA512_UBUNTU_SERVER__24_04_2_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.2", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_24_04_3_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.3", "arm64", "cloudinit"),
 	SHA512_UBUNTU_SERVER__24_04_3_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.3", "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_24_04_4_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.4", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_4_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.4", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "25.04", "arm64", "cloudinit"),
 	SHA512_UBUNTU_SERVER__25_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "25.04", "arm64", "cloudinit"),
 }
@@ -182,8 +186,7 @@ class PiRecognizer(Recognizer):
 		Recognizer.__init__(self)
 
 	def _identify(self, path : str) -> Optional[Target]:
-		for name in ["cmdline.txt", "initrd.img", "meta-data", "user-data", "network-config"]:
-			if not os.path.isfile(path + name):
+		if not os.path.isfile(path + "initrd.img"):
 				return None
 
 		with open(path + "initrd.img", "rb") as stream:
@@ -550,7 +553,7 @@ class KioskForge(KioskDriver):
 		accept = True
 		accept &= (target.product == "Ubuntu")
 		accept &= (target.edition == "Server")
-		accept &= (target.version in ["24.04.1", "24.04.2", "24.04.3"])
+		accept &= (target.version.startswith("24.04."))
 		accept &= (target.cpukind in ["arm64"])
 		if not accept:
 			raise KioskError("Only Ubuntu Server 24.04.x images for Raspberry Pi 4B+ are supported")
