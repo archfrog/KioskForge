@@ -33,6 +33,9 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.04.21.19.19 H Reorganize the settings, there are quite a few of them now, so all things related to, say, network starts
+                         with `network_` and likewise with all things related to Python.  Make the KioskForge `upgrade` command so
+                         that it *automatically* renames old-style settings to the new names.  The old names cannot be used anymore.
 - [ ] 2025.11.18.22.41 H Fix `version.py` and `driver.py` so that the printed app extension is correct (currently always `.py`).
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be handled somehow.
 - [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
