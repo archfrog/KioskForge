@@ -2,7 +2,7 @@
 #**********************************************************************************************************************************
 # BSD 3-Clause License for KioskForge - https://kioskforge.org:
 #
-# Copyright © 2024-2025 The KioskForge Team.
+# Copyright © 2024-2026 The KioskForge Team.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
 # conditions are met:
