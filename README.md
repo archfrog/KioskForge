@@ -1,5 +1,5 @@
 # KioskForge ReadMe
-[KioskForge](https://kioskforge.org) generates Raspberry Pi kiosks running Ubuntu Server 24.04.
+[KioskForge](https://kioskforge.org) generates Raspberry Pi 4B and 5 kiosks running Ubuntu Server 24.04.x.
 
 ## Introduction
 KioskForge saves you hundreds of hours of research and configuration of a new Raspberry Pi kiosk, and possibly also a load of money
@@ -9,9 +9,9 @@ system optimizations.
 ## Features
 KioskForge supports the following features:
 
-* Deployment of Ubuntu Server 24.04 (a Long Term Support release, which is supported until June 2029).
+* Deployment of Ubuntu Server 24.04.x (a Long Term Support release, which is supported until June 2029).
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5.
-* Windows 10+ setup program.
+* Windows 11+ setup program.
 * International users (there are configuration settings for language, keyboard, and Wi-Fi region).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
 * Creating a kiosk that runs a command-line (CLI) application programmed by the user.
@@ -38,7 +38,7 @@ This procedure, which has only been tested on Windows 11, gets you going quickly
 4. Right-clock the `.kiosk` file and select `Edit` to edit it and fill out the information you need to supply.
 5. Save the modified `.kiosk` file.
 6. Insert a MicroSD or USB installation medium (we recommend MicroSD cards as these don't overheat so easily).
-7. Install [Raspberry Pi Imager v1.9.6](https://github.com/raspberrypi/rpi-imager/releases/download/v1.9.6/imager-1.9.6.exe).
+7. Install the most recent version of [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 8. [Prepare the installation medium](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager) with Ubuntu Server 24.04.x.
 9. Exit Raspberry Pi Imager once it has written and verified the installation medium.
 10. Pull out and reinsert your installation medium as Raspberry Pi Imager ejects it by default after preparing it.
@@ -48,7 +48,8 @@ This procedure, which has only been tested on Windows 11, gets you going quickly
 13. Insert the installation medium in your target Raspberry Pi and power it up.  The kiosk will start up after 5 to 30 minutes.
 14. Pull the power from the Raspberry Pi once your kiosk has started.  The Pi should now be ready to be deployed.
 
-**NOTE:** Presently, KioskForge can only be used from Windows desktops.  Linux support is work in progress.
+KioskForge should be usable from Linux if the mount point of the microSD card is given in the `KioskForge.py prepare /mnt/sd-card`
+command.  Just check out KioskForge, activate the virtual environment using `venv/Scripts/activate`, and you should be set.
 
 ## Documentation
 Currently, the primary source of documentation for KioskForge is the documentation installed with the Windows installer as `.html`
