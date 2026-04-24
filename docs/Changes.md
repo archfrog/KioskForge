@@ -1,6 +1,12 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 1.00 (2026.04.24)
+1. Bumped the version to v1.00 as KioskForge is more or less finished.  Not much development is planned from here on, except stuff
+   needed to support future versions of Ubuntu Server LTS.
+2. Updated the documentation a bit, most importantly it no longer gives a specific version of *Raspberry Pi Imager* to the user.
+3. Updated all Python packages and the InnoSetup installer so that KioskForge is fully up to date.
+
 ## Version 0.27 (2026.03.16)
 1. Made `KioskForge.py prepare` accept an optional extra argument that specifies the target location.  This way, KioskForge can
    also be used on Linux and Mac, albeit without automatic detection of the location of the installation medium.
