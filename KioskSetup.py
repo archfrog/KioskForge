@@ -492,6 +492,7 @@ class KioskSetup(KioskDriver):
 			)
 
 			# Ubuntu Server 24.04.x on Raspberry Pi 5 needs an obscure fix for X11 to discover its GPU and screens.
+			# Source: https://forums.raspberrypi.com/viewtopic.php?t=358853
 			if kiosk.device.data == "pi5":
 				script += InstallPackagesNoRecommendsAction("Installing Rasperry Pi System Configuration tool", ["raspi-config"])
 				script += ExternalAction(
@@ -589,7 +590,8 @@ class KioskSetup(KioskDriver):
 					["xprintidle"]
 				)
 			elif kiosk.type.data == "x11":
-				raise InternalError("The type=x11 option is not supported yet")
+				# Currently nothing to do.
+				pass
 		elif kiosk.type.data == "cli":
 			# Currently nothing to do, KioskStart.py handles this case completely.
 			pass

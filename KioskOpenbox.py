@@ -87,92 +87,111 @@ class KioskOpenbox(KioskDriver):
 		# Fetch timeout value (0 = disabled, other = number of seconds) from configuration file.
 		timeout = kiosk.idle_timeout.data
 
-		signal = Signal("KioskOpenbox-shutdown-Chromium", "kiosk")
-		try:
-			# Disable all forms of X screen saver/screen blanking/power management.
-			for command in [ "xset s off", "xset s noblank", "xset -dpms"]:
-				invoke_text_safe(command)
+		# Disable all forms of X screen saver/screen blanking/power management.
+		for command in [ "xset s off", "xset s noblank", "xset -dpms"]:
+			invoke_text_safe(command)
 
-			if kiosk.screen_rotation.data != "none":
-				# Ask 'xrandr' to rotate the screen as per the `screen_rotation` setting.
-				command  = TextBuilder()
-				command += "xrandr"
-				command += "--output"
-				command += "HDMI-1"
-				command += "--rotate"
-				command += KIOSKFORGE_TO_XRANDR_ROTATIONS[kiosk.screen_rotation.data]
-				invoke_list_safe(command.list)
-				del command
-
-			# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
-			# NOTE: Chromium does not complain about any of the options listed below!
+		if kiosk.screen_rotation.data != "none":
+			# Ask 'xrandr' to rotate the screen as per the `screen_rotation` setting.
 			command  = TextBuilder()
-			command += shutil.which("chromium") or "chromium"
-			command += "--kiosk"
-			command += "--fast"
-			command += "--fast-start"
-			command += "--start-maximised"
-			command += "--noerrdialogs"
-			command += "--no-first-run"
-			command += "--enable-pinch"
-			command += "--touch-events=enabled"
-			command += "--overscroll-history-navigation=disabled"
-			command += "--disable-features=TouchpadOverscrollHistoryNavigation"
-			command += "--overscroll-history-navigation=0"
-			command += "--disable-restore-session-state"
-			command += "--disable-infobars"
-			command += "--disable-crashpad"
-			if kiosk.chromium_autoplay.data:
-				command += "--autoplay-policy=no-user-gesture-required"
-			if kiosk.wear_reduction.data:
-				command += "--disk-cache-dir=/tmp/Chromium"
-			command += kiosk.command.data
-			cmdlist  = command.list
+			command += "xrandr"
+			command += "--output"
+			command += "HDMI-1"
+			command += "--rotate"
+			command += KIOSKFORGE_TO_XRANDR_ROTATIONS[kiosk.screen_rotation.data]
+			invoke_list_safe(command.list)
 			del command
 
-			# Forever launch Chromium, possibly terminate it, and restart it again if terminated or crashed.
-			while not signal.exists:
-				# Launch Chromium in the background as a detached process.
-				try:
-					# pylint: disable-next=consider-using-with
-					process = subprocess.Popen(cmdlist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-				except subprocess.SubprocessError as that:
-					raise KioskError("Unable to launch Chromium") from that
-				except OSError as that:
-					raise KioskError(that.strerror or "Unknown OS error") from that
+		# Only launch Chromium if a 'web' type kiosk: the 'x11' type uses a custom application supplied by the user.
+		if kiosk.type.data == "web":
+			signal = Signal("KioskOpenbox-shutdown-Chromium", "kiosk")
+			try:
+				# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
+				# NOTE: Chromium does not complain about any of the options listed below!
+				command  = TextBuilder()
+				command += shutil.which("chromium") or "chromium"
+				command += "--kiosk"
+				command += "--fast"
+				command += "--fast-start"
+				command += "--start-maximised"
+				command += "--noerrdialogs"
+				command += "--no-first-run"
+				command += "--enable-pinch"
+				command += "--touch-events=enabled"
+				command += "--overscroll-history-navigation=disabled"
+				command += "--disable-features=TouchpadOverscrollHistoryNavigation"
+				command += "--overscroll-history-navigation=0"
+				command += "--disable-restore-session-state"
+				command += "--disable-infobars"
+				command += "--disable-crashpad"
+				if kiosk.chromium_autoplay.data:
+					command += "--autoplay-policy=no-user-gesture-required"
+				if kiosk.wear_reduction.data:
+					command += "--disk-cache-dir=/tmp/Chromium"
+				command += kiosk.command.data
+				cmdlist  = command.list
+				del command
 
-				# Let Chromium start before we begin to check if it has been idle for too long.
-				time.sleep(15)
-
-				# Loop forever (until asked to shut down), launching Chromium and terminating it if it becomes idle for N seconds.
+				# Forever launch Chromium, possibly terminate it, and restart it again if terminated or crashed.
 				while not signal.exists:
-					# Wait one second between checking if Chromium should be restarted.
-					time.sleep(1)
+					# Launch Chromium in the background as a detached process.
+					try:
+						# pylint: disable-next=consider-using-with
+						process = subprocess.Popen(cmdlist, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+					except subprocess.SubprocessError as that:
+						raise KioskError("Unable to launch Chromium") from that
+					except OSError as that:
+						raise KioskError(that.strerror or "Unknown OS error") from that
 
-					# If Chromium has exited (crashed), exit to outer loop to restart it.
-					if "process" in locals() and process.poll():
-						logger.error("Restarting Chromium after crash.")
-						break
+					# Let Chromium start before we begin to check if it has been idle for too long.
+					time.sleep(15)
 
-					# If X has been idle for more than N seconds, terminate Chromium and exit to outer loop to restart it.
-					if timeout and self.x_idle_time() >= timeout:
-						process.terminate()
-						del process
+					# Loop forever (until asked to shut down), launching Chromium and terminating it if it becomes idle for N seconds.
+					while not signal.exists:
+						# Wait one second between checking if Chromium should be restarted.
+						time.sleep(1)
 
-						# Reset X's idle timer to ensure that inaccuracies do not accumulate over time.
-						invoke_text_safe("xset s reset")
+						# If Chromium has exited (crashed), exit to outer loop to restart it.
+						if "process" in locals() and process.poll():
+							logger.error("Restarting Chromium after crash.")
+							break
 
-						break
-		finally:
-			# Terminate Chromium if it is still running.
-			if "process" in locals():
-				if not process.poll():		# pyrefly: ignore[unbound-name]
-					process.terminate()		# pyrefly: ignore[unbound-name]
-				del process					# pyrefly: ignore[unbound-name]
+						# If X has been idle for more than N seconds, terminate Chromium and exit to outer loop to restart it.
+						if timeout and self.x_idle_time() >= timeout:
+							process.terminate()
+							del process
 
-			# Remove the signal once we've performed the requested task.
-			signal.remove()
-			del signal
+							# Reset X's idle timer to ensure that inaccuracies do not accumulate over time.
+							invoke_text_safe("xset s reset")
+
+							break
+			finally:
+				# Terminate Chromium if it is still running.
+				if "process" in locals():
+					if not process.poll():		# pyrefly: ignore[unbound-name]
+						process.terminate()		# pyrefly: ignore[unbound-name]
+					del process					# pyrefly: ignore[unbound-name]
+
+				# Remove the signal once we've performed the requested task.
+				signal.remove()
+				del signal
+		elif kiosk.type.data == "x11":
+			# Launch the app in the foreground.
+			try:
+				subprocess.run(kiosk.command.data, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True)
+			except subprocess.CalledProcessError as that:
+				raise KioskError("User application failure: " + that.output.decode('utf-8'))
+			except subprocess.SubprocessError as that:
+				raise KioskError("Unable to launch user application") from that
+			except OSError as that:
+				raise KioskError(that.strerror or "Unknown OS error") from that
+			finally:
+				if "process" in locals():
+					if not process.poll():		# pyrefly: ignore[unbound-name]
+						process.terminate()		# pyrefly: ignore[unbound-name]
+					del process					# pyrefly: ignore[unbound-name]
+		else:
+			raise KioskError("Kiosk type not supported by KioskOpenbox.py: " + kiosk.type.data)
 
 
 if __name__ == "__main__":
