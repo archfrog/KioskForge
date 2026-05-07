@@ -24,7 +24,7 @@
 #**********************************************************************************************************************************
 
 PRODUCT = "KioskForge"
-VERSION = "1.00"
+VERSION = "1.01"
 COMPANY = "The KioskForge Team"
 CONTACT = ""
 WEBSITE = "https://kioskforge.org/"
