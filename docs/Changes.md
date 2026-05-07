@@ -1,6 +1,11 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 1.01 (2026.05.07)
+1. Added support for the `x11` kiosk type (`type=x11`) so that the kiosk `command` option launches a pure X11 application.
+2. Revised the help text for the `comment` option slightly.
+3. Updated all Python packages to their most recent versions.
+
 ## Version 1.00 (2026.04.24)
 1. Bumped the version to v1.00 as KioskForge is more or less finished.  Not much development is planned from here on, except stuff
    needed to support future versions of Ubuntu Server LTS.
