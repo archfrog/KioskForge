@@ -67,7 +67,7 @@ Examples:
 
 
 COMMENT_HELP = """
-A short description of the the kiosk machine.  The string may at most be 128
+A short description of the kiosk machine.  The string may at most be 128
 characters long and cannot contain quotes (") and vertical bars (|).
 
 Please describe the kiosk's intended usage.  The string is later used to
@@ -86,8 +86,8 @@ This field currently only works with Raspberry Pi 4B targets.
 
 Enabling the field will increase the processing speed (CPU clock rate) of
 the target kiosk by 20 percent from 1.5 gigahertz to 1.8 gigahertz.  This
-translates to extra performance at the cost of a signficantly hotter CPU.
-If processor speed matters, and cooling is good or heat is not a
+translates to extra performance at the cost of a significantly hotter
+CPU.  If processor speed matters, and cooling is good or heat is not a
 significant issue, then you should enable this setting.
 
 This setting is most useful with 'web' type kiosks as these need lots of
@@ -344,7 +344,7 @@ The time zone of the kiosk.
 This is typically the local time zone of where the kiosk is located.
 
 Please be aware that the time zone affects time stamps in logs, the time
-seen by the the web browser, and so on.
+seen by the web browser, and so on.
 
 Use the most specific, precise time zone from the list below.  There are time
 zones for all regions of Earth, just search for "Africa/" or "Europe/", etc.
