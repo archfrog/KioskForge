@@ -1,15 +1,15 @@
 [project]
 name = "KioskForge"
-version = "0.25.0"
+version = "1.02.0"
 description = "KioskForge generates Raspberry Pi kiosks on top of Ubuntu Server"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "bcrypt==5.0.0",
-    "mypy==1.18.2",
+    "mypy==2.0.0",
     "pefile==2023.2.7",
-    "pyinstaller==6.16.0",
-    "pyinstaller-versionfile==3.0.1",
-    "pylint==4.0.3",
-    "pyrefly==0.42.1",
+    "pyinstaller==6.20.0",
+    "pyinstaller-versionfile==3.1.0",
+    "pylint==4.0.5",
+    "pyrefly==0.64.1",
 ]
