@@ -494,6 +494,21 @@ Examples:
 """.strip()
 
 
+USER_FONTS_HELP = """
+A space-separated list of font file names (may include paths and wildcards)
+to install when forging the kiosk.
+
+If empty, this feature is disabled.
+
+User-supplied fonts are typically only needed for GUI apps or when browsing
+a local website with one or more custom fonts.  Most users don't need this.
+
+Examples:
+    user_fonts=                            (No user fonts specified.)
+    user_fonts=Application/Fonts/*.ttf     (Install the specified fonts.)
+""".strip()
+
+
 USER_PACKAGES_HELP = """
 A space-separated list of user packages to install when forging of the kiosk.
 
@@ -710,6 +725,7 @@ class Kiosk(Fields):
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
 		self += BooleanField("visible", "true", VISIBLE_HELP)
 		self += BooleanField("chromium_autoplay", "false", CHROMIUM_AUTOPLAY_HELP)
+		self += OptionalStringField("user_fonts", "", USER_FONTS_HELP)
 
 	def redact(self, fields : List[str]) -> None:
 		"""

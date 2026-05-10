@@ -33,6 +33,9 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.05.10.12.27 H Drop the *idiotic* `shell` user as is complicates maintanence a lot and is completely unnecessary.
+- [ ] 2026.05.10.09.55 H Rewrite this badly engineered [censored] to use plugins for each operation.  Also, `KioskSetup.py` should
+                         not directly include logic for setting up the kiosk as it should use the defined plugins instead.
 - [ ] 2026.04.21.19.19 H Reorganize the settings, there are quite a few of them now, so all things related to, say, network starts
                          with `network_` and likewise with all things related to Python.  Make the KioskForge `upgrade` command so
                          that it *automatically* renames old-style settings to the new names.  The old names cannot be used anymore.
@@ -198,6 +201,7 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.10.08.28 H Add support for user-supplied fonts (`user_fonts=[glob]`).
 - [x] 2025.11.27.22.34 H Add temporary Linux support by allowing the Linux user to specify a path for `prepare`.
 - [x] 2025.10.02.08.12 H Update documentation (`docs/*`) to reflect changes in v0.25.
 - [x] 2025.08.11.05.00 H The discovery server should be optional as not everybody may want to use it (security implications).

@@ -28,6 +28,7 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import cast, List
 
+import glob
 import os
 import shlex
 import stat
@@ -39,7 +40,7 @@ from kiosklib.actions import CustomAction, ExternalAction, InstallPackagesAction
 from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
-from kiosklib.errors import CommandError, InternalError, KioskError
+from kiosklib.errors import CommandError, KioskError
 from kiosklib.fstab import Filesystems, Mount
 from kiosklib.invoke import invoke_text
 from kiosklib.kiosk import Kiosk
@@ -355,36 +356,6 @@ class KioskSetup(KioskDriver):
 					f"systemctl --user -M shell@ mask {unit}"
 				)
 			del units
-
-		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
-		lines  = TextBuilder()
-		lines += "[Unit]"
-		lines += "Description=KioskForge kiosk configuration"
-		lines += "Wants=network-online.target"
-		lines += "After=pipewire-pulse.service pipewire.service"
-		lines += "Before=graphical.target"
-		lines += ""
-		lines += "[Service]"
-		lines += "Type=oneshot"
-		lines += "Restart=no"
-		# NOTE: This line should SUPPOSEDLY make 'KioskConfig.py' only be invoked once, but it is in fact invoked at least twice.
-		# NOTE: I have spent hours on 'systemd' (the most crazily, insanely complex piece of software in the Linux world), but
-		# NOTE: I haven't been able to make 'KioskConfig.py' only run once as is the intention and purpose of it.
-		lines += "RemainAfterExit=yes"
-		lines += "ExecStart="
-		lines += "ExecStart=/home/kiosk/KioskForge/KioskConfig.py"
-		lines += ""
-		lines += "[Install]"
-		lines += "# Start KioskConfig.py as soon as the user logs in."
-		lines += "WantedBy=default.target"
-		script += CreateTextWithUserAndModeAction(
-			"Configuring systemd to run KioskConfig.py on every boot.",
-			"/usr/lib/systemd/system/KioskConfig.service",
-			"root",
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
-			lines.text
-		)
-		del lines
 
 		#************************************ Kiosk Browser Service **************************************************************
 		if kiosk.visible.data:
@@ -764,9 +735,33 @@ class KioskSetup(KioskDriver):
 #			# Enable the new systemd unit.
 #			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
 
+		# Install user-supplied fonts.
+		if kiosk.user_fonts.data:
+			script += CustomAction("Installing user fonts:", lambda: True)
+
+			target = "/home/kiosk/.local/share/fonts/KioskForge"
+			script += CustomAction(
+				"... Creating font folder " + target,
+				lambda target=target: os.makedirs(target, mode=0o777, exist_ok=True)
+			)
+
+			wildcards = shlex.split(kiosk.user_fonts.data)
+			for wildcard in wildcards:
+				patterns = glob.glob(wildcard)
+				if not patterns:
+					raise KioskError("'user_fonts' pattern expands to nothing: " + wildcard)
+				for pattern in patterns:
+					script += ExternalAction("... Installing font: " + pattern, f'cp -p "{pattern}" "{target}"')
+				del patterns
+
+			del target
+			del wildcards
+
+			script += ExternalAction("... Updating font cache", "fc-cache -f")
+
 		# Create disk swap file in case the system gets very low on memory.
 		if kiosk.swap_size.data > 0:
-			script += CustomAction("Enabling secondary swap file:", lambda: True)
+			script += CustomAction("Enabling disk swap file:", lambda: True)
 
 			script += ExternalAction("... Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
 			script += ExternalAction("... Setting permissions on new swap file.", "chmod 600 /swapfile")
@@ -782,7 +777,7 @@ class KioskSetup(KioskDriver):
 
 			# Attempt to reduce wear on micro-SD storage by moving swap, /tmp, and /var/log to memory.
 			# NOTE: See https://linuxblog.io/raspberry-pi-performance-add-zram-kernel-parameters/ for more information.
-			script += AptAction("... Installing 'zram-tools' to configure compressed swap file in memory.", "apt install -y zram-tools")
+			script += AptAction("... Installing 'zram-tools' to configure compressed swap in memory.", "apt install -y zram-tools")
 
 			script += ReplaceTextAction(
 				"... Configuring zram swap to use the zstd compression algorithm.",
@@ -831,8 +826,8 @@ class KioskSetup(KioskDriver):
 					# Add the 'noatime' (don't update access time) to the system 'ext4' partition.
 					mount.options = mount.options + ["noatime"]
 
-					# Change commit value from the default (5) to 1.000 and add 'noatime' to reduce wear on the micro-SD even further.
-					# NOTE: I don't dare increasing the commit value to 1.000 seconds as some kiosks are powered off abruptly.
+					# Change commit value from the default (5) to 1,000 and add 'noatime' to reduce wear on the micro-SD even further.
+					# NOTE: I don't dare increasing the commit value to 1,000 seconds as some kiosks are powered off abruptly.
 					# See: https://forums.raspberrypi.com/viewtopic.php?t=328888 for more information.
 					# mount.options = mount.options + "commit=1000"]
 
@@ -886,6 +881,36 @@ class KioskSetup(KioskDriver):
 			"Setting ownership of all files in the kiosk user's home directory to 'kiosk'.",
 			f"chown -R kiosk:kiosk {os.path.dirname(origin)}"
 		)
+
+		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
+		lines  = TextBuilder()
+		lines += "[Unit]"
+		lines += "Description=KioskForge kiosk configuration"
+		lines += "Wants=network-online.target"
+		lines += "After=pipewire-pulse.service pipewire.service"
+		lines += "Before=graphical.target"
+		lines += ""
+		lines += "[Service]"
+		lines += "Type=oneshot"
+		lines += "Restart=no"
+		# NOTE: This line should SUPPOSEDLY make 'KioskConfig.py' only be invoked once, but it is in fact invoked at least twice.
+		# NOTE: I have spent hours on 'systemd' (the most crazily, insanely complex piece of software in the Linux world), but
+		# NOTE: I haven't been able to make 'KioskConfig.py' only run once as is the intention and purpose of it.
+		lines += "RemainAfterExit=yes"
+		lines += "ExecStart="
+		lines += "ExecStart=/home/kiosk/KioskForge/KioskConfig.py"
+		lines += ""
+		lines += "[Install]"
+		lines += "# Start KioskConfig.py as soon as the user logs in."
+		lines += "WantedBy=default.target"
+		script += CreateTextWithUserAndModeAction(
+			"Configuring systemd to run KioskConfig.py on every boot.",
+			"/usr/lib/systemd/system/KioskConfig.service",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+			lines.text
+		)
+		del lines
 
 		# Synchronize all changes to disk (may take a while on microSD cards).
 		script += ExternalAction(

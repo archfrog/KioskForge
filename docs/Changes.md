@@ -1,6 +1,14 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Version 1.02 (2026.05.10)
+1. Finally got the Pi 5 H.265 GPU hardware decoder to work!  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
+   video in a resolution of 1920x1080.  Previously, H.265 movie playback used all four cores completely (i.e., 400 percent).
+2. Added support for installing user-supplied fonts using the `user_fonts` option (this setting supports wildcards).
+3. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
+4. The InfoZip UnZip tool is now only installed if the broken `visible` option is enabled (please keep it disabled for now).
+5. Updated all Python packages to their most recent versions.
+
 ## Version 1.01 (2026.05.07)
 1. Added support for the `x11` kiosk type (`type=x11`) so that the kiosk `command` option launches a pure X11 application.
 2. Revised the help text for the `comment` option slightly.
@@ -15,7 +23,7 @@ This document presents the important changes made to each KioskForge release fro
 ## Version 0.27 (2026.03.16)
 1. Made `KioskForge.py prepare` accept an optional extra argument that specifies the target location.  This way, KioskForge can
    also be used on Linux and Mac, albeit without automatic detection of the location of the installation medium.
-2. Greatly improved the help text for the `KioskForge.py` command so that it now enumerates the four variants of that command.
+2. Greatly improved the help text for the `KioskForge.py` command so that it now describes all four variants of that command.
 
 ## Version 0.26 (2025.11.25)
 1. Fixed bad links to the GitHub repository in the documentation.
