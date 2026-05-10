@@ -180,7 +180,7 @@ class KioskOpenbox(KioskDriver):
 			try:
 				subprocess.run(kiosk.command.data, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True)
 			except subprocess.CalledProcessError as that:
-				raise KioskError("User application failure: " + that.output.decode('utf-8'))
+				raise KioskError("User application failure: " + that.output.decode('utf-8')) from that
 			except subprocess.SubprocessError as that:
 				raise KioskError("Unable to launch user application") from that
 			except OSError as that:
