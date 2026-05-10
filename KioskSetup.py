@@ -177,7 +177,7 @@ class KioskSetup(KioskDriver):
 		# Build the script to execute.
 		script = Script(logger, resume)
 
-		script += CustomAction("Preparing system for forge process:", lambda: True)
+		script += CustomAction("Preparing system for forge process:", lambda: None)
 
 		# Stop the unattended-packages package as it causes endless problems for people using apt programmatically.
 		script += ExternalAction("... Stopping service unattended-upgrades.", "systemctl stop unattended-upgrades")
@@ -264,7 +264,7 @@ class KioskSetup(KioskDriver):
 		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
 
 		# Install US English and user-specified locales (purge all others).
-		script += CustomAction("Configuring system locale:", lambda: True)
+		script += CustomAction("Configuring system locale:", lambda: None)
 		script += ExternalAction("... Generating system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
 		script += ExternalAction("... Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
@@ -274,14 +274,14 @@ class KioskSetup(KioskDriver):
 		script += AptAction("Updating package lists before installing anything.", "apt-get update")
 
 		# Configure and activate firewall, allowing only SSH at port 22.
-		script += CustomAction("Configuring firewall:", lambda: True)
+		script += CustomAction("Configuring firewall:", lambda: None)
 		script += ExternalAction("... Disabling firewall log.", "ufw logging off")
 		script += ExternalAction("... Allowing SSH through firewall.", "ufw allow ssh")
 		script += ExternalAction("... Enabling firewall.", "ufw --force enable")
 
 		# ...Install SSH public key, if any, so that the user can SSH into the box as 'shell' in case of errors or other issues.
 		if kiosk.ssh_key.data:
-			script += CustomAction("Configuring Secure Shell (ssh):", lambda: True)
+			script += CustomAction("Configuring Secure Shell (ssh):", lambda: None)
 
 			# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 			# ...Install OpenSSH server.
@@ -322,7 +322,7 @@ class KioskSetup(KioskDriver):
 			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
 			# NOTE: Package 'iw' is needed to disable power-saving mode on a specific network card.
 			# NOTE: Package 'net-tools' contains the 'netstat' utility.
-			script += CustomAction("Enabling Wi-Fi Boost:", lambda: True)
+			script += CustomAction("Enabling Wi-Fi Boost:", lambda: None)
 			script += InstallPackagesAction("... Installing tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 			script += CustomAction("... Disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
 
@@ -335,7 +335,7 @@ class KioskSetup(KioskDriver):
 		if kiosk.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
 
-			script += CustomAction("Configuring audio subsystem:", lambda: True)
+			script += CustomAction("Configuring audio subsystem:", lambda: None)
 
 			# Install PipeWire audio subsystem, which is configured in 'KioskStart.py' (all attempts of configuring PipeWire in
 			# 'KioskConfig.py' failed with 'sudo', 'os.seteuid()', and so on).
@@ -359,7 +359,7 @@ class KioskSetup(KioskDriver):
 
 		#************************************ Kiosk Browser Service **************************************************************
 		if kiosk.visible.data:
-			script += CustomAction("Configuring kiosk server:", lambda: True)
+			script += CustomAction("Configuring kiosk server:", lambda: None)
 
 			# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to start it.
 			lines  = TextBuilder()
@@ -456,7 +456,7 @@ class KioskSetup(KioskDriver):
 				)
 				del orientation
 		elif kiosk.type.data in ["x11", "web"]:
-			script += CustomAction("Installing X11 with OpenBox window manager:", lambda: True)
+			script += CustomAction("Installing X11 with OpenBox window manager:", lambda: None)
 
 			# Install X Windows server and the OpenBox window manager.
 			script += InstallPackagesNoRecommendsAction(
@@ -555,7 +555,7 @@ class KioskSetup(KioskDriver):
 			del lines
 
 			if kiosk.type.data == "web":
-				script += CustomAction("Installing Chromium web browser:", lambda: True)
+				script += CustomAction("Installing Chromium web browser:", lambda: None)
 
 				# Install Chromium as we use its kiosk mode (also installs CUPS, see below).
 				script += ExternalAction("... Installing 'chromium' snap.", "snap install chromium")
@@ -737,7 +737,7 @@ class KioskSetup(KioskDriver):
 
 		# Install user-supplied fonts.
 		if kiosk.user_fonts.data:
-			script += CustomAction("Installing user fonts:", lambda: True)
+			script += CustomAction("Installing user fonts:", lambda: None)
 
 			target = "/home/kiosk/.local/share/fonts/KioskForge"
 			script += CustomAction(
@@ -761,7 +761,7 @@ class KioskSetup(KioskDriver):
 
 		# Create disk swap file in case the system gets very low on memory.
 		if kiosk.swap_size.data > 0:
-			script += CustomAction("Enabling disk swap file:", lambda: True)
+			script += CustomAction("Enabling disk swap file:", lambda: None)
 
 			script += ExternalAction("... Allocating swap file.", f"fallocate -l {kiosk.swap_size.data}G /swapfile",)
 			script += ExternalAction("... Setting permissions on new swap file.", "chmod 600 /swapfile")
@@ -773,7 +773,7 @@ class KioskSetup(KioskDriver):
 			)
 
 		if kiosk.wear_reduction.data:
-			script += CustomAction("Enabling wear reduction on system medium:", lambda: True)
+			script += CustomAction("Enabling wear reduction on system medium:", lambda: None)
 
 			# Attempt to reduce wear on micro-SD storage by moving swap, /tmp, and /var/log to memory.
 			# NOTE: See https://linuxblog.io/raspberry-pi-performance-add-zram-kernel-parameters/ for more information.
