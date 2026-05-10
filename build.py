@@ -200,10 +200,13 @@ class KioskBuild(KioskDriver):
 		workpath = paths.rootpath + os.sep + "PyInstaller"
 		os.makedirs(workpath, mode=0o664, exist_ok=True)
 
+		# Prepare version.version for use with PyInstaller, which rejects leading zeroes ("1.02" => "1.2").
+		fixed = '.'.join([step.lstrip('0') or '0' for step in version.version.split('.')])
+
 		# Write 'version.txt' needed to fill out the details that can be viewed in the Details pane of Windows Explorer.
 		pyinstaller_versionfile.create_versionfile(
 			output_file=paths.rootpath + os.sep + "version.txt",
-			version=version.version,
+			version=fixed,
 			company_name=version.company,
 			file_description=version.product,
 			internal_name=version.product,
