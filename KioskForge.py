@@ -187,7 +187,7 @@ class PiRecognizer(Recognizer):
 
 	def _identify(self, path : str) -> Optional[Target]:
 		if not os.path.isfile(path + "initrd.img"):
-				return None
+			return None
 
 		with open(path + "initrd.img", "rb") as stream:
 			sha512 = hashlib.sha512(stream.read()).hexdigest()
@@ -579,6 +579,7 @@ class KioskForge(KioskDriver):
 		print(f"    Poweroff time: {kiosk.poweroff_time.data}")
 		print(f"    Rotation     : {kiosk.screen_rotation.data}")
 		print(f"    User folder  : {kiosk.user_folder.data}")
+		print(f"    Font files   : {kiosk.user_fonts.data}")
 		print()
 
 		print("*** Press ENTER to prepare kiosk installation image or Ctrl-C to abort")
