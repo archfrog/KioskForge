@@ -325,8 +325,10 @@ class KioskSetup(KioskDriver):
 			script += InstallPackagesAction("... Installing tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 			script += CustomAction("... Disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
 
-		# Install InfoZip unzip as we need this in the KioskUpgrade.py script, which is run before the kiosk itself starts.
-		script += InstallPackagesAction("Installing Unzip required by the KioskForge upgrader.", ["unzip"])
+		if kiosk.visible.data:
+			# Install InfoZip unzip as we need this in the KioskUpgrade.py script, which is run before the kiosk itself starts.
+			# NOTE: The 'visible' option is not currently used for anything as I never finished up the upgrade tool.
+			script += InstallPackagesAction("Installing Unzip required by the KioskForge upgrader.", ["unzip"])
 
 		# Install PipeWire audio system only if explicitly enabled.
 		if kiosk.sound_card.data != "none":
@@ -483,35 +485,59 @@ class KioskSetup(KioskDriver):
 				)
 				del orientation
 		elif kiosk.type.data in ["x11", "web"]:
+			script += CustomAction("Installing X11 with OpenBox window manager:", lambda: True)
+
 			# Install X Windows server and the OpenBox window manager.
 			script += InstallPackagesNoRecommendsAction(
-				"Installing X Windows and OpenBox window manager.",
-				# NOTE: First element used to be 'xserver-xorg', then '"xserver-xorg-core', and no 'xorg'.
-				# NOTE: Changed because of unmet dependencies; i.e. apt suddenly wouldn't install it anymore.
+				"... Installing X Windows and OpenBox window manager.",
 				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
 			)
 
 			# Ubuntu Server 24.04.x on Raspberry Pi 5 needs an obscure fix for X11 to discover its GPU and screens.
 			# Source: https://forums.raspberrypi.com/viewtopic.php?t=358853
 			if kiosk.device.data == "pi5":
-				script += InstallPackagesNoRecommendsAction("Installing Rasperry Pi System Configuration tool", ["raspi-config"])
+				script += InstallPackagesNoRecommendsAction("... Installing Rasperry Pi System Configuration tool", ["raspi-config"])
 				script += ExternalAction(
-					"Downloading X11 graphics driver for Pi5.",
+					"... Downloading X11 graphics driver for Pi 5.",
 					"wget -q https://archive.raspberrypi.org/debian/pool/main/g/gldriver-test/gldriver-test_0.15_all.deb"
 				)
-				script += AptAction("Installing X11 graphics driver for Pi5.", "apt-get install -y ./gldriver-test_0.15_all.deb")
-				script += ExternalAction("Removing downloaded graphics driver for Pi5.", "rm -f gldriver-test_0.15_all.deb")
+				script += AptAction("... Installing X11 graphics driver for Pi 5.", "apt-get install -y ./gldriver-test_0.15_all.deb")
+				script += ExternalAction("... Deleting downloaded Pi 5 graphics driver file.", "rm -f gldriver-test_0.15_all.deb")
 
-				# Create X11 configuration file to use Pi5 graphics driver.
+				script += AptAction("... Installing GPU drivers for hardware Pi 5 H.265 decoder", "apt-get install -y linux-firmware-raspi mesa-utils libgl1-mesa-dri")
+
+				# Create X11 configuration file to enable Pi 5 hardware H.265 decoder.
 				lines  = TextBuilder()
-				lines += 'Section "OutputClass"'
-				lines += '    Identifier "vc4"'
-				lines += '    MatchDriver "vc4"'
-				lines += '    Driver "modesetting"'
-				lines += '    Option "PrimaryGPU" "true"'
+				lines += 'Section "Device"'
+				lines += '\tIdentifier "Card1"'
+				lines += '\tDriver "modesetting"'
+				lines += '\tOption "kmsdev" "/dev/dri/card1"'
+				lines += '\tOption "ShadowFB" "false"'
+				lines += 'EndSection'
+				lines += ''
+				lines += 'Section "Screen"'
+				lines += '\tIdentifier "Screen0"'
+				lines += '\tDevice "Card1"'
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
-					"Creating X11 configuration file to use Pi5 graphics driver",
+					"... Creating X11 configuration file to enable Pi 5 H.265 hardware decoder",
+					"/etc/X11/xorg.conf.d/20-modesetting.conf",
+					"root",
+					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
+					lines.text
+				)
+				del lines
+
+				# Create X11 configuration file to use Pi 5 graphics driver.
+				lines  = TextBuilder()
+				lines += 'Section "OutputClass"'
+				lines += '\tIdentifier "vc4"'
+				lines += '\tMatchDriver "vc4"'
+				lines += '\tDriver "modesetting"'
+				lines += '\tOption "PrimaryGPU" "true"'
+				lines += 'EndSection'
+				script += CreateTextWithUserAndModeAction(
+					"... Creating X11 configuration file to enable Pi 5 GPU",
 					"/etc/X11/xorg.conf.d/99-v3d.conf",
 					"root",
 					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -534,7 +560,7 @@ class KioskSetup(KioskDriver):
 				lines += f'\tOption "CalibrationMatrix" "{MATRICES[kiosk.screen_rotation.data]}"'
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
-					"Creating X11 configuration file to rotate touch panel (if any).",
+					"... Creating X11 configuration file to rotate touch panel (if any).",
 					"/etc/X11/xorg.conf.d/99-kiosk-set-touch-rotation.conf",
 					"root",
 					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -549,7 +575,7 @@ class KioskSetup(KioskDriver):
 			lines += "#!/usr/bin/dash"
 			lines += "/home/kiosk/KioskForge/KioskOpenbox.py"
 			script += CreateTextWithUserAndModeAction(
-				"Creating OpenBox startup script.",
+				"... Creating OpenBox startup script.",
 				"/home/kiosk/.config/openbox/autostart",
 				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
@@ -694,7 +720,7 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
-			# Set up automatic login for the named user using systemd.
+			# Set up automatic login for the kiosk user using systemd.
 			lines  = TextBuilder()
 			lines += "[Service]"
 			lines += "ExecStart="
