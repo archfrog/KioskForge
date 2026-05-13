@@ -37,7 +37,7 @@ import time
 
 from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CreateTreeAction
 from kiosklib.actions import CustomAction, ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
-from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction
+from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, UnzipAction
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
@@ -735,30 +735,6 @@ class KioskSetup(KioskDriver):
 #			# Enable the new systemd unit.
 #			script += ExternalAction("Enabling systemd kiosk service", "systemctl enable kiosk")
 
-		# Install user-supplied fonts.
-		if kiosk.user_fonts.data:
-			script += CustomAction("Installing user fonts:", lambda: None)
-
-			target = "/home/kiosk/.local/share/fonts/KioskForge"
-			script += CustomAction(
-				"... Creating font folder " + target,
-				lambda target=target: os.makedirs(target, mode=0o777, exist_ok=True)
-			)
-
-			wildcards = shlex.split(kiosk.user_fonts.data)
-			for wildcard in wildcards:
-				patterns = glob.glob(wildcard)
-				if not patterns:
-					raise KioskError("'user_fonts' pattern expands to nothing: " + wildcard)
-				for pattern in patterns:
-					script += ExternalAction("... Installing font: " + pattern, f'cp -p "{pattern}" "{target}"')
-				del patterns
-
-			del target
-			del wildcards
-
-			script += ExternalAction("... Updating font cache", "fc-cache -f")
-
 		# Create disk swap file in case the system gets very low on memory.
 		if kiosk.swap_size.data > 0:
 			script += CustomAction("Enabling disk swap file:", lambda: None)
@@ -876,11 +852,54 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
+		# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
+		# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
+		if kiosk.user_folder.data:
+			basename = os.path.basename(os.path.abspath(kiosk.user_folder.data))
+			user_source = '/boot/firmware/' + basename + ".zip"
+			user_target = '/home/kiosk/' + basename
+			del basename
+
+			# Create target folder, change owner to 'kiosk', and unpack all user files in it.
+			script += UnzipAction("Unpacking user files to user folder.", "kiosk", user_source, user_target)
+			del user_source
+
+			# Set the execute bit on all files in the user folder to allow starting the user application.
+			script += ExternalAction("Setting execute bit on all user files.", f"chmod -R u+x '{user_target}'")
+			del user_target
+
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
-			"Setting ownership of all files in the kiosk user's home directory to 'kiosk'.",
+			"Setting the owner of all files in the kiosk directory to 'kiosk'.",
 			f"chown -R kiosk:kiosk {os.path.dirname(origin)}"
 		)
+
+		# Install user-supplied fonts.
+		if False and kiosk.user_fonts.data:
+			script += CustomAction("Installing user fonts:", lambda: None)
+
+			# TODO: Create an external action that installs a list of fonts given as a list of globs.
+
+			target = "/home/kiosk/.local/share/fonts/KioskForge"
+			script += CustomAction(
+				"... Creating font folder " + target,
+				lambda target=target: os.makedirs(target, mode=0o777, exist_ok=True)
+			)
+
+			wildcards = shlex.split(kiosk.user_fonts.data)
+			for wildcard in wildcards:
+				filenames = glob.glob(wildcard)
+				if not filenames:
+					raise KioskError("'user_fonts' pattern expands to nothing: " + wildcard)
+
+				for filename in filenames:
+					script += ExternalAction("... Installing font: " + filename, f'cp -p "{filename}" "{target}"')
+				del filenames
+
+				del target
+				del wildcards
+
+			script += ExternalAction("... Updating font cache", "fc-cache -f")
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()

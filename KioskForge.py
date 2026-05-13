@@ -41,6 +41,7 @@ import platform
 import shutil
 import sys
 import time
+import zipfile
 
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, InternalError, KioskError
@@ -410,26 +411,10 @@ class CloudinitConfigurator(Configurator):
 			# Write commands to copy and then make this script executable (this is done late in the boot process).
 			stream.write("runcmd:")
 			stream.indent()
-			stream.write(f"- cp -pR {source}/KioskForge /home/kiosk")
+			stream.write(f"- cp -pr {source}/KioskForge /home/kiosk")
 			stream.write("- chown -R kiosk:kiosk /home/kiosk/KioskForge")
 			stream.write("- chmod -R u+x /home/kiosk/KioskForge")
 			stream.write("- chmod a-x /home/kiosk/KioskForge/KioskForge.kiosk")
-
-			# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
-			# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
-			if self.kiosk.user_folder.data:
-				basename = os.path.basename(os.path.abspath(self.kiosk.user_folder.data))
-
-				user_source = source + '/' + basename
-				user_target = '/home/kiosk/' + basename
-				del basename
-
-				stream.write(f"- cp -pR {user_source} /home/kiosk")
-				stream.write(f"- chown -R kiosk:kiosk {user_target}")
-				stream.write(f"- chmod -R u+x {user_target}")
-				del user_source
-				del user_target
-
 			stream.write("- systemctl daemon-reload")
 			stream.write("- systemctl enable KioskSetup")
 			stream.dedent()
@@ -635,7 +620,7 @@ class KioskForge(KioskDriver):
 			else:
 				raise InternalError("File not found while copying to installation medium: " + origin + os.sep + name)
 
-		# Copy user folder, if any, to the install medium so that it can be copied onto the target.
+		# Zip up the user folder, if any, on the install medium so that it can be unzipped on the Pi to preserve UTF-8 file names.
 		if kiosk.user_folder.data:
 			# Use 'abspath' to the handle the case that the user folder is identical to '.'.
 			source = os.path.abspath(os.path.join(os.path.dirname(filename), kiosk.user_folder.data))
@@ -645,15 +630,33 @@ class KioskForge(KioskDriver):
 			if basename.lower() == "kioskforge":
 				raise KioskError("The user_folder setting cannot be 'KioskForge' as this is a reserved name")
 
-			destination = target.basedir + os.sep + basename
+			zipname = target.basedir + os.sep + basename + ".zip"
 			del basename
 
-			if os.path.isdir(destination):
-				shutil.rmtree(destination)
+			# Remove the archive if already created by a previous invokation of KioskForge.
+			if os.path.isfile(zipname):
+				os.unlink(zipname)
 
-			shutil.copytree(source, destination)
+			# Create a UTF-8 ZIP file containing the user files as Ubuntu mounts the microSD card as ASCII and CodePage 437,
+			# which ruins all non-ASCII characters, which again can make the user app fail or render incorrect file names...
+			# NOTE: This is only necessary if foreign characters (not 7-bit ASCII characters) are present, but we do it always.
+			files = glob.glob(source + os.sep + "**" + os.sep + "*", recursive=True)
+			if not files:
+				raise KioskError("User folder (user_folder) does not match any folders")
+			with zipfile.ZipFile(zipname, "w", zipfile.ZIP_STORED) as archive:
+				for file in files:
+					# Ignore hidden files.
+					if file[0] == '.':
+						continue
+
+					# Make the name relative to the absolute 'source' folder (D:\Foo\App\file1.txt => file1.txt).
+					name = file[len(source) + 1:]
+
+					# Add the file to the archive, which puts the archive into UTF-8 mode if non-ASCII (CP437) chars are detected.
+					archive.write(file, name)
+			del files
 			del source
-			del destination
+			del zipname
 
 		# Report success to the log.
 		match platform.system():

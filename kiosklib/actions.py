@@ -31,6 +31,7 @@ import os
 import shutil
 import stat
 import time
+import zipfile
 
 from kiosklib.errors import InternalError, KioskError
 from kiosklib.invoke import invoke_text, Result
@@ -268,6 +269,37 @@ class ReplaceTextAction(InternalAction):
 
 			# TODO: Fix owner, etc.
 
+		except OSError as that:
+			if not that.strerror:
+				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
+			result = Result(1, that.strerror)
+
+		return result
+
+class UnzipAction(InternalAction):
+	"""Unzip the source archive to the target folder."""
+
+	def __init__(self, title : str, owner : str, source_file : str, target_folder : str):
+		InternalAction.__init__(self, title)
+		self.__owner = owner
+		self.__source_file = source_file
+		self.__target_folder = target_folder
+
+
+	def execute(self) -> Result:
+		try:
+			# Create the target directory.
+			os.makedirs(self.__target_folder, 0o700, exist_ok=True)
+
+			# Change owner to user:user.
+			shutil.chown(self.__target_folder, user=self.__owner, group=self.__owner)
+
+			# Unzip all files in the archive in the target folder.
+			with zipfile.ZipFile(self.__source_file, "r") as archive:
+				archive.extractall(path=self.__target_folder)
+
+			# Signal success to the client.
+			result = Result()
 		except OSError as that:
 			if not that.strerror:
 				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
