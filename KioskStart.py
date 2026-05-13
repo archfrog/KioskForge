@@ -69,13 +69,12 @@ class KioskStart(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		logger.write("Starting kiosk.")
-
 		# Disallow redundant launches of this script (I can't get 'systemd(efunct)' to NOT launch it multiple times).
 		signal = Signal("kiosk-running", "kiosk")
 		if signal.exists:
-			raise KioskError("Only one instance of this script can be running at any time.")
+			return
 
+		logger.write("Starting kiosk.")
 		try:
 			# Create the signal that prevents this script from being launched multiple times by systemd.
 			signal.create()
