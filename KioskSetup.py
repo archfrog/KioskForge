@@ -658,14 +658,19 @@ class KioskSetup(KioskDriver):
 			del lines
 			script += ExternalAction("Start Wayland and then Chromium when booting.", "systemctl add-wants graphical.target user-session.service")
 		else:
-			# Append lines to '~kiosk/.bashrc' to execute the startup script (which handles redundant requests, etc.).
+			# Append lines to '~kiosk/.bash_login' to execute the startup script (which handles redundant requests, etc.).
 			lines  = TextBuilder()
-			lines += "#!/usr/bin/bash"
-			lines += "# Start the kiosk."
+			lines += '#!/usr/bin/bash'
 			# NOTE: Don't use 'set -e', it logs out whenever an error occurs in the logged in SSH session...
-			lines += "/home/kiosk/KioskForge/KioskStart.py"
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
+			lines += '# Start the kiosk forever (in case it crashes).'
+			lines += 'while [[ -z "$SSH_CLIENT" ]]; do'
+			lines += '\t/home/kiosk/KioskForge/KioskStart.py'
+			lines += 'done'
+			lines += ''
+			lines += '# An SSH session, simply set up the environment, incl. the kiosklog() function, and let the user inside.'
+			lines += '. ~/.bashrc'
 			script += CreateTextWithUserAndModeAction(
 				"Creating ~kiosk/.bash_login to start up the kiosk at every boot.",
 				"/home/kiosk/.bash_login",
