@@ -35,14 +35,14 @@ All files created by and used by KioskForge are located in `~/KioskForge`.  Plea
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
 ### How do I become `root` after login?
-You should generally try to avoid becoming `root`, and instead use the `sudo` command with the `shell` user, but if you really need
+You should generally try to avoid becoming `root`, and instead use the `sudo` command with the `kiosk` user, but if you really need
 to, you can use this procedure:
 
 ```bash
-# Log into the kiosk as the 'shell' user using SSH or local login.
+# Log into the kiosk as the 'kiosk' user using SSH or local login.
 # Execute the commands below and fill in the requested passwords.
 sudo -s
-# Enter password for the 'shell' user at the prompt.
+# Enter password for the 'kiosk' user at the prompt.
 passwd
 # Enter NEW password for the 'root' user at the prompt.
 # Retype NEW password for the 'root' user at the prompt.

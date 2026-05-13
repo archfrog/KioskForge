@@ -347,22 +347,12 @@ class CloudinitConfigurator(Configurator):
 			stream.write("- name: kiosk")
 			stream.indent()
 			stream.write("gecos: Kiosk user")
-			stream.write("groups: users,audio,netdev,video,plugdev,input,gpio,spi,i2c,render,sudo")
+			stream.write("groups: users,adm,audio,netdev,video,plugdev,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			stream.write("lock_passwd: false")
-			# Hash the password so thieves, hackers, etc. cannot simply read the password in the file in /boot/firmware.
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is very dangerous if somebody gets through to the shell, but we may need passwordless 'sudo'.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
-			stream.dedent()
-			# Create the 'shell' user which will allow the end-user to log into the kiosk to inspect and modify it.
-			stream.write("- name: shell")
-			stream.indent()
-			stream.write("gecos: Shell user")
-			stream.write("groups: users,adm,netdev,plugdev,input,gpio,spi,i2c,sudo")
-			stream.write("shell: /bin/bash")
-			stream.write("lock_passwd: false")
-			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			stream.dedent()
 			stream.dedent()
 			stream.write()

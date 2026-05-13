@@ -305,7 +305,7 @@ log into the kiosk machine.
 
 The key can be generated using the 'ssh-keygen' command, which is part of
 Linux but also available on numerous public websites that you can use to
-generate an SSH key pair.  Just do a google of "ssh-keygen online".
+generate an SSH key pair.  Just search for "ssh-keygen online".
 
 To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
 (CLI/non-GUI).
@@ -314,8 +314,8 @@ IMPORTANT:
 If you lose your private key, you cannot access the kiosk using SSH anymore.
 
 Examples:
-    ssh_key=     (To only allow physical logins)
-    ssh_key=...  (To allow login via SSH)
+    ssh_key=             (To allow only physical logins)
+    ssh_key=ssh-rsa ...  (To allow login via SSH)
 """.strip()
 
 
@@ -439,7 +439,7 @@ Examples:
 
 
 USER_CODE_HELP = """
-The password for the 'kiosk' and 'shell' users.
+The password for the the 'kiosk' user.
 
 There is technically no maximum limit to the length of the password, but you
 should always use between 16 and 132 characters.

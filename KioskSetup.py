@@ -35,9 +35,9 @@ import stat
 import sys
 import time
 
-from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CreateTreeAction
-from kiosklib.actions import CustomAction, ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
-from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, UnzipAction
+from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
+from kiosklib.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
+from kiosklib.actions import RemoveFolderAction, ReplaceTextAction, UnzipAction
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
@@ -229,7 +229,7 @@ class KioskSetup(KioskDriver):
 		)
 		del lines
 
-		# Create ~shell/.bash_aliases to add the 'kiosklog' command used for quickly viewing the Kiosk*.py log entries.
+		# Create ~kiosk/.bash_aliases to add the 'kiosklog' command used for quickly viewing the Kiosk*.py log entries.
 		lines  = TextBuilder()
 		lines += "#!/usr/bin/bash"
 		lines += "# Function that displays all syslog entries made by Kiosk*.py."
@@ -238,19 +238,19 @@ class KioskSetup(KioskDriver):
 		lines += "\tjournalctl -o short-iso $* | grep -F Kiosk | grep -Fv systemd\\["
 		lines += "}"
 		script += CreateTextWithUserAndModeAction(
-			"Creating 'kiosklog' command for user 'shell' for status discovery.",
-			"/home/shell/.bash_aliases",
-			"shell",
+			"Creating 'kiosklog' command for the kiosk user to enable status discovery.",
+			"/home/kiosk/.bash_aliases",
+			"kiosk",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			lines.text
 		)
 
-		# Create '~shell/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
+		# Create '~kiosk/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
 		# NOTE: To see the MOTD system status info, use the Ubuntu command 'landscape-sysinfo'.
 		script += CreateTextWithUserAndModeAction(
-			"Creating ~shell/.hushlogin to enable silent logins.",
-			"/home/shell/.hushlogin",
-			"shell",
+			"Creating .hushlogin to enable silent logins.",
+			"/home/kiosk/.hushlogin",
+			"kiosk",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			""
 		)
@@ -279,7 +279,7 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("... Allowing SSH through firewall.", "ufw allow ssh")
 		script += ExternalAction("... Enabling firewall.", "ufw --force enable")
 
-		# ...Install SSH public key, if any, so that the user can SSH into the box as 'shell' in case of errors or other issues.
+		# ...Install SSH public key, if any, so that the user can SSH into the box as 'kiosk' in case of errors or other issues.
 		if kiosk.ssh_key.data:
 			script += CustomAction("Configuring Secure Shell (ssh):", lambda: None)
 
@@ -310,10 +310,10 @@ class KioskSetup(KioskDriver):
 				"PermitEmptyPasswords no"
 			)
 
-			# Install public SSH key for the 'shell' user.
+			# Install public SSH key for the 'kiosk' user.
 			script += AppendTextAction(
-				"... Installing public SSH key for user 'shell'.",
-				"/home/shell/.ssh/authorized_keys",
+				"... Installing public SSH key for the kiosk user.",
+				"/home/kiosk/.ssh/authorized_keys",
 				kiosk.ssh_key.data + "\n"
 			)
 
@@ -340,22 +340,6 @@ class KioskSetup(KioskDriver):
 			# Install PipeWire audio subsystem, which is configured in 'KioskStart.py' (all attempts of configuring PipeWire in
 			# 'KioskConfig.py' failed with 'sudo', 'os.seteuid()', and so on).
 			script += InstallPackagesAction("... Installing PipeWire packages.", ["pipewire-audio"])
-
-			# Disable the PipeWire audio subsystem for the 'shell' user to save some memory (50+ MB, I think).
-			script += CreateTreeAction("... Creating systemd user folder.", "/home/shell/.config/systemd/user", 0o700, "shell")
-
-			# ... Disable all PipeWire systemd services and sockets for the user 'shell' to save some memory.
-			# NOTE: The services were found using the 'systemctl list-units --all | fgrep -i pipewire' command on the kiosk.
-			# NOTE: The 'filter-chain' service has been left out as I am unsure whether or not it needs to be masked.
-			units = [ "pipewire.service", "pipewire-pulse", "wireplumber.service" ]
-			for unit in units:
-				# The weird systemctl syntax is from here: https://www.reddit.com/r/podman/comments/12931nx/comment/lbnwejv/
-				# NOTE: Don't try using 'sudo' together with 'systemctl', you get a weird bus error and the operation fails.
-				script += ExternalAction(
-					f"... Disabling PipeWire unit '{unit}' for user 'shell'.",
-					f"systemctl --user -M shell@ mask {unit}"
-				)
-			del units
 
 		#************************************ Kiosk Browser Service **************************************************************
 		if kiosk.visible.data:

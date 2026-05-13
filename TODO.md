@@ -1,4 +1,4 @@
-# KioskForge Main Task List
+# KioskForge Task List
 Please notice that the task list of KioskForge is *currently* spread over two places:
 
 1. This document, which is updated most frequently.
@@ -33,7 +33,12 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2026.05.10.12.27 H Drop the *idiotic* `shell` user as is complicates maintanence a lot and is completely unnecessary.
+- [ ] 2026.05.12.05.28 H Move the `KioskForge.kiosk` file to `/home/kiosk` so as to simplify manual upgrades a bit and also to
+                         ensure that the `user_folder` and `user_fonts` settings work relatively to the `KioskForge.kiosk` file.
+- [ ] 2026.05.10.13.14 H CloudInit does not copy Danish characters correctly even when using `cp -pR`.  Report or fix this.
+                         Why is CloudInit handling this at all?  Let `KioskSetup.py` do this.
+- [ ] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relatively to the `.kiosk` file.
+- [ ] 2026.05.10.12.27 H Drop the *idiotic* `shell` user as is complicates SSH sessions a lot and doesn't buy us anything at all.
 - [ ] 2026.05.10.09.55 H Rewrite this badly engineered [censored] to use plugins for each operation.  Also, `KioskSetup.py` should
                          not directly include logic for setting up the kiosk as it should use the defined plugins instead.
 - [ ] 2026.04.21.19.19 H Reorganize the settings, there are quite a few of them now, so all things related to, say, network starts

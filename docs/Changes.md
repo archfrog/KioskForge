@@ -1,13 +1,17 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
-## Version 1.02 (2026.05.10)
-1. Finally got the Pi 5 H.265 GPU hardware decoder to work!  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
-   video in a resolution of 1920x1080.  Previously, H.265 movie playback used all four cores completely (i.e., 400 percent).
-2. Added support for installing user-supplied fonts using the `user_fonts` option (this setting supports wildcards).
-3. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
-4. The InfoZip UnZip tool is now only installed if the broken `visible` option is enabled (please keep it disabled for now).
-5. Updated all Python packages to their most recent versions.
+## Version 1.02 (2026.05.12)
+1. The `shell` user has been retired as it was tedious to log in as the `shell` user and then `su kiosk` to access the kiosk.  This
+   means that KioskForge now only creates a single user on the kiosk: `kiosk`.  As a result, you **must** log in as `kiosk`.
+2. Finally got the Pi 5 H.265 GPU hardware decoder to work!  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
+   video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent).  This works
+   with the `mpv` video player by adding the options: `
+3. Added support for installing user-supplied fonts using the `user_fonts` option (this setting supports wildcards).
+4. Non-ASCII characters (foreign symbols) are now handled correctly when they appear in user file names added with `user_folder`.
+5. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
+6. The InfoZip UnZip tool is now only installed if the unfinished `visible` option is enabled (please keep it disabled for now).
+7. Updated all Python packages to their most recent versions.
 
 ## Version 1.01 (2026.05.07)
 1. Added support for the `x11` kiosk type (`type=x11`) so that the kiosk `command` option launches a pure X11 application.
