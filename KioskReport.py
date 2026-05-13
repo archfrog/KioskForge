@@ -42,10 +42,7 @@ from kiosklib.logger import Logger
 
 def strip_path_and_unhide(path : str) -> str:
 	"""Strips the path and removes any leading dots from the specified path."""
-	path = os.path.basename(path)
-	while path[0] == '.':
-		path = path[1:]
-	return path
+	return os.path.basename(path).lstrip('.')
 
 
 class KioskReport(KioskDriver):
