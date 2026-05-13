@@ -6,7 +6,8 @@ This document presents the important changes made to each KioskForge release fro
    means that KioskForge now only creates a single user on the kiosk: `kiosk`.  As a result, you **must** log in as `kiosk`.
 2. Finally got the Pi 5 H.265 GPU hardware decoder to work!  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
    video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent).  This works
-   with the `mpv` video player by adding the options: `
+   with the `mpv` video player by adding the options: `--vo=gpu`, `--hwdec=v4l2m2m`, and optionally `--profile=fast`.  You need to
+   add the `mpv` package to your `user_packages` setting.
 3. Added support for installing user-supplied fonts using the `user_fonts` option (this setting supports wildcards).
 4. Non-ASCII characters (foreign symbols) are now handled correctly when they appear in user file names added with `user_folder`.
 5. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
