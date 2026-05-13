@@ -477,16 +477,17 @@ file that contains the kiosk configuration, is used as the name of the folder
 that's being created on the kiosk.
 
 For instance, if you set 'user_folder' to 'Website', then the local folder
-'Website', in the same folder as the main configuration file, will be copied
-to the kiosk so that a new folder '/home/username/Website' is created and
-populated by the files it contains on the host.
+'Website', in the same folder as the main kiosk file, will be copied to the
+kiosk so that a new folder '/home/username/Website' is created and populated
+by the files it contains on the host.
 
 If you are creating a 'web' type kiosk that browses a remote website, you
 normally don't need to specify a value for this setting.
 
 NOTE:
-The path in 'user_folder' cannot end in 'KioskForge' or variants thereof as
-this name is reserved for the KioskForge program and its files.
+1. The path in 'user_folder' cannot end in 'KioskForge' or variants thereof
+   as this name is reserved for the KioskForge program and its files.
+2. The 'user_folder' path must be relative to folder with the kiosk file.
 
 Examples:
     user_folder=         (If no user-supplied files need to be copied over)
@@ -496,16 +497,22 @@ Examples:
 
 USER_FONTS_HELP = """
 A space-separated list of font file names (may include paths and wildcards)
-to install when forging the kiosk.
+to install when forging the kiosk.  These must always be relative to the
+folder with the kiosk file.
 
 If empty, this feature is disabled.
 
 User-supplied fonts are typically only needed for GUI apps or when browsing
 a local website with one or more custom fonts.  Most users don't need this.
 
+NOTE:
+1. The 'user_fonts' path must be relative to folder with the kiosk file.
+2. At present, the 'user_fonts' pattern must match files inside the
+   'user_folder' folder.  Thus, 'user_folder' must be enabled too.
+
 Examples:
-    user_fonts=                            (No user fonts specified.)
-    user_fonts=Application/Fonts/*.ttf     (Install the specified fonts.)
+    user_fonts=                    (No user fonts specified.)
+    user_fonts=Application/*.ttf   (Install the specified fonts.)
 """.strip()
 
 
