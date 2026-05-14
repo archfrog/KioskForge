@@ -63,7 +63,7 @@ web browser, such as a Pi kiosk that detects motion and then plays a sound.
 Examples:
     command=https://youtube.com                    (an online web kiosk)
     command=file:///home/kiosk/Website/index.html  (a static web kiosk)
-    command=/home/kiosk/Application/Launcher.py    (a coded cli kiosk)
+    command=Application/Launcher.py                (a coded cli kiosk)
 """.strip()
 
 
