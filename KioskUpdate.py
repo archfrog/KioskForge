@@ -46,9 +46,6 @@ from kiosklib.signal import Signal
 class KioskUpdate(KioskDriver):
 	"""This class implements the KioskUpdate.py script, which updates the system if and only if it is on the internet."""
 
-	def __init__(self) -> None:
-		KioskDriver.__init__(self)
-
 	def snap_cleanup(self, logger : Logger) -> None:
 		"""Removes all revisions of snaps to keep disk usage to the bare minimum."""
 		result = invoke_text("snap list --all --color=never --unicode=never")
