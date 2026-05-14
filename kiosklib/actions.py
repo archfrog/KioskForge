@@ -27,6 +27,7 @@
 from typing import Callable, List
 
 import abc
+import glob
 import os
 import shutil
 import stat
@@ -263,6 +264,47 @@ class ReplaceTextAction(InternalAction):
 
 			# TODO: Fix owner, etc.
 
+		except OSError as that:
+			if not that.strerror:
+				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
+			result = Result(1, that.strerror)
+
+		return result
+
+
+class CreateZipAction(InternalAction):
+	"""Creates a Zip archive containing all the files in the specified source folder."""
+
+	def __init__(self, title : str, owner : str, source_folder : str, target_file : str, method : int = zipfile.ZIP_STORED):
+		"""Compresses the target Zip archive from the source folder."""
+		super().__init__(title)
+		self._owner = owner
+		self._source_folder = os.path.abspath(source_folder)
+		self._target_file = target_file
+		self._method = method
+
+	def execute(self) -> Result:
+		try:
+			# Get a list of all files in the source folder.
+			files = glob.glob(self._source_folder + os.sep + "**" + os.sep + "*", recursive=True)
+			if not files:
+				raise KioskError("User folder (user_folder) is empty")
+
+			# Zip up all the files in the source folder except dot files.
+			with zipfile.ZipFile(self._target_file, "w", self._method) as archive:
+				for file in files:
+					# Ignore hidden files.
+					if file[0] == '.':
+						continue
+
+					# Make the name relative to the absolute 'source' folder (D:\Foo\App\file1.txt => file1.txt).
+					name = file[len(self._source_folder) + 1:]
+
+					# Add the file to the archive, which puts the archive into UTF-8 mode if non-ASCII (CP437) chars are detected.
+					archive.write(file, name)
+
+			# Signal success to the client.
+			result = Result()
 		except OSError as that:
 			if not that.strerror:
 				raise InternalError("Attribute 'strerror' of OSError instance is empty") from that
