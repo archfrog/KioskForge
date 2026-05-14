@@ -680,10 +680,11 @@ class KioskSetup(KioskDriver):
 			# NOTE: Don't use 'set -e', it logs out whenever an error occurs in the logged in SSH session...
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
-			lines += '# Start the kiosk forever (in case it crashes).'
-			lines += 'while [[ -z "$SSH_CLIENT" ]]; do'
+			lines += '# Start the kiosk once only - otherwise it will restart when the KioskUpdate.py runs.
+			# TODO: Figure out how to use systemd to launch and monitor ad-hoc processes, if this is possible at all.
+			lines += 'if [[ -z "$SSH_CLIENT" ]]; then'
 			lines += '\t/home/kiosk/KioskForge/KioskStart.py'
-			lines += 'done'
+			lines += 'fi'
 			lines += ''
 			lines += '# An SSH session, simply set up the environment, incl. the kiosklog() function, and let the user inside.'
 			lines += '. ~/.bashrc'
