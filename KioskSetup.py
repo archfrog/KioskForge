@@ -342,11 +342,6 @@ class KioskSetup(KioskDriver):
 			script += InstallPackagesAction("... Installing tools to disable Wi-Fi power-saving mode.", ["iw", "net-tools"])
 			script += CustomAction("... Disabling Wi-Fi power-saving mode.", lambda: wifi_boost(True))
 
-		if kiosk.visible.data:
-			# Install InfoZip unzip as we need this in the KioskUpgrade.py script, which is run before the kiosk itself starts.
-			# NOTE: The 'visible' option is not currently used for anything as I never finished up the upgrade tool.
-			script += InstallPackagesAction("Installing Unzip required by the KioskForge upgrader.", ["unzip"])
-
 		# Install PipeWire audio system only if explicitly enabled.
 		if kiosk.sound_card.data != "none":
 			# NOTE: Uncommenting '#hdmi_drive=2' in 'config.txt' MAY be necessary in some cases, albeit it works without for me.
@@ -677,13 +672,17 @@ class KioskSetup(KioskDriver):
 			# Append lines to '~kiosk/.bash_login' to execute the startup script (which handles redundant requests, etc.).
 			lines  = TextBuilder()
 			lines += '#!/usr/bin/bash'
+			lines += ''
+			lines += "# Make sure Python doesn't litter everything and wear the storage medium by writing bytecode everywhere."
+			lines += 'export PYTHONDONTWRITEBYTECODE=1'
+			lines += ''
 			# NOTE: Don't use 'set -e', it logs out whenever an error occurs in the logged in SSH session...
 			# NOTE: Don't logout as 'systemd' will respawn the login process right away, causing havoc as it restarts X11, etc.
 			# NOTE: Not logging out leads to a "zombie" shell session, but it dies very soon when 'KioskUpdate.py' reboots.
-			lines += '# Start the kiosk once only - otherwise it will restart when the KioskUpdate.py runs.'
+			lines += '# Start the KioskUpgrade.py script, which upgrades KioskForge and then invokes KioskStart.py.'
 			# TODO: Figure out how to use systemd to launch and monitor ad-hoc processes, if this is possible at all.
 			lines += 'if [[ -z "$SSH_CLIENT" ]]; then'
-			lines += '\t/home/kiosk/KioskForge/KioskStart.py'
+			lines += '\t/home/kiosk/KioskForge/KioskUpgrade.py'
 			lines += 'fi'
 			lines += ''
 			lines += '# An SSH session, simply set up the environment, incl. the kiosklog() function, and let the user inside.'
