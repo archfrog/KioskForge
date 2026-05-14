@@ -456,11 +456,11 @@ class KioskSetup(KioskDriver):
 				)
 				del orientation
 		elif kiosk.type.data in ["x11", "web"]:
-			script += CustomAction("Installing X11 with OpenBox window manager:", lambda: None)
+			script += CustomAction("Installing X11 with Openbox window manager:", lambda: None)
 
-			# Install X Windows server and the OpenBox window manager.
+			# Install X Windows server and the Openbox window manager.
 			script += InstallPackagesNoRecommendsAction(
-				"... Installing X Windows and OpenBox window manager.",
+				"... Installing X Windows and Openbox window manager.",
 				["xserver-xorg", "x11-xserver-utils", "xinit", "openbox", "xdg-utils"]
 			)
 
@@ -516,7 +516,7 @@ class KioskSetup(KioskDriver):
 				)
 				del lines
 
-			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskOpenbox.py).
+			# Create X11 configuration file to rotate the TOUCH panel, not the display itself (see KioskDesktop.py).
 			# NOTE: This file is always created, when the screen is rotated, but has no effect on non-touch displays.
 			# NOTE: I'd love to create this file in 'KioskStart.py', but it runs as the created user, not as root.
 			if kiosk.screen_rotation.data != "none":
@@ -539,14 +539,14 @@ class KioskSetup(KioskDriver):
 				)
 				del lines
 
-			# Create fresh OpenBox autostart script (overwrite the existing autostart script, if any).
-			# NOTE: OpenBox does not seem to honor the shebang (#!) as OpenBox always uses the 'dash' shell.
+			# Create fresh Openbox autostart script (overwrite the existing autostart script, if any).
+			# NOTE: Openbox does honor the shebang (#!) as Openbox always uses the 'dash' shell.
 			# NOTE: For this reason, we start the Python script indirectly through an-hoc Dash script.
 			lines  = TextBuilder()
 			lines += "#!/usr/bin/dash"
-			lines += "/home/kiosk/KioskForge/KioskOpenbox.py"
+			lines += "/home/kiosk/KioskForge/KioskDesktop.py"
 			script += CreateTextWithUserAndModeAction(
-				"... Creating OpenBox startup script.",
+				"... Creating Openbox startup script.",
 				"/home/kiosk/.config/openbox/autostart",
 				"kiosk",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,

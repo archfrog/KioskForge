@@ -116,15 +116,15 @@ class KioskUpdate(KioskDriver):
 		if internet_active():
 			# Don't execute the code below if this script was invoked from the 'KioskSetup.py' script (to increase code sharing).
 			if not initial:
-				# Stop Openbox and any child processes using a signal, which is watched for by 'KioskOpenbox.py'.
-				signal = Signal("KioskOpenbox-shutdown", "kiosk")
+				# Stop the desktop environment, and any child processes, using a signal, which is watched for by 'KioskDesktop.py'.
+				signal = Signal("KioskDesktop-shutdown", "kiosk")
 				signal.create()
-				logger.write("Signaled KioskOpenbox.py to shut down and exit.")
+				logger.write("Signaled KioskDesktop.py to shut down and exit.")
 
-				# Wait for KioskOpenbox.py to shut down, which means waiting until the signal has been removed.
+				# Wait for KioskDesktop.py to shut down, which means waiting until the signal has been removed.
 				while signal.exists:
 					time.sleep(1)
-				logger.write("KioskOpenbox.py has shut down and exited.")
+				logger.write("KioskDesktop.py has shut down and exited.")
 				del signal
 
 				# NOTE: We don't start Chromium using 'snap run chromium', so don't use 'snap stop chromium'.
