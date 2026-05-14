@@ -37,7 +37,7 @@ import time
 
 from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
 from kiosklib.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
-from kiosklib.actions import RemoveFolderAction, ReplaceTextAction, UnzipAction
+from kiosklib.actions import RemoveFolderAction, ReplaceTextAction, UnpackZipAction
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
@@ -326,7 +326,7 @@ class KioskSetup(KioskDriver):
 			del basename
 
 			# Create target folder, change owner to 'kiosk', and unpack all user files in it.
-			script += UnzipAction("Unpacking user files to user folder.", "kiosk", user_source, user_target)
+			script += UnpackZipAction("Unpacking user files to user folder.", "kiosk", user_source, user_target)
 			del user_source
 
 			# Set the execute bit on all files in the user folder to allow starting the user application.

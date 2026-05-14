@@ -276,8 +276,8 @@ class ReplaceTextAction(InternalAction):
 
 		return result
 
-class UnzipAction(InternalAction):
-	"""Unzip the source archive to the target folder."""
+class UnpackZipAction(InternalAction):
+	"""Unzips the source archive to the target folder, making the target folder if it does not exist."""
 
 	def __init__(self, title : str, owner : str, source_file : str, target_folder : str):
 		InternalAction.__init__(self, title)
