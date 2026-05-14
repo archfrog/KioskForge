@@ -59,7 +59,7 @@ class InternalAction(Action):
 	"""An internal action is derived from this class and is a single Python instance that is executed by a script."""
 
 	def __init__(self, title : str) -> None:
-		Action.__init__(self, title)
+		super().__init__(self, title)
 
 	@abc.abstractmethod
 	def execute(self) -> Result:
@@ -86,7 +86,7 @@ class DeleteFileAction(InternalAction):
 	"""Deletes an external file and return a failure status if unsuccessful."""
 
 	def __init__(self, title : str, path : str) -> None:
-		InternalAction.__init__(self, title)
+		super().__init__(self, title)
 		self.__path = path
 
 	@property
@@ -106,7 +106,7 @@ class TryDeleteFileAction(DeleteFileAction):
 	"""Attempt to delete a file, but don't fail if it doesn't exist, hence the 'Try' prefix in the class name."""
 
 	def __init__(self, title : str, path : str) -> None:
-		DeleteFileAction.__init__(self, title, path)
+		super().__init__(self, title, path)
 
 	def execute(self) -> Result:
 		path = self.path
@@ -119,7 +119,7 @@ class RemoveFolderAction(InternalAction):
 	"""Removes the specified folder."""
 
 	def __init__(self, title : str, path : str) -> None:
-		InternalAction.__init__(self, title)
+		super().__init__(self, title)
 		self.__path = path
 
 	@property
@@ -139,7 +139,7 @@ class ModifyTextAction(InternalAction):
 	"""Modifies an existing file to contain the given 'text' string."""
 
 	def __init__(self, title : str, mode : str, path : str, text : str) -> None:
-		InternalAction.__init__(self, title)
+		super().__init__(self, title)
 		self.__path = path
 		self.__text = text
 		self.__mode = mode
@@ -163,7 +163,7 @@ class CreateTextAction(ModifyTextAction):
 	"""Creates a text file from a given string."""
 
 	def __init__(self, title : str, path : str, text : str) -> None:
-		ModifyTextAction.__init__(self, title, "wt", path, text)
+		super().__init__(self, title, "wt", path, text)
 
 	def execute(self) -> Result:
 		return ModifyTextAction.execute(self)
@@ -173,7 +173,7 @@ class CreateTextWithUserAndModeAction(CreateTextAction):
 	"""Creates a text file from a given string with the specified owner and access bits."""
 
 	def __init__(self, title : str, path : str, user : str, access : int, text : str) -> None:
-		CreateTextAction.__init__(self, title, path, text)
+		super().__init__(self, title, path, text)
 		self.__user = user
 		self.__access = access
 
@@ -205,14 +205,14 @@ class AppendTextAction(ModifyTextAction):
 	"""Appends a text string to a text file."""
 
 	def __init__(self, title : str, path : str, text : str) -> None:
-		ModifyTextAction.__init__(self, title, "at", path, text)
+		super().__init__(self, title, "at", path, text)
 
 
 class ReplaceTextAction(InternalAction):
 	"""Replaces a given string with another given string in an existing text file."""
 
 	def __init__(self, title : str, path : str, source_text : str, target_text : str) -> None:
-		InternalAction.__init__(self, title)
+		super().__init__(self, title)
 		self.__path = path
 		self.__source_text = source_text
 		self.__target_text = target_text
@@ -276,11 +276,12 @@ class ReplaceTextAction(InternalAction):
 
 		return result
 
+
 class UnpackZipAction(InternalAction):
 	"""Unpacks the source Zip archive to the target folder, making the target folder if it does not exist."""
 
 	def __init__(self, title : str, owner : str, source_file : str, target_folder : str):
-		InternalAction.__init__(self, title)
+		super().__init__(self, title)
 		self.__owner = owner
 		self.__source_file = source_file
 		self.__target_folder = target_folder
@@ -312,7 +313,7 @@ class ExternalAction(Action):
 	"""An action that represents an invokation of an external program or script."""
 
 	def __init__(self, title : str, line : str) -> None:
-		Action.__init__(self, title)
+		super().__init__(self, title)
 		self.__line = line
 
 	@property
@@ -327,7 +328,7 @@ class AptAction(ExternalAction):
 	"""Base class for 'apt' actions."""
 
 	def __init__(self, title : str, line : str) -> None:
-		ExternalAction.__init__(self, title, line)
+		super().__init__(self, title, line)
 
 	def execute(self) -> Result:
 		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' has been removed.
@@ -343,7 +344,7 @@ class InstallPackagesAction(AptAction):
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		names = ' '.join(packages)
-		AptAction.__init__(self, title, "apt-get install -y " + names)
+		super().__init__(self, title, "apt-get install -y " + names)
 
 
 class InstallPackagesNoRecommendsAction(AptAction):
@@ -351,14 +352,14 @@ class InstallPackagesNoRecommendsAction(AptAction):
 
 	def __init__(self, title : str, packages : List[str]) -> None:
 		names = ' '.join(packages)
-		AptAction.__init__(self, title, "apt-get install --no-install-recommends -y " + names)
+		super().__init__(self, title, "apt-get install --no-install-recommends -y " + names)
 
 
 class PurgePackagesAction(AptAction):
 	"""Apt action to purge all the specified packages from the system."""
 
 	def __init__(self, title : str, packages : List[str]) -> None:
-		AptAction.__init__(self, title, "apt-get autoremove --purge -y " + ' '.join(packages))
+		super().__init__(self, title, "apt-get autoremove --purge -y " + ' '.join(packages))
 
 
 class CreateTreeAction(ExternalAction):
@@ -367,4 +368,4 @@ class CreateTreeAction(ExternalAction):
 		correctly, whereas os.makedirs() and shutil.chown() doesn't get the ownership right on those.
 	"""
 	def __init__(self, title : str, path : str, mode : int, user : str, group : str = "")-> None:
-		ExternalAction.__init__(self, title, f"sudo -u {user} -g {group or user} mkdir -m={oct(mode)[2:].zfill(3)} -p {path}")
+		super().__init__(self, title, f"sudo -u {user} -g {group or user} mkdir -m={oct(mode)[2:].zfill(3)} -p {path}")
