@@ -1,10 +1,12 @@
 # KioskForge Changes
 This document presents the important changes made to each KioskForge release from v0.18 and onwards:
 
+## Planned Changes
+1. Support for Ubuntu Server 26.04.x.  This is probably a major task so I am postponing it a bit.
+2. Support for remote upgrades of KioskForge and/or the user application via SSH and/or SCP.
+
 ## Version 1.02 (2026.05.14)
-1. The `shell` user has been retired as it was tedious to log in as the `shell` user and then `su kiosk` to access the kiosk.  The
-   result is that KioskForge now only creates a single user on the kiosk: `kiosk`.  As a result, you **must** log in as `kiosk`.
-   Please notice that login via SSH is the only viable option as the kiosk itself typically runs X11 without a login manager.
+1. The `shell` user has been retired as it was tedious to log in as the user `shell` and then `su kiosk` to access the kiosk.
 2. Added support for the Pi 5 H.265 GPU hardware decoder.  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
    video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent) and frames were
    skipped.  This works with the `mpv` video player by adding the options: `--vo=gpu`, `--hwdec=v4l2m2m`, and. optionally,
@@ -14,8 +16,7 @@ This document presents the important changes made to each KioskForge release fro
 5. Non-ASCII characters (foreign symbols) are now handled correctly when they appear in user file names added with `user_folder`.
 6. The ownership and privileges of cron job files was corrected so that they're owned by root.
 7. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
-8. The InfoZip UnZip tool is now only installed if the unfinished `visible` option is enabled (please keep it disabled for now).
-9. Updated all Python packages to their most recent versions.
+8. Updated all Python packages to their most recent versions.
 
 ## Version 1.01 (2026.05.07)
 1. Added support for the `x11` kiosk type (`type=x11`) so that the kiosk `command` option launches a pure X11 application.
