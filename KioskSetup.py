@@ -317,6 +317,22 @@ class KioskSetup(KioskDriver):
 				kiosk.ssh_key.data + "\n"
 			)
 
+		# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
+		# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
+		if kiosk.user_folder.data:
+			basename = os.path.basename(os.path.abspath(kiosk.user_folder.data))
+			user_source = '/boot/firmware/' + basename + ".zip"
+			user_target = '/home/kiosk/' + basename
+			del basename
+
+			# Create target folder, change owner to 'kiosk', and unpack all user files in it.
+			script += UnzipAction("Unpacking user files to user folder.", "kiosk", user_source, user_target)
+			del user_source
+
+			# Set the execute bit on all files in the user folder to allow starting the user application.
+			script += ExternalAction("Setting execute bit on all user files.", f"chmod -R u+x '{user_target}'")
+			del user_target
+
 		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
 			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
 			# NOTE: I initially did this via a @reboot cron job, but it didn't work as cron was run too early.
@@ -817,14 +833,32 @@ class KioskSetup(KioskDriver):
 			#script += AppendTextAction("... Moving /var/log to a RAM disk.", "/etc/fstab", lines.text)
 			#del lines
 
-		# Create cron job to compact logs, update, upgrade, clean, and reboot the system every day at a given time.
-		if kiosk.upgrade_time.data != "":
+		# Create cron job to compact system logs so these are compacted daily at reboot and at 05:00.
+		# NOTE: The reboot ensures the journals are vacuumed if the kiosk is rebooted on a daily basis, the time of 05:00 ensures
+		# NOTE: the journals are vacuumed even if the kiosk is never updated and therefore perhaps never rebooted.
+		lines  = TextBuilder()
+		lines += "# Cron jobs to compact system logs using journalctl."
+		lines += f"@reboot\t\troot\t/usr/bin/journalctl --vacuum-size={kiosk.vacuum_size.data}M"
+		lines += f"00 05 * * *\troot\t/usr/bin/journalctl --vacuum-size={kiosk.vacuum_size.data}M"
+		script += CreateTextWithUserAndModeAction(
+			"Creating cron job to vacuum system logs at reboot and every night at 05:00.",
+			"/etc/cron.d/kiosk-vacuum-logs",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
+			lines.text
+		)
+		del lines
+
+		# Create cron job to purge, update, upgrade, clean, and reboot/shutdown the system every day at the given time.
+		if kiosk.upgrade_time.data:
 			lines  = TextBuilder()
 			lines += "# Cron job to upgrade, clean, and reboot the system every day."
 			lines += f"{kiosk.upgrade_time.data[3:5]} {kiosk.upgrade_time.data[0:2]} * * *\troot\t/home/kiosk/KioskForge/KioskUpdate.py"
-			script += CreateTextAction(
+			script += CreateTextWithUserAndModeAction(
 				"Creating cron job to upgrade system once a day at the configured time.",
 				"/etc/cron.d/kiosk-upgrade-system",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 				lines.text
 			)
 			del lines
@@ -840,22 +874,6 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-
-		# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
-		# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
-		if kiosk.user_folder.data:
-			basename = os.path.basename(os.path.abspath(kiosk.user_folder.data))
-			user_source = '/boot/firmware/' + basename + ".zip"
-			user_target = '/home/kiosk/' + basename
-			del basename
-
-			# Create target folder, change owner to 'kiosk', and unpack all user files in it.
-			script += UnzipAction("Unpacking user files to user folder.", "kiosk", user_source, user_target)
-			del user_source
-
-			# Set the execute bit on all files in the user folder to allow starting the user application.
-			script += ExternalAction("Setting execute bit on all user files.", f"chmod -R u+x '{user_target}'")
-			del user_target
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(

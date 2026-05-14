@@ -112,23 +112,19 @@ class KioskUpdate(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Vacuum system logs every time we maintain the system if a maximum log size has been specified.
-		if kiosk.vacuum_size.data != 0:
-			invoke_text_safe(f"/usr/bin/journalctl --vacuum-size={kiosk.vacuum_size.data}M")
-
 		# Not all kiosks are online so we need to handle the case that there's no internet gracefully.
 		if internet_active():
 			# Don't execute the code below if this script was invoked from the 'KioskSetup.py' script (to increase code sharing).
 			if not initial:
-				# Stop Chromium and automatic respawns of it by creating a signal, which is watched for by 'KioskOpenbox.py'.
-				signal = Signal("KioskOpenbox-shutdown-Chromium", "kiosk")
+				# Stop Openbox and any child processes using a signal, which is watched for by 'KioskOpenbox.py'.
+				signal = Signal("KioskOpenbox-shutdown", "kiosk")
 				signal.create()
-				logger.write("Signaled KioskOpenbox.py to shut down Chromium and then exit.")
+				logger.write("Signaled KioskOpenbox.py to shut down and exit.")
 
 				# Wait for KioskOpenbox.py to shut down, which means waiting until the signal has been removed.
 				while signal.exists:
 					time.sleep(1)
-				logger.write("KioskOpenbox.py has shut down Chromium and exited.")
+				logger.write("KioskOpenbox.py has shut down and exited.")
 				del signal
 
 				# NOTE: We don't start Chromium using 'snap run chromium', so don't use 'snap stop chromium'.
@@ -191,9 +187,9 @@ class KioskUpdate(KioskDriver):
 			del result
 
 			if not failed:
-				logger.write("Successfully vacuumed, purged, updated, upgraded, and cleaned all packages and all snaps.")
+				logger.write("Successfully purged, updated, upgraded, and cleaned all packages and all snaps.")
 			else:
-				logger.write("Unable to purge, vacuum, update, upgrade, and clean system.")
+				logger.write("Unable to purge, update, upgrade, and clean system.")
 
 		logger.write("Kiosk updater stopping.")
 

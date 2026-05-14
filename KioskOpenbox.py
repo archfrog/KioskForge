@@ -52,7 +52,7 @@ KIOSKFORGE_TO_XRANDR_ROTATIONS = {
 class KioskOpenbox(KioskDriver):
 	"""Defines the KioskOpenbox class, which starts Chromium, monitors it, and restarts it if necessary.
 
-	   The script can be shut down gracefully by creating the Signal 'KioskOpenbox-shutdown-Chromium' as seen below.
+	   The script can be shut down gracefully by creating the signal 'KioskOpenbox-shutdown' as demonstrated below.
 	"""
 
 	def __init__(self) -> None:
@@ -104,7 +104,7 @@ class KioskOpenbox(KioskDriver):
 
 		# Only launch Chromium if a 'web' type kiosk: the 'x11' type uses a custom application supplied by the user.
 		if kiosk.type.data == "web":
-			signal = Signal("KioskOpenbox-shutdown-Chromium", "kiosk")
+			signal = Signal("KioskOpenbox-shutdown", "kiosk")
 			try:
 				# Build the Chromium command line with a horde of options (I don't know which ones work and which don't...).
 				# NOTE: Chromium does not complain about any of the options listed below!
