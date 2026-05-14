@@ -33,9 +33,19 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.05.14.03.54 H Overload the `Setup.check` method in `Kiosk` and make it check all the border cases such as `sound`
+                         cannot be `jack` when the target is a Pi 5.  And so on.  Disallow slashes and dots in `user_folder`.
+- [ ] 2026.05.14.02.59 H Add `mouse=auto` option so that mouse is enabled only if there is no touchscreen (probably impossible).
 - [ ] 2026.05.12.05.28 H Move the `KioskForge.kiosk` file to `/home/kiosk` so as to simplify manual upgrades a bit and also to
-                         ensure that the `user_folder` and `user_fonts` settings work relatively to the `KioskForge.kiosk` file.
-- [ ] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relatively to the `.kiosk` file.
+                         ensure that the `user_folder` and `user_fonts` settings work relative to the `KioskForge.kiosk` file.
+- [ ] 2026.05.14.01.02 H Make a KioskForge bootloader that deletes, unzips, and launches KioskForge at boot.  This way, the user
+                         can quickly upgrade a kiosk simply by uploading a Zip archive such as `KioskForge-1.03.zip` and reboot.
+						 The source archive **must** be deleted so that the bootloader doesn't load up an old version.  Alternatively,
+						 the bootloader should unpack into `KioskForge-1.03` and then force-make a soft link from it to `KioskForge`.
+						 The idea being that it should be easy to roll back to an earlier version if a new release is buggy.
+- [ ] 2026.05.14.01.01 H Use "zip method" for the KioskForge files too as their file dates are ruined by the installation medium.
+- [ ] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relative to the `.kiosk` file.
+- [ ] 2026.05.14.01.24 H Ensure the current working directory is `~` when the kiosk is launched.
 - [ ] 2026.05.10.09.55 H Rewrite this badly engineered [censored] to use plugins for each operation.  Also, `KioskSetup.py` should
                          not directly include logic for setting up the kiosk as it should use the defined plugins instead.
 - [ ] 2026.04.21.19.19 H Reorganize the settings, there are quite a few of them now, so all things related to, say, network starts
@@ -203,6 +213,17 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.14.00.57 L Fix the problem that physical logins are not currently possible because of the `.bash_login` script.
+                         These are not possible, anyway, because the kiosk is running X11 or Wayland.  No way to log in.  The user
+						 should be instructed, in the documentation, to always use SSH and nothing but SSH.  Perhaps find a GUI SSH
+						 client to recommend.
+- [x] 2026.05.14.04.07 H Rewrite `KioskDesktop.py` to handle both `web` and `x11` kiosks so that the app is restarted on crashes.
+- [x] 2026.05.14.03.14 H Rename `KioskOpenbox.py` to `KioskDesktop.py` as it handles both `web` and `x11` kiosks.
+- [x] 2026.05.14.01.28 H Rune wants KF to support kiosks that are never automatically upgraded.  This to ensure stability.  This
+                         requires that `journalctl --vacuum...` is invoked from a cron job instead of from `KioskUpdate.py`,
+						 otherwise the system medium will eventually become full of logs.
+- [x] 2026.05.14.00.24 H Fix the problem that `ssh` login launches `KioskStart.py` and does not read `.bashrc`.  Apparently, `ssh`
+                         sessions can be detected by looking at the presence of the `SSH_CLIENT` environment variable.
 - [x] 2026.05.10.13.14 H CloudInit does not copy Danish characters correctly even when using `cp -pR`.  Report or fix this.
                          Why is CloudInit handling this at all?  Let `KioskSetup.py` do this.
 - [x] 2026.05.10.12.27 H Drop the *idiotic* `shell` user as is complicates SSH sessions a lot and doesn't buy us anything at all.
@@ -579,4 +600,3 @@ snap connect chromium:wayland
                          not happy about the prospect of the user accidentally deleting a drive with valuable data, so this is dropped.
                          Furthermore, it will require the installation of two additional packages for Python, something I doubt the
                          average KioskForge user will be capable of.
-
