@@ -303,6 +303,9 @@ class CreateZipAction(InternalAction):
 					# Add the file to the archive, which puts the archive into UTF-8 mode if non-ASCII (CP437) chars are detected.
 					archive.write(file, name)
 
+			# Change owner to user:user.
+			shutil.chown(self._target_file, user=self._owner, group=self._owner)
+
 			# Signal success to the client.
 			result = Result()
 		except OSError as that:
@@ -318,22 +321,22 @@ class UnpackZipAction(InternalAction):
 
 	def __init__(self, title : str, owner : str, source_file : str, target_folder : str):
 		super().__init__(title)
-		self.__owner = owner
-		self.__source_file = source_file
-		self.__target_folder = target_folder
+		self._owner = owner
+		self._source_file = source_file
+		self._target_folder = target_folder
 
 
 	def execute(self) -> Result:
 		try:
 			# Create the target directory.
-			os.makedirs(self.__target_folder, 0o700, exist_ok=True)
+			os.makedirs(self._target_folder, 0o700, exist_ok=True)
 
 			# Change owner to user:user.
-			shutil.chown(self.__target_folder, user=self.__owner, group=self.__owner)
+			shutil.chown(self._target_folder, user=self._owner, group=self._owner)
 
 			# Unzip all files in the archive in the target folder.
-			with zipfile.ZipFile(self.__source_file, "r") as archive:
-				archive.extractall(path=self.__target_folder)
+			with zipfile.ZipFile(self._source_file, "r") as archive:
+				archive.extractall(path=self._target_folder)
 
 			# Signal success to the client.
 			result = Result()
