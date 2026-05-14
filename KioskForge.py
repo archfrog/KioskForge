@@ -604,7 +604,7 @@ class KioskForge(KioskDriver):
 		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
 		for name in SOURCES + ["docs"]:
 			if os.path.isfile(origin + os.sep + name):
-				shutil.copyfile(origin + os.sep + name, output + os.sep + name)
+				shutil.copy2(origin + os.sep + name, output + os.sep + name)
 			elif os.path.isdir(origin + os.sep + name):
 				shutil.copytree(origin + os.sep + name, output + os.sep + name)
 			else:
