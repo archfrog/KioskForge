@@ -61,8 +61,9 @@ two types are used for custom solutions that do not necessarily require a
 web browser, such as a Pi kiosk that detects motion and then plays a sound.
 
 Examples:
-    command=https://youtube.com                   (for a 'web' type kiosk)
-    command=file:///home/kiosk/Website/script.sh  (for a 'cli' type kiosk)
+    command=https://youtube.com                    (an online web kiosk)
+    command=file:///home/kiosk/Website/index.html  (a static web kiosk)
+    command=/home/kiosk/Application/Launcher.py    (a coded cli kiosk)
 """.strip()
 
 
