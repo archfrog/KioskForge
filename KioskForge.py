@@ -632,7 +632,7 @@ class KioskForge(KioskDriver):
 			# NOTE: This is only necessary if foreign characters (not 7-bit ASCII characters) are present, but we do it always.
 			files = glob.glob(source + os.sep + "**" + os.sep + "*", recursive=True)
 			if not files:
-				raise KioskError("User folder (user_folder) does not match any folders")
+				raise KioskError("User folder (user_folder) is empty")
 			with zipfile.ZipFile(zipname, "w", zipfile.ZIP_STORED) as archive:
 				for file in files:
 					# Ignore hidden files.
