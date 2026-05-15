@@ -38,14 +38,14 @@ from kiosklib.version import Version
 CHROMIUM_AUTOPLAY_HELP = """
 Whether or not Chromium should autoplay videos without user interaction.
 
-This option is meant primarly for simple VideoLooper-style kiosks (VL does
-not yet support the Raspberry Pi 5) where a video needs to be played as
-soon as Chromium opens the web site with the video on it, without waiting
-for user interaction such as clicking the 'Play' button.
+This option is meant primarily for simple VideoLooper-style kiosks (VL does
+not yet support the Raspberry Pi 5), where a video needs to be played as
+soon as Chromium opens the website with the video on it, without waiting
+for user interaction, such as clicking the 'Play' button.
 
 Examples:
-    chromium_autoplay=true   (To make videos play upon load)
-    chromium_autoplay=false  (To make videos play when started by user)
+    chromium_autoplay=true   (Videos play upon page load.)
+    chromium_autoplay=false  (Videos play when started by the user.)
 """.strip()
 
 
@@ -63,7 +63,7 @@ web browser, such as a Pi kiosk that detects motion and then plays a sound.
 Examples:
     command=https://youtube.com                    (an online web kiosk)
     command=file:///home/kiosk/Website/index.html  (a static web kiosk)
-    command=Application/Launcher.py                (a coded cli kiosk)
+    command=Application/Launcher.py                (a coded CLI kiosk)
 """.strip()
 
 
@@ -81,9 +81,9 @@ Examples:
 
 
 CPU_BOOST_HELP = """
-If the CPU should be overclocked.
+Whether or not the CPU should be overclocked.
 
-This field currently only works with Raspberry Pi 4B targets.
+This field currently supports only Raspberry Pi 4B targets.
 
 Enabling the field will increase the processing speed (CPU clock rate) of
 the target kiosk by 20 percent from 1.5 gigahertz to 1.8 gigahertz.  This
@@ -91,8 +91,8 @@ translates to extra performance at the cost of a significantly hotter
 CPU.  If processor speed matters, and cooling is good or heat is not a
 significant issue, then you should enable this setting.
 
-This setting is most useful with 'web' type kiosks as these need lots of
-power to process complex websites and display these.
+This setting is most useful with 'web' type kiosks, as these need lots of
+power to process complex websites and display them.
 
 Examples:
     cpu_boost=true   (to enable overclocking)
@@ -101,12 +101,12 @@ Examples:
 
 
 DEVICE_HELP = """
-Specifies the hardware type of the kiosk.  Valid values are:
+Specifies the kiosk's hardware type.  Valid values are:
 
     pi4b: Raspberry Pi 4B with at least 2 GB RAM.
     pi5 : Raspberry Pi 5 with at least 2 GB RAM.
 
-This setting affects the 'sound_card' and 'cpu_boost' field as follows:
+This setting affects the 'sound_card' and 'cpu_boost' fields as follows:
 
 1. 'sound_card' depends entirely on the target device type.  See the
    'sound_card' field for more information.
@@ -119,17 +119,17 @@ Examples:
 
 
 HOSTNAME_HELP = """
-The unqualified host name, which may consists of US English letters, digits,
+The unqualified host name, which may consist of US English letters, digits,
 and dashes (-).  It must be 1 to 63 characters long.
 
-Most commonly, you don't need to worry about the kiosk host name at all.
+Most of the time, you don't need to worry about the kiosk's hostname at all.
 
 If this field is left empty, the forge process will automatically create a
 host name of the form "kioskN", where N is a number in the range 0 through
 99,999.
 
 IMPORTANT:
-You should never have two machines with the same host name on a local area
+You should never have two machines with the same hostname on a local area
 network (LAN).  This may cause issues with Windows and other systems.
 
 Examples:
@@ -171,8 +171,8 @@ Examples:
 LOCALE_HELP = """
 The locale to use on the kiosk machine.
 
-The locale affects the display of dates, currencies, the default sorting
-order, etc.
+The locale affects the display of dates, currencies, and the default
+sorting order, etc.
 
 You should pick the most narrow match, say "fr_CA" over "fr" if you're a
 Canadian living in a region of Canada where French is the main language.
@@ -207,8 +207,8 @@ Examples:
 POWEROFF_TIME_HELP = """
 The time of day to power off the system (24-hour clock only).
 
-An empty string disables this field, otherwise it must be a time string of
-the form HH:MM, which is the hour and minute of when the operation is done.
+Use an empty string to disable this field or a time string of the form HH:MM,
+which is the hour and minute of when the operation is done.
 
 This field is primarily intended for environments where there are no
 visitors to the kiosk during the night.  In such cases, the kiosk needs to be
@@ -219,19 +219,19 @@ Most computers benefit from being shut down gracefully rather than abruptly
 by loss of power.
 
 You do not need to use this field if you set "upgrade_post" to "poweroff":
-in this case, you can safely ignore this field.
+In this case, you can safely ignore this field.
 
 The preferred way of shutting down a kiosk is through the "upgrade_post"
 field as it ensures the system is upgraded, if there is access to the
-internet from the kiosk, before it, gets powered down, something that the
+internet from the kiosk, before it gets powered down, something that the
 "poweroff_time" field does not.  The "poweroff_time" field works
 independently of the upgrade process, which can cause serious issues if
 the kiosk is shut down in the middle of an upgrade.
 
-The only reason this field currently exists is because some users need it.
+The only reason this field currently exists is that some users need it.
 
 IMPORTANT:
-Raspberry Pi 4Bs do not have a built-in real-time clock (RTC) so they need
+Raspberry Pi 4Bs do not have a built-in real-time clock (RTC), so they need
 network access to set the system time after they have rebooted, which again
 affects the scheduled processes as they cannot run at a known time if the
 kiosk's real-time clock is not set accurately.  The result is that RPI4Bs
@@ -244,7 +244,7 @@ Examples:
 
 
 SCREEN_ROTATION_HELP = """
-Specify rotation of screen and/or touch panel.
+Specify the rotation of the screen and/or the touch panel.
 
 The valid values are:
 
@@ -265,14 +265,15 @@ Examples:
 SOUND_CARD_HELP = """
 The sound card to use, if any.
 
-This available sound cards depends entirely on the target system:
+The available sound cards depend entirely on the target system:
 
     pi4b: none, jack, hdmi1, or hdmi2.
     pi5 : none, hdmi1, or hdmi2.
 
-If you don't need any audio in your kiosk, you should use the value 'none'.
+If you don't need any audio on your kiosk, use the value 'none'.
 
-Please notice that the jack stick on the Pi4B requires amplification.
+Please notice that the jack stick on the Pi4B requires amplification
+such as an external loudspeaker system.
 
 Examples:
     sound_card=none   (To disable sound altogether)
@@ -281,7 +282,7 @@ Examples:
 
 
 SOUND_LEVEL_HELP = """
-The logarithmic audio level ranging from 0 through 100.
+The logarithmic audio level ranges from 0 to 100.
 
 This value is only valid if 'sound_card' is different from 'none'.
 
@@ -301,18 +302,18 @@ Examples:
 SSH_KEY_HELP = """
 The public SSH key for accessing the kiosk using the 'ssh' command.
 
-If empty, SSH access is disabled and you'll need a monitor and a keyboard to
+If empty, SSH access is disabled, and you'll need a monitor and a keyboard to
 log into the kiosk machine.
 
 The key can be generated using the 'ssh-keygen' command, which is part of
-Linux but also available on numerous public websites that you can use to
+Linux, but also available on numerous public websites that you can use to
 generate an SSH key pair.  Just search for "ssh-keygen online".
 
 To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
 (CLI/non-GUI).
 
 IMPORTANT:
-If you lose your private key, you cannot access the kiosk using SSH anymore.
+If you lose your private key, you cannot access the kiosk via SSH anymore.
 
 Examples:
     ssh_key=             (To allow only physical logins)
@@ -324,13 +325,13 @@ SWAP_SIZE_HELP = """
 The size in gigabytes of the system swap file, if any.
 
 The value zero (0) disables the swap file altogether.  A typical size of the
-swap file is twice that of the size of system RAM.  However, a value of 4
-(gigabytes) should be sufficient for most kiosks.
+swap file is twice the size of system RAM.  However, a value of 4 gigabytes
+should be sufficient for most kiosks.
 
 You need to ensure that there is sufficient space on the installation medium
 (MicroSD card or USB key) to store the swap file itself.  As a rule of thumb,
 you can safely use 4 gigabytes on an installation medium that is 16 gigabytes
-or larger.  The Linux operating system itself uses less than 8 gigabytes but
+or larger.  The Linux operating system itself uses less than 8 gigabytes, but
 there must always be ample room for system logs, fetched upgrades, and so on.
 
 Examples:
@@ -367,12 +368,12 @@ The valid values are:
 
 1. web: A legacy kiosk that displays a given website on X11 using Chromium
    as the web browser.  X11 does not offer GPU acceleration on Pi5.
-2. x11: A custom, X11 app installed during forging of the kiosk.
-3. cli: A custom, console app installed during forging of the kiosk.
+2. x11: A custom X11 app installed during the forging of the kiosk.
+3. cli: A custom, console app installed during the forging of the kiosk.
 4. web-wayland: A modern kiosk that displays a website on Wayland using
-   Chromium as the web browser.  Wayland does offer GPU accelleration.
+   Chromium as the web browser.  Wayland does offer GPU acceleration.
 
-NOTE: The "web-wayland" type of kiosk is not yet finished: don't use it!
+NOTE: The "web-wayland" kiosk type is not yet complete: don't use it!
 
 The website URL or custom command is specified using the 'command' field.
 
@@ -397,15 +398,15 @@ There are two valid choices:
 1. reboot  : The kiosk will reboot back to kiosk mode after the upgrade.
 2. poweroff: The kiosk will shut down after the upgrade.
 
-Most users will want the kiosk to simply reboot but some users will want
+Most users will want the kiosk to simply reboot, but some users will want
 the kiosk to shut down during the night and to be started by a time switch.
 
-Please notice that the "poweroff" choice requires that the power is cycled
-so that the kiosk starts up again, this should happen when the kiosk is to
-start up again, and is typically implemented using a simple time switch.
+Please notice that the "poweroff" choice requires that the power be cycled
+so that the kiosk starts up again.  This should happen when the kiosk is
+to start up again, and is typically implemented using a simple time switch.
 
 If you set this field to "poweroff", you can safely disregard the
-"poweroff_time" field as there's no sense in powering off twice in a day.
+"poweroff_time" field, as there's no sense in powering off twice in a day.
 
 Examples:
     upgrade_post=reboot    (To reboot the kiosk after upgrading)
@@ -414,7 +415,7 @@ Examples:
 
 
 UPGRADE_TIME_HELP = """
-The time of day to upgrade the system (24 hour clock only).
+The time of day to upgrade the system (24-hour clock only).
 
 If empty, this field is disabled.  This is not recommended as virtually
 all kiosks should be rebooted at least once a day so as to reduce the
@@ -426,12 +427,12 @@ During the upgrade, the following things take place:
 2. If there is no network access, the system upgrade skips to step 7.
 3. Snaps are upgraded.
 4. Snap's excessive disk usage is reduced to the bare minimum.
-5. The apt repository is emptied so as to not take up disk space.
+5. The apt repository is emptied to take up disk space.
 6. Ubuntu's apt package manager packages are upgraded.
 7. The system is rebooted or powered off according to 'upgrade_post'.
 
-Please notice that the maintenance process gracefully handles lack of
-internet.  In that case, no upgrades will performed.
+Please notice that the maintenance process gracefully handles a lack of
+internet.  In that case, no upgrades will be performed.
 
 Examples:
     upgrade_time=        (To disable upgrades, very unsafe!)
@@ -440,20 +441,20 @@ Examples:
 
 
 USER_CODE_HELP = """
-The password for the the 'kiosk' user.
+The password for the 'kiosk' user.
 
 There is technically no maximum limit to the length of the password, but you
 should always use between 16 and 132 characters.
 
-This setting is of very little signficance if you provide an SSH public key
-using the 'ssh_key' field as this installs a key file on the kiosk so that
+This setting is of very little significance if you provide an SSH public key
+using the 'ssh_key' field, as this installs a key file on the kiosk so that
 you can log into the kiosk using SSH without entering a password.  However,
 the password will still be required to perform administrative commands on the
 kiosk.  For this reason, you should use an SSH public key and a fairly safe
 password.
 
-If you opt to not enable the secure SSH access method, you should provide a
-secure password of minimum 32 random characters so as to not allow hackers
+If you opt not to enable the secure SSH access method, you should provide a
+secure password of at least 32 random characters so as to not allow hackers
 into the kiosk.
 
 Examples:
@@ -469,12 +470,12 @@ If empty, nothing will be copied, otherwise the given folder is copied.
 A "user folder" is a custom folder that may contain various files needed by
 the kiosk, but which are not part of KioskForge.
 
-For instance, a 'web' type kiosk that browses local files only, need these
+For instance, a 'web' type kiosk that browses local files only needs these
 files to be copied from the host to the kiosk.  Similarly, 'cli' or 'x11'
 type kiosks also need the custom app to be copied to the kiosk.
 
 The last part of the path specified, which is relative to the main '.kiosk'
-file that contains the kiosk configuration, is used as the name of the folder
+file that contains the kiosk configuration is used as the name of the folder
 that's being created on the kiosk.
 
 For instance, if you set 'user_folder' to 'Website', then the local folder
@@ -486,9 +487,10 @@ If you are creating a 'web' type kiosk that browses a remote website, you
 normally don't need to specify a value for this setting.
 
 NOTE:
-1. The path in 'user_folder' cannot end in 'KioskForge' or variants thereof
+1. The path in 'user_folder' cannot end in 'KioskForge' or variants thereof,
    as this name is reserved for the KioskForge program and its files.
-2. The 'user_folder' path must be relative to folder with the kiosk file.
+2. The 'user_folder' path must be relative to the folder with the kiosk
+   file.
 
 Examples:
     user_folder=         (If no user-supplied files need to be copied over)
@@ -507,7 +509,8 @@ User-supplied fonts are typically only needed for GUI apps or when browsing
 a local website with one or more custom fonts.  Most users don't need this.
 
 NOTE:
-1. The 'user_fonts' path must be relative to folder with the kiosk file.
+1. The 'user_fonts' path must be relative to the folder with the kiosk
+   file.
 2. At present, the 'user_fonts' pattern must match files inside the
    'user_folder' folder.  Thus, 'user_folder' must be enabled too.
 
@@ -518,7 +521,7 @@ Examples:
 
 
 USER_PACKAGES_HELP = """
-A space-separated list of user packages to install when forging of the kiosk.
+A space-separated list of user packages to install when forging the kiosk.
 
 If empty, this feature is disabled.
 
@@ -537,7 +540,7 @@ The maximum size, in megabytes, of system log files.
 
 This value ranges from 0 (= unlimited) through 4096 (4 gigabytes).
 
-A good value that provides room for weeks of logging of a kiosk is 256.
+A good value for a kiosk that provides room for weeks of logging is 256.
 
 System logs are cleaned out as the first step of the mandatory daily
 maintenance controlled by the 'upgrade_time' field.
@@ -557,11 +560,13 @@ You should enable this option if you want to be able to discover and manage
 the kiosk in future versions of KioskForge that include a GUI tool for this.
 
 If you enable this option, a tiny broadcast server will be started at every
-boot so that KioskForge can send a broadcast signal to discover all kiosks.
+boot so that KioskForge can send a broadcast signal to discover all kiosks
+on your local area network (LAN).
 
 If you disable this option, the broadcast server will not be started at all.
 
-NOTE: You should use a dedicated LAN subnet to your kiosks when using this.
+If you enable this option, you can use the KioskDiscoveryClient.py script,
+included in the GitHub version of KioskForge, to find the kiosk on the LAN.
 
 Examples:
     visible=false  (Future versions of KioskForge cannot find the kiosk)
@@ -579,7 +584,7 @@ the 'zstd' compression algorithm, which is fairly fast and efficient.
 Furthermore, KioskForge will move /tmp to a RAM disk.
 
 The above changes reduce wear on the storage medium and also make the system
-more snappy and less laggy, this in particular for slow storage medias.
+more snappy and less laggy, this is particularly true for slow storage media.
 
 The recommended setting is enabled.  If you run into problems with this
 setting, you can always disable it.
@@ -608,16 +613,16 @@ Examples:
 
 
 WIFI_CODE_HELP = """
-The password to the Wi-Fi network, if any.
+The Wi-Fi network password, if any.
 
 A Wi-Fi WPK (password) may consist of 8 to 63 extended characters, but it is
 advisable to only use printable ASCII characters to be able to enter the
 password in various operating systems and/or tools.
 
-This setting is case sensitive so that "Pass" is different from "pass".
+This setting is case sensitive, so that "Pass" is different from "pass".
 
 If empty and the 'wifi_name' setting is non-empty, the Wi-Fi connection
-will be assumed to be public and open to everybody (without a password).
+will be assumed to be public and open to everyone (no password required).
 
 Examples:
     wifi_code=     (For an open Wi-Fi network without a password)
@@ -628,8 +633,8 @@ Examples:
 WIFI_COUNTRY_HELP = """
 The country code of the "regulatory domain" for the Wi-Fi card.
 
-The uppercase two-letter code of the country that the Wi-Fi card is being
-used in.  This is required to determine legal Wi-Fi frequencies, etc.
+The uppercase two-letter code of the country in which the Wi-Fi card is
+being used.  This is required to determine legal Wi-Fi frequencies, etc.
 
 Documentation of the valid values can be found at:
 
@@ -649,8 +654,8 @@ field is used to instruct them whether or not the desired Wi-Fi network
 is in fact hidden.
 
 The value 'false' indicates that the desired Wi-Fi network is standard,
-publicly visible network and the value 'true' indicates that it is a
-hidden network, which may slow down network scanning time a bit.
+publicly visible network, and the value 'true' indicates that it is a
+hidden network, which may slightly slow down network scanning time.
 
 Most users will want to use the default value of 'false' here.
 
@@ -663,14 +668,14 @@ Examples:
 WIFI_NAME_HELP = """
 The Wi-Fi network name (SSID).
 
-A Wi-Fi SSID (network name) may consists of 1 to 32 characters of any
+A Wi-Fi SSID (network name) may consist of 1 to 32 characters of any
 value.  In other words, you can use pretty much anything.  However, it is
 advisable to only use ASCII characters so as to make it practical to use
 the network name and also avoid breaking or confusing supporting tools.
 
-This setting is case sensitive so that "MyWiFi" is different from "mywifi".
+This setting is case-sensitive, so "MyWiFi" is different from "mywifi".
 
-If empty, Wi-Fi is disabled altogether and no Wi-Fi network is configured.
+If empty, Wi-Fi is disabled altogether, and no Wi-Fi network is configured.
 In this case, 'wifi_code', 'wifi_country', and 'wifi_hidden' are ignored.
 
 Examples:
@@ -685,7 +690,7 @@ class Kiosk(Fields):
 	def __init__(self, version : Version) -> None:
 		Fields.__init__(self, version)
 
-		# Build regex for comments, it is a bit complicated.
+		# Build a regex for comments; it is a bit complicated.
 		# ...Quote slash, it is not quoted in string.punctuation.
 		comment_regex = punctuation.replace("\\", "\\\\")
 		# ...Allow spaces.
