@@ -36,7 +36,7 @@ from kiosklib.logger import Logger
 from kiosklib.network import wifi_boost
 
 class KioskConfig(KioskDriver):
-	"""Defines the KioskConfig class, which is responsible for configuring the system as root (invoked from 'rc.local')."""
+	"""Defines the KioskConfig class, which configures the system as root (invoked by a systemd service)."""
 
 	def __init__(self) -> None:
 		KioskDriver.__init__(self)
