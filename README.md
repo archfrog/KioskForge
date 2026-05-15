@@ -13,19 +13,15 @@ KioskForge supports the following features:
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5.
 * Windows 11+ setup program.
 * International users (there are configuration settings for language, keyboard, and Wi-Fi region).
-* Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without an URL address bar).
+* Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without a URL address bar).
 * Creating a kiosk that runs a command-line (CLI) application programmed by the user.
-* Touch screen input insofar the particular touch screen is supported out of the box by the target operating system.
+* Touch screen input, insofar as the particular touch screen is supported out of the box by the target operating system.
 * Rotating normal and touch-panel displays (sometimes kiosk screens are mounted in a rotated fashion).
 * Ethernet and/or Wi-Fi networking.
-* Configuring basic Linux things such as host name, keyboard layout, locale, time zone, etc.
+* Configuring basic Linux things such as hostname, keyboard layout, locale, time zone, etc.
 
 ## Target Audience
-The level of IT expertise needed to use KioskForge, as an end-user, is about *intermediate*.  You don't have to know Linux or how
-to run programs on Linux, all you need to know is how to edit a well documented text file, make an installation medium, and invoke
-KioskForge to make its modifications of the installation medium.  After the forge process is over, something which takes 5 to 30
-minutes depending on the speed of the medium and the target Raspberry Pi (5 is much faster than 4B), you simply turn off the kiosk
-(using either SSH and the Linux `poweroff` command, or by simply unplugging the Pi) and deploy it where you need it deployed.
+The level of IT expertise needed to use KioskForge as an end user is about *intermediate*.  You don't have to know Linux or how to run programs on Linux; all you need to know is how to edit a well-documented text file, make an installation medium, and invoke KioskForge to make its modifications of the installation medium.  After the forge process is over, something which takes 5 to 30 minutes depending on the speed of the medium and the target Raspberry Pi (5 is much faster than 4B), you simply turn off the kiosk (using either SSH and the Linux `poweroff` command, or by simply unplugging the Pi) and deploy it where you need it deployed.
 
 The basic idea behind KioskForge is that it should be **easy**, **safe**, and **automatic** to deploy a new kiosk.
 
@@ -46,10 +42,9 @@ This procedure, which has only been tested on Windows 11, gets you going quickly
     should verify the information shown on the screen and then hit `Enter` to proceed. If you want to exit, hit `Ctrl-C`.
 12. Safely eject the installation medium.
 13. Insert the installation medium in your target Raspberry Pi and power it up.  The kiosk will start up after 5 to 30 minutes.
-14. Pull the power from the Raspberry Pi once your kiosk has started.  The Pi should now be ready to be deployed.
+14. Pull the power from the Raspberry Pi once your kiosk has started.  The Pi should now be ready for deployment.
 
-KioskForge should be usable from Linux if the mount point of the microSD card is given in the `KioskForge.py prepare /mnt/sd-card`
-command.  Just check out KioskForge, activate the virtual environment using `venv/Scripts/activate`, and you should be set.
+KioskForge should be usable on Linux if the microSD card's mount point is specified in the `KioskForge.py prepare /mnt/sd-card` command.  Just check out KioskForge from GitHub, activate the virtual environment with `venv/Scripts/activate`, and you should be set.
 
 ## Documentation
 Currently, the primary source of documentation for KioskForge is the documentation installed with the Windows installer as `.html`
