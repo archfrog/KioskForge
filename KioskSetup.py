@@ -149,8 +149,8 @@ class KioskSetup(KioskDriver):
 		# This script is launched by a systemd service, so we need to eradicate all traces of it (to avoid starting it again).
 		if resume == 1:
 			result = invoke_text("systemctl disable KioskSetup")
-			if os.path.isfile("/usr/lib/systemd/system/KioskSetup.service"):
-				os.unlink("/usr/lib/systemd/system/KioskSetup.service")
+			if os.path.isfile("/etc/systemd/system/KioskSetup.service"):
+				os.unlink("/etc/systemd/system/KioskSetup.service")
 			if result.status != 0:
 				raise KioskError("Unable to disable the KioskSetup service")
 
@@ -374,7 +374,7 @@ class KioskSetup(KioskDriver):
 			lines += "WantedBy=multi-user.target"
 			script += CreateTextWithUserAndModeAction(
 				"... Creating systemd service.",
-				"/usr/lib/systemd/system/kiosk-server.service",
+				"/etc/systemd/system/kiosk-server.service",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
 				lines.text
@@ -608,7 +608,7 @@ class KioskSetup(KioskDriver):
 			lines += "ExecStart=/usr/bin/systemctl --user start --wait user-session.target"
 			script += CreateTextWithUserAndModeAction(
 				"Creating global systemd script to allocate a session for the user.",
-				"/usr/lib/systemd/system/user-session.service",
+				"/etc/systemd/system/user-session.service",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
 				lines.text
@@ -731,7 +731,7 @@ class KioskSetup(KioskDriver):
 #			lines += "WantedBy=multi-user.target"
 #			script += CreateTextWithUserAndModeAction(
 #				"Creating systemd kiosk service.",
-#				"/usr/lib/systemd/system/kiosk.service",
+#				"/etc/systemd/system/kiosk.service",
 #				"root",
 #				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
 #				lines.text
@@ -913,8 +913,11 @@ class KioskSetup(KioskDriver):
 		lines += "[Unit]"
 		lines += "Description=KioskForge kiosk configuration"
 		lines += "Wants=network-online.target"
-		lines += "After=pipewire-pulse.service pipewire.service"
+		lines += "After=network-online.target"
+		lines += "After=pipewire.service"
+		lines += "After=pipewire-pulse.service"
 		lines += "Before=graphical.target"
+		lines += "ConditionPathExists=!/tmp/KioskForge-systemd-service.flag"
 		lines += ""
 		lines += "[Service]"
 		lines += "Type=oneshot"
@@ -923,17 +926,17 @@ class KioskSetup(KioskDriver):
 		# NOTE: I have spent hours on 'systemd' (the most crazily, insanely complex piece of software in the Linux world), but
 		# NOTE: I haven't been able to make 'KioskConfig.py' only run once as is the intention and purpose of it.
 		lines += "RemainAfterExit=yes"
-		lines += "ExecStart="
 		lines += "ExecStart=/home/kiosk/KioskForge/KioskConfig.py"
+		lines += "ExecStartPost=/usr/bin/touch /tmp/KioskForge-systemd-service.flag"
 		lines += ""
 		lines += "[Install]"
 		lines += "# Start KioskConfig.py as soon as the user logs in."
-		lines += "WantedBy=default.target"
+		lines += "WantedBy=graphical.target"
 		script += CreateTextWithUserAndModeAction(
 			"Configuring systemd to run KioskConfig.py on every boot.",
-			"/usr/lib/systemd/system/KioskConfig.service",
+			"/etc/systemd/system/KioskConfig.service",
 			"root",
-			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			lines.text
 		)
 		del lines

@@ -369,9 +369,9 @@ class CloudinitConfigurator(Configurator):
 			stream.dedent()
 			stream.write()
 
-			# Write commands to write a custom /usr/lib/systemd/system/KioskSetup.service file (it is enabled further below).
+			# Write commands to write a custom /etc/systemd/system/KioskSetup.service file (it is enabled further below).
 			stream.write("write_files:")
-			stream.write("- path: /usr/lib/systemd/system/KioskSetup.service")
+			stream.write("- path: /etc/systemd/system/KioskSetup.service")
 			stream.indent()
 			stream.write("content: |")
 			stream.indent()
