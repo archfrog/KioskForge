@@ -1,14 +1,12 @@
 # KioskForge Guide
-This document presents a number of supported scenarios for how to use KioskForge.  Actual samples are work in progress.
+This document presents several supported scenarios for using KioskForge.  Actual samples are a work in progress.
 
 ## Displaying a Remote Website
-This is the simplest case, the one that KioskForge was originally made for.  With this scenario, you'll get a finished kiosk ready
-to deploy using a Raspberry Pi 4B or 5 with at least 2 gigabytes of RAM and your choice of storage medium.
+This is the simplest case, the one that KioskForge was originally made for.  With this scenario, you'll get a finished kiosk ready to deploy using a Raspberry Pi 4B or 5 with at least 2 gigabytes of RAM and your choice of storage medium.
 
 **Hint:** The website to be displayed should support the default resolution that your (touch) screen supports.
 
-Please read the [Manual](Manual.html) for instructions on how to install KioskForge, Python and Raspberry Pi Imager, and how to use
-KioskForge together with these tools.  Expect to redeploy a few times until all settings are at their correct values.
+Please read the [Manual](Manual.html) for instructions on installing KioskForge, Python, and Raspberry Pi Imager, and on using KioskForge with these tools.  Expect to redeploy a few times until all settings are at their correct values.
 
 When you want to display a remote website using your new kiosk, you have to focus primarily on these options:
 
@@ -27,36 +25,33 @@ When you want to display a remote website using your new kiosk, you have to focu
 
 [^1]: Rude customers may sabotage the kiosk (young people often do this); the restart of the browser resets such sabotage.
 
-**NOTE**: The current method of reloading the starting page, by terminating the web browser gracefully and restarting it, is far
-from optimal, a better solution may come up some day, but until then, this is, unfortunately, all that KioskForge offers.
+**NOTE**: The current method of reloading the starting page by gracefully terminating and restarting the web browser is far from optimal. A better solution may come up someday.
 
 You still need to supply values for all the other options that are described in the kiosk file (`*.kiosk`).
 
 ## Displaying a Local Website
 This case is very useful for displaying a static, local website without network access (except, perhaps, for upgrading the kiosk).
 
-An example of this is a website that displays a set of images with titles, one at a time, and then after a certain interval moves
-on to the next image.  Once the end is reached, the display begins at the first image again.
+An example of this is a website that displays a set of images with titles, one at a time, and then, after a certain interval, moves on to the next image.  Once the end is reached, the display restarts from the first image.
 
 **Hint:** The website to be displayed should support the default resolution that your (touch) screen supports.
 
-**Hint:** You may want to resize large images to a smaller size such as Full HD (1920x1080) to not overload the Pi.
+**Hint:** You may want to resize large images to a smaller size, such as Full HD (1920x1080), to not overload the Pi.
 
-Please read the [Manual](Manual.html) for instructions on how to install KioskForge, Python and Raspberry Pi Imager, and how to use
-KioskForge together with these tools.  Expect to redeploy a few times until all settings are at their correct values.
+Please read the [Manual](Manual.html) for instructions on installing KioskForge, Python, and Raspberry Pi Imager, and on using KioskForge with these tools.  Expect to redeploy a few times until all settings are correct.
 
 When you want to display a local website using your new kiosk, you especially have to be aware of these options:
 
-| Name             | Option name       | Comment                                                                                  |
-| ---------------- | ----------------- | ---------------------------------------------------------------------------------------- |
-| Comment          | `comment`         | A description of the kiosk and its purpose (for your records).                           |
-| Device type      | `device`          | The device model: `pi4b` or `pi5`.                                                       |
-| Sound card       | `sound_card`      | This should be set to `none` as pictures don't include sound.                            |
-| Mouse cursor     | `mouse`           | This should be disabled (`false`) to hide the mouse cursor.                              |
-| Idle timeout     | `idle_timeout`    | This should be set to zero as the user will not be able to navigate away from your site. |
-| User folder      | `user_folder`     | Set to the location, on the host machine, of the folder with the website.                |
-| CPU overclocking | `cpu_boost`       | This could well be disabled (`false`) as displaying images doesn't require too much CPU. |
-| Wi-Fi boost      | `wifi_boost`      | This should probably be disabled (`false`) as local websites require no LAN access.      |
+| Name             | Option name       | Comment                                                                                   |
+| ---------------- | ----------------- | ----------------------------------------------------------------------------------------- |
+| Comment          | `comment`         | A description of the kiosk and its purpose (for your records).                            |
+| Device type      | `device`          | The device model: `pi4b` or `pi5`.                                                        |
+| Sound card       | `sound_card`      | This should be set to `none` as pictures don't include sound.                             |
+| Mouse cursor     | `mouse`           | This should be disabled (`false`) to hide the mouse cursor.                               |
+| Idle timeout     | `idle_timeout`    | This should be set to zero, as the user will not be able to navigate away from your site. |
+| User folder      | `user_folder`     | Set to the location, on the host machine, of the folder with the website.                 |
+| CPU overclocking | `cpu_boost`       | This could well be disabled (`false`) as displaying images doesn't require too much CPU.  |
+| Wi-Fi boost      | `wifi_boost`      | This should probably be disabled (`false`) as local websites require no LAN access.       |
 
 [^1]: The `command` option is a bit peculiar.  You need to specify a `file://` URL to tell Chromium that it is displaying local
 files.  The URL needs to be written *carefully* as the kiosk will fail to display anything if it is wrong.  Let's say that you've
@@ -66,15 +61,15 @@ you should use in the `command` option.
 You still need to supply values for all the other options that are described in the kiosk file (`*.kiosk`).
 
 ## Using a Touch Screen
-Many kiosks have touch screens.  This section highlights the most important options related strictly to screens and touch screens.
+Many kiosks have touch screens.  This section highlights the most important options related solely to screens and touchscreens.
 
-Please read the [Manual](Manual.html) for instructions on how to install KioskForge, Python and Raspberry Pi Imager, and how to use
-KioskForge together with these tools.  Expect to redeploy a few times until all settings are at their correct values.
+Please read the [Manual](Manual.html) for instructions on installing KioskForge, Python, and Raspberry Pi Imager, and on using KioskForge with these tools.  Expect to redeploy a few times until all settings are correct.
 
-The important options to be aware of, when forging a kiosk with touch screen, are these:
+The important options to be aware of, when forging a kiosk with a touch screen, are these:
 
 | Name              | Option name         | Comment                                                                           |
 | ----------------- | ------------------- | ----------------------------------------------------------------------------------|
+| Mouse Enabled     | `mouse`             | You definitely want to disable the mouse when using a touchscreen.                |
 | Screen Rotation   | `screen_rotation`   | If the screen needs to be rotated, use a value other than `none`.                 |
 | Chromium Autoplay | `chromium_autoplay` | If videos need to play immediately upon page load (no user interaction required). |
 

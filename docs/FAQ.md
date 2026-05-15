@@ -1,7 +1,7 @@
 # KioskForge Frequently Asked Questions
 This is the official *Frequently Asked Questions (FAQ)* list for the KioskForge project.
 
-Please feel free to submit more questions in the issue tracker at GitHub.  Alternatively you can mail me the issue and I'll create a new issue, if needed.
+Please feel free to submit additional questions in the GitHub issue tracker.  Alternatively, you can mail me the issue, and I'll create a new issue if needed.
 
 ## Contacting the Developer
 The team can be contacted directly by mail at `contact@kioskforge.org`.
@@ -14,21 +14,21 @@ If you have a GitHub account, please use the official issue tracker in the Kiosk
 This section contains various common questions about technical issues with KioskForge.
 
 ### I am unable to connect to my Wi-Fi network?
-This is most likely because you have misspelled the Wi-Fi network name or are using a wrong password.  Please notice that both are *case sensitive* so that `Test WiFi` is different from `Test WIFI`.  You need to spell both precisely as given to you.
+This is most likely because you have misspelled the Wi-Fi network name or are using the wrong password.  Please note that both are *case-sensitive*, so `Test WiFi` is different from `Test WIFI`.  You need to spell both exactly as they were given to you.
 
 The values of `wifi_country` and `wifi_hidden` also need to be correct, although this is mostly important when accessing 5G+ networks using the AC+ standards.
 
-A tip is to try to create a new connection with your phone to see if that works.  If either the Wi-Fi network name or the password is incorrect, it will fail too.
+A tip is to try creating a new connection on your phone to see if that works.  If either the Wi-Fi network name or the password is incorrect, it will fail too.
 
 ### What kind of storage medium should I use?
 As a rule of thumb, we recommend MicroSD cards over USB keys because the latter tend to become very hot and then malfunction.
 
-As for MicroSD cards, it depends on how long the kiosk is expected to operate.  If it is to be deployed for weeks, months, or a few years, virtually any MicroSD card should do.  If you plan the kiosk to operate for a decade or so, then you should probably buy an "industrial grade" card, which includes wear leveling, which again reduces wear on the card very significantly.  I know that SanDisk and Kingston both produce MicroSD cards named "... Industrial", both of which include wear leveling.  These cards are typically a couple of times more expensive than plain, non-wear-leveling cards, but I think the money is well spent because if your kiosk suddenly dies from a MicroSD failure, you'll probably waste hours dismounting, reforging, and remounting the kiosk.
+As for MicroSD cards, it depends on how long the kiosk is expected to operate.  If it is to be deployed for weeks, months, or a few years, virtually any MicroSD card should do.  If you plan for the kiosk to operate for a decade or so, you should probably buy an "industrial grade" card with wear leveling, which significantly reduces wear on the card.  I know that SanDisk and Kingston both produce MicroSD cards named "... Industrial", both of which include wear leveling.  These cards are typically a couple of times more expensive than plain, non-wear-leveling cards, but I think the money is well spent because if your kiosk suddenly dies from a MicroSD failure, you'll probably waste hours dismounting, reforging, and remounting the kiosk.
 
-If you have experience or knowledge that contradict the above, please feel free to alert me on mail.
+If you have experience or knowledge that contradicts the above, please feel free to email me.
 
 ### How much space does KioskForge take up on the kiosk machine?
-As of this writing, less than half a megabyte.  This is negible and should not cause any concern on your part.
+As of this writing, less than half a megabyte.  This is negligible and should not cause any concern for you.
 
 All files created by and used by KioskForge are located in `~/KioskForge`.  Please do *not* remove this folder as it is required.
 
@@ -61,43 +61,43 @@ KioskForge tries to take the fact that `apt` is a rude process, that keeps meddl
 If you run into this issue, please report it.
 
 ### I get spurious errors while the kiosk is being forged?
-The most likely reason of this issue is that your installation media, typically a MicroSD card, is becoming worn and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
+The most likely reason for this issue is that your installation media, typically a MicroSD card, is becoming worn and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
 
-Try with another installation media (USB key or another MicroSD card), and the error(s) should disappear.
+Try another installation media (a USB key or another MicroSD card), and the error(s) should disappear.
 
 If the problem persists, report it as a bug.  It may be some obscure error in KioskForge.
 
 ## Development Issues
 This section contains various common questions about the development of KioskForge.
 
-### Will KioskForge support Linux distribution X?
-For the time being, I am very happy about Ubuntu Server (which I use and have used as a web server for a decade or so), so this is not very likely.
+### Will KioskForge support other Linux distributions?
+For the time being, I am very happy with Ubuntu Server (which I have used as a web server for a decade or so), so this is not very likely.
 
-I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well documented.  The software is also reasonably up-to-date and security issues get fixed quite quickly in my experience.
+I could theoretically add support for a host of Linux distributions, but I don't really see the point.  Ubuntu Server is free, very stable, and well-documented.  The software is also reasonably up-to-date, and security issues get fixed quite quickly in my experience.
 
-Adding support for a single target platform takes weeks or months, as Linux is a mess when it comes to administration of the operating system.  Almost every distro does things in its own way and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
+Adding support for a single target platform can take weeks or months, as Linux is a mess when it comes to operating system administration.  Almost every distro does things in its own way, and I, honestly, don't feel like battling a lost war on the intricacies of a bunch of Linux distros.
 
-Debian could potentially become a candiate to be supported by KioskForge sometime down the road as because Ubuntu is based upon Debian and also because Ubuntu is getting rather annoying these days (snaps, snaps, snaps, everywhere even thought the technology is only half baked yet).  Chromium (the open source variant of the Chrome web browser) has been quite a bit of pain to work with because it is a snap, not a standard Ubuntu <code>apt</code> package.
+Debian could become a candidate for KioskForge support sometime down the road, because Ubuntu is based on Debian and because Ubuntu is getting rather annoying these days (snaps, snaps, snaps, everywhere, even though the technology is only half-baked yet).  Chromium (the open-source variant of the Chrome web browser) has been quite a pain to work with because it is a snap, not a standard Ubuntu <code>apt</code> package.
 
 ### Will KioskForge support PCs?
-No, the problem is that PCs are non-standard in every way, from CPU to graphics to audio and so on.  I prefer to make KioskForge as stable and reliable as at all possible, instead of having to support a crazy number of possible and real PC builds.
+No, the problem is that PCs are non-standard in every way, from the CPU to the graphics to the audio, and so on.  I prefer to make KioskForge as stable and reliable as at all possible, instead of having to support a crazy number of possible and real PC builds.
 
-Supporting only two very standard target platforms, at the time of this writing, makes my job *a lot* easier and hopefully yields a stable, trustworthy, and flexible product that you and others can use for free.
+Supporting only two very standard target platforms at the time of this writing makes my job *a lot* easier and, hopefully, yields a stable, trustworthy, and flexible product that you and others can use for free.
 
 ### Why was KioskForge written in Python v3.x?
-I originally wrote the first version of KioskForge in Bash, because it was very simple in the beginning, but soon missed Python and its way more intuitive and logical environment.
+I originally wrote the first version of KioskForge in Bash because it was very simple at the beginning, but I soon realized Python was much more intuitive and logical.
 
-In short: Because Python v3.x is preinstalled on many Linux distributions and because Python is a great scripting language.
+In short, because Python v3. x is preinstalled on many Linux distributions, and Python is a great scripting language.
 
 ### Why can't you use KioskForge with Linux?
-This is work in progress, pretty soon you will be able to use KioskForge on both Windows and Linux.  Feel free to request this.
+This is a work in progress; pretty soon, you will be able to use KioskForge on both Windows and Linux.  Feel free to request this.
 
 ### Why can't you use KioskForge on Apple equipment?
-I don't have any Apple boxes and don't feel like spending a fortune on adding support for a platform that I don't use myself.
+I don't have any Apple boxes and don't feel like spending a fortune to add support for a platform I don't use myself.
 
 ### Will KioskForge ever invoke 'Raspberry Pi Imager' (RPI) directly?
 Not likely.
 
-It could do this by using the `wmi` package for Python (as RPI requires a physical drive to be specified).  But I am much more focused on making a Linux newbie friendly solution than offering all sorts of gimmicks.  It is important to me, and most users, that they can launch KioskForge simply by double-clicking it without having any technical knowledge of Python, Linux, and kiosks as such, so I won't be exploring this path anytime soon.
+It could do this by using the `wmi` package for Python (as RPI requires a physical drive to be specified).  But I am much more focused on making a Linux newbie-friendly solution than offering all sorts of gimmicks.  It is important to me, and most users, that they can launch KioskForge simply by double-clicking it without having any technical knowledge of Python, Linux, and kiosks as such, so I won't be exploring this path anytime soon.
 
 Also, I sleep better knowing that people can't accidentally erase important data using KioskForge.
