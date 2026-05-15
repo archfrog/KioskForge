@@ -1,8 +1,8 @@
 # KioskForge Changes
-This document presents the important changes made to each KioskForge release from v0.18 and onwards:
+This document presents the important changes made to each KioskForge release from v0.18 onwards:
 
 ## Planned Changes
-1. Support for Ubuntu Server 26.04.x.  This is probably a major task so I am postponing it a bit.
+1. Support for Ubuntu Server 26.04.x.  This is probably a major task, so I am postponing it a bit.
 2. Support for remote upgrades of KioskForge and/or the user application via SSH and/or SCP.
 
 ## Version 1.02 (2026.05.14)
@@ -11,10 +11,10 @@ This document presents the important changes made to each KioskForge release fro
    video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent) and frames were
    skipped.  This works with the `mpv` video player by adding the options: `--vo=gpu`, `--hwdec=v4l2m2m`, and. optionally,
    `--profile=fast`.  You need to add the `mpv` package to your `user_packages` setting.
-3. The system logs are now vacuumed at every boot and at 05:00 no matter the value of the `update_time` option.
+3. The system logs are now vacuumed at every boot and at 05:00, no matter the value of the `update_time` option.
 4. Added support for installing user-supplied fonts using the `user_fonts` option (this setting supports wildcards).
 5. Non-ASCII characters (foreign symbols) are now handled correctly when they appear in user file names added with `user_folder`.
-6. The ownership and privileges of cron job files was corrected so that they're owned by root.
+6. The ownership and privileges of cron job files were corrected so that they're owned by root.
 7. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
 8. Updated all Python packages to their most recent versions.
 
@@ -24,14 +24,14 @@ This document presents the important changes made to each KioskForge release fro
 3. Updated all Python packages to their most recent versions.
 
 ## Version 1.00 (2026.04.24)
-1. Bumped the version to v1.00 as KioskForge is more or less finished.  Not much development is planned from here on, except stuff
-   needed to support future versions of Ubuntu Server LTS.
-2. Updated the documentation a bit, most importantly it no longer gives a specific version of *Raspberry Pi Imager* to the user.
+1. Bumped the version to v1.00 as KioskForge is more or less finished.  Not much development is planned from here on, except
+   for stuff needed to support future versions of Ubuntu Server LTS.
+2. Updated the documentation a bit; most importantly, it no longer gives a specific version of *Raspberry Pi Imager* to the user.
 3. Updated all Python packages and the InnoSetup installer so that KioskForge is fully up to date.
 
 ## Version 0.27 (2026.03.16)
 1. Made `KioskForge.py prepare` accept an optional extra argument that specifies the target location.  This way, KioskForge can
-   also be used on Linux and Mac, albeit without automatic detection of the location of the installation medium.
+   also be used on Linux and Mac, albeit without automatic detection of the installation medium's location.
 2. Greatly improved the help text for the `KioskForge.py` command so that it now describes all four variants of that command.
 
 ## Version 0.26 (2025.11.25)
@@ -52,82 +52,82 @@ This document presents the important changes made to each KioskForge release fro
 ## Version 0.24 (2025.07.16)
 1. Fixed the issue that `KioskForge.py` crashed if an unknown option was encountered (even if it was known in an earlier version).
 2. Renamed the `user_options` option to `chromium_autoplay` to make life simpler for everybody.  It enables autoplay in Chromium
-   *without* user interaction such as clicking the `Play` button.
-3. `KioskForge.py`'s `verify` and `upgrade` commands now takes a file OR a folder.  If a folder, all `.kiosk` files in it are
+   *without* user interaction, such as clicking the `Play` button.
+3. `KioskForge.py`'s `verify` and `upgrade` commands now take a file OR a folder.  If a folder, all `.kiosk` files in it are
    verified or upgraded (recursively).  The command will stop on the first failed file encountered.
 3. Upgraded development and embedded Python to v3.13.5.
 4. Updated the documentation to reflect the fact that `Tkinter` is *not* going to be used as a GUI for KioskForge.  Instead, I'll
    try out [Flet](https://flet.dev), a Flutter-based UI toolkit for Python, as I am not very fond of Tkinter (after battling it).
-5. Updated the documentation in general, to reflect recent changes, etc.
+5. Updated the documentation in general to reflect recent changes, etc.
 6. Added two new links to the Windows `Start` menu: `License` and `Read me`.
 7. Changed the project to use the [uv](https://github.com/astral-sh/uv) Python package manager instead of `pip`.
 8. Changed the project to work in a virtual environment instead of installing dependencies globally.
 
 ## Version 0.23 (2025.07.09)
 1. The very serious `snap` VFS corruption issue (in long-running kiosks) has now, hopefully, been fixed (I could not recreate the
-   issue despite having both a Pi4B and a Pi5 trying to recreate it for two days, upgrading and rebooting thousand of times).
-2. Fixed an issue with wrong casing of `wifi_country` values by forcing the value to be written in uppercase only (`us` => `US`).
+   issue despite having both a Pi4B and a Pi5, trying to recreate it for two days, upgrading and rebooting thousands of times.
+2. Fixed an issue with the wrong casing of `wifi_country` values by forcing the value to be written in uppercase only (`us` => `US`).
 3. Fixed the issue that `KioskUpdate.py` did *not* update Linux kernels as it should.  Everything should now be upgraded correctly.
 4. Fixed the issue that the Common Unix Printing System (`CUPS`) was reinstalled whenever Chromium was upgraded.
 5. KioskForge now waits for at most one minute to provide time to insert the installation medium.
 6. The KioskForge Setup program now creates a `Start` menu group, which contains links to the various documentation files and to a
    template kiosk file that can be opened by right-clicking it and selecting `Edit`, then `Save as`, when you want to save.
 7. There is **intentionally** no link to the program as you're supposed to run it by double-clicking a `.kiosk` file or from the
-   command-line (using `CMD.EXE`).  A TUI version is being worked on, but this is a fairly low priority feature.
-8. If you have an old link to the `KioskForge.exe` program in your `Start` menu, you can simply uninstall and reinstall KioskForge,
+   command-line (using `CMD.EXE`).  A TUI version is being worked on, but this is a fairly low-priority feature.
+8. If you have an old link to the `KioskForge.exe` program in your `Start` menu, you can simply uninstall and reinstall KioskForge;
    this should remove the stale link.  If not, you can delete the link manually (by right-clicking it and selecting `Delete`).
-9. The kiosk startup process now show even less text (by creating `~/.hushlogin`).  Thus, SSHing into the kiosk will show nothing.
-10. `README.html` has been renamed to `Manual.html`, this only affects those who actually dug out the file from the app folder.
-11. `GUIDE.html` has been renamed to `Guide.html`, this only affects those who actually dug out the file from the app folder.
+9. The kiosk startup process now shows even less text (by creating `~/.hushlogin`).  Thus, SSHing into the kiosk will show nothing.
+10. `README.html` has been renamed to `Manual.html`; this only affects those who actually dug out the file from the app folder.
+11. `GUIDE.html` has been renamed to `Guide.html`; this only affects those who actually dug out the file from the app folder.
 12. The bug report script `KioskZipper.py` has been renamed to `KioskReport.py`.
-13. `KioskReport.py` now generates a list of system units, and their statuses, for the case that one or more `systemd` units fail.
+13. `KioskReport.py` now generates a list of system units and their statuses for the case that one or more `systemd` units fail.
 14. The `kiosk-disable-wifi-power-saving.sh` is no longer generated by the forge process and has been removed.  The new script
     `KioskConfig.py` now handles the task of setting up the audio system (if enabled) and disabling Wi-Fi power saving if
     `wifi_boost` is `True`.  This fixes the issue that Wi-Fi power saving was only disabled during the boot that forged the kiosk,
     not during subsequent boots.
 15. The `KioskSetup.py` script now takes an optional one-based step number, rather than the previous zero-based step number.
 16. The kiosk no longer displays its LAN IP address on every boot (only during the first boot while the kiosk is being forged).
-    This is a small security precaution to avoid that kiosk users learn its LAN IP address.  Kiosks should be on their own LAN.
+    This is a small security precaution to prevent kiosk users from learning its LAN IP address.  Kiosks should be on their own LAN.
 
 ## Version 0.22 (2025.06.25)
-1. The option `user_options` has been added.  This allows the user to specify additional options to Google Chrome.  The most
+1. The option `user_options` has been added.  This allows the user to specify additional options for Google Chrome.  The most
    interesting option to add to Chrome is `--autoplay-policy=no-user-gesture-required`, which allows starting a video automatically
-   when a given web page is loaded (normally this requires user-interaction before the video can play).  This is for making single
+   when a given web page is loaded (normally this requires user interaction before the video can play).  This is for making single
    video `VideoLooper` style kiosks on Pi5, something which VideoLooper does not yet support.
 2. Various internal changes of no importance to the end-user.
 
 ## Version 0.21 (2025.05.15)
 1. The daily upgrade process has been enhanced significantly as `snap` likes to keep many large files around forever.  These files
-   are now removed on a daily basis, if the kiosk has internet access, so that they don't grow to 5-10 gigabytes in size.
+   are now removed daily if the kiosk has internet access, so they don't grow to 5-10 gigabytes.
 2. The daily kiosk upgrade process is now a bit more graceful as Chromium is stopped before the upgrade process starts.
 3. This release contains many small internal changes due to a major code cleanup, which should *not* affect the product in any way.
 
 ## Version 0.20 (2025.05.05)
 1. A new option, `wifi_country`, was added because Wi-Fi 5G networks mostly worked, but not always.  This option is used to specify
-   the host country that the kiosk is placed in.  It is a two-letter abbreviation ("us" = the US, "dk" = Denmark", etc.).
+   the host country in which the kiosk is placed.  It is a two-letter abbreviation ("us" = the US, "dk" = Denmark, etc.).
 2. A new option, `wifi_hidden`, was added because Linux likes to know this beforehand, so that it can scan quickly or more slowly,
-   depending on whether or not the Wi-Fi network is visible or not.
+   depending on whether the Wi-Fi network is visible.
 3. A problem was fixed in `KioskForge verify Example.kiosk` because it did not report *missing* options, which basically meant that
-   `KioskForge verify` accepted kiosks that were invalid as they lacked one or more fields aka options.
+   `KioskForge verify` accepted kiosks that were invalid as they lacked one or more fields, aka options.
 4. Various cosmetic changes.
 
 ## Version 0.19 (2025.05.03)
 1. A new option, `upgrade_post`, which can be either `reboot` or `poweroff`, has been added.  This option controls what the
-   kiosk does when it has successfully performed maintenance: reboot or poweroff.
+   The kiosk does what it has successfully performed maintenance: reboot or power off.
 2. `KioskForge.exe` now supports four "subcommands".  They are: `apply`, `create`, `upgrade`, and `verify`.  These commands are
-   currently only usable when invoking KioskForge from the command-line so users who launch it by double-clicking a kiosk
+   currently only usable when invoking KioskForge from the command line, so users who launch it by double-clicking a kiosk
    file in Windows Explorer do not need to worry about the new subcommands (double-clicking a kiosk file amounts to `apply`).
-   The features offered by the new subcommands will eventually make their way to the work-in-progress GUI version of KioskForge.
+   The features offered by the new subcommands will eventually be added to the work-in-progress GUI version of KioskForge.
 3. KioskForge.exe now also reports missing options when loading a kiosk.  This is particularly important when loading a kiosk file
    created in an earlier version of KioskForge.  All errors need to be corrected before the kiosk can be applied and then forged.
 4. The help embedded in each kiosk file has been greatly expanded and hopefully made significantly better.
-5. The `README.html` file has been expanded with the chapter `Synopsis` and also revised a number of times.
+5. The `README.html` file has been expanded with the chapter `Synopsis` and has also been revised a number of times.
 6. The host name on the kiosk is now set before the forge process begins to avoid making a mess of the system log.
 
 ## Version 0.18 (2025.04.28)
 1. Initial support for the Raspberry Pi 5 has been added.  Sound support on the Pi 5 has not been tested yet, though.
 2. The KioskForge setup program now includes a change log of changes made to KioskForge, which can be shown by the installer.
-3. The built-in editor and menu has been removed: KioskForge can now only be used to prepare a kiosk installation medium.
+3. The built-in editor and menu have been removed: KioskForge can now only be used to prepare a kiosk installation medium.
 4. A new file type, `KioskForge Kiosk`, has been added to the Windows Explorer `New` menu.  Use this to create a new kiosk.
 5. The cleaning of logs on the target kiosk machine now actually works (a lowercase 'm' was changed to an uppercase ditto).
 6. The `cpu_boost` option is now honored properly.  Previously, all kiosks were created as if `cpu_boost` was always disabled.
