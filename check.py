@@ -22,15 +22,12 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #**********************************************************************************************************************************
-
-# This script invokes MyPy to statically analyze the KioskForge Python source files.
-
-# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+# This script invokes various Python checkers to statically analyze the KioskForge Python source files.
 
 import os
 import shutil
 import sys
+from typing import List
 
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
@@ -74,6 +71,9 @@ class KioskCheck(KioskDriver):
 		# Check that the user has set up the RAMDISK environment variable and make sure it is normalized while we're at it.
 		ramdisk = ramdisk_get()
 
+		# Create the list of checkers that have reported an ERROR (warnings aren't counted) for reporting this just before exit.
+		failures = []
+
 		#***** Ask MyPy to statically check all Python source files in the current folder and in the 'kiosklib' folder. ***********
 		words  = TextBuilder()
 		words += which("mypy")
@@ -88,7 +88,7 @@ class KioskCheck(KioskDriver):
 			print("MyPy messages:")
 			print()
 			print(result.output)
-			raise KioskError("MyPy failed its static checks")
+			failures.append("MyPy")
 		del result
 		del words
 
@@ -115,7 +115,7 @@ class KioskCheck(KioskDriver):
 		del output
 		# If any fatal errors (1) or any errors (2), fail the 'check.py' script entirely.
 		if result.status & 3:
-			raise KioskError("Pylint failed its static checks")
+			failures.append("pylint")
 		del environment
 		del result
 		del words
@@ -130,9 +130,12 @@ class KioskCheck(KioskDriver):
 			print("Pyrefly message:")
 			print()
 			print(result.output)
-			raise KioskError("Pyrefly failed its static checks")
+			failures.append("Pyrefly")
 		del result
 		del words
+
+		if failures:
+			raise KioskError(f"Source code checkers failed: {', '.join(failures)}")
 
 
 if __name__ == "__main__":
