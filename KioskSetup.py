@@ -393,7 +393,7 @@ class KioskSetup(KioskDriver):
 			)
 			del subnet
 
-			# TODO: Figure out how enable remote management securely so that users on the Wi-Fi cannot sniff passwords, etc.
+			# TODO: Figure out how enable remote management securely.  Simply use SSH and SCP, you dolt!
 			# script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
 
 		# Remove some packages that we don't need in kiosk mode to save a tiny bit of memory.
