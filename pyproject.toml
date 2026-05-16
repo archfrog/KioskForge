@@ -3,13 +3,14 @@ name = "KioskForge"
 version = "1.02.0"
 description = "KioskForge generates Raspberry Pi kiosks on top of Ubuntu Server"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
+    "ast-serialize==0.4.0",
     "bcrypt==5.0.0",
-    "mypy==2.0.0",
+    "mypy==2.1.0",
     "pefile==2023.2.7",
     "pyinstaller==6.20.0",
     "pyinstaller-versionfile==3.1.0",
     "pylint==4.0.5",
-    "pyrefly==0.64.1",
+    "pyrefly==1.0.0",
 ]
