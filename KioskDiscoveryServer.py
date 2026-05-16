@@ -70,15 +70,12 @@ class KioskDiscoveryServer(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Wait for network (internet) to come up.
-		# I just loathe systemd...  That crap piece of software does not even guarantee that the network is up when you wait for
-		# the network-online.target as the systemd unit that launches this script does with an "After=network-online.target" line.
-		# What's the point of a system manager when it can't even guarantee that stuff is up and running when asked to do so?
+		# Wait for the network (i.e., internet) to come up.
 		if not internet_active():
-			print("NOTE: Network down, waiting at most 60 seconds for it to come up.")
+			logger.write("Network down, waiting at most 60 seconds for it to come up.")
 			wait_for_internet_active(60)
 
-		# If internet now, start the discovery server.
+		# If internet active now, start the discovery server.
 		if internet_active():
 			# Create an UDP socket.
 			server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
