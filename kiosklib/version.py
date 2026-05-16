@@ -26,7 +26,7 @@
 PRODUCT = "KioskForge"
 VERSION = "1.02"
 COMPANY = "The KioskForge Team"
-CONTACT = ""
+CONTACT = "contact@kioskforge.org"
 WEBSITE = "https://kioskforge.org/"
 
 class Version:
