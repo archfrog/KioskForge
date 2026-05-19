@@ -470,9 +470,9 @@ If empty, nothing will be copied, otherwise the given folder is copied.
 A "user folder" is a custom folder that may contain various files needed by
 the kiosk, but which are not part of KioskForge.
 
-For instance, a 'web' type kiosk that browses local files only needs these
-files to be copied from the host to the kiosk.  Similarly, 'cli' or 'x11'
-type kiosks also need the custom app to be copied to the kiosk.
+For instance, a 'web' type kiosk that browses local files needs these files
+copied from the host to the kiosk.  Similarly, 'cli' or 'x11' type kiosks
+also need the custom app to be copied to the kiosk.
 
 The last part of the path specified, which is relative to the main '.kiosk'
 file that contains the kiosk configuration is used as the name of the folder
