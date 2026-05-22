@@ -50,6 +50,10 @@ passwd
 
 This step is only done the very first time you `su` to root.  Unfortunately, there's no way we can do this automatically.
 
+### I am getting errors during the forge proccess about accessing the Ubuntu repositories?
+This is almost certainly a temporary issue with your Internet Service Provider (ISP).  Wait thirty minutes and try again.  Your ISP
+may be rebooting a DNS server or doing some other maintenance work.  I too run into this issue now and then.  Be patient!  :-)
+
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
 I'm pretty sure these *were* caused by the lack of the `wifi_country` option in pre-v0.20 releases of KioskForge.  Basically, the network driver was complaining that an incorrect channel was attempted selected because the Ubuntu Server Wi-Fi subsystem did not know the correct country for the network card.  The new `wifi_country` option is used to tell the Wi-Fi subsystem the legal set of channels that can and may be used in the kiosk.
 
