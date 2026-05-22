@@ -542,6 +542,7 @@ class KioskForge(KioskDriver):
 		print(f"    Device       : {kiosk.device.data}")
 		print(f"    Type         : {kiosk.type.data}")
 		print(f"    Command      : {kiosk.command.data}")
+		print(f"    Mouse        : {kiosk.mouse.data}")
 		print(f"    Host name    : {kiosk.hostname.data}")
 		print(f"    Time zone    : {kiosk.timezone.data}")
 		print(f"    Keyboard     : {kiosk.keyboard.data}")
@@ -554,7 +555,7 @@ class KioskForge(KioskDriver):
 		print(f"    Poweroff time: {kiosk.poweroff_time.data}")
 		print(f"    Rotation     : {kiosk.screen_rotation.data}")
 		print(f"    User folder  : {kiosk.user_folder.data}")
-		print(f"    Font files   : {kiosk.user_fonts.data}")
+		print(f"    User fonts   : {kiosk.user_fonts.data}")
 		print()
 
 		print("*** Press ENTER to prepare kiosk installation image or Ctrl-C to abort")
@@ -732,11 +733,13 @@ class KioskForge(KioskDriver):
 			case "prepare":
 				self.prepare(logger, origin, filename, location)
 			case "upgrade":
-				# Create list of files to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
+				# Create list of files to process: If input is a file, only that file, else all .kiosk files in the folder tree.
 				if os.path.isfile(filename):
 					filenames = [filename]
+				elif os.path.isdir(filename):
+					filenames = glob.glob(filename + os.sep + "**" + os.sep + "*.kiosk", recursive=True)
 				else:
-					filenames = list(filter(lambda x: x.endswith('.kiosk'), glob.glob(filename + os.sep + "**", recursive=True)))
+					raise KioskError("Invalid kiosk file specified: " + filename)
 
 				# Process each file while aborting on the first exception.
 				for filename in filenames:
@@ -747,11 +750,13 @@ class KioskForge(KioskDriver):
 
 					self.upgrade(logger, filename)
 			case "verify":
-				# Create list of fileS to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
+				# Create list of files to process.  If input is a file, only one file, else all .kiosk files in the folder tree.
 				if os.path.isfile(filename):
 					filenames = [filename]
+				elif os.path.isdir(filename):
+					filenames = glob.glob(filename + os.sep + "**" + os.sep + "*.kiosk", recursive=True)
 				else:
-					filenames = list(filter(lambda x: x.endswith('.kiosk'), glob.glob(filename + os.sep + "**", recursive=True)))
+					raise KioskError("Invalid kiosk file specified: " + filename)
 
 				# Process each file while aborting on the first exception.
 				for filename in filenames:

@@ -23,11 +23,9 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #**********************************************************************************************************************************
 
-# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import Any, Dict, List
-
 import re
 import time
+from typing import Any, Dict, List
 
 from kiosklib.convert import BOOLEANS
 from kiosklib.errors import Error, FieldError, InputError, InternalError, KioskError, TextFileError
@@ -325,6 +323,11 @@ class Fields:
 		self.__fields[name].parse(data.rstrip())
 		self.__edited[name] = True
 
+	def check(self, path : str) -> List[TextFileError]:
+		"""Returns a list of errors detected in the inter-dependent options in the kiosk."""
+		del path
+		return []
+
 	@property
 	def edited(self) -> bool:
 		result = False
@@ -389,10 +392,13 @@ class Fields:
 			except Error as that:
 				result.append(TextFileError(path, number, that.text))
 
-		# Check that all fields were assigned by the configuration files.
+		# Check that all fields were assigned by the configuration file.
 		for name in self.__fields:
 			if not self.__edited[name]:
 				result.append(TextFileError(path, 0, f"Field never assigned: {name}"))
+
+		# Check the integrity of the kiosk file.
+		result += self.check(path)
 
 		# From a client point of view, the kiosk is without edits just after having been loaded.
 		self.unedit()

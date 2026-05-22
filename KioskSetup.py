@@ -36,8 +36,8 @@ import sys
 import time
 
 from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
-from kiosklib.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction, PurgePackagesAction
-from kiosklib.actions import RemoveFolderAction, ReplaceTextAction, UnpackZipAction
+from kiosklib.actions import ExternalAction, InstallFontsAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
+from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, UnpackZipAction
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
@@ -875,38 +875,25 @@ class KioskSetup(KioskDriver):
 			)
 			del lines
 
+		# Install user-supplied fonts, if any (basically any TrueType font files found in the user_folder folder).
+		if kiosk.type.data in ["web", "x11", "web-wayland"] and kiosk.user_fonts.data:
+			# Update the status screen before we continue.
+			script += CustomAction("Installing user fonts:", lambda: None)
+
+			source = os.path.dirname(origin) + os.sep + kiosk.user_folder.data
+			target = "/home/kiosk/.local/share/fonts/KioskForge"
+			script += InstallFontsAction("... Installing user-specified fonts", source, target)
+			del source
+			del target
+
+			# Update the font cache.
+			script += ExternalAction("... Updating kiosk user's font cache", "sudo -u kiosk fc-cache -f")
+
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(
 			"Setting the owner of all files in the kiosk directory to 'kiosk'.",
 			f"chown -R kiosk:kiosk {os.path.dirname(origin)}"
 		)
-
-		# Install user-supplied fonts.
-		if False and kiosk.user_fonts.data:
-			script += CustomAction("Installing user fonts:", lambda: None)
-
-			# TODO: Create an external action that installs a list of fonts given as a list of globs.
-
-			target = "/home/kiosk/.local/share/fonts/KioskForge"
-			script += CustomAction(
-				"... Creating font folder " + target,
-				lambda target=target: os.makedirs(target, mode=0o777, exist_ok=True)
-			)
-
-			wildcards = shlex.split(kiosk.user_fonts.data)
-			for wildcard in wildcards:
-				filenames = glob.glob(wildcard)
-				if not filenames:
-					raise KioskError("'user_fonts' pattern expands to nothing: " + wildcard)
-
-				for filename in filenames:
-					script += ExternalAction("... Installing font: " + filename, f'cp -p "{filename}" "{target}"')
-				del filenames
-
-				del target
-				del wildcards
-
-			script += ExternalAction("... Updating font cache", "fc-cache -f")
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
 		lines  = TextBuilder()

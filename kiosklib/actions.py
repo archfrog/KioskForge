@@ -403,5 +403,35 @@ class CreateTreeAction(ExternalAction):
 		Creates the specified folder tree with the given privileges (use 'mkdir' because it creates the intermediate directories
 		correctly, whereas os.makedirs() and shutil.chown() doesn't get the ownership right on those.
 	"""
-	def __init__(self, title : str, path : str, mode : int, user : str, group : str = "")-> None:
+	def __init__(self, title : str, path : str, mode : int, user : str, group : str = "") -> None:
 		super().__init__(title, f"sudo -u {user} -g {group or user} mkdir -m={oct(mode)[2:].zfill(3)} -p {path}")
+
+
+class InstallFontsAction(Action):
+	"""Installs an automatically discovered set of TrueType font files from the 'source' folder to the 'target' folder."""
+
+	def __init__(self, title : str, source : str, target : str) -> None:
+		super().__init__(title)
+		self.__source = source
+		self.__target = target
+
+	def execute(self) -> Result:
+		fonts = glob.glob(self.__source + os.sep + "**" + os.sep + "*.[Tt][Tt][Ff]", recursive=True)
+
+		# Abort if we didn't find any fonts.
+		if not fonts:
+			raise KioskError("No fonts found")
+
+		# Create the target folder.
+		os.makedirs(self.__target, mode=0o700, exist_ok=True)
+		shutil.chown(self.__target, user="kiosk", group="kiosk")
+
+		# Install the found fonts.
+		for font in fonts:
+			basename = os.path.basename(font)
+			shutil.copyfile(font, self.__target + os.sep + basename)
+			os.chmod(self.__target + os.sep + basename, 0o600)
+			shutil.chown(self.__target + os.sep + basename, user="kiosk", group="kiosk")
+			del basename
+
+		return Result()

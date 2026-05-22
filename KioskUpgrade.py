@@ -52,11 +52,10 @@ class KioskUpgrade(KioskDriver):
 				invoke_text_safe("chmod u+x " + target)
 
 			# Copy over the .kiosk file from the current kiosk to the new kiosk.
-			# TODO: Eliminate this step by moving the .kiosk file to /home/kiosk.
 			invoke_text_safe("cp -p /home/kiosk/KioskForge.old/KioskForge.kiosk /home/kiosk/KioskForge")
 
-			# TODO: Attempt to upgrade the .kiosk file using the new version of KioskForge (what happens if this fails?).
-			# TODO: The KioskForge 'upgrade' command MUST handle new and renamed options silently.
+			# NOTE: Don't attempt to upgrade the .kiosk file using the new version of KioskForge as it can fail miserably.
+			# NOTE: The GUI, if it ever is finished, must take care of upgrading the .kiosk file before uploading it.
 
 			# Remove the upgrade archive so we don't process it again on the next boot.
 			os.unlink(source)

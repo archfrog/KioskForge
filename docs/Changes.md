@@ -5,18 +5,19 @@ This document presents the important changes made to each KioskForge release fro
 1. Support for Ubuntu Server 26.04.x.  This is probably a major task, so I am postponing it a bit.
 2. Support for remote upgrades of KioskForge and/or the user application via SSH and/or SCP.
 
-## Version 1.02 (2026.05.14)
-1. The `shell` user has been retired as it was tedious to log in as the user `shell` and then `su kiosk` to access the kiosk.
+## Version 1.02 (2026.05.22)
+1. The `shell` user has been retired as it was tedious to log in as the user `shell` and then use `su kiosk` to access the kiosk.
 2. Added support for the Pi 5 H.265 GPU hardware decoder.  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
    video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent) and frames were
    skipped.  This works with the `mpv` video player by adding the options: `--vo=gpu`, `--hwdec=v4l2m2m`, and. optionally,
    `--profile=fast`.  You need to add the `mpv` package to your `user_packages` setting.
 3. The system logs are now vacuumed at every boot and at 05:00, no matter the value of the `update_time` option.
-4. Added support for installing user-supplied fonts using the `user_fonts` option (this setting supports wildcards).
-5. Non-ASCII characters (foreign symbols) are now handled correctly when they appear in user file names added with `user_folder`.
-6. The ownership and privileges of cron job files were corrected so that they're owned by root.
-7. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
-8. Updated all Python packages to their most recent versions.
+4. All tools now detect more errors in the `.kiosk` such as conflicting options and meaningless options for the given device.
+5. Added support for installing user-supplied fonts using the `user_fonts` option (this is a boolean setting).
+6. Non-ASCII characters (foreign symbols) are now handled correctly when they appear in user file names added with `user_folder`.
+7. The ownership and privileges of cron job files were corrected so that they're owned by root.
+8. Cleaned up the status messages shown while installing X11 and OpenBox a bit so they're grouped and indented like the rest.
+9. Updated all Python packages to their most recent versions.
 
 ## Version 1.01 (2026.05.07)
 1. Added support for the `x11` kiosk type (`type=x11`) so that the kiosk `command` option launches a pure X11 application.

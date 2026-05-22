@@ -27,6 +27,7 @@ from string import punctuation
 from typing import List
 
 from kiosklib.convert import KEYBOARDS
+from kiosklib.errors import InputError, TextFileError
 from kiosklib.locales import LOCALES
 from kiosklib.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
 from kiosklib.setup import OptionalTimeField, PasswordField, RegexField, StringField
@@ -44,8 +45,8 @@ soon as Chromium opens the website with the video on it, without waiting
 for user interaction, such as clicking the 'Play' button.
 
 Examples:
-    chromium_autoplay=true   (Videos play upon page load.)
-    chromium_autoplay=false  (Videos play when started by the user.)
+    chromium_autoplay=true   (Videos play upon page load)
+    chromium_autoplay=false  (Videos play when started by the user)
 """.strip()
 
 
@@ -487,36 +488,28 @@ If you are creating a 'web' type kiosk that browses a remote website, you
 normally don't need to specify a value for this setting.
 
 NOTE:
-1. The path in 'user_folder' cannot end in 'KioskForge' or variants thereof,
-   as this name is reserved for the KioskForge program and its files.
-2. The 'user_folder' path must be relative to the folder with the kiosk
-   file.
+1. The path cannot end in 'KioskForge' or variants thereof, as this name is
+   reserved for the KioskForge program and its files.
+2. The path must be a subfolder of the folder that contains the kiosk file.
+3. The path may only consists of letters, digits, dashes, and dots.
 
 Examples:
-    user_folder=         (If no user-supplied files need to be copied over)
-    user_folder=Website  (If the folder 'Website' needs to be copied over)
+    user_folder=         (If no user-supplied files need to be copied)
+    user_folder=Website  (If the folder 'Website' needs to be copied)
 """.strip()
 
 
 USER_FONTS_HELP = """
-A space-separated list of font file names (may include paths and wildcards)
-to install when forging the kiosk.  These must always be relative to the
-folder with the kiosk file.
-
-If empty, this feature is disabled.
+Indicates if KioskForge should search the 'user_folder' directory for fonts
+to install on the kiosk.  If so, the search will be for any TrueType font
+files (.ttf) in the user_folder directory tree.
 
 User-supplied fonts are typically only needed for GUI apps or when browsing
 a local website with one or more custom fonts.  Most users don't need this.
 
-NOTE:
-1. The 'user_fonts' path must be relative to the folder with the kiosk
-   file.
-2. At present, the 'user_fonts' pattern must match files inside the
-   'user_folder' folder.  Thus, 'user_folder' must be enabled too.
-
 Examples:
-    user_fonts=                    (No user fonts specified.)
-    user_fonts=Application/*.ttf   (Install the specified fonts.)
+    user_fonts=false  (No user fonts to be installed)
+    user_fonts=true   (Install any fonts found in the user folder)
 """.strip()
 
 
@@ -734,11 +727,37 @@ class Kiosk(Fields):
 		self += OptionalTimeField("poweroff_time", "", POWEROFF_TIME_HELP)
 		self += NaturalField("idle_timeout", "0", IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
-		self += OptionalStringField("user_folder", "", USER_FOLDER_HELP)
+		self += OptionalRegexField("user_folder", "", USER_FOLDER_HELP, r"[a-zA-Z][a-zA-Z0-9-.]+")
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
 		self += BooleanField("visible", "true", VISIBLE_HELP)
 		self += BooleanField("chromium_autoplay", "false", CHROMIUM_AUTOPLAY_HELP)
-		self += OptionalStringField("user_fonts", "", USER_FONTS_HELP)
+		self += BooleanField("user_fonts", "false", USER_FONTS_HELP)
+
+	def check(self, path : str) -> List[TextFileError]:
+		"""Check that options don't conflict and that inter-dependent options are correctly configured."""
+		result = []
+		try:
+			# Check that the user_folder option is specified when the user_fonts option is enabled.
+			if self.user_fonts.data and not self.user_folder.data:
+				raise InputError("user_fonts enabled so user_folder must be specified")
+
+			# Check that the sound card on a Pi 5 target isn't the non-existent jack.
+			if self.device.data == "pi5" and self.sound_card.data == "jack":
+				raise InputError("Target is a Pi 5, which does not have jack audio out")
+
+			# Check that the sound level is not zero when an output sound card has been selected.
+			if self.sound_card.data != "none" and self.sound_level.data == 0:
+				raise InputError("Sound is disabled implicitly because 'sound_level' is zero")
+
+			# Check that cpu_boost isn't enabled on Pi 5 as this combination is not supported.
+			# NOTE: This is disabled as it is silently ignored on Pi 5; nobody will remember to change the cpu_boost when changing
+			# NOTE: the device type from Pi 4B to Pi 5 or vice versa.
+			#if self.device.data == "pi5" and self.cpu_boost.data:
+			#	raise InputError("Target is a Pi 5, which does not support the cpu_boost option")
+		except InputError as that:
+			result.append(TextFileError(path, 0, that.text))
+
+		return result
 
 	def redact(self, fields : List[str]) -> None:
 		"""
