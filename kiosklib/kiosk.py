@@ -314,7 +314,8 @@ To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
 (CLI/non-GUI).
 
 IMPORTANT:
-If you lose your private key, you cannot access the kiosk via SSH anymore.
+1. Always specify an SSH key unless you absolutely cannot!
+2. If you lose your private key, you cannot access the kiosk via SSH anymore.
 
 Examples:
     ssh_key=             (To allow only physical logins)
