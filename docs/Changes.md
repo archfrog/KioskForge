@@ -7,9 +7,9 @@ This document presents the important changes made to each KioskForge release fro
 
 ## Version 1.02 (2026.05.22)
 1. The `shell` user has been retired as it was tedious to log in as the user `shell` and then use `su kiosk` to access the kiosk.
-2. Added support for the Pi 5 H.265 GPU hardware decoder.  The Pi 5 now uses less than 100 percent CPU while displaying a H.265
-   video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent) and frames were
-   skipped.  This works with the `mpv` video player by adding the options: `--vo=gpu`, `--hwdec=v4l2m2m`, and. optionally,
+2. Added support for the Pi 5 H.265 GPU hardware decoder.  The Pi 5 now uses less than 100 percent CPU while displaying an H.265
+   video in a resolution of 1920x1080.  Previously, H.265 movie playback used up all four cores (i.e., 400 percent), and frames
+   were skipped.  This works with the `mpv` video player by adding the options: `--vo=gpu`, `--hwdec=v4l2m2m`, and, optionally,
    `--profile=fast`.  You need to add the `mpv` package to your `user_packages` setting.
 3. The system logs are now vacuumed at every boot and at 05:00, no matter the value of the `update_time` option.
 4. All tools now detect more errors in the `.kiosk` such as conflicting options and meaningless options for the given device.
