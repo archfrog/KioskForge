@@ -56,14 +56,15 @@ from kiosklib.version import Version
 class Target:
 	"""Simple class that encapsulates all information about the target system."""
 
-	def __init__(self, kind : str, product : str, edition : str, version : str, cpukind : str, install : str, basedir : str = "") -> None:
+	def __init__(self, kind : str, product : str, edition : str, version : str, cpukind : str, install : str) -> None:
 		# Check arguments (mostly for the sake of documenting the valid values).
 		if install != "cloudinit":
 			raise ValueError("Argument 'install' must be 'cloudinit'")
 
 		# Initialize instance.
 		self.__kind = kind
-		self.__basedir = basedir
+		self.__basedir = ""
+		self.__current = ""
 		self.__product = product
 		self.__edition = edition
 		self.__version = version
@@ -76,13 +77,23 @@ class Target:
 
 	@basedir.setter
 	def basedir(self, value : str) -> None:
-		if self.__basedir != "":
+		if self.__basedir:
 			raise ValueError(".basedir already set")
 		self.__basedir = value
 
 	@property
 	def cpukind(self) -> str:
 		return self.__cpukind
+
+	@property
+	def current(self) -> str:
+		return self.__current
+
+	@current.setter
+	def current(self, value : str) -> None:
+		if self.__current:
+			raise ValueError(".current already set")
+		self.__current = value
 
 	@property
 	def edition(self) -> str:
@@ -155,7 +166,7 @@ class Recognizer:
 		return targets
 
 
-# SHA512 sums of 'initrd.img' in the root of the installation medium, this is used to detect the version and accept or reject it.
+# SHA512 sums of 'initrd.img' on the installation medium: These are used to detect the version, to accept or reject it.
 SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 = 'ce3eb9b96c3e458380f4cfd731b2dc2ff655bdf837cad00c2396ddbcded64dbc1d20510c22bf211498ad788c8c81ba3ea04c9e33d8cf82538be0b1c4133b2622'
 SHA512_UBUNTU_SERVER__24_04_1_ARM64 = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
 SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = '32825b5b770f94996f05a9f2fa95e8f7670944de5990a258d10d95c5bd0062123a707d8b943d23e7b0d54e8c3ff8440b0fd7ebbb8dc42bc20da8a77b3f3f6408'
@@ -166,6 +177,8 @@ SHA512_UBUNTU_DESKTOP_24_04_4_ARM64 = '8a3c23f47bbe795980af07e36bc89c3ecdfa0b781
 SHA512_UBUNTU_SERVER__24_04_4_ARM64 = 'd7bed3552d99b0dc9c53cac8984b33c0513b7386442f17ce637d9467b522ab921d18d4bcb3cb6819bf8f6c9243150587fc9f9374ef444994b9a3f6542b1f011c'
 SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 = 'fa8750e5f71adc4d0cff50c985e499d7dc0ce18132489a52d4c3df9d0c321100d5b1d93c5804dd9c88986e2a8e67cbd413d325576081f3d2b20046987bb26b63'
 SHA512_UBUNTU_SERVER__25_04_0_ARM64 = 'ef1f10d7cc59d8761490b0e0f3be0882d4781870e920d66f0b7ae440a940bf19fa689cc16ee06a0c81b5333b7ecc65fdb4137e050db1133a77fd117c03034157'
+SHA512_UBUNTU_DESKTOP_26_04_0_ARM64 = 'dfee0c02ed5cabcf21008adf264e94d3e5ed2fa329329bd8447bb485c7911e4bd9ebbd5908218d91b7893b6e81d7f370679c3394165ba5c9c00432daa6889e0f'
+SHA512_UBUNTU_SERVER__26_04_0_ARM64 = '27fce561e85c9ebc12b69692b421754f9b9b4232b14a490d3c80d443db168ca4801c9651703e8f8fe05dd972059eeb9d6968c43cd5ae59cf94abf8ce12326010'
 
 PI_OPERATING_SYSTEMS = {
 	SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.1", "arm64", "cloudinit"),
@@ -178,6 +191,8 @@ PI_OPERATING_SYSTEMS = {
 	SHA512_UBUNTU_SERVER__24_04_4_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.4", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "25.04", "arm64", "cloudinit"),
 	SHA512_UBUNTU_SERVER__25_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "25.04", "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_26_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "26.04", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__26_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "26.04", "arm64", "cloudinit"),
 }
 
 class PiRecognizer(Recognizer):
@@ -187,19 +202,19 @@ class PiRecognizer(Recognizer):
 		Recognizer.__init__(self)
 
 	def _identify(self, path : str) -> Optional[Target]:
-		if not os.path.isfile(path + "initrd.img"):
-			return None
+		for base in [path, path + os.sep + "current" + os.sep]:
+			if os.path.isfile(base + "initrd.img"):
+				with open(base + "initrd.img", "rb") as stream:
+					sha512 = hashlib.sha512(stream.read()).hexdigest()
 
-		with open(path + "initrd.img", "rb") as stream:
-			sha512 = hashlib.sha512(stream.read()).hexdigest()
+				# If unable to recognize the SHA512 sum of the 'initrd.img' file, refuse to recognize this installation medium.
+				if not PI_OPERATING_SYSTEMS.get(sha512):
+					return None
 
-		# If unable to recognize the SHA512 sum of the 'initrd.img' file, refuse to recognize this installation medium.
-		if not PI_OPERATING_SYSTEMS.get(sha512):
-			return None
-
-		target = copy.copy(PI_OPERATING_SYSTEMS[sha512])
-		target.basedir = path
-		return target
+				target = copy.copy(PI_OPERATING_SYSTEMS[sha512])
+				target.basedir = path
+				target.current = base
+				return target
 
 
 # List of systems that can be recognized and thus are supported.
@@ -528,10 +543,10 @@ class KioskForge(KioskDriver):
 		accept = True
 		accept &= (target.product == "Ubuntu")
 		accept &= (target.edition == "Server")
-		accept &= (target.version.startswith("24.04."))
+		accept &= (target.version.startswith("24.04.") or target.version.startswith("26.04"))
 		accept &= (target.cpukind in ["arm64"])
 		if not accept:
-			raise KioskError("Only Ubuntu Server 24.04.x images for Raspberry Pi 4B+ are supported")
+			raise KioskError("Only Ubuntu Server 24.04.x/26.04.x images for Raspberry Pi 4B and 5 are supported")
 		del accept
 
 		# Display a synopsis of the selected kiosk, incuding the comment, hostname, and possibly more.
@@ -566,14 +581,14 @@ class KioskForge(KioskDriver):
 
 		# Append options to quiet both the kernel and systemd.
 		kernel_options = KernelOptions()
-		kernel_options.load(target.basedir + "cmdline.txt")
+		kernel_options.load(target.current + "cmdline.txt")
 		#...Ask the kernel to shut up.
 		kernel_options.append("quiet")
 		#...Ask the kernel to only report errors, critical errors, alerts, and emergencies.
 		kernel_options.append("log_level=3")
 		#...Ask systemd to shut up.
 		kernel_options.append("systemd.show_status=auto")
-		kernel_options.save(target.basedir + "cmdline.txt")
+		kernel_options.save(target.current + "cmdline.txt")
 
 		# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
 		if kiosk.device.data == "pi4b" and not kiosk.cpu_boost.data:
