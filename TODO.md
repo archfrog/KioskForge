@@ -42,19 +42,10 @@ snap connect chromium:wayland
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be supported as well.
 - [ ] 2026.05.14.12.46 H Add SSH access via the `root` user.  This is not really a security issue as it always uses a private key.
                          This to allow systems operations from the KioskForge management GUI, if it is ever completed.
-- [x] 2026.05.14.07.07 H Use the existing, mandatory SSH connection to the kiosk to upgrade and operate it.  Drop the idea of
-                         writing a custom server.  `KioskUpgrade.py` is now implemented and takes a .zip archive using `scp`.
-- [ ] 2026.05.14.03.54 H Add a `check()` method to the `Kiosk` class and make it check all the border cases such as `sound`
-                         cannot be `jack` when the target is a Pi 5.  And so on.  Disallow slashes and dots in `user_folder`.
-- [ ] 2026.05.14.02.59 H Add `mouse=auto` option so that mouse is enabled only if there is no touchscreen (probably impossible).
+- [ ] 2026.05.14.02.59 H Add `mouse=auto` option so that mouse is enabled only if there is no touchscreen (work in progress).
 - [ ] 2026.05.12.05.28 H Move the `KioskForge.kiosk` file to `/home/kiosk` so as to simplify manual upgrades a bit and also to
                          ensure that the `user_folder` and `user_fonts` settings work relative to the `KioskForge.kiosk` file.
                          This may be problematic in terms of upgrading the `.kiosk` file - it prevents rolling back to an earlier version.
-- [x] 2026.05.14.01.02 H Make a KioskForge bootloader that deletes, unzips, and launches KioskForge at boot.  This way, the user
-                         can quickly upgrade a kiosk simply by uploading a Zip archive such as `KioskForge-1.03.zip` and reboot.
-                         The source archive **must** be deleted so that the bootloader doesn't load up an old version.  Alternatively,
-                         the bootloader should unpack into `KioskForge-1.03` and then force-make a soft link from it to `KioskForge`.
-                         The idea being that it should be easy to roll back to an earlier version if a new release is buggy.
 - [ ] 2026.05.14.01.01 H Use "zip method" for the KioskForge files too as their file dates are ruined by the installation medium.
 - [ ] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relative to the `.kiosk` file.
 - [ ] 2026.05.14.01.24 H Ensure the current working directory is `~` when the kiosk is launched.
@@ -224,18 +215,27 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.14.07.07 H Use the existing, mandatory SSH connection to the kiosk to upgrade and operate it.  Drop the idea of
+                         writing a custom server.  `KioskUpgrade.py` is now implemented and takes a .zip archive using `scp`.
+- [x] 2026.05.14.03.54 H Add a `check()` method to the `Kiosk` class and make it check all the border cases such as `sound`
+                         cannot be `jack` when the target is a Pi 5.  And so on.  Disallow slashes and dots in `user_folder`.
+- [x] 2026.05.14.01.02 H Make a KioskForge bootloader that deletes, unzips, and launches KioskForge at boot.  This way, the user
+                         can quickly upgrade a kiosk simply by uploading a Zip archive such as `KioskForge-1.03.zip` and reboot.
+                         The source archive **must** be deleted so that the bootloader doesn't load up an old version.  Alternatively,
+                         the bootloader should unpack into `KioskForge-1.03` and then force-make a soft link from it to `KioskForge`.
+                         The idea being that it should be easy to roll back to an earlier version if a new release is buggy.
 - [x] 2026.05.15.20.06 H Remove the automatic generation of hostnames: People cannot find a kiosk whose name they don't know (?).
                          This is not a big issue as `KioskDiscoveryClient.py` exists and can find the kiosk.  Besides, the host
-						 name is *not* used to locate a kiosk until explicitly registered in the router, where it may be different.
+                         name is *not* used to locate a kiosk until explicitly registered in the router, where it may be different.
 - [x] 2026.05.14.00.57 L Fix the problem that physical logins are not currently possible because of the `.bash_login` script.
                          These are not possible, anyway, because the kiosk is running X11 or Wayland.  No way to log in.  The user
-						 should be instructed, in the documentation, to always use SSH and nothing but SSH.  Perhaps find a GUI SSH
-						 client to recommend.
+	should be instructed, in the documentation, to always use SSH and nothing but SSH.  Perhaps find a GUI SSH
+	client to recommend.
 - [x] 2026.05.14.04.07 H Rewrite `KioskDesktop.py` to handle both `web` and `x11` kiosks so that the app is restarted on crashes.
 - [x] 2026.05.14.03.14 H Rename `KioskOpenbox.py` to `KioskDesktop.py` as it handles both `web` and `x11` kiosks.
 - [x] 2026.05.14.01.28 H Rune wants KF to support kiosks that are never automatically upgraded.  This to ensure stability.  This
                          requires that `journalctl --vacuum...` is invoked from a cron job instead of from `KioskUpdate.py`,
-						 otherwise the system medium will eventually become full of logs.
+	otherwise the system medium will eventually become full of logs.
 - [x] 2026.05.14.00.24 H Fix the problem that `ssh` login launches `KioskStart.py` and does not read `.bashrc`.  Apparently, `ssh`
                          sessions can be detected by looking at the presence of the `SSH_CLIENT` environment variable.
 - [x] 2026.05.10.13.14 H CloudInit does not copy Danish characters correctly even when using `cp -pR`.  Report or fix this.
