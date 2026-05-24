@@ -28,7 +28,6 @@
 # Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
 from typing import cast, List
 
-import glob
 import os
 import shlex
 import stat
