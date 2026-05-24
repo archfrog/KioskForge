@@ -216,6 +216,8 @@ class PiRecognizer(Recognizer):
 				target.current = base
 				return target
 
+		return None
+
 
 # List of systems that can be recognized and thus are supported.
 RECOGNIZERS = [
