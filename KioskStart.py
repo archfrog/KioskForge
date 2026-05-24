@@ -146,7 +146,7 @@ class KioskStart(KioskDriver):
 				del records
 
 				# Extract the touchscreen names from the NAME= lines.
-				touchscreens = map(lambda line: line.split('"')[1], touch_names)
+				touchscreens = list(map(lambda line: line.split('"')[1], touch_names))
 				del touch_names
 
 				if touchscreens:
@@ -155,6 +155,7 @@ class KioskStart(KioskDriver):
 				else:
 					# Enable mouse.
 					kiosk.assign("mouse", "true")
+				del touchscreens
 
 			if kiosk.type.data in [ "x11", "web" ]:
 				# Move ~/.xsession-errors to ~/.xsession-errors.old to avoid having it grow indefinitely forever.
