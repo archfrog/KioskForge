@@ -29,13 +29,14 @@
 from typing import List
 
 import os
+import re
 import sys
 import time
 
 from kiosklib.builder import TextBuilder
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
-from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe
+from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe, Result
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.signal import Signal
@@ -99,6 +100,8 @@ class KioskStart(KioskDriver):
 
 				# Loop over calling 'wpctl status' until we get meaningful results.
 				# NOTE: If the 'time.sleep(5)' above is not present, we simply get an empty list of sinks.  Hooray for systemd!
+				# NOTE: The next line is redundant but MyPy doesn't detect that 'result' is always assigned.
+				result = Result()
 				while True:
 					result = invoke_text("wpctl status")
 					if result.status == 0:
@@ -123,6 +126,36 @@ class KioskStart(KioskDriver):
 				#	os.seteuid(0)
 				#	os.setegid(0)
 
+			# Auto-configure the 'mouse' option depending on the presence of a touchscreen (present: disable, otherwise: enable).
+			if kiosk.mouse.data == "auto":
+				result = invoke_text("udevadm info --export-db")
+				if result.status != 0:
+					raise KioskError("Could not query device database (udevadm info) to find any touchscreen displays")
+
+				# Split udevadm output into records that are made up of multiple lines of text separated by a blank line.
+				records = re.split(r'\n\s*\n', result.output)
+				del result
+
+				# Discard all records not related to touchscreens.
+				records = filter(lambda record: "ID_INPUT_TOUCHSCREEN=1" in record, records)
+
+				# Extract all lines showing the name of the touchscreen.
+				touch_names = []
+				for record in records:
+					touch_names += list(filter(lambda line: line.startswith("E: NAME="), record.split(os.linesep)))
+				del records
+
+				# Extract the touchscreen names from the NAME= lines.
+				touchscreens = map(lambda line: line.split('"')[1], touch_names)
+				del touch_names
+
+				if touchscreens:
+					# Disable mouse.
+					kiosk.assign("mouse", "false")
+				else:
+					# Enable mouse.
+					kiosk.assign("mouse", "true")
+
 			if kiosk.type.data in [ "x11", "web" ]:
 				# Move ~/.xsession-errors to ~/.xsession-errors.old to avoid having it grow indefinitely forever.
 				if os.path.isfile("/home/kiosk/.xsession-errors"):
@@ -133,7 +166,7 @@ class KioskStart(KioskDriver):
 					# Launch X11, which runs '.config/openbox/autostart', which launches Chromium in kiosk mode or the user app.
 					words  = TextBuilder()
 					words += "startx"
-					if not kiosk.mouse.data:
+					if kiosk.mouse.data == "false":
 						words += "--"
 						words += "-nocursor"
 					invoke_list_safe(words.list)

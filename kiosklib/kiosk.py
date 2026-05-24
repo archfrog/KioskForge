@@ -192,16 +192,18 @@ Examples:
 
 
 MOUSE_HELP = """
-If the mouse should be enabled.
+If the mouse should be enabled, disabled, or automatically configured.
 
-Valid values are 'true' (enabled) and 'false' (disabled).
+Valid values are 'true' (enabled), 'false' (disabled), and 'auto' (detect).
 
-You generally want to avoid enabling the mouse on kiosks with touch screens
-as this makes the mouse cursor visible to the user.
+You generally want to avoid enabling the mouse on kiosks with touchscreens
+as this makes the mouse cursor visible to the user.  The 'auto' option
+enables the mouse if no touchscreen is detected, otherwise it is disabled.
 
 Examples:
-    mouse=false  (when using a touch screen)
-    mouse=true   (when using a physical mouse)
+    mouse=auto   (Automatically detect presence of touchscreen.)
+    mouse=false  (When using a touchscreen)
+    mouse=true   (When using a physical mouse)
 """.strip()
 
 
@@ -711,7 +713,7 @@ class Kiosk(Fields):
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
 		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
-		self += BooleanField("mouse", "false", MOUSE_HELP)
+		self += ChoiceField("mouse", "false", MOUSE_HELP, ["false", "true", "auto"])
 		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
