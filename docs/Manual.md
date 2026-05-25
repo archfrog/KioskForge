@@ -86,8 +86,6 @@ After this, you can launch KioskForge directly from Windows Explorer by double-c
 **NOTE:** There's currently no point in starting KioskForge from the Windows Start menu: It will fail because it needs the name of a kiosk file to open.  You can, however, run it from a console if you are so inclined, insofar as you pass the name of a kiosk file.  If you run it from the command line, you need to add the `apply` keyword before the actual path of the `.kiosk` file to use.
 
 ### Linux
-**NOTE:** `KioskForge.py` currently *cannot* be run on Linux.  This is a planned feature and is expected to be fixed sometime soon.
-
 Install a recent version of the [Python v3.13+ programming language](https://python.org).  On most Linuxes, this can be done with
 the system-wide package manager such as `apt`, `dnf`, `pacman`, and so on.  Make sure to install Python v3.13+.  Earlier versions
 should work fine, especially v3.10+, but I don't test against these and don't use older versions of Python during development.
@@ -98,7 +96,26 @@ Then fetch KioskForge from GitHub using the following command:
 git clone https://github.com/archfrog/KioskForge
 ```
 
+#### Activating the Python Virtual Environment
+Before you can use the KioskForge scripts, you need to activate the Python virtual environment:
+
+```bash
+.venv/Scripts/activate
+```
+
+If you don't use the Bash shell, you need to check the `.venv/Scripts` folder for a compatible `activate` script for your shell.
+
+This sets up the runtime environment needed to execute KioskForge.
+
+#### Execute Permissions
 You need to make sure that the script `KioskForge.py` has execute permissions (use `chmod u+x KioskForge.py` to set them), then you can invoke it using `./KioskForge.py`.
+
+#### Specifying the Installation Medium Mount Point
+`KioskForge.py` does not yet auto-detect the Ubuntu Server installation medium so you need to specify a mount point to the `KioskForge.py prepare` command.  If the `.kiosk` file is named `Test.kiosk` and the mount point for the Ubuntu Server installation medium is `/mnt/sdcard`, you need to execute this command:
+
+```bash
+./KioskForge.py prepare Test.kiosk /mnt/sdcard
+```
 
 ### Macintosh
 I don't have access to a Mac computer, so no development or testing is done on this platform.  Feel free to port the script and submit a pull request.  Please make sure that the result generates a valid, reliable kiosk before submitting the pull request.
@@ -122,9 +139,9 @@ If there are no errors in the kiosk file, KioskForge will look through all drive
 Linux installation medium.  If it finds one, it will ask you to review the settings and then update the medium so that it will
 create a kiosk the first time that the kiosk machine is booted off that medium.
 
-**NOTE:** The kiosk MUST be connected to the internet while it is being forged!  After this, it can stay offline forever.  You can disable updates by setting the `update_time` option to nothing.
+**NOTE:** The kiosk MUST be connected to the internet while it is being forged!  After this, it can stay offline forever.  You can disable updates by setting the `update_time` option blank (`update_time=`).
 
-**NOTE:** Web-type kiosks should be permanently online that they can update Chromium and other system software.  But it can work without, and there are good reasons for keeping it offline: Updates MAY break the system!
+**NOTE:** Web-type kiosks should be permanently online that they can update Chromium and other system software.  But it can work without, and there are good reasons for keeping it offline: Updates MAY break the system!  This happens occasionally and is beyond our control.
 
 **NOTE:** We generally recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
 
