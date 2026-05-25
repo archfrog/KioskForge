@@ -12,12 +12,12 @@ It does not matter the least if the script is ugly, a bit clumsy, or somewhat su
 People probably only use the script occasionally, so it doesn't matter if the UI doesn't win any design contests.
 
 ## Developing
-Contributions to KioskForge are very welcome, whether via actual GitHub pull requests (PRs), bug reports, suggestions, or other contributions.
+Contributions to KioskForge are very welcome via GitHub pull requests (PRs), bug reports, suggestions, or other contributions.
 
 ### Preparation
 To prepare for developing on KioskForge, follow this procedure:
 
-1. Install [Python v3.13.7](https://www.python.org/downloads/release/python-3137/) (to be able to use Python globally).
+1. Install [Python v3.13.13](https://www.python.org/downloads) (to be able to use Python globally).
 2. Install [uv](https://github.com/astral-sh/uv) as per the `Installation` section on that page.
 3. Create and/or change directory to the parent directory of where you want the KioskForge sources to live.
 4. Check out the KioskForge repository using Git: `git clone https://github.com/archfrog/KioskForge`
@@ -57,8 +57,6 @@ Run the script `build.py` (Windows only) to build the platform-specific installe
 [KioskForge.org](https://kioskforge.org).
 
 **NOTE**:
-The `build.py` takes an option, `--ship`, which you should not attempt to use.  It builds the Windows setup program using
-[Inno Setup](https://jrsoftware.org/isinfo.php) and copies the built setup program to my personal web server, so it will fail
-on your equipment as you don't have the SSH configuration and private key to my personal web server...
+The `build.py` takes an option, `--ship`, which you should not attempt to use.  It builds the Windows setup program using [Inno Setup](https://jrsoftware.org/isinfo.php) and updates the documentation on my personal web server, so it *will* fail on your equipment as you don't have the SSH configuration and private key to my personal web server...
 
 Development currently happens on a Windows 11 desktop computer, but I'll set up a Linux development environment soon.
