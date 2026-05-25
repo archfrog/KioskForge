@@ -6,7 +6,7 @@ KioskForge is intended for somewhat non-technical users to set up a kiosk machin
 
 KioskForge takes two inputs:
 
-1. An Ubuntu Server 24.04.x installation medium created using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+1. An Ubuntu Server 24.04.x/26.04 installation medium created using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 2. A "kiosk file", which is a configuration file that specifies the values of all the settings that KioskForge supports.
 
 The first, the Ubuntu Server installation medium, is automatically located by KioskForge if it is present on the host system.  The kiosk file name can be passed as an argument to KioskForge or double-clicked to open KioskForge.
@@ -18,7 +18,7 @@ The total size of the files KioskForge adds to the kiosk machine is currently le
 ## Features
 KioskForge currently supports these things:
 
-* Ubuntu Server 24.04.x (this is a Long Term Support release, which will be supported by Ubuntu until April 2029).
+* Ubuntu Server 24.04.x LTS or Ubuntu Server 26.04.x LTS.
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5 (with 2+ GB RAM) ARM64 (aarch64).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without a URL address bar).
 * Creating a kiosk that runs a command-line (CLI) application programmed by the user.
@@ -95,7 +95,7 @@ should work fine, especially v3.10+, but I don't test against these and don't us
 Then fetch KioskForge from GitHub using the following command:
 
 ```bash
-    git clone https://github.com/archfrog/KioskForge
+git clone https://github.com/archfrog/KioskForge
 ```
 
 You need to make sure that the script `KioskForge.py` has execute permissions (use `chmod u+x KioskForge.py` to set them), then you can invoke it using `./KioskForge.py`.
@@ -111,7 +111,7 @@ KioskForge currently uses the X11 windowing system when running Chromium (the op
 KioskForge currently only supports DHCP-assigned LAN IP addresses, so there's no way of specifying a fixed LAN IP address.  This basically means you need to talk to your network administrator about getting a static DHCP lease for the kiosk machine itself, which is a very good idea, anyway, as you don't want to work blindly if the kiosk suddenly misbehaves and needs fixing.
 
 ## Usage
-KioskForge is a simple application that modifies an Ubuntu Server 24.04.x installation medium so that it creates a kiosk from a so-called "kiosk file" when booted the first time.  A kiosk file is a simple configuration file composed of lines that can be blank, a comment (starting with `#`), or a field assignment of the form `name=value`.  Each kiosk file defines a kiosk and its forging.
+KioskForge is a simple application that modifies an Ubuntu Server 24.04.x/26.04.x installation medium so that it creates a kiosk from a so-called "kiosk file" when booted the first time.  A kiosk file is a simple configuration file composed of lines that can be blank, a comment (starting with `#`), or a field assignment of the form `name=value`.  Each kiosk file defines a kiosk and its forging.
 
 The only GUI way to use KioskForge is to double-click a kiosk file (which ends in `.kiosk` and has the Windows Explorer file type
 `KioskForge Kiosk`).
@@ -122,22 +122,23 @@ If there are no errors in the kiosk file, KioskForge will look through all drive
 Linux installation medium.  If it finds one, it will ask you to review the settings and then update the medium so that it will
 create a kiosk the first time that the kiosk machine is booted off that medium.
 
-**NOTE:** The kiosk MUST be connected to the internet while it is being forged!  After this, it can stay offline forever.
+**NOTE:** The kiosk MUST be connected to the internet while it is being forged!  After this, it can stay offline forever.  You can disable updates by setting the `update_time` option to nothing.
 
-It is probably best for the kiosk to be permanently online so it can update Chromium and system software.  But it can work without, and there are good reasons for keeping it offline: Updates MAY break the system!
+**NOTE:** Web-type kiosks should be permanently online that they can update Chromium and other system software.  But it can work without, and there are good reasons for keeping it offline: Updates MAY break the system!
 
 **NOTE:** We generally recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
 
 The procedure is as follows:
 
-1. Create an `Ubuntu Server 24.04.x` installation media for Raspberry Pi 4B (ARM64) using a USB key or a MicroSD card:
-     1. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).  Make sure you **don't** use *OS Customisations*.
+1. Create an `Ubuntu Server 24.04.x/26.04.x` installation media for Raspberry Pi 4B (ARM64) using a USB key or a MicroSD card:
+     1. Install [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
      2. This link points to a pretty good guide on how to use [Raspberry Pi Imager](https://www.raspberrypi.com/documentation/computers/getting-started.html#raspberry-pi-imager).
-     3. You'll find `Ubuntu Server 24.04.x` in the subcategory `Ubuntu` of the category `Other general-purpose OS`. If you do not see `Ubuntu` in the `Other general-purpose OS` list, Raspberry Pi Imager is to blame.  Just wait a few minutes and try again.  Raspberry Pi Imager sometimes bugs out and refuses to display the entire list of Linux images.
+     3. You'll find `Ubuntu Server 24.04.x/26.04.x` in the subcategory `Ubuntu` of the category `Other general-purpose OS`. If you do not see `Ubuntu` in the `Other general-purpose OS` list, Raspberry Pi Imager is to blame.  Just wait a few minutes and try again.  Raspberry Pi Imager sometimes bugs out and refuses to display the list of supported Linux images.
      4. Be aware that newer Ubuntu Server versions may pop up in the list when released, so be careful what you select!
      5. Also, be sure to **not** select `Ubuntu Desktop` (KioskForge will detect this, though, and report an error).
-     6. When Raspberry Pi Imager is done "burning" the Ubuntu Server version, exit Raspberry Pi Imager.
-     7. If Raspberry Pi Imager ejects the medium so KioskForge can't find it, simply unplug it and insert it again.
+     6. Make sure you click `SKIP CUSTOMISATION` before you get to the screen with `WRITE`.  Any and all OS customizations that you may want to make **must** be made in the `.kiosk` file, not in RPI Imager.
+     7. When Raspberry Pi Imager is done writing Ubuntu Server, exit Raspberry Pi Imager.
+     8. If Raspberry Pi Imager ejects the medium so KioskForge can't find it, simply unplug it and insert it again.
 2. Right-click on empty space on your Desktop, or the folder where you want to place the `.kiosk` file, and select `New`, then `KioskForge Kiosk`.  Please assign the new kiosk file a meaningful name so you can easily see its purpose.
 3. Edit the new kiosk by opening it in `Notepad` (right-click on the kiosk icon and select `Edit`).  Save it using `Ctrl-S`.
 4. Double-click on the new kiosk file to open it in KioskForge.
@@ -149,7 +150,7 @@ The procedure is as follows:
 10. Power on the kiosk machine.
 11. Wait 5 to 30 minutes (this depends on the Raspberry Pi model, the I/O speed of the installation media, and your internet speed) until the kiosk has been forged, which is shown by the kiosk rebooting into kiosk mode.
 12. Try out and test the new kiosk.  If you find issues, please either modify your `.kiosk` file or report bugs to us.
-13. You can either attach a keyboard or SSH into the box (the LAN IP address is shown when the kiosk boots) to power it off.
+13. You can SSH into the box (the LAN IP address is shown when the kiosk boots) to power it off using the private key associated with the public key added in the `.kiosk` file.
 14. Mount the Raspberry Pi in whatever enclosure you are using for your kiosk, which is typically custom-made by carpenters.
 
 After that, the kiosk should *theoretically* run nicely and reliably for years and years.  However, you may want to log in to it using SSH once in a while to verify that logs are being rotated, that there is sufficient disk space available, and so on.  The kiosk is set up to automatically reclaim as much space as it can whenever the daily maintenance script runs.
@@ -164,7 +165,7 @@ When you report a bug, please first log into the kiosk and run the command shown
 *redacted* kiosk files:
 
 ```bash
-    KioskForge/KioskReport.py
+KioskForge/KioskReport.py
 ```
 
 This will create the archive `kiosklogs.zip` which you can then download from the kiosk using `scp` or [WinSCP](https://winscp.net).  Please attach the `kiosklogs.zip` file to your bug report, whether by email or via GitHub.
