@@ -33,6 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
+                         This can only be made if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
 - [ ] 2026.05.21.00.08 H Move the `redact_prepare` and `redact_report` methods to their respective files, away from `kiosk.py`!
 - [ ] 2026.05.19.01.37 H Would it make sense to use a predefined name, say `Application`, to the user folder?  It would simplify
                          many things, such as understanding a KioskForge project, and it makes a lot of sense.  The `user_folder`
