@@ -316,6 +316,24 @@ class KioskSetup(KioskDriver):
 				kiosk.ssh_key.data + "\n"
 			)
 
+		# Create udev rule to grant the kiosk user access to the Raspberry Pi 4B and 5 gpio chip zero (the 40 pin header).
+		# NOTE: The kiosk user has already been added to the 'gpio' group by the CloudInit part set up by KioskForge.py.
+		# NOTE: https://oneuptime.com/blog/post/2026-03-02-how-to-configure-gpio-access-on-ubuntu-for-raspberry-pi/view
+		lines  = TextBuilder()
+		lines += ' # Allow members of the gpio group to access GPIO character devices.'
+		lines += 'SUBSYSTEM=="gpio", KERNEL=="gpiochip*", GROUP="gpio", MODE="0660"'
+		lines += ''
+		lines += '# Also allow access to the GPIO export interface (for legacy support).'
+		lines += 'SUBSYSTEM=="gpio", GROUP="gpio", MODE="0660"'
+		script += CreateTextWithUserAndModeAction(
+			"Enabling kiosk access to the 40 pin GPIO header.",
+			"/etc/udev/rules.d/99-gpio.rules",
+			"root",
+			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
+			lines.text
+		)
+		del lines
+
 		# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
 		# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
 		if kiosk.user_folder.data:
