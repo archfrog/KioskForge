@@ -9,11 +9,12 @@ system optimizations.
 ## Features
 KioskForge supports the following features:
 
-* Deployment of Ubuntu Server 24.04.x (a Long Term Support release, which is supported until June 2029).
+* Deployment of Ubuntu Server 24.04.x and Ubuntu Server 26.04.x (both Long-Term Support versions supported until 2029 and 2031).
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5.
 * Windows 11+ setup program.
 * International users (there are configuration settings for language, keyboard, and Wi-Fi region).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without a URL address bar).
+* Creating a kiosk that run an X11 GUI application programmed by the user.
 * Creating a kiosk that runs a command-line (CLI) application programmed by the user.
 * Touch screen input, insofar as the particular touch screen is supported out of the box by the target operating system.
 * Rotating normal and touch-panel displays (sometimes kiosk screens are mounted in a rotated fashion).
