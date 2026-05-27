@@ -4,9 +4,11 @@ This document presents the important changes made to each KioskForge release fro
 ## Planned Changes
 1. Support for remote upgrades of KioskForge and/or the user application via SSH and/or SCP.
 
-## Version 1.03 (2026.05.XX)
-1. Ubuntu Server 26.04.x is now supported by KioskForge.  This is still in a very early phase and has only been tested on one kiosk (where everything worked straight out of the box!).
+## Version 1.03 (2026.05.27)
+1. Ubuntu Server 26.04.x is now supported by KioskForge.  This is beta as the tests have been limited (everything worked right away in these tests, though).
 2. The `mouse` option now supports a third value, `auto`, which causes the kiosk to automatically detect whether the mouse should be enabled.  If a touchscreen is detected, the mouse will be deactivated so that no mouse cursor is displayed.  Otherwise, the mouse will be disabled.  The `auto` setting is the recommended setting for all kiosks going forward.  This solves the problem of developing the kiosk without a touchscreen (mouse=true) and then deploying it to a kiosk with a touchscreen (mouse=false), only to forget the mouse option, which means you have to edit the .kiosk file and forge a new kiosk just because of a tiny mistake.
+3. KioskForge now always makes the necessary changes to Ubuntu to support access to the various Raspberry Pi GPIO pins.
+4. The documentation was proofread with Grammarly (an AI solution) and many errors were fixed.
 
 ## Version 1.02 (2026.05.22)
 1. The `shell` user has been retired because it was tedious to log in as the shell user and then use `su kiosk` to access the kiosk.
