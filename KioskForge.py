@@ -49,7 +49,7 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
 from kiosklib.shell import tree_delete
 from kiosklib.sources import SOURCES
-from kiosklib.various import hostname_create, password_hash
+from kiosklib.various import hostname_create, password_hash, wifi_password_hash
 from kiosklib.version import Version
 
 
@@ -516,6 +516,10 @@ class KioskForge(KioskDriver):
 		# Hash the user's password, if not already done (this change is only saved to the installation image!).
 		kiosk.assign("user_code", password_hash(kiosk.user_code.data))
 
+		# Hash the Wi-Fi password, if not already done (this change is only saved to the installation image!).
+		if kiosk.wifi_name.data and kiosk.wifi_code.data:
+			kiosk.assign("wifi_code", wifi_password_hash(kiosk.wifi_name.data, kiosk.wifi_code.data))
+
 		# Check the optional location or automatically attempt to identify an installation medium.
 		target : Optional[Target] = None
 		if location:
@@ -590,6 +594,9 @@ class KioskForge(KioskDriver):
 		kernel_options.append("log_level=3")
 		#...Ask systemd to shut up.
 		kernel_options.append("systemd.show_status=auto")
+		# NOTE: We shouldn't have to pass a kernel parameter for the 'regulatory domain' but the 'network-config' values aren't
+		# NOTE: picked up so in Denmark we get the regulatory domain for Germany (DE), which is plain wrong.
+		kernel_options.append("cfg80211.ieee80211_regdom=" + kiosk.wifi_country.data)
 		kernel_options.save(target.current + "cmdline.txt")
 
 		# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
