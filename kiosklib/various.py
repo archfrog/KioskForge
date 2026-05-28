@@ -24,6 +24,7 @@
 #**********************************************************************************************************************************
 
 import errno
+from hashlib import pbkdf2_hmac
 import io
 import os
 import secrets
@@ -107,7 +108,7 @@ def password_hash(text : str) -> str:
 
 	# Verify the that the length of the password fits the constraints of bcrypt.
 	if len(text) < 1 or len(text) > 72:
-		raise ValueError("Argument 'text' must be between 1 and 72 charaters in length")
+		raise ValueError("User password must be between 1 and 72 characters long")
 
 	# Convert UTF-8 string into a byte string.
 	data = text.encode('utf-8')
@@ -141,3 +142,22 @@ def screen_clear() -> None:
 	# NOTE: The 'clear' command has no effect for reasons unknown to me so I resorted to using an 'xterm' escape sequence.
 	# Clear screen and move cursor to (1, 1).
 	print("\033[2J\033[1;1H", end="")
+
+
+def wifi_password_hash(ssid : str, password : str) -> str:
+	"""Hashes a Wi-Fi password into a Wi-Fi PSK if not already hashed.  If already hashed, it is returned unaltered."""
+	if wifi_password_hashed(password):
+		return password
+
+	# Verify the that the length of the password fits the constraints of bcrypt.
+	if len(password) < 8 or len(password) > 63:
+		raise ValueError("Wi-Fi password must be between 8 and 63 characters long")
+
+	# Make a PBKDF2_SHA1 hash med 4096 iterationstrin og 32 bytes output.
+	result = pbkdf2_hmac('sha1', password.encode('utf_8'), ssid.encode('utf_8'), 4096, dklen=32).hex()
+
+	return result
+
+
+def wifi_password_hashed(password : str) -> bool:
+	return len(password) == 64

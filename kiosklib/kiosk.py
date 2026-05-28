@@ -312,12 +312,16 @@ The key can be generated using the 'ssh-keygen' command, which is part of
 Linux, but also available on numerous public websites that you can use to
 generate an SSH key pair.  Just search for "ssh-keygen online".
 
+SSH keys always come in pairs of two: a private key (which you must keep
+secret) and a public key (which is installed in the kiosk).  Anybody with
+access to the private key can access the kiosk using various tools!
+
 To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
 (CLI/non-GUI).
 
 IMPORTANT:
 1. Always specify an SSH key unless you absolutely cannot!
-2. If you lose your private key, you cannot access the kiosk via SSH anymore.
+2. If you lose the private key, you cannot access the kiosk via SSH anymore.
 
 Examples:
     ssh_key=             (To allow only physical logins)
@@ -462,7 +466,7 @@ secure password of at least 32 random characters so as to not allow hackers
 into the kiosk.
 
 Examples:
-    user_code=:mysillylongpassword:
+    user_code=my11silly19long7password:
 """.strip()
 
 
@@ -717,7 +721,7 @@ class Kiosk(Fields):
 		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
-		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}")
+		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}|[0-9a-f]{64}")
 		self += RegexField("wifi_country", "US", WIFI_COUNTRY_HELP, r"[A-Z]{2}")
 		self += BooleanField("wifi_hidden", "false", WIFI_HIDDEN_HELP)
 		self += BooleanField("wifi_boost", "true", WIFI_BOOST_HELP)
