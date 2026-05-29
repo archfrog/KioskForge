@@ -27,14 +27,17 @@ import errno
 from hashlib import pbkdf2_hmac
 import io
 import os
+import re
 import secrets
 from string import ascii_lowercase
 import sys
+from typing import List
 
 # Import the bcrypt PyPi package, which is a dependency in the 'uv' 'pyproject.toml' file.
 import bcrypt
 
 from kiosklib.errors import KioskError
+from kiosklib.invoke import invoke_text
 
 
 def file_wipe_once(path : str) -> None:
@@ -142,6 +145,32 @@ def screen_clear() -> None:
 	# NOTE: The 'clear' command has no effect for reasons unknown to me so I resorted to using an 'xterm' escape sequence.
 	# Clear screen and move cursor to (1, 1).
 	print("\033[2J\033[1;1H", end="")
+
+
+def touchscreens_get() -> List[str]:
+	"""Returns a possibly empty list of touchscreens attached to the running kiosk."""
+	result = invoke_text("udevadm info --export-db")
+	if result.status != 0:
+		raise KioskError("Could not query device database (udevadm info) to find any touchscreen displays")
+
+	# Split udevadm output into records that are made up of multiple lines of text separated by a blank line.
+	records = re.split(r'\n\s*\n', result.output)
+	del result
+
+	# Discard all records not related to touchscreens.
+	records = list(filter(lambda record: "ID_INPUT_TOUCHSCREEN=1" in record, records))
+
+	# Extract all lines showing the name of the touchscreen.
+	touch_names = []
+	for record in records:
+		touch_names += list(filter(lambda line: line.startswith("E: NAME="), record.split(os.linesep)))
+	del records
+
+	# Extract the touchscreen names from the NAME= lines.
+	touchscreens = list(map(lambda line: line.split('"')[1], touch_names))
+	del touch_names
+
+	return touchscreens
 
 
 def wifi_password_hash(ssid : str, password : str) -> str:

@@ -40,7 +40,7 @@ from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe, Res
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.signal import Signal
-from kiosklib.various import screen_clear
+from kiosklib.various import screen_clear, touchscreens_get
 from kiosklib.wpctl import wpctl_status_parse_sinks
 
 
@@ -127,28 +127,9 @@ class KioskStart(KioskDriver):
 				#	os.setegid(0)
 
 			# Auto-configure the 'mouse' option depending on the presence of a touchscreen (present: disable, otherwise: enable).
+			# TODO: This does not work on a system with a touchscreen, perhaps the system in question doesn't detect it?
 			if kiosk.mouse.data == "auto":
-				result = invoke_text("udevadm info --export-db")
-				if result.status != 0:
-					raise KioskError("Could not query device database (udevadm info) to find any touchscreen displays")
-
-				# Split udevadm output into records that are made up of multiple lines of text separated by a blank line.
-				records = re.split(r'\n\s*\n', result.output)
-				del result
-
-				# Discard all records not related to touchscreens.
-				records = filter(lambda record: "ID_INPUT_TOUCHSCREEN=1" in record, records)
-
-				# Extract all lines showing the name of the touchscreen.
-				touch_names = []
-				for record in records:
-					touch_names += list(filter(lambda line: line.startswith("E: NAME="), record.split(os.linesep)))
-				del records
-
-				# Extract the touchscreen names from the NAME= lines.
-				touchscreens = list(map(lambda line: line.split('"')[1], touch_names))
-				del touch_names
-
+				touchscreens = touchscreens_get()
 				if touchscreens:
 					# Disable mouse.
 					kiosk.assign("mouse", "false")
