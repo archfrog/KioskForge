@@ -33,6 +33,16 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.05.27.09.15 H Make the `device` option redundant by auto-detecting the host Pi type in `KioskSetup.py`.  Also, if the
+                         host is a Pi 5, the `sound_card` should be mapped from `jack` to `hdmi1` if possible.  This to allow
+						 developers to use a Pi 5 and easily later deploy the project to a Pi 4B, which does have a jack.
+- [ ] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
+                         It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
+						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass
+						 in the regulatory domain as a kernel command line argument (in `cmdline.txt`).  It *may* be that the
+						 problems I am experiencing are caused by my Asus router, which possibly replies with a wrong reg. domain.
+- [ ] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
+                         and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
                          This can only be made if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
 - [ ] 2026.05.21.00.08 H Move the `redact_prepare` and `redact_report` methods to their respective files, away from `kiosk.py`!
@@ -217,6 +227,8 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.27.16.15 H Research the feasibility of making the GUI using PySide6.  PySide6 looks and works great, chosen!
+- [x] 2026.05.28.22.32 H Make a Wi-Fi PSK for the user's wifi password so that it is not stored in clear text anymore.
 - [x] 2026.05.14.07.07 H Use the existing, mandatory SSH connection to the kiosk to upgrade and operate it.  Drop the idea of
                          writing a custom server.  `KioskUpgrade.py` is now implemented and takes a .zip archive using `scp`.
 - [x] 2026.05.14.03.54 H Add a `check()` method to the `Kiosk` class and make it check all the border cases such as `sound`
@@ -303,8 +315,8 @@ snap connect chromium:wayland
 - [x] 2025.07.03.02.03 U Fix `snap` issues: Apparently, `snap` updates in the *background* long after it has exited.  This can
                          occasionally lead to `snap` corruption as KioskUpdate.py reboots the kiosk while `snap` is updating.
                          Hmm, this *may* not be the cause of the `snap` VFS trashing that I have seen on the Bunker kiosk as the
-	documentation *claims* that `snap` does not update in the background.  It may be a race condition in
-	`KioskUpdate.py`.
+                         documentation *claims* that `snap` does not update in the background.  It may be a race condition in
+                         `KioskUpdate.py`.
                          This issue is most likely caused by the `KioskOpenbox.py` script trying to restart Chromium even after
                          `KioskUpdate.py` has SIGTERM'ed Chromium and X11.  `KioskUpdate.py` must watch for a shut-down file!
                          This has (hopefully) been fixed in v0.23 by introducing inter-process communication between
