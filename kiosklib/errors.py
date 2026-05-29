@@ -27,7 +27,7 @@ class Error(Exception):
 	"""The base class for all exceptions."""
 
 	def __init__(self, text : str) -> None:
-		Exception.__init__(self)
+		super().__init__()
 		self.__text = text
 
 	@property
@@ -38,22 +38,16 @@ class Error(Exception):
 class CommandError(Error):
 	"""Exception used to signal that a syntax error, when invoking a KioskForge script, has been detected."""
 
-	def __init__(self, text : str) -> None:
-		Error.__init__(self, text)
-
 
 class InputError(Error):
 	"""Base exception thrown if an error not related to a field occurs during input or output, otherwise a FieldError is thrown."""
-
-	def __init__(self, text : str) -> None:
-		Error.__init__(self, text)
 
 
 class TextFileError(InputError):
 	"""Exception used to report an error in a specific line of a specific file."""
 
 	def __init__(self, file : str, line : int, text : str) -> None:
-		InputError.__init__(self, text)
+		super().__init__(text)
 		self.__file = file
 		self.__line = line
 
@@ -77,7 +71,7 @@ class FieldError(InputError):
 	"""Exception thrown if an input/output error is related to a particular option ("field")."""
 
 	def __init__(self, field : str, text : str) -> None:
-		InputError.__init__(self, text)
+		super().__init__(text)
 		self.__field = field
 
 	@property
@@ -92,12 +86,6 @@ class FieldError(InputError):
 class KioskError(Error):
 	"""Generic exception used for all kinds of errors while running this script."""
 
-	def __init__(self, text : str) -> None:
-		Error.__init__(self, text)
-
 
 class InternalError(Error):
 	"""Exception used to signal that an internal error has been discovered."""
-
-	def __init__(self, text : str) -> None:
-		Error.__init__(self, text)
