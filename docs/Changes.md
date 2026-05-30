@@ -8,8 +8,9 @@ This document presents the important changes made to each KioskForge release fro
 
 ## Version 1.04 (2026.05.31)
 1. The new `mouse=auto` option has been fixed and tested (I did not have a touchscreen when I wrote the code to detect those).
-2. The Wi-Fi password is now encoded on the kiosk so that hackers cannot read it in plain text anymore (a security precaution).  This made the crude wipe of the network-data file on the installation medium redundant so that it has been removed.
-3. Yet another attempt was made to make Ubuntu Server pick up the "regulatory domain" (Wi-Fi country code) at every boot.  This is not easy, though, because Ubuntu Server for Pi does not provide any working way to set this value.  As far as I can see from posts on the internet, the Linux kernel asks the Access Point (AP) for this information.  Most of the time, this works, but sometimes it doesn't.  There is not anything I can do about it to my knowledge.
+2. The `visible` option has been renamed to `managed` to better explain its purpose: To allow KioskForge to manage the kiosk.
+3. The Wi-Fi password is now encoded on the kiosk so that hackers cannot read it in plain text anymore (a security precaution).  This made the crude wipe of the network-data file on the installation medium redundant so that it has been removed.
+4. Yet another attempt was made to make Ubuntu Server pick up the "regulatory domain" (Wi-Fi country code) at every boot.  This is not easy, though, because Ubuntu Server for Pi does not provide any working way to set this value.  As far as I can see from posts on the internet, the Linux kernel asks the Access Point (AP) for this information.  Most of the time, this works, but sometimes it doesn't.  There is not anything I can do about it to my knowledge.
 
 ## Version 1.03 (2026.05.27)
 1. Ubuntu Server 26.04.x is now supported by KioskForge.  This is beta as the tests have been limited (everything worked right away in these tests, though).
