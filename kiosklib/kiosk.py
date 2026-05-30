@@ -32,7 +32,6 @@ from kiosklib.locales import LOCALES
 from kiosklib.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
 from kiosklib.setup import OptionalTimeField, PasswordField, RegexField, StringField
 from kiosklib.timezones import TIMEZONES
-from kiosklib.various import password_create
 from kiosklib.version import Version
 
 
@@ -191,6 +190,37 @@ Examples:
 """.strip()
 
 
+MANAGED_HELP = """
+If the kiosk should be manageable by KioskForge.
+
+Valid values are 'true' (yes) and 'false' (no).
+
+You should enable this option if you want to be able to discover and manage
+the kiosk in future versions of KioskForge that include a GUI tool for this.
+
+If you enable this option, a tiny broadcast server will be started at every
+boot so that KioskForge can send a broadcast signal to discover all kiosks
+on your local area network (LAN).  Furthermore, the root account will be
+prepared for automatic logins using SSH using a private key so that
+KioskForge can reboot, powerdown, and perform other tasks on the kiosk.
+
+If you disable this option, KioskForge won't be able to manage the kiosk.
+
+If you enable this option, the KioskForge GUI will be able to discover the
+kiosk on the LAN and to manage it remotely using Secure Shell (SSH).
+
+This option poses a very severe security risk if your organization gets
+hacked and the hacker gets access to the private key for the kiosk.  As a
+result, you may want to disable the 'managed' option and not use the GUI.
+But then again, if you company gets hacked, you may have bigger worries
+than if your kiosks begin to misbehave.  Do consider this carefully, though.
+
+Examples:
+    managed=false  (KioskForge cannot find the kiosk)
+    managed=true   (KioskForge can find and manage the kiosk on the LAN)
+""".strip()
+
+
 MOUSE_HELP = """
 If the mouse should be enabled, disabled, or automatically configured.
 
@@ -305,8 +335,9 @@ Examples:
 SSH_KEY_HELP = """
 The public SSH key for accessing the kiosk using the 'ssh' command.
 
-If empty, SSH access is disabled, and you'll need a monitor and a keyboard to
-log into the kiosk machine.
+If empty, SSH access is disabled, and you'll need a monitor and a keyboard
+to log into the kiosk machine.  This can be very difficult when running an
+X11 or web type kiosk, so SSH access should generally be enabled.
 
 The key can be generated using the 'ssh-keygen' command, which is part of
 Linux, but also available on numerous public websites that you can use to
@@ -315,9 +346,6 @@ generate an SSH key pair.  Just search for "ssh-keygen online".
 SSH keys always come in pairs of two: a private key (which you must keep
 secret) and a public key (which is installed in the kiosk).  Anybody with
 access to the private key can access the kiosk using various tools!
-
-To access the kiosk using SSH, you can use 'Putty' (GUI) or 'Windows OpenSSH'
-(CLI/non-GUI).
 
 IMPORTANT:
 1. Always specify an SSH key unless you absolutely cannot!
@@ -551,29 +579,6 @@ Examples:
 """.strip()
 
 
-VISIBLE_HELP = """
-If the kiosk should be visible to KioskForge on the local area network.
-
-Valid values are 'true' (enabled) and 'false' (disabled).
-
-You should enable this option if you want to be able to discover and manage
-the kiosk in future versions of KioskForge that include a GUI tool for this.
-
-If you enable this option, a tiny broadcast server will be started at every
-boot so that KioskForge can send a broadcast signal to discover all kiosks
-on your local area network (LAN).
-
-If you disable this option, the broadcast server will not be started at all.
-
-If you enable this option, you can use the KioskDiscoveryClient.py script,
-included in the GitHub version of KioskForge, to find the kiosk on the LAN.
-
-Examples:
-    visible=false  (Future versions of KioskForge cannot find the kiosk)
-    visible=true   (Future versions of KioskForge find the kiosk on the LAN)
-""".strip()
-
-
 WEAR_REDUCTION_HELP = """
 Move certain system files, including swap, to memory.
 
@@ -718,7 +723,7 @@ class Kiosk(Fields):
 		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
 		self += ChoiceField("mouse", "false", MOUSE_HELP, ["false", "true", "auto"])
-		self += PasswordField("user_code", password_create(32), USER_CODE_HELP)
+		self += PasswordField("user_code", "", USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
 		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}|[0-9a-f]{64}")
@@ -736,7 +741,7 @@ class Kiosk(Fields):
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
 		self += OptionalRegexField("user_folder", "", USER_FOLDER_HELP, r"[a-zA-Z][a-zA-Z0-9-.]+")
 		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
-		self += BooleanField("visible", "true", VISIBLE_HELP)
+		self += BooleanField("managed", "false", MANAGED_HELP)
 		self += BooleanField("chromium_autoplay", "false", CHROMIUM_AUTOPLAY_HELP)
 		self += BooleanField("user_fonts", "false", USER_FONTS_HELP)
 
@@ -746,7 +751,7 @@ class Kiosk(Fields):
 		try:
 			# Check that the user_folder option is specified when the user_fonts option is enabled.
 			if self.user_fonts.data and not self.user_folder.data:
-				raise InputError("user_fonts enabled so user_folder must be specified")
+				raise InputError("Option 'user_fonts' enabled so option 'user_folder' must also be enabled")
 
 			# Check that the sound card on a Pi 5 target isn't the non-existent jack.
 			if self.device.data == "pi5" and self.sound_card.data == "jack":
