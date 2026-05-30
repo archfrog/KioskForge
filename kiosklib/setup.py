@@ -35,7 +35,11 @@ from kiosklib.version import Version
 
 
 class Field:
-	"""Base class for configuration fields; these are name/data/hint triplets."""
+	"""
+		Base class for configuration fields; these are name/data/hint triplets.
+
+		NOTE: The 'hint' value is really a 'help' value but MyPy whines if I use the preferred name of 'help'.
+	"""
 
 	def __init__(self, name : str, hint : str) -> None:
 		self.__name = name
@@ -65,8 +69,8 @@ class BooleanField(Field):
 	"""Derived class that implements a boolean field."""
 
 	def __init__(self, name : str, data : str, hint : str) -> None:
+		super().__init__(name, hint)
 		self.__data = False
-		Field.__init__(self, name, hint)
 
 		self.parse(data)
 
@@ -98,10 +102,10 @@ class NaturalField(Field):
 	"""Derived class that implements a natural (unsigned integer) field."""
 
 	def __init__(self, name : str, data : str, hint : str, lower : int, upper : int) -> None:
+		super().__init__(name, hint)
 		self.__data  = 0
 		self.__lower = lower
 		self.__upper = upper
-		Field.__init__(self, name, hint)
 
 		self.parse(data)
 
@@ -141,8 +145,8 @@ class OptionalStringField(Field):
 	"""Derived class that implements an optional string field."""
 
 	def __init__(self, name : str, data : str, hint : str) -> None:
+		super().__init__(name, hint)
 		self.__data = ""
-		Field.__init__(self, name, hint)
 
 		self.parse(data)
 
@@ -165,9 +169,6 @@ class OptionalStringField(Field):
 class StringField(OptionalStringField):
 	"""Derived class that implements a mandatory string field."""
 
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		OptionalStringField.__init__(self, name, data, hint)
-
 	@property
 	def type(self) -> str:
 		return "mandatory, non-empty string"
@@ -182,8 +183,8 @@ class ChoiceField(StringField):
 	"""Derived class that implements a choice from a predefined list of valid choices."""
 
 	def __init__(self, name : str, data : str, hint : str, choices : List[str]) -> None:
+		super().__init__(name, data, hint)
 		self.__choices = choices
-		StringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -198,9 +199,6 @@ class ChoiceField(StringField):
 
 class PasswordField(StringField):
 	"""Derived class that checks a Linux password."""
-
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		StringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -224,8 +222,8 @@ class RegexField(StringField):
 	"""Derived class that implements a string field validated by a regular expression."""
 
 	def __init__(self, name : str, data : str, hint : str, regex : str) -> None:
+		super().__init__(name, data, hint)
 		self.__regex = regex
-		StringField.__init__(self, name, data, hint)
 
 	@property
 	def regex(self) -> str:
@@ -248,9 +246,6 @@ class RegexField(StringField):
 class OptionalRegexField(RegexField):
 	"""Derived class that implements an optional string field validated by a regular expression."""
 
-	def __init__(self, name : str, data : str, hint : str, regex : str) -> None:
-		RegexField.__init__(self, name, data, hint, regex)
-
 	@property
 	def type(self) -> str:
 		return "optional regular expression"
@@ -265,9 +260,6 @@ class OptionalRegexField(RegexField):
 
 class OptionalTimeField(OptionalStringField):
 	"""Derived class that implements an optional time (HH:MM) field."""
-
-	def __init__(self, name : str, data : str, hint : str) -> None:
-		OptionalStringField.__init__(self, name, data, hint)
 
 	@property
 	def type(self) -> str:
@@ -417,7 +409,7 @@ class Fields:
 		# Generate KioskForge.cfg.
 		with TextWriter(path) as stream:
 			stream.write(f"# {self.__version.product} v{self.__version.version} kiosk definition file.")
-			stream.write("# Please edit this file using your favorite text editor such as Notepad.")
+			stream.write("# Please edit this file using your favorite text editor.")
 			stream.write("")
 
 			for name in self.__fields:
