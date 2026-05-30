@@ -842,7 +842,7 @@ class KioskSetup(KioskDriver):
 			#del lines
 
 		# Create cron job to compact system logs so these are compacted daily at reboot and at 05:00.
-		# NOTE: The reboot ensures the journals are vacuumed if the kiosk is rebooted on a daily basis, the time of 05:00 ensures
+		# NOTE: The @reboot ensures the journals are vacuumed if the kiosk is rebooted on a daily basis, the time of 05:00 ensures
 		# NOTE: the journals are vacuumed even if the kiosk is never updated and therefore perhaps never rebooted.
 		lines  = TextBuilder()
 		lines += "# Cron jobs to compact system logs using journalctl."
