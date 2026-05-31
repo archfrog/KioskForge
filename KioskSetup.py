@@ -38,6 +38,7 @@ from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, Crea
 from kiosklib.actions import ExternalAction, InstallFontsAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
 from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, UnpackZipAction
 from kiosklib.builder import TextBuilder
+from kiosklib.detect import device_is_pi5
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.fstab import Filesystems, Mount
@@ -304,7 +305,7 @@ class KioskSetup(KioskDriver):
 			script += AppendTextAction(
 				"... Installing public SSH key for the kiosk user.",
 				"/home/kiosk/.ssh/authorized_keys",
-				kiosk.ssh_key.data + "\n"
+				kiosk.ssh_key.data + os.linesep
 			)
 
 		# Create udev rule to grant the kiosk user access to the Raspberry Pi 4B and 5 gpio chip zero (the 40 pin header).
@@ -361,8 +362,8 @@ class KioskSetup(KioskDriver):
 			script += InstallPackagesAction("... Installing PipeWire packages.", ["pipewire-audio"])
 
 		#************************************ Kiosk Browser Service **************************************************************
-		if kiosk.visible.data:
-			script += CustomAction("Configuring kiosk server:", lambda: None)
+		if kiosk.managed.data:
+			script += CustomAction("Configuring kiosk as manageable by KioskForge:", lambda: None)
 
 			# Run 'KioskDiscoveryServer.py' on every boot by creating a suitable 'systemd' service to start it.
 			lines  = TextBuilder()
@@ -381,7 +382,7 @@ class KioskSetup(KioskDriver):
 			lines += "[Install]"
 			lines += "WantedBy=multi-user.target"
 			script += CreateTextWithUserAndModeAction(
-				"... Creating systemd service.",
+				"... Creating systemd service to start LAN broadcast server.",
 				"/etc/systemd/system/kiosk-server.service",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH,
@@ -390,19 +391,39 @@ class KioskSetup(KioskDriver):
 			del lines
 
 			# Enable AND start 'kiosk-server' systemd service so that it runs immediately and also on every future boot.
-			script += ExternalAction("... Enabling and starting systemd service.", "systemctl enable --now kiosk-server.service")
+			script += ExternalAction(
+				"... Enabling and starting systemd kiosk-server service.",
+				"systemctl enable --now kiosk-server.service"
+			)
 
 			# Allow UDP broadcasts through the firewall.
-			# TODO: This should eventually support /16 for multiple subnets or, perhaps better, a list of valid subnets.
-			subnet = lan_broadcast_address() + "/24"
+			# NOTE: /16 means that the subnets of the form xxx.yyy.???.??? can contact the kiosk broadcast server.
+			# TODO: Redo this to be sensible and flexible.  The current approach is sort of proof-of-concept hack.
+			subnet = lan_broadcast_address() + "/16"
 			script += ExternalAction(
-				"... Opening firewall port to allow broadcast messages from LAN subnet.",
+				"... Opening firewall port to allow broadcast messages from LAN (/16) subnets.",
 				f"ufw allow in proto udp to {subnet} from {subnet}"
 			)
 			del subnet
 
-			# TODO: Figure out how enable remote management securely.  Simply use SSH and SCP, you dolt!
-			# script += ExternalAction("... Opening firewall TCP port to allow remote management.", "ufw allow from 192.168.0.0/16 to any 1000/tcp")
+			# Install public SSH key in /root/.ssh to enable passwordless root logins for KioskForge management operations.
+			script += CreateTextWithUserAndModeAction(
+				"... Installing SSH key for root user.",
+				"/root/.ssh/authorized_keys",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP,
+				kiosk.ssh_key.data + os.linesep
+			)
+
+			# Create '~root/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
+			# NOTE: To see the MOTD system status info, use the Ubuntu command 'landscape-sysinfo'.
+			script += CreateTextWithUserAndModeAction(
+				"... Creating ~root/.hushlogin to enable silent logins for management purposes.",
+				"/home/root/.hushlogin",
+				"root",
+				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP,
+				""
+			)
 
 		# Remove some packages that we don't need in kiosk mode to save a tiny bit of memory.
 		script += PurgePackagesAction("Purging unwanted packages.", ["modemmanager", "open-vm-tools", "needrestart"])
@@ -469,7 +490,7 @@ class KioskSetup(KioskDriver):
 
 			# Ubuntu Server 24.04.x on Raspberry Pi 5 needs an obscure fix for X11 to discover its GPU and screens.
 			# Source: https://forums.raspberrypi.com/viewtopic.php?t=358853
-			if kiosk.device.data == "pi5":
+			if device_is_pi5():
 				script += InstallPackagesNoRecommendsAction("... Installing Rasperry Pi System Configuration tool", ["raspi-config"])
 				script += ExternalAction(
 					"... Downloading X11 graphics driver for Pi 5.",

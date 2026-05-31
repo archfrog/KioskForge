@@ -33,6 +33,7 @@ import sys
 import time
 
 from kiosklib.builder import TextBuilder
+from kiosklib.detect import device_is_pi5
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe, Result
@@ -112,6 +113,13 @@ class KioskStart(KioskDriver):
 				sinks = wpctl_status_parse_sinks(result.output)
 				del result
 
+				# TODO: Select the appropriate sink (sound_card): This must accidentally have been deleted at some point in time.
+
+				# If the host is a Pi 5, which does not have a jack stick, remap 'jack' to 'hdmi1' to allow using the same .kiosk
+				# file with both Pi 4B and Pi 5.  This is a cludge of sorts, but it makes life so much easier for end-users.
+				if device_is_pi5() and kiosk.sound_card.data == "jack":
+					kiosk.assign("sound_card", "hdmi1")
+
 				# Make sure we have at least one sink to set the volume of.
 				if len(sinks) == 0:
 					raise KioskError("Unable to locate any PipeWire sinks")
@@ -126,7 +134,6 @@ class KioskStart(KioskDriver):
 				#	os.setegid(0)
 
 			# Auto-configure the 'mouse' option depending on the presence of a touchscreen (present: disable, otherwise: enable).
-			# TODO: This does not work on a system with a touchscreen, perhaps the system in question doesn't detect it?
 			if kiosk.mouse.data == "auto":
 				touchscreens = touchscreens_get()
 				if touchscreens:
