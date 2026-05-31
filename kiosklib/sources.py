@@ -35,6 +35,6 @@ SOURCES = [
 	"KioskSetup.py",
 	"KioskStart.py",
 	"KioskUpdate.py",
-    "KioskUpgrade.py",
+	"KioskUpgrade.py",
 	"kiosklib"
 ]
