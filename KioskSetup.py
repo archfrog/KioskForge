@@ -47,7 +47,6 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active, wifi_boost
 from kiosklib.script import Script
-from kiosklib.signal import Signal
 from kiosklib.various import screen_clear
 
 
