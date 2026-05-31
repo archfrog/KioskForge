@@ -290,8 +290,10 @@ If you don't need any audio on your kiosk, use the value 'none'.
 NOTES:
 1. The jack stick on the Pi4B requires amplification such as an external
    loudspeaker system.
-2. If you use the value 'jack' it will automatically be changed to 'hdmi1'
-   on Raspberry Pi 5 systems as these don't have an audio jack.
+2. If you use the value 'jack' on a Pi 5 it will automatically be remapped
+   to 'hdmi1' as the Pi 5 doesn't have an audio jack.  This makes it
+   possible to exchange a Pi 4B for a Pi 5 with little fuss.  So, if you
+   often switch between 4B and 5, consider to use the value 'jack'.
 
 Examples:
     sound_card=none   (To disable sound altogether)
@@ -387,25 +389,25 @@ The type of kiosk.
 
 The valid values are:
 
-1. web: A legacy kiosk that displays a given website on X11 using Chromium
-   as the web browser.  X11 does not offer GPU acceleration on Pi5.
+1. web: A kiosk that displays a given website on X11 using Chromium as the
+        web browser.  X11 does not offer GPU acceleration on Pi5.
 2. x11: A custom X11 app installed during the forging of the kiosk.
 3. cli: A custom, console app installed during the forging of the kiosk.
 4. web-wayland: A modern kiosk that displays a website on Wayland using
    Chromium as the web browser.  Wayland does offer GPU acceleration.
 
-NOTE: The "web-wayland" kiosk type is not yet complete: don't use it!
+NOTE: The "web-wayland" kiosk type is not yet complete: Don't use it!
 
 The website URL or custom command is specified using the 'command' field.
 
 The 'web' type is by far the most commonly used type, but the 'cli' type is
 very useful for things like making a designated kiosk that starts playing a
 given sound whenever somebody approaches the kiosk machine (using a motion
-detector).
+detector).  The 'x11' type is great for Python GUI apps using Tkinter.
 
 Examples:
-    type=web  (The most common usage, displays a web page)
-    type=x11  (Runs an X11 application, very rarely used)
+    type=web  (Runs the Chromium web browser in kiosk mode at boot)
+    type=x11  (Runs an X11 application such as a Tkinter Python script)
     type=cli  (Runs a CLI application such as a Python script)
 """.strip()
 
