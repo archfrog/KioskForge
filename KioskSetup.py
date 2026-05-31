@@ -120,11 +120,11 @@ class KioskSetup(KioskDriver):
 		if os.geteuid() != 0:		# pyrefly: ignore[missing-attribute]
 			raise KioskError("You must be root to run this script")
 
-		# Check that we have got an active, usable internet connection, otherwise wait for at most 60 seconds for it come up.
+		# Check that we have got an active, usable internet connection, otherwise wait indefinitely for it come up.
 		if not internet_active():
-			logger.write("*** NETWORK DOWN: Waiting at most 60 seconds for the kiosk to come online")
+			logger.write("*** NETWORK DOWN: Waiting indefinitely for the kiosk to come online")
 			logger.write()
-			wait_for_internet_active(60)
+			wait_for_internet_active()
 
 		# If still no network, abort the forge process.
 		if not internet_active():
