@@ -926,6 +926,8 @@ class KioskSetup(KioskDriver):
 		)
 
 		# Run 'KioskConfig.py' on every boot by creating a suitable 'systemd' service to perform the configuration.
+		# NOTE: The ConditionPathExists line is there to ensure that only ONE copy of KioskConfig.py is ever launched.
+		# NOTE: I'll probably die not knowing why systemd does not offer this feature on its own.
 		lines  = TextBuilder()
 		lines += "[Unit]"
 		lines += "Description=KioskForge kiosk configuration"
@@ -939,9 +941,6 @@ class KioskSetup(KioskDriver):
 		lines += "[Service]"
 		lines += "Type=oneshot"
 		lines += "Restart=no"
-		# NOTE: This line should SUPPOSEDLY make 'KioskConfig.py' only be invoked once, but it is in fact invoked at least twice.
-		# NOTE: I have spent hours on 'systemd' (the most crazily, insanely complex piece of software in the Linux world), but
-		# NOTE: I haven't been able to make 'KioskConfig.py' only run once as is the intention and purpose of it.
 		lines += "RemainAfterExit=yes"
 		lines += "ExecStart=/home/kiosk/KioskForge/KioskConfig.py"
 		lines += "ExecStartPost=/usr/bin/touch /tmp/KioskForge-systemd-service.flag"
@@ -969,15 +968,11 @@ class KioskSetup(KioskDriver):
 		if result.status != 0:
 			raise KioskError(result.output)
 
-		# Signal other running KioskForge components to shut down gracefully.
-		signal = Signal("kiosk-shutdown", "kiosk")
-		signal.create()
-
-		# Wait a few seconds for the people to be able to spot errors and/or read how long the forge process took.
+		# Wait a few seconds for users to be able to spot errors and/or read how long the forge process took.
+		logger.write("*** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE IN 10 SECONDS")
 		time.sleep(10)
 
 		# NOTE: The reboot takes place immediately, control never returns from the 'execute()' method below!
-		logger.write("*** SUCCESS - REBOOTING SYSTEM INTO KIOSK MODE")
 		ExternalAction("Rebooting system NOW!", "reboot").execute()
 
 
