@@ -207,12 +207,12 @@ class PasswordField(StringField):
 	def parse(self, data : str) -> None:
 		# Report error if the password string is empty.
 		if not data:
-			raise FieldError(self.name, "Password cannot be empty")
+			raise FieldError(self.name, f"Password cannot be empty in field '{self.name}'")
 
 		# Allow hashed password, without enforcing a length restriction.
 		# NOTE: Apparently, the maximum length of a password input to 'bcrypt' is 72 characters.
 		if not password_hashed(data) and len(data) > 72:
-			raise FieldError(self.name, "Password too long - cannot exceed 72 characters")
+			raise FieldError(self.name, f"Password too long - cannot exceed 72 characters - in field '{self.name}'")
 
 		# Finally, store the hashed or unhashed password.
 		StringField.parse(self, data)
@@ -275,7 +275,7 @@ class OptionalTimeField(OptionalStringField):
 			time.strptime(data, "%H:%M")
 			OptionalStringField.parse(self, data)
 		except ValueError as that:
-			raise FieldError(self.name, f"Invalid time specification: {data}") from that
+			raise FieldError(self.name, f"Invalid time specification in field '{self.name}': {data}") from that
 
 
 class Fields:

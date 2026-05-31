@@ -83,7 +83,7 @@ class KioskDriver:
 			except CommandError as that:
 				logger.error(f"Syntax: {that.text}")
 			except FieldError as that:
-				logger.error(str(that))
+				logger.error(f"Error: {that.text}")
 			except InternalError as that:
 				logger.error(f"Internal error: {that.text}")
 			except KioskError as that:
