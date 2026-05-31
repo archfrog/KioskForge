@@ -704,7 +704,7 @@ class Kiosk(Fields):
 		self += ChoiceField("timezone", "America/Los_Angeles", TIMEZONE_HELP, TIMEZONES)
 		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
-		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "auto"])  # TODO: , "jack", "hdmi1", "hdmi2"])
+		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "auto", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
 		self += ChoiceField("mouse", "false", MOUSE_HELP, ["false", "true", "auto"])
 		self += PasswordField("user_code", "dummy", USER_CODE_HELP)

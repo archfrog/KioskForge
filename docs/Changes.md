@@ -2,7 +2,7 @@
 This document presents the important changes made to each KioskForge release from v0.18 onwards:
 
 ## Known Issues
-1. The `sound_card` option is completely broken - the code to select the output audio card seems to have "disappeared".  The effect is that the default Pipewire "sink" (audio output device) will be used.  This appears to be "jack" on Pi 4B and "hdmi1" on Pi 5.  All valid values but `none` and `auto` have been disabled until such a time that the issue is fixed.
+1. The `sound_card` option currently has no effect whatsoever- the code to select the output audio card seems to have "disappeared".  The effect is that the default Pipewire "sink" (audio output device) will be used.  This appears to be "jack" on Pi 4B and "hdmi1" on Pi 5.
 2. Some touchscreens need several presses before they react on Ubuntu Server 26.04 so we strongly recommend using 24.04.x for the time being.
 3. KioskForge does not currently support using HDMI2 on the Raspberry Pis.  This is a rather low priority issue so let me know if it causes problems for you.
 3. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
