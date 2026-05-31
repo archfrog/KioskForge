@@ -1,9 +1,9 @@
 # KioskForge Task List
-Please notice that the task list of KioskForge is *currently* spread over two places:
+Please notice that the task list of KioskForge is *currently* found in two places:
 
 1. This document, which is updated most frequently.
 2. The source code itself, these `TODO:` comments are typically intended to be read and acted upon by actual developers.
-   Ideally, there shouldn't be any `TODO:` markers in the source code, but they are very easy to create and documents things.
+   Ideally, there shouldn't be any `TODO:` markers in the source code, but they are very easy to create and they document things.
 
 
 ## Task Priorities
@@ -14,28 +14,16 @@ Please notice that the task list of KioskForge is *currently* spread over two pl
 5. `D` = Dropped, a task that has been dropped for some reason.
 6. `[x]` = Completed, a task that has been closed for some reason.
 
-
 ## Tasks in the Source Code
 **NOTE:** Use `grep -FR TODO: *.py kiosklib/*.py` to see the current list of task items embedded in the source code.  These are
-also reported by `pylint`, which is automatically invoked by the `check.py` script.
-
-
-Alternative, Wayland-based kiosk on top of Ubuntu Server 24.04:
-
-```bash
-sudo snap install ubuntu-frame
-sudo snap set ubuntu-frame daemon=true
-sudo snap install chromium
-sudo snap set chromium url=https://clyderiveratlas.ca
-sudo snap set chromium daemon=true
-snap connect chromium:wayland
-```
+also reported by `pylint`, which is automatically invoked by the `check.py` script (so simply run `check.py` to see them).
 
 ## Open Tasks
 # TODO:
 - [ ] 2026.05.31.02.53 U The `sound_card` option is completely broken - KioskForge **never** selects any output device!  Instead,
                          `KioskStart.py` simply sets the volume on **all** sinks detected by PipeWire.  THIS IS A BUG!
 						 The bug was introduced when I switched from using `pactl` to using `wpctl`.  The latter is useless for us.
+- [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
 - [ ] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
                          It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
 						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass
@@ -44,7 +32,7 @@ snap connect chromium:wayland
 - [ ] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
                          and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
-                         This can only be made if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
+                         This can only be done if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
 - [ ] 2026.05.21.00.08 H Move the `redact_prepare` and `redact_report` methods to their respective files, away from `kiosk.py`!
 - [ ] 2026.05.19.01.37 H Would it make sense to use a predefined name, say `Application`, to the user folder?  It would simplify
                          many things, such as understanding a KioskForge project, and it makes a lot of sense.  The `user_folder`
