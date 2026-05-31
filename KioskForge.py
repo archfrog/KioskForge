@@ -511,7 +511,7 @@ class KioskForge(KioskDriver):
 
 		# Assign host name to the kiosk, if the user has not provided one.
 		if not kiosk.hostname.data:
-			kiosk.assign("hostname", hostname_create("kiosk"))
+			kiosk.assign("hostname", hostname_create("kiosk-"))
 
 		# Hash the user's password, if not already done (this change is only saved to the installation image!).
 		kiosk.assign("user_code", password_hash(kiosk.user_code.data))
@@ -558,9 +558,7 @@ class KioskForge(KioskDriver):
 		# Display a synopsis of the selected kiosk, incuding the comment, hostname, and possibly more.
 		print("*** Summary (some fields intentionally left out):")
 		print()
-		print(f"    Kiosk        : {filename}")
 		print(f"    Comment      : {kiosk.comment.data}")
-		print(f"    Device       : {kiosk.device.data}")
 		print(f"    Type         : {kiosk.type.data}")
 		print(f"    Command      : {kiosk.command.data}")
 		print(f"    Mouse        : {kiosk.mouse.data}")
@@ -600,7 +598,7 @@ class KioskForge(KioskDriver):
 		kernel_options.save(target.current + "cmdline.txt")
 
 		# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
-		if kiosk.device.data == "pi4b" and not kiosk.cpu_boost.data:
+		if not kiosk.cpu_boost.data:
 			with open(target.basedir + "config.txt", "rt", encoding="utf8") as stream:
 				text = stream.read()
 			text = text.replace("arm_boost=1", "arm_boost=0")
@@ -768,9 +766,7 @@ class KioskForge(KioskDriver):
 				# Process each file while aborting on the first exception.
 				for filename in filenames:
 					if filename != filenames[0]:
-						print()
 						print("*" * 79)
-						print()
 
 					self.upgrade(logger, filename)
 			case "verify":
@@ -785,9 +781,7 @@ class KioskForge(KioskDriver):
 				# Process each file while aborting on the first exception.
 				for filename in filenames:
 					if filename != filenames[0]:
-						print()
 						print("*" * 79)
-						print()
 
 					self.verify(logger, filename)
 			case _:

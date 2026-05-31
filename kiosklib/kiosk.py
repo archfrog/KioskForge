@@ -81,9 +81,10 @@ Examples:
 
 
 CPU_BOOST_HELP = """
-Whether or not the CPU should be overclocked.
+Controls whether the CPU should be overclocked.
 
-This field currently supports only Raspberry Pi 4B targets.
+This field currently only affects Raspberry Pi 4B kiosks.  It has no
+effect on Pi 5 kiosks.
 
 Enabling the field will increase the processing speed (CPU clock rate) of
 the target kiosk by 20 percent from 1.5 gigahertz to 1.8 gigahertz.  This
@@ -100,40 +101,21 @@ Examples:
 """.strip()
 
 
-DEVICE_HELP = """
-Specifies the kiosk's hardware type.  Valid values are:
-
-    pi4b: Raspberry Pi 4B with at least 2 GB RAM.
-    pi5 : Raspberry Pi 5 with at least 2 GB RAM.
-
-This setting affects the 'sound_card' and 'cpu_boost' fields as follows:
-
-1. 'sound_card' depends entirely on the target device type.  See the
-   'sound_card' field for more information.
-2. 'cpu_boost' can only be activated for Raspberry Pi 4B kiosks.
-
-Examples:
-    device=pi4b  (when using a Raspberry Pi 4B)
-    device=pi5   (when using a Raspberry Pi 5)
-""".strip()
-
-
 HOSTNAME_HELP = """
 The unqualified host name, which may consist of US English letters, digits,
-and dashes (-).  It must be 1 to 63 characters long.
-
-Most of the time, you don't need to worry about the kiosk's hostname at all.
+and dashes (-).  It must be 1 to 63 characters long.  It may not contain
+any dots (.).
 
 If this field is left empty, the forge process will automatically create a
-host name of the form "kioskN", where N is a number in the range 0 through
-99,999.
+random host name of the form "kiosk-N", where N is a number in the range 0
+through 99,999.
 
 IMPORTANT:
 You should never have two machines with the same hostname on a local area
 network (LAN).  This may cause issues with Windows and other systems.
 
 Examples:
-    hostname=kiosk117.museum.com
+    hostname=egypt-video-kiosk
     hostname=bunker1
 """.strip()
 
@@ -305,8 +287,11 @@ The available sound cards depend entirely on the target system:
 
 If you don't need any audio on your kiosk, use the value 'none'.
 
-Please notice that the jack stick on the Pi4B requires amplification
-such as an external loudspeaker system.
+NOTES:
+1. The jack stick on the Pi4B requires amplification such as an external
+   loudspeaker system.
+2. If you use the value 'jack' it will automatically be changed to 'hdmi1'
+   on Raspberry Pi 5 systems as these don't have an audio jack.
 
 Examples:
     sound_card=none   (To disable sound altogether)
@@ -712,8 +697,7 @@ class Kiosk(Fields):
 		comment_regex = comment_regex + "{1,128}"
 
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
-		self += OptionalRegexField("comment", "", COMMENT_HELP, comment_regex)
-		self += ChoiceField("device", "pi4b", DEVICE_HELP, ["pi4b", "pi5"])
+		self += RegexField("comment", "dummy", COMMENT_HELP, comment_regex)
 		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web", "web-wayland"])
 		self += StringField("command", "https://google.com", COMMAND_HELP)
 		self += OptionalRegexField("hostname", "", HOSTNAME_HELP, r"[A-Za-z0-9-]{1,63}")
@@ -723,7 +707,7 @@ class Kiosk(Fields):
 		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
 		self += ChoiceField("mouse", "false", MOUSE_HELP, ["false", "true", "auto"])
-		self += PasswordField("user_code", "", USER_CODE_HELP)
+		self += PasswordField("user_code", "dummy", USER_CODE_HELP)
 		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
 		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}|[0-9a-f]{64}")
@@ -740,7 +724,7 @@ class Kiosk(Fields):
 		self += NaturalField("idle_timeout", "0", IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
 		self += OptionalRegexField("user_folder", "", USER_FOLDER_HELP, r"[a-zA-Z][a-zA-Z0-9-.]+")
-		self += OptionalStringField("user_packages", "", USER_PACKAGES_HELP)
+		self += OptionalRegexField("user_packages", "", USER_PACKAGES_HELP, r"([a-z][a-z0-9-.]+)(\ [a-z][a-z0-9-.]+)+")
 		self += BooleanField("managed", "false", MANAGED_HELP)
 		self += BooleanField("chromium_autoplay", "false", CHROMIUM_AUTOPLAY_HELP)
 		self += BooleanField("user_fonts", "false", USER_FONTS_HELP)
@@ -753,19 +737,9 @@ class Kiosk(Fields):
 			if self.user_fonts.data and not self.user_folder.data:
 				raise InputError("Option 'user_fonts' enabled so option 'user_folder' must also be enabled")
 
-			# Check that the sound card on a Pi 5 target isn't the non-existent jack.
-			if self.device.data == "pi5" and self.sound_card.data == "jack":
-				raise InputError("Target is a Pi 5, which does not have jack audio out")
-
 			# Check that the sound level is not zero when an output sound card has been selected.
 			if self.sound_card.data != "none" and self.sound_level.data == 0:
 				raise InputError("Sound is disabled implicitly because 'sound_level' is zero")
-
-			# Check that cpu_boost isn't enabled on Pi 5 as this combination is not supported.
-			# NOTE: This is disabled as it is silently ignored on Pi 5; nobody will remember to change the cpu_boost when changing
-			# NOTE: the device type from Pi 4B to Pi 5 or vice versa.
-			#if self.device.data == "pi5" and self.cpu_boost.data:
-			#	raise InputError("Target is a Pi 5, which does not support the cpu_boost option")
 		except InputError as that:
 			result.append(TextFileError(path, 0, that.text))
 
