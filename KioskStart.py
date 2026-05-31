@@ -33,7 +33,7 @@ import sys
 import time
 
 from kiosklib.builder import TextBuilder
-from kiosklib.detect import device_is_pi5
+from kiosklib.detect import pi_board_get
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe, Result
@@ -80,6 +80,19 @@ class KioskStart(KioskDriver):
 			# Create the signal that prevents this script from being launched multiple times by systemd.
 			signal.create()
 
+			# If the sound card is set to 'auto', choose 'jack' for Pi 4B and 'hdmi1' for Pi 5.
+			if kiosk.sound_card.data == "auto":
+				plug = ""
+				match pi_board_get():
+					case "Pi 4B":
+						plug = "jack"
+					case "Pi 5":
+						plug = "hdmi1"
+					case _:
+						raise KioskError("Unable to detect model of Raspberry Pi")
+				kiosk.assign("sound_card", plug)
+				del plug
+
 			# Configure audio subsystem, if applicable.
 			if kiosk.sound_card.data != "none":
 				# NOTE: I spent half a night trying out different solutions and none of them worked when done in 'KioskConfig.py',
@@ -114,11 +127,6 @@ class KioskStart(KioskDriver):
 				del result
 
 				# TODO: Select the appropriate sink (sound_card): This must accidentally have been deleted at some point in time.
-
-				# If the host is a Pi 5, which does not have a jack stick, remap 'jack' to 'hdmi1' to allow using the same .kiosk
-				# file with both Pi 4B and Pi 5.  This is a cludge of sorts, but it makes life so much easier for end-users.
-				if device_is_pi5() and kiosk.sound_card.data == "jack":
-					kiosk.assign("sound_card", "hdmi1")
 
 				# Make sure we have at least one sink to set the volume of.
 				if len(sinks) == 0:

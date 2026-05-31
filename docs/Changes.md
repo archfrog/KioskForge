@@ -9,6 +9,7 @@ This document presents the important changes made to each KioskForge release fro
 
 ## Version 1.04 (2026.05.31)
 1. The new `mouse=auto` option has been fixed and tested (I did not have a touchscreen available when I wrote the code).
+2. The `sound_card` option now also takes the value `auto`, which means "*Use the jack on a Pi 4B and hdmi1 on a PI 5*".
 2. The `device` option has been removed as experience shows that end-users always forget to change it when they switch between a Pi 4B and a Pi 5.  The forge process now detects the kind of system it is running on instead.
 3. The `visible` option has been renamed to `managed` to better explain its purpose: To allow KioskForge to manage the kiosk.  Enabling the `managed` option makes the future GUI capable of managing (upgrading, rebooting, powering off, etc.) the kiosk by enabling a tiny broadcast server at boot and by installing an SSH public key for the `root` (Administrator) account so that KioskForge can control the kiosk.
 4. The Wi-Fi password is now encoded on the kiosk so that hackers cannot read it in plain text anymore (a security precaution).  This made the crude wipe of the network-data file on the installation medium redundant so that it has been removed.

@@ -280,23 +280,21 @@ Examples:
 SOUND_CARD_HELP = """
 The sound card to use, if any.
 
-The available sound cards depend entirely on the target system:
+The supported sound cards depend on the target system:
 
-    pi4b: none, jack, hdmi1, or hdmi2.
-    pi5 : none, hdmi1, or hdmi2.
+    Raspberry Pi 4B: none, auto, jack, hdmi1, or hdmi2.
+    Raspberry Pi 5 : none, auto, hdmi1, or hdmi2.
 
-If you don't need any audio on your kiosk, use the value 'none'.
+The value 'auto' selects 'jack' on a Pi 4B and 'hdmi1' on a Pi 5.
+If you don't need any audio from your kiosk, use the value 'none'.
 
 NOTES:
 1. The jack stick on the Pi4B requires amplification such as an external
    loudspeaker system.
-2. If you use the value 'jack' on a Pi 5 it will automatically be remapped
-   to 'hdmi1' as the Pi 5 doesn't have an audio jack.  This makes it
-   possible to exchange a Pi 4B for a Pi 5 with little fuss.  So, if you
-   often switch between 4B and 5, consider to use the value 'jack'.
 
 Examples:
     sound_card=none   (To disable sound altogether)
+    sound_card=auto   (To use 'jack' on Pi 4B and 'hdmi1' on Pi 5)
     sound_card=hdmi1  (To output sound to HDMI-1)
 """.strip()
 
@@ -706,7 +704,7 @@ class Kiosk(Fields):
 		self += ChoiceField("timezone", "America/Los_Angeles", TIMEZONE_HELP, TIMEZONES)
 		self += ChoiceField("keyboard", "us", KEYBOARD_HELP, list(KEYBOARDS.keys()))
 		self += ChoiceField("locale", "en_US.UTF-8", LOCALE_HELP, LOCALES)
-		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "jack", "hdmi1", "hdmi2"])
+		self += ChoiceField("sound_card", "none", SOUND_CARD_HELP, ["none", "auto", "jack", "hdmi1", "hdmi2"])
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
 		self += ChoiceField("mouse", "false", MOUSE_HELP, ["false", "true", "auto"])
 		self += PasswordField("user_code", "dummy", USER_CODE_HELP)

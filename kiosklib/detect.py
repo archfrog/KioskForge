@@ -23,14 +23,20 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #**********************************************************************************************************************************
 
-def device_is_pi5() -> bool:
-	"""Returns true if the host kiosk is a Raspberry Pi 5(B)."""
+def pi_board_get() -> str:
+	"""Returns 'Pi 4B' if the host is a Raspberry Pi 4B and 'Pi 5' for a Raspberry Pi 5, otherwise it returns an empty string."""
 	try:
 		with open('/proc/cpuinfo', 'rt', encoding="utf-8") as file:
 			for line in file:
-				if line.startswith('Model'):
-					return 'Raspberry Pi 5' in line
+				if not line.startswith('Model'):
+					continue
+
+				if 'Raspberry Pi 4B' in line:
+					return "Pi 4B"
+				if 'Raspberry Pi 5' in line:
+					return "Pi 5"
+				return ""
 	except IOError:
 		pass
 
-	return False
+	return ""

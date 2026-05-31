@@ -38,7 +38,7 @@ from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, Crea
 from kiosklib.actions import ExternalAction, InstallFontsAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
 from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction, UnpackZipAction
 from kiosklib.builder import TextBuilder
-from kiosklib.detect import device_is_pi5
+from kiosklib.detect import pi_board_get
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.fstab import Filesystems, Mount
@@ -490,7 +490,8 @@ class KioskSetup(KioskDriver):
 
 			# Ubuntu Server 24.04.x on Raspberry Pi 5 needs an obscure fix for X11 to discover its GPU and screens.
 			# Source: https://forums.raspberrypi.com/viewtopic.php?t=358853
-			if device_is_pi5():
+			if pi_board_get() == "Pi 5":
+				script += CustomAction("Installing Raspberry Pi 5 graphics drivers:", lambda: None)
 				script += InstallPackagesNoRecommendsAction("... Installing Rasperry Pi System Configuration tool", ["raspi-config"])
 				script += ExternalAction(
 					"... Downloading X11 graphics driver for Pi 5.",
