@@ -35,6 +35,7 @@ snap connect chromium:wayland
 # TODO:
 - [ ] 2026.05.31.02.53 U The `sound_card` option is completely broken - KioskForge **never** selects any output device!  Instead,
                          `KioskStart.py` simply sets the volume on **all** sinks detected by PipeWire.  THIS IS A BUG!
+						 The bug was introduced when I switched from using `pactl` to using `wpctl`.  The latter is useless for us.
 - [ ] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
                          It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
 						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass

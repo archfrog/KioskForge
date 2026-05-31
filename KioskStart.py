@@ -126,7 +126,8 @@ class KioskStart(KioskDriver):
 				sinks = wpctl_status_parse_sinks(result.output)
 				del result
 
-				# TODO: Select the appropriate sink (sound_card): This must accidentally have been deleted at some point in time.
+				# TODO: Select the appropriate sink (sound_card): I forgot to add this when switching from pactl to wpctl.
+				# NOTE: wpctl doesn't even bother to write the HDMI port (0 or 1) so it is useless for our purposes.
 
 				# Make sure we have at least one sink to set the volume of.
 				if len(sinks) == 0:
