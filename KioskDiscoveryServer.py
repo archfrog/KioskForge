@@ -36,6 +36,7 @@ import os
 import sys
 import socket
 
+from kiosklib.detect import pi_board_get
 from kiosklib.discovery import COMMAND, SERVICE
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
@@ -70,37 +71,44 @@ class KioskDiscoveryServer(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Wait for the network (i.e., internet) to come up.
-		if not internet_active():
-			logger.write("Network down, waiting at most 60 seconds for it to come up.")
-			wait_for_internet_active(60)
+		# Identify the Raspberry Pi board that we're running on.
+		board = pi_board_get().replace(' ', '_')
 
-		# If internet active now, start the discovery server.
-		if internet_active():
-			# Create an UDP socket.
-			server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-			try:
-				# Bind the UDP socket to the broadcast address of the local LAN.
-				server.bind((lan_broadcast_address(), SERVICE))
+		# Wait indefinitely for the internet to be up.
+		# NOTE: This is mandatory as we detect our own LAN address by making a very short-lived broadcast server (see network.py).
+		wait_for_internet_active()
 
-				while True:
-					# Wait indefinitely for a message from a KioskForge client.
-					(message, remote) = server.recvfrom(1024)
+		# Create an UDP socket.
+		server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		try:
+			# Bind the UDP socket to the broadcast address of the local LAN.
+			server.bind((lan_broadcast_address(), SERVICE))
 
-					# Convert the message from bytes into UTF-8.
+			while True:
+				# Wait indefinitely for a message from a KioskForge client.
+				(message, remote) = server.recvfrom(1024)
+
+				# Convert the message from bytes into UTF-8.
+				# NOTE: Silence Pyrefly warning about 'command' possibly being uninitialized (it is not ever uninitialized!)
+				command = ""
+				try:
 					command = message.decode('utf-8')
-					del message
+				except UnicodeDecodeError:
+					logger.error(f"({remote[0]}:{remote[1]}) Ignoring malformed request.")
+					continue
+				del message
 
-					# Ignore invalid commands.
-					if command != COMMAND:
-						logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
-						continue
+				# Ignore invalid commands.
+				if command != COMMAND:
+					logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
+					continue
 
-					# Reply to valid command.
-					logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
-					server.sendto(f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}".encode('utf-8'), remote)
-			finally:
-				server.close()
+				# Reply to valid command.
+				logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
+				# TODO: Wrap the server.sendto() call in a suitable exception handler.
+				server.sendto(f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}|{board}".encode('utf-8'), remote)
+		finally:
+			server.close()
 
 		logger.write("Stopping kiosk discovery service.")
 

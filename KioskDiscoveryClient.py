@@ -30,6 +30,7 @@ from typing import List
 
 import sys
 import socket
+from time import perf_counter
 
 from kiosklib.discovery import COMMAND, SERVICE
 from kiosklib.driver import KioskDriver
@@ -49,8 +50,8 @@ class KioskDiscoveryClient(KioskDriver):
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
 			raise CommandError('"KioskDiscoveryClient.py"')
 
-		# Compute the x.y.z prefix of our own LAN address to filter out packets NOT originating from the LAN.
-		lan_subnet = '.'.join(lan_address().split('.')[:3])
+		# Compute the x.y.?.? prefix of our own LAN address to filter out packets NOT originating from the LAN.
+		lan_subnet = '.'.join(lan_address().split('.')[:2])
 
 		# Create an UDP socket.
 		client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -59,23 +60,35 @@ class KioskDiscoveryClient(KioskDriver):
 		client.settimeout(5)
 
 		found = {}
+		timeout = perf_counter() + 15.0
 		try:
-			# Broadcast request to all the kiosks on the local area network (LAN) to send us their IP addresses by replying.
+			# Broadcast request to all the kiosks on the LAN to send us their info by replying.
 			client.sendto(COMMAND.encode('utf-8'), (lan_broadcast_address(), SERVICE))
 
-			while True:
+			while perf_counter() < timeout:
+				# TODO: Make this multi-threaded or something.  The current approach is very naive and even lame.
 				try:
 					# Wait for a message from a KioskForge client.
-					(message, remote)  = client.recvfrom(1024)
+					try:
+						(message, remote) = client.recvfrom(1024)
+					except TimeoutError:
+						continue
+
+					# Extract the server's IP and port number.
 					(address, service) = remote
+					del remote
 
 					# Convert the message from bytes into UTF-8.
-					command = message.decode('utf-8')
+					try:
+						command = message.decode('utf-8')
+					except UnicodeError:
+						print(f"({address}:{service}) Warning: Received malformed UTF-8 string")
+						continue
 					del message
 
 					# Ensure we only accept replies from the current LAN.
-					if '.'.join(address.split('.')[:3]) != lan_subnet:
-						logger.error(f"({address}:{service}) Ignoring packet from outside LAN")
+					if '.'.join(address.split('.')[:2]) != lan_subnet:
+						logger.error(f"({address}:{service}) Ignoring packet from outside LAN segment")
 						continue
 
 					# Compute prefix and length of prefix of reply from broadcast server.
@@ -85,11 +98,24 @@ class KioskDiscoveryClient(KioskDriver):
 
 					# Ignore malformed packets.
 					if command[:prefix_size] != prefix_data:
-						logger.error(f"({address}:{service}) Ignoring invalid packet")
+						logger.error(f"({address}:{service}) Ignoring malformed packet")
 						continue
 
+					# Split the received data into separate fields.
+					fields = suffix_data.split("|")
+
+					# Convert old formats to new the new format and ignore
+					match len(fields):
+						case 3:
+							# Silently convert from old three-field format into current four-field format.
+							fields.append("unknown")
+						case 4:
+							pass
+						case _:
+							logger.error(f"({address}:{service}) Ignoring invalid packet")
+
 					# Record the kiosk as found (to be reported below).
-					found[address] = tuple(suffix_data.split("|"))
+					found[address] = fields
 				except TimeoutError:
 					break
 		finally:
@@ -97,8 +123,8 @@ class KioskDiscoveryClient(KioskDriver):
 
 		# Print out the found addresses and their host names.
 		for address, fields in found.items():
-			(hostname, version, comment) = fields
-			print(f"{address}  {hostname}  {version}  {comment}")
+			[hostname, version, comment, board] = fields
+			print(f"{address}  {hostname}  {board}  {version}  {comment}")
 
 
 if __name__ == "__main__":
