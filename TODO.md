@@ -33,9 +33,8 @@ snap connect chromium:wayland
 
 ## Open Tasks
 # TODO:
-- [ ] 2026.05.27.09.15 H Make the `device` option redundant by auto-detecting the host Pi type in `KioskSetup.py`.  Also, if the
-                         host is a Pi 5, the `sound_card` should be mapped from `jack` to `hdmi1` if possible.  This to allow
-						 developers to use a Pi 5 and easily later deploy the project to a Pi 4B, which does have a jack.
+- [ ] 2026.05.31.02.53 U The `sound_card` option is completely broken - KioskForge **never** selects any output device!  Instead,
+                         `KioskStart.py` simply sets the volume on **all** sinks detected by PipeWire.  THIS IS A BUG!
 - [ ] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
                          It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
 						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass
@@ -227,6 +226,9 @@ snap connect chromium:wayland
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.27.09.15 H Make the `device` option redundant by auto-detecting the host Pi type in `KioskSetup.py`.  Also, if the
+                         host is a Pi 5, the `sound_card` should be mapped from `jack` to `hdmi1` if possible.  This to allow
+						 developers to use a Pi 5 and easily later deploy the project to a Pi 4B, which does have a jack.
 - [x] 2026.05.27.16.15 H Research the feasibility of making the GUI using PySide6.  PySide6 looks and works great, chosen!
 - [x] 2026.05.28.22.32 H Make a Wi-Fi PSK for the user's wifi password so that it is not stored in clear text anymore.
 - [x] 2026.05.14.07.07 H Use the existing, mandatory SSH connection to the kiosk to upgrade and operate it.  Drop the idea of
