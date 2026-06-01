@@ -2,22 +2,21 @@
 This document presents the important changes made to each KioskForge release from v0.18 onwards:
 
 ## Known Issues
-1. The `sound_card` option currently has no effect whatsoever as the code to select the output audio card seems to have "vanished".  The effect is that the default Pipewire "sink" (audio output device) will be used.  This appears to be "jack" on Pi 4B and "hdmi1" on Pi 5.
-2. Some touchscreens need several presses before they react on Ubuntu Server 26.04 so we strongly recommend using 24.04.x for the time being.
-3. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue so let me know if it causes problems for you.
-4. KioskForge has **never** been tested with IPv6 and is very unlikely to handle that in its current state.
-5. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
-6. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
+1. Some touchscreens misbehave on Ubuntu Server 26.04 so we strongly recommend using 24.04.x for the time being.
+2. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue so let me know if it causes problems for you.
+3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.
+4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
+5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
-## Version 1.04 (2026.05.31)
+## Version 1.04 (2026.06.01)
 1. The new `mouse=auto` option has been fixed and tested (I did not have a touchscreen available when I wrote the code).
 2. The `sound_card` option now also takes the value `auto`, which means "*Use the jack on a Pi 4B and hdmi1 on a PI 5*".
-2. The `device` option has been removed as experience shows that end-users always forget to change it when they switch between a Pi 4B and a Pi 5.  The forge process now detects the kind of system it is running on instead.
-3. The `visible` option has been renamed to `managed` to better explain its purpose: To allow KioskForge to manage the kiosk.  Enabling the `managed` option makes the future GUI capable of managing (upgrading, rebooting, powering off, etc.) the kiosk by enabling a tiny broadcast server at boot and by installing an SSH public key for the `root` (Administrator) account so that KioskForge can control the kiosk.
-4. The Wi-Fi password is now encoded on the kiosk so that hackers cannot read it in plain text anymore (a security precaution).  This made the crude wipe of the network-data file on the installation medium redundant so that it has been removed.
-5. Yet another attempt was made to make Ubuntu Server pick up the "regulatory domain" (Wi-Fi country code) at every boot.  This is not easy, though, because Ubuntu Server for Pi does not provide any working way to set this value.  As far as I can see from posts on the internet, the Linux kernel asks the Access Point (AP) for this information.  Most of the time, this works, but sometimes it doesn't.  There is not anything I can do about it to my knowledge.
+3. The `device` option has been removed as experience shows that end-users always forget to change it when they switch between a Pi 4B and a Pi 5.  The forge process now detects the kind of board on the running kiosk instead.
+4. The `visible` option has been renamed to `managed` to better explain its purpose: To allow KioskForge to manage the kiosk.  Enabling the `managed` option makes the future GUI capable of managing (upgrading, rebooting, powering off, etc.) the kiosk by enabling a tiny broadcast server at boot and by installing an SSH public key for the `root` (Administrator) account so that KioskForge can control the kiosk.
+5. The Wi-Fi password is now encoded on the kiosk so that hackers cannot read it in plain text anymore (a security precaution).  This made the crude wipe of the network-data file on the installation medium redundant so that it has been removed.
 6. The kiosk hostname generated if the `hostname` option is empty now includes a separating dash between `kiosk` and the number: `kiosk-34271`.  It is strongly recommended that you specify a hostname, though, as this makes it easy to see the purpose of the kiosk in smarter routers.
 7. The kiosk forge process now waits indefinitely until an online network connection is detected so that the end-user has plenty of time to identify and fix the issue.
+8. Yet another attempt was made to make Ubuntu Server pick up the "regulatory domain" (Wi-Fi country code) at every boot.  This is not easy, though, because Ubuntu Server for Pi does not provide any working way to set this value.  As far as I can see from posts on the internet, the Linux kernel asks the Access Point (AP) for this information.  Most of the time, this works, but sometimes it doesn't.  There is not anything I can do about it to my knowledge.
 
 ## Version 1.03 (2026.05.27)
 1. Ubuntu Server 26.04.x is now supported by KioskForge.  This is beta as the tests have been limited (everything worked right away in these tests, though).
