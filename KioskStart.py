@@ -132,15 +132,22 @@ class KioskStart(KioskDriver):
 				# Select the appropriate sink (sound_card).
 				wanted = {
 					# Software name => pactl nick name.
+					# TODO: What is the nick of Raspberry Pi 4B's jack audio output (my Pi 4B has died...).
 					"hdmi1" : "vc4-hdmi-0",
 					"hdmi2" : "vc4-hdmi-1"
 				}
-				found = False
 				wanted_nick = wanted.get(kiosk.sound_card.data, "")
+				del wanted
+
+				found = False
 				for nick in nick_to_id_map:
+					if nick != wanted_nick:
+						continue
+
 					wanted_id = nick_to_id_map.get(wanted_nick, 0)
 					if not wanted_id:
 						continue
+
 					found = True
 
 					# Select the default sink.
@@ -151,12 +158,12 @@ class KioskStart(KioskDriver):
 
 					del wanted_id
 
+				del wanted_nick
+
 				if not found:
 					logger.error("Unable to locate sound card: " + kiosk.sound_card.data)
 					raise KioskError(f"Configuration of sound card '{kiosk.sound_card.data}' failed")
 				del found
-				del wanted
-				del wanted_nick
 
 				# Go back to being root.
 				#if sys.platform == "linux":
