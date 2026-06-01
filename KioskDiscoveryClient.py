@@ -125,8 +125,8 @@ class KioskDiscoveryClient(KioskDriver):
 
 		# Print out the found addresses and their host names.
 		for address, fields in found.items():
-			[hostname, version, comment, board] = fields
-			print(f"{address}  {hostname}  {board}  {version}  {comment}")
+			[hostname, version, comment, model] = fields
+			print(f"{address}  {hostname}  {model}  {version}  {comment}")
 
 
 if __name__ == "__main__":

@@ -23,20 +23,63 @@
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #**********************************************************************************************************************************
 
-def pi_board_get() -> str:
-	"""Returns 'Pi 4B' if the host is a Raspberry Pi 4B and 'Pi 5' for a Raspberry Pi 5, otherwise it returns an empty string."""
+from typing import Dict
+
+def pi_model_get() -> str:
+	"""Returns the full model name, from /proc/cpuinfo, of the currently running Pi's board or an empty string if unknown."""
 	try:
 		with open('/proc/cpuinfo', 'rt', encoding="utf-8") as file:
 			for line in file:
 				if not line.startswith('Model'):
 					continue
 
-				if 'Raspberry Pi 4B' in line:
-					return "Pi 4B"
-				if 'Raspberry Pi 5' in line:
-					return "Pi 5"
-				return ""
+				colon = line.index(':')
+				return line[colon + 1:].strip()
 	except IOError:
 		pass
 
 	return ""
+
+
+def pi_board_get() -> str:
+	"""Returns 'Pi 4B' if the host is a Raspberry Pi 4B and 'Pi 5' for a Raspberry Pi 5, otherwise it returns an empty string."""
+	model = pi_model_get()
+
+	if 'Raspberry Pi 4B' in model:
+		return "Pi 4B"
+
+	if 'Raspberry Pi 5' in model:
+		return "Pi 5"
+
+	return ""
+
+
+def unquote(value : str) -> str:
+	assert value[0] == '"'
+	assert value[-1] == '"'
+	return value[1:-1]
+
+
+def pactl_parse_sinks_list(value : str) -> Dict[str, int]:
+	"""Returns a dictionary that maps the sink nick name (vc4-hdmi-N, where N is 0 or 1) to a pactl/wpctl sink id."""
+	result = {}
+
+	lines = value.split("\n")
+	tag = 0
+	nick = ""
+	for line in lines:
+		# Strip leading and trailing whitespace.
+		line = line.strip()
+
+		# Extract the few pieces of information that we need.
+		if line[:6] == "Sink #":
+			tag = int(line[6:])
+		elif line.startswith("device.nick = "):
+			nick = unquote(line[14:])
+
+			result[nick] = tag
+
+			tag = 0
+			nick = ""
+
+	return result

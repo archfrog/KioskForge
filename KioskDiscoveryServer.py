@@ -34,7 +34,7 @@ import sys
 import socket
 from typing import List
 
-from kiosklib.detect import pi_board_get
+from kiosklib.detect import pi_model_get
 from kiosklib.discovery import COMMAND, SERVICE
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
@@ -69,11 +69,12 @@ class KioskDiscoveryServer(KioskDriver):
 		kiosk = Kiosk(self.version)
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
-		# Identify the Raspberry Pi board that we're running on.
-		board = pi_board_get().replace(' ', '_')
+		# Identify the Raspberry Pi model that we're running on ("Pi 4B rev. x.y" or "Pi 5 rev. x.y").
+		model = pi_model_get()
 
-		# Precompute the reply to speed up processing of incoming request a bit.
-		reply = f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}|{board}".encode('utf-8')
+		# Precompute the reply to speed up processing of incoming requests a bit.
+		reply = f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}|{model}".encode('utf-8')
+		del model
 
 		# Wait indefinitely until the internet is up.
 		outer_loop = True

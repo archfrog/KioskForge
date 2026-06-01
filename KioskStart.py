@@ -33,7 +33,7 @@ import sys
 import time
 
 from kiosklib.builder import TextBuilder
-from kiosklib.detect import pi_board_get
+from kiosklib.detect import pi_board_get, pactl_parse_sinks_list
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe, Result
@@ -41,7 +41,6 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.signal import Signal
 from kiosklib.various import screen_clear, touchscreens_get
-from kiosklib.wpctl import wpctl_status_parse_sinks
 
 
 class KioskStart(KioskDriver):
@@ -106,8 +105,8 @@ class KioskStart(KioskDriver):
 				#	os.seteuid(pwd_item.pw_uid)
 				#	del pwd_item
 
-				# Grab 'wpctl status' output, repeat until we succeed.
-				# NOTE: Welcome to systemd...  The PipeWire server is NOT up when the condition 'After=pipewire.target' is true.
+				# Grab PulseAudio control (pactl) output, keep repeating until we succeed.
+				# NOTE: Welcome to systemd...  The PulseAudio server is NOT up when the condition 'After=pipewire.target' is true.
 				# NOTE: So we use 1970ish style code, where a little delay is inserted in the code, just to make the turd pretty.
 				time.sleep(5)
 
@@ -116,26 +115,48 @@ class KioskStart(KioskDriver):
 				# NOTE: The next line is redundant but MyPy doesn't detect that 'result' is always assigned.
 				result = Result()
 				while True:
-					result = invoke_text("wpctl status")
-					if result.status == 0:
+					result = invoke_text("pactl list sinks")
+					if result.status == 0 and result.output.strip() != "":
 						break
-					logger.write("Waiting three seconds for PipeWire to be ready for commands.")
+					logger.write("Waiting three seconds for 'pactl' to be ready for commands.")
 					time.sleep(3)
 
 				# Grab the list of active sinks (typically only one) from the 'wpctl status' output.
-				sinks = wpctl_status_parse_sinks(result.output)
+				nick_to_id_map = pactl_parse_sinks_list(result.output)
 				del result
 
-				# TODO: Select the appropriate sink (sound_card): I forgot to add this when switching from pactl to wpctl.
-				# NOTE: wpctl doesn't even bother to write the HDMI port (0 or 1) so it is useless for our purposes.
-
 				# Make sure we have at least one sink to set the volume of.
-				if len(sinks) == 0:
-					raise KioskError("Unable to locate any PipeWire sinks")
+				if len(nick_to_id_map) == 0:
+					raise KioskError("Unable to detect any PulseAudio sinks")
 
-				# Set the audio level of the discovered sink(s) to the user-specified percentage on a logarithmic scale.
-				for sink in sinks:
-					invoke_text_safe(f"wpctl set-volume {sink} {kiosk.sound_level.data / 100.0:.2f}")
+				# Select the appropriate sink (sound_card).
+				wanted = {
+					# Software name => pactl nick name.
+					"hdmi1" : "vc4-hdmi-0",
+					"hdmi2" : "vc4-hdmi-1"
+				}
+				found = False
+				wanted_nick = wanted.get(kiosk.sound_card.data, "")
+				for nick in nick_to_id_map:
+					wanted_id = nick_to_id_map.get(wanted_nick, 0)
+					if not wanted_id:
+						continue
+					found = True
+
+					# Select the default sink.
+					invoke_text_safe(f"pactl set-default-sink {wanted_id}")
+
+					# Set the audio level of the selected sink to the user-specified percentage on a logarithmic scale.
+					invoke_text_safe(f"wpctl set-volume {wanted_id} {kiosk.sound_level.data / 100.0:.2f}")
+
+					del wanted_id
+
+				if not found:
+					logger.error("Unable to locate sound card: " + kiosk.sound_card.data)
+					raise KioskError(f"Configuration of sound card '{kiosk.sound_card.data}' failed")
+				del found
+				del wanted
+				del wanted_nick
 
 				# Go back to being root.
 				#if sys.platform == "linux":

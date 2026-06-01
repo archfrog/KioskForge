@@ -158,7 +158,7 @@ class KioskSetup(KioskDriver):
 		kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
 		# Notify the KioskForge user that the forge process has begun.
-		logger.write("Forging kiosk (takes a while depending on media speed and kiosk architecture):")
+		logger.write("Forging kiosk (takes a while depending on media speed and kiosk board type):")
 		logger.write()
 
 		# Set environment variable to stop dpkg from running interactively.
@@ -356,9 +356,10 @@ class KioskSetup(KioskDriver):
 
 			script += CustomAction("Configuring audio subsystem:", lambda: None)
 
-			# Install PipeWire audio subsystem, which is configured in 'KioskStart.py' (all attempts of configuring PipeWire in
-			# 'KioskConfig.py' failed with 'sudo', 'os.seteuid()', and so on).
-			script += InstallPackagesAction("... Installing PipeWire packages.", ["pipewire-audio"])
+			# Install PipeWire audio subsystem, which is configured in 'KioskStart.py' (all attempts of configuring PipeWire
+			# with 'sudo', 'os.seteuid()', and so on in 'KioskConfig.py' failed).
+			# NOTE: "pulseaudio-utils" is required because 'wpctl' is unusable for scripting purposes so we install 'pactl'.
+			script += InstallPackagesAction("... Installing PipeWire packages.", ["pipewire-audio", "pulseaudio-utils"])
 
 		#************************************ Kiosk Browser Service **************************************************************
 		if kiosk.managed.data:

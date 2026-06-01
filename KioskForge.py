@@ -592,8 +592,10 @@ class KioskForge(KioskDriver):
 		kernel_options.append("log_level=3")
 		#...Ask systemd to shut up.
 		kernel_options.append("systemd.show_status=auto")
+		# NOTE: Disable IPv6 because the Ubuntu ports server often fails on IPv6 queries.
+		kernel_options.append("ipv6.disable=1")
 		# NOTE: We shouldn't have to pass a kernel parameter for the 'regulatory domain' but the 'network-config' values aren't
-		# NOTE: picked up so in Denmark we get the regulatory domain for Germany (DE), which is plain wrong.
+		# NOTE: picked up at my place in Denmark so I get the regulatory domain for Germany (DE), which is plain wrong.
 		kernel_options.append("cfg80211.ieee80211_regdom=" + kiosk.wifi_country.data)
 		kernel_options.save(target.current + "cmdline.txt")
 
