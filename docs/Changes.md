@@ -4,7 +4,7 @@ This document presents the important changes made to each KioskForge release fro
 ## Known Issues
 1. Some touchscreens misbehave on Ubuntu Server 26.04 so we strongly recommend using 24.04.x for the time being.
 2. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue so let me know if it causes problems for you.
-3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.
+3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.  In fact, IPv6 is currently disabled using an argument to the kernel.
 4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
