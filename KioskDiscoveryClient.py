@@ -25,12 +25,10 @@
 
 # This script is a tiny UDP broadcast discovery client, which allows us to discover all KioskForge kiosks on the LAN.
 
-# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
-
 import sys
 import socket
 from time import perf_counter
+from typing import List
 
 from kiosklib.discovery import COMMAND, SERVICE
 from kiosklib.driver import KioskDriver
@@ -59,6 +57,10 @@ class KioskDiscoveryClient(KioskDriver):
 		# Set a timeout so the socket does not block indefinitely when trying to receive data.
 		client.settimeout(5)
 
+		# Precompute a few variables to speed up things marginally.
+		prefix_data = f"{COMMAND}: "
+		prefix_size = len(prefix_data)
+
 		found = {}
 		timeout = perf_counter() + 15.0
 		try:
@@ -67,8 +69,9 @@ class KioskDiscoveryClient(KioskDriver):
 
 			while perf_counter() < timeout:
 				# TODO: Make this multi-threaded or something.  The current approach is very naive and even lame.
+				# TODO: A queue should be used to enqueue requests so that background threads could process the queue.
 				try:
-					# Wait for a message from a KioskForge client.
+					# Wait for a message from a KioskForge client (an ordinary desktop or laptop computer).
 					try:
 						(message, remote) = client.recvfrom(1024)
 					except TimeoutError:
@@ -91,20 +94,18 @@ class KioskDiscoveryClient(KioskDriver):
 						logger.error(f"({address}:{service}) Ignoring packet from outside LAN segment")
 						continue
 
-					# Compute prefix and length of prefix of reply from broadcast server.
-					prefix_data = f"{COMMAND}: "
-					prefix_size = len(prefix_data)
-					suffix_data = command[prefix_size:]
-
 					# Ignore malformed packets.
 					if command[:prefix_size] != prefix_data:
 						logger.error(f"({address}:{service}) Ignoring malformed packet")
 						continue
 
+					# Extract data portion of reply from broadcast server.
+					suffix_data = command[prefix_size:]
+
 					# Split the received data into separate fields.
 					fields = suffix_data.split("|")
 
-					# Convert old formats to new the new format and ignore
+					# Convert old formats to newest format and ignore invalid packets.
 					match len(fields):
 						case 3:
 							# Silently convert from old three-field format into current four-field format.
@@ -116,6 +117,7 @@ class KioskDiscoveryClient(KioskDriver):
 
 					# Record the kiosk as found (to be reported below).
 					found[address] = fields
+					del fields
 				except TimeoutError:
 					break
 		finally:

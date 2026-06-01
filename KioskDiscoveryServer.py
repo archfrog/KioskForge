@@ -22,19 +22,17 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #**********************************************************************************************************************************
-
-# This script is a tiny UDP broadcast discovery server, which allows us to discover all KioskForge kiosks on the LAN.
+# This script is a tiny UDP broadcast discovery server, which allows us to discover all KioskForge kiosks on the LAN segment(s).
 #
 # NOTES:
-#    1. As the server is LAN-only, it does not need internet access and hence does not wait for the internet to be available.
-#    2. The server does not implement support for the global KioskForge 'shutdown' signal as it blocks waiting for packets.
-
-# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import List
+#    1. The server does not implement support for the global KioskForge 'shutdown' signal as it blocks waiting for packets.
+#    2. A better design than the above is sorely needed.  The server should (be) shut down when the kiosk shuts down.
+#    3. The server is currently hard-coded to only accept /16 addresses on the current IPv4 LAN.  This must be fixed.
 
 import os
 import sys
 import socket
+from typing import List
 
 from kiosklib.detect import pi_board_get
 from kiosklib.discovery import COMMAND, SERVICE
@@ -42,7 +40,7 @@ from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
-from kiosklib.network import internet_active, lan_broadcast_address, wait_for_internet_active
+from kiosklib.network import lan_broadcast_address, wait_for_internet_active
 
 
 class KioskDiscoveryServer(KioskDriver):
@@ -74,41 +72,59 @@ class KioskDiscoveryServer(KioskDriver):
 		# Identify the Raspberry Pi board that we're running on.
 		board = pi_board_get().replace(' ', '_')
 
-		# Wait indefinitely for the internet to be up.
-		# NOTE: This is mandatory as we detect our own LAN address by making a very short-lived broadcast server (see network.py).
-		wait_for_internet_active()
+		# Precompute the reply to speed up processing of incoming request a bit.
+		reply = f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}|{board}".encode('utf-8')
 
-		# Create an UDP socket.
-		server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-		try:
-			# Bind the UDP socket to the broadcast address of the local LAN.
-			server.bind((lan_broadcast_address(), SERVICE))
+		# Wait indefinitely until the internet is up.
+		outer_loop = True
+		while outer_loop:
+			# TODO: Check if the kiosk is shutting down, in that case exit the loop by setting outer_loop to False and continue.
 
-			while True:
-				# Wait indefinitely for a message from a KioskForge client.
-				(message, remote) = server.recvfrom(1024)
+			# NOTE: This is mandatory as we detect our own LAN address by making a very short-lived broadcast server (see network.py).
+			wait_for_internet_active()
 
-				# Convert the message from bytes into UTF-8.
-				# NOTE: Silence Pyrefly warning about 'command' possibly being uninitialized (it is not ever uninitialized!)
-				command = ""
-				try:
-					command = message.decode('utf-8')
-				except UnicodeDecodeError:
-					logger.error(f"({remote[0]}:{remote[1]}) Ignoring malformed request.")
-					continue
-				del message
+			# Create an UDP socket.
+			server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+			try:
+				# Bind the UDP socket to the broadcast address of the local LAN.
+				server.bind((lan_broadcast_address(), SERVICE))
 
-				# Ignore invalid commands.
-				if command != COMMAND:
-					logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
-					continue
+				inner_loop = True
+				while inner_loop:
+					# Wait indefinitely for a message from a KioskForge client.
+					(message, remote) = server.recvfrom(1024)
 
-				# Reply to valid command.
-				logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
-				# TODO: Wrap the server.sendto() call in a suitable exception handler.
-				server.sendto(f"{COMMAND}: {kiosk.hostname.data}|{kiosk.version.version}|{kiosk.comment.data}|{board}".encode('utf-8'), remote)
-		finally:
-			server.close()
+					# If nothing was received, the exit the inner loop.
+					if not message:
+						inner_loop = False
+						continue
+
+					# Convert the message from bytes into UTF-8.
+					# NOTE: Silence Pyrefly warning about 'command' possibly being uninitialized (it is not ever uninitialized!)
+					command = ""
+					try:
+						command = message.decode('utf-8')
+					except UnicodeDecodeError:
+						logger.error(f"({remote[0]}:{remote[1]}) Ignoring malformed request.")
+						continue
+					del message
+
+					# Ignore invalid commands.
+					if command != COMMAND:
+						logger.error(f"({remote[0]}:{remote[1]}) Ignoring invalid request.")
+						continue
+
+					# Reply to valid command.
+					logger.write(f"({remote[0]}:{remote[1]}) Replying to valid request.")
+					try:
+						server.sendto(reply, remote)
+					except OSError as that:
+						# If the network went down, exit the inner loop and wait for it to come up again.
+						logger.error(f"({remote[0]}:{remote[1]}) Error {that.errno}: {that.strerror}")
+						inner_loop = False
+						continue
+			finally:
+				server.close()
 
 		logger.write("Stopping kiosk discovery service.")
 
