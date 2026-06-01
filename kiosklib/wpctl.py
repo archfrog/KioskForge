@@ -35,9 +35,9 @@ def wpctl_status_parse_sinks(value : str) -> List[int]:
 	# Strip out lame UTF-8 graphics characters by converting to ASCII and back to UTF-8 (while ignoring non-ASCII characters).
 	value = value.encode("ascii", "ignore").decode("utf-8")
 
-	lines = value.split('\n')
 	found = False
 	sinks = []
+	lines = value.split('\n')
 	for line in lines:
 		# Strip leading and trailing whitespace, and then split the line into individual tokens.
 		line = line.strip()
