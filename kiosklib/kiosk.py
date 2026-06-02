@@ -787,7 +787,3 @@ class Kiosk(Fields):
 		"""
 		for field in fields:
 			self.assign(field, "REDACTED")
-
-	def redact_report(self) -> None:
-		"""Redacts the kiosk for use by the 'KioskReport.py' script when it includes the redacted kiosk in the Zip archive."""
-		self.redact(["comment", "user_code", "wifi_name", "wifi_code", "ssh_key"])
