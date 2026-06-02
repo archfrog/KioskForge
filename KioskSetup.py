@@ -270,29 +270,31 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("... Enabling firewall.", "ufw --force enable")
 
 		# ...Install SSH public key, if any, so that the user can SSH into the box as 'kiosk' in case of errors or other issues.
-		if kiosk.ssh_key.data:
+		if kiosk.ssh_key_public.data:
 			script += CustomAction("Configuring Secure Shell (ssh):", lambda: None)
 
 			# Install and configure SSH server to require a key and disallow root access if a public key is specified.
 			# ...Install OpenSSH server.
 			script += InstallPackagesAction("... Installing OpenSSH server.", ["openssh-server"])
 
-			#...Disable root login, if not already disabled.
-			script += ReplaceTextAction(
-				"... Disabling root login using SSH.",
-				"/etc/ssh/sshd_config",
-				"#PermitRootLogin prohibit-password",
-				"PermitRootLogin no"
-			)
+			# ...Limit root login to key authentication only if the kiosk is managed (the default is: no login).
+			if not kiosk.managed.data:
+				script += ReplaceTextAction(
+					"... Disabling root login completely.",
+					"/etc/ssh/sshd_config",
+					"#PermitRootLogin prohibit-password",
+					"PermitRootLogin no"
+				)
+
 			#...Disable password-only authentication if not already disabled.
 			script += ReplaceTextAction(
-				"... Disabling password authentication altogether.",
+				"... Disabling SSH password authentication altogether.",
 				"/etc/ssh/sshd_config",
 				"#PasswordAuthentication yes",
 				"PasswordAuthentication no"
 			)
 
-			#...Disable empty passwords (probably superflous, but it doesn't hurt).
+			#...Disable empty passwords (probably redundant, but it doesn't hurt).
 			script += ReplaceTextAction(
 				"... Disabling empty SSH password login.",
 				"/etc/ssh/sshd_config",
@@ -301,11 +303,23 @@ class KioskSetup(KioskDriver):
 			)
 
 			# Install public SSH key for the 'kiosk' user.
-			script += AppendTextAction(
+			script += CreateTextWithUserAndModeAction(
 				"... Installing public SSH key for the kiosk user.",
 				"/home/kiosk/.ssh/authorized_keys",
-				kiosk.ssh_key.data + os.linesep
+				"kiosk",
+				stat.S_IRUSR | stat.S_IWUSR,
+				kiosk.ssh_key_public.data + os.linesep
 			)
+
+			if kiosk.managed.data:
+				# Install public SSH key in /root/.ssh to enable passwordless root logins for KioskForge management operations.
+				script += CreateTextWithUserAndModeAction(
+					"... Installing public SSH key for root user.",
+					"/root/.ssh/authorized_keys",
+					"root",
+					stat.S_IRUSR | stat.S_IWUSR,
+					kiosk.ssh_key_public.data + os.linesep
+				)
 
 		# Create udev rule to grant the kiosk user access to the Raspberry Pi 4B and 5 gpio chip zero (the 40 pin header).
 		# NOTE: The kiosk user has already been added to the 'gpio' group by the CloudInit part set up by KioskForge.py.
@@ -406,20 +420,11 @@ class KioskSetup(KioskDriver):
 			)
 			del subnet
 
-			# Install public SSH key in /root/.ssh to enable passwordless root logins for KioskForge management operations.
-			script += CreateTextWithUserAndModeAction(
-				"... Installing SSH key for root user.",
-				"/root/.ssh/authorized_keys",
-				"root",
-				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP,
-				kiosk.ssh_key.data + os.linesep
-			)
-
 			# Create '~root/.hushlogin' to silence the Ubuntu login Message of the Day (MOTD) scripts.
 			# NOTE: To see the MOTD system status info, use the Ubuntu command 'landscape-sysinfo'.
 			script += CreateTextWithUserAndModeAction(
 				"... Creating ~root/.hushlogin to enable silent logins for management purposes.",
-				"/home/root/.hushlogin",
+				"/root/.hushlogin",
 				"root",
 				stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP,
 				""

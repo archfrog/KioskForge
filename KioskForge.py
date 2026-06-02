@@ -49,7 +49,7 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
 from kiosklib.shell import tree_delete
 from kiosklib.sources import SOURCES
-from kiosklib.various import hostname_create, password_hash, wifi_password_hash
+from kiosklib.various import hostname_create, password_create, password_hash, wifi_password_hash
 from kiosklib.version import Version
 
 
@@ -135,7 +135,7 @@ class Recognizer:
 				mounts = os.listdrives()
 			elif sys.platform == "linux":
 				# TODO: mounts = 'df -a -T -h -t vfat'; grep -Fv "/boot/efi"'
-				raise InternalError("Feature not finished - Linux host not yet supported")
+				raise InternalError("Auto-detection of mount point of kiosk installation medium not supported on Linux")
 			else:
 				raise InternalError(f"Unknown target platform: {platform.system()}")
 
@@ -357,20 +357,38 @@ class CloudinitConfigurator(Configurator):
 			stream.write(f'hostname: "{self.kiosk.hostname.data}"')
 			stream.write()
 
+			# Disable the printing of SSH fingerprints (less clutter).
+			stream.write("no_ssh_fingerprints: true")
+			stream.write()
+
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
 			stream.indent()
+
+			# Create the 'root' user which will be used by KioskForge to manage the kiosk (reboot, poweroff, upgrade, etc).
+			# NOTE: We never need the password so we simply generate a random 32-character password and forget all about it.
+			if self.kiosk.managed.data:
+				stream.write("- name: root")
+				stream.indent()
+				stream.write("gecos: Administrator")
+				stream.write("groups: root")
+				stream.write("shell: /bin/bash")
+				#stream.write("lock_passwd: true")
+				stream.write(f'passwd: "{password_hash(password_create(32))}"')
+				stream.dedent()
+
 			# Create the 'kiosk' user which will be used exclusively for running the kiosk.
 			stream.write("- name: kiosk")
 			stream.indent()
 			stream.write("gecos: Kiosk user")
 			stream.write("groups: users,adm,audio,netdev,video,plugdev,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
-			stream.write("lock_passwd: false")
+			#stream.write("lock_passwd: true")
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is very dangerous if somebody gets through to the shell, but we may need passwordless 'sudo'.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
 			stream.dedent()
+
 			stream.dedent()
 			stream.write()
 
@@ -412,7 +430,7 @@ class CloudinitConfigurator(Configurator):
 			stream.dedent()
 			stream.write()
 
-			# Compute locations of source files.
+			# Compute location of source files.
 			source = "/boot/firmware"
 
 			# Write commands to copy and then make this script executable (this is done late in the boot process).
@@ -567,7 +585,6 @@ class KioskForge(KioskDriver):
 		print(f"    Keyboard     : {kiosk.keyboard.data}")
 		print(f"    Locale       : {kiosk.locale.data}")
 		print(f"    Sound card   : {kiosk.sound_card.data}")
-		print(f"    SSH key      : {'Present' if kiosk.ssh_key.data else 'Not present'}")
 		print(f"    Wi-Fi name   : {kiosk.wifi_name.data}")
 		print(f"    Wi-Fi country: {kiosk.wifi_country.data}")
 		print(f"    Upgrade time : {kiosk.upgrade_time.data}")
@@ -685,11 +702,9 @@ class KioskForge(KioskDriver):
 		print()
 		del action
 
-		# Write REDACTED configuration to the target (to avoid issues with burglars and hackers getting access to the kiosk).
-		# NOTE: The redaction is necessary to avoid making it possible for hackers, etc., to simply read the passwords in the
-		# NOTE: 'KioskForge.kiosk' file that is created in the '/home/username/KioskForge' folder by the 'KioskForge.py' script.
-		kiosk.redact_prepare()
+		# Write the updated kiosk configuration to the installation medium.
 		kiosk.save(output + os.sep + "KioskForge.kiosk")
+		del filename
 		del output
 
 		print("Kiosk prepared successfully.")

@@ -79,8 +79,13 @@ class KioskReport(KioskDriver):
 			# Load the configuration, so that we can redact the sensitive/irrelevant information out of it.
 			filename = "Kiosk.kiosk"
 			kiosk = Kiosk(self.version)
+
+			# Load the kiosk and throw an exception on failure.
 			kiosk.load_safe(logger, "KioskForge/KioskForge.kiosk")
-			kiosk.redact_report()
+
+			# Replace the value of all sensitive fields with the string "REDACTED".
+			kiosk.redact(["comment", "user_password", "ssh_key_public", "ssh_key_private", "wifi_code", "wifi_name"])
+
 			kiosk.save(filename)
 			include.append(filename)
 			cleanup.append(filename)

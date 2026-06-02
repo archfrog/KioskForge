@@ -29,8 +29,8 @@ from typing import List
 from kiosklib.convert import KEYBOARDS
 from kiosklib.errors import InputError, TextFileError
 from kiosklib.locales import LOCALES
-from kiosklib.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalStringField
-from kiosklib.setup import OptionalTimeField, PasswordField, RegexField, StringField
+from kiosklib.setup import BooleanField, ChoiceField, Fields, NaturalField, OptionalRegexField, OptionalTimeField, PasswordField
+from kiosklib.setup import RegexField, StringField
 from kiosklib.timezones import TIMEZONES
 from kiosklib.version import Version
 
@@ -317,28 +317,56 @@ Examples:
 """.strip()
 
 
-SSH_KEY_HELP = """
-The public SSH key for accessing the kiosk using the 'ssh' command.
+SSH_KEY_PRIVATE_HELP = """
+The private SSH key for accessing the kiosk using the 'ssh' command.
 
-If empty, SSH access is disabled, and you'll need a monitor and a keyboard
-to log into the kiosk machine.  This can be very difficult when running an
-X11 or web type kiosk, so SSH access should generally be enabled.
+The private SSH key is used to prove that another computer, such as
+your desktop computer, is authorized to access the kiosk.  As a result,
+you must make sure that this .kiosk file does not fall into the wrong
+hands!  Anybody who has the private SSH key can do virtually anything
+to the kiosk: Change its function, destroy its software, render it
+inoperable, and so on.
 
-The key can be generated using the 'ssh-keygen' command, which is part of
-Linux, but also available on numerous public websites that you can use to
-generate an SSH key pair.  Just search for "ssh-keygen online".
+Both of the public and private key are mandatory and should be left blank
+so that KioskForge can generate them and update this .kiosk file.
 
 SSH keys always come in pairs of two: a private key (which you must keep
 secret) and a public key (which is installed in the kiosk).  Anybody with
-access to the private key can access the kiosk using various tools!
+access to the private key can access and take control of the kiosk.
 
 IMPORTANT:
-1. Always specify an SSH key unless you absolutely cannot!
-2. If you lose the private key, you cannot access the kiosk via SSH anymore.
+If you lose the private key, you cannot access the kiosk via SSH anymore.
 
 Examples:
-    ssh_key=             (To allow only physical logins)
-    ssh_key=ssh-rsa ...  (To allow login via SSH)
+    ssh_key_private=         (To make KioskForge generate an SSH key pair)
+    ssh_key_private=ssh-...  (To use a custom SSH key pair)
+""".strip()
+
+SSH_KEY_PUBLIC_HELP = """
+The public SSH key controls who can access the kiosk with the 'ssh' command.
+
+The public SSH key is used by the SSH server, on the kiosk, to verify that
+a secure connection from another computer (such as your desktop computer),
+is valid and legal. The public SSH key has little value beyond this usage.
+
+If empty, KioskForge will generate a public and private key pair and save
+them in this .kiosk file.
+
+SSH keys always come in pairs of two: a private key (which you must keep
+secret) and a public key (which is installed in the kiosk).  Anybody with
+access to the private key can access and take control of the kiosk.
+
+NOTE:
+A typical private key is multi-line but .kiosk files only support options
+that fit in one line.  As a result of this, you must use the vertical bar
+(|) to separate lines in the private key (i.e., replace newline with |).
+
+IMPORTANT:
+If you lose the private key, you cannot access the kiosk via SSH anymore.
+
+Examples:
+    ssh_key_public=         (To make KioskForge generate an SSH key pair)
+    ssh_key_public=ssh-...  (To use a custom SSH key pair)
 """.strip()
 
 
@@ -696,6 +724,11 @@ class Kiosk(Fields):
 		# ...Limit the string to between 1 and 128 characters.
 		comment_regex = comment_regex + "{1,128}"
 
+		# pylint: disable-next=line-too-long
+		ssh_public_key_regex = r"(ssh-ed25519 AAAAC3NzaC1lZDI1NTE5|sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29t|ssh-rsa AAAAB3NzaC1yc2)[0-9A-Za-z+/]+[=]{0,3}(\s.*)?"
+		# pylint: disable-next=line-too-long
+		ssh_private_key_regex = r"-----BEGIN(?: (?:RSA|OPENSSH|ED25519))? PRIVATE KEY-----\|([a-zA-Z0-9/=+]+\|)+-----END(?: (?:RSA|OPENSSH|ED25519))? PRIVATE KEY-----\|"
+
 		# NOTE: Only fields whose type begins with "Optional" are truly optional and can be empty.  All other fields must be set.
 		self += RegexField("comment", "dummy", COMMENT_HELP, comment_regex)
 		self += ChoiceField("type", "web", TYPE_HELP, ["cli", "x11", "web", "web-wayland"])
@@ -708,7 +741,8 @@ class Kiosk(Fields):
 		self += NaturalField("sound_level", "80", SOUND_LEVEL_HELP, 0, 100)
 		self += ChoiceField("mouse", "false", MOUSE_HELP, ["false", "true", "auto"])
 		self += PasswordField("user_code", "dummy", USER_CODE_HELP)
-		self += OptionalStringField("ssh_key", "", SSH_KEY_HELP)
+		self += OptionalRegexField("ssh_key_public", "", SSH_KEY_PUBLIC_HELP, ssh_public_key_regex)
+		self += OptionalRegexField("ssh_key_private", "", SSH_KEY_PRIVATE_HELP, ssh_private_key_regex)
 		self += OptionalRegexField("wifi_name", "", WIFI_NAME_HELP, r".{1,32}")
 		self += OptionalRegexField("wifi_code", "", WIFI_CODE_HELP, r"[\u0020-\u007e\u00a0-\u00ff]{8,63}|[0-9a-f]{64}")
 		self += RegexField("wifi_country", "US", WIFI_COUNTRY_HELP, r"[A-Z]{2}")
@@ -753,10 +787,6 @@ class Kiosk(Fields):
 		"""
 		for field in fields:
 			self.assign(field, "REDACTED")
-
-	def redact_prepare(self) -> None:
-		"""Redacts the kiosk for use by the 'KioskForge.py' script when it prepares the installation medium for use."""
-		self.redact(["wifi_code"])
 
 	def redact_report(self) -> None:
 		"""Redacts the kiosk for use by the 'KioskReport.py' script when it includes the redacted kiosk in the Zip archive."""
