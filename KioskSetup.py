@@ -321,7 +321,7 @@ class KioskSetup(KioskDriver):
 					kiosk.ssh_key_public.data + os.linesep
 				)
 
-		# Create udev rule to grant the kiosk user access to the Raspberry Pi 4B and 5 gpio chip zero (the 40 pin header).
+		# Create udev rule to grant the kiosk user access to the Raspberry Pi 4B and 5 GPIO chips (the various headers).
 		# NOTE: The kiosk user has already been added to the 'gpio' group by the CloudInit part set up by KioskForge.py.
 		# NOTE: https://oneuptime.com/blog/post/2026-03-02-how-to-configure-gpio-access-on-ubuntu-for-raspberry-pi/view
 		lines  = TextBuilder()
@@ -331,7 +331,7 @@ class KioskSetup(KioskDriver):
 		lines += '# Also allow access to the GPIO export interface (for legacy support).'
 		lines += 'SUBSYSTEM=="gpio", GROUP="gpio", MODE="0660"'
 		script += CreateTextWithUserAndModeAction(
-			"Enabling kiosk access to the 40 pin GPIO header.",
+			"Enabling kiosk access to the various GPIO headers.",
 			"/etc/udev/rules.d/99-gpio.rules",
 			"root",
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -339,21 +339,27 @@ class KioskSetup(KioskDriver):
 		)
 		del lines
 
-		# Copy user-supplied data folder on install medium to the target, if any, and set owner and permissions.
+		# Extract user-supplied archive on install medium, if any, to the target and set owner and permissions.
 		# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
 		if kiosk.user_folder.data:
+			script += CustomAction("Copying user files to kiosk partition:", lambda: None)
+
 			basename = os.path.basename(os.path.abspath(kiosk.user_folder.data))
 			user_source = '/boot/firmware/' + basename + ".zip"
 			user_target = '/home/kiosk/' + basename
 			del basename
 
 			# Create target folder, change owner to 'kiosk', and unpack all user files in it.
-			script += UnpackZipAction("Unpacking user files to user folder.", "kiosk", user_source, user_target)
-			del user_source
+			script += UnpackZipAction("... Unpacking user files to user folder.", "kiosk", user_source, user_target)
 
 			# Set the execute bit on all files in the user folder to allow starting the user application.
-			script += ExternalAction("Setting execute bit on all user files.", f"chmod -R u+x '{user_target}'")
+			script += ExternalAction("... Setting execute bit on all user files.", f"chmod -R u+x '{user_target}'")
 			del user_target
+
+			# Delete source folder as it may be very big (450 megabytes) and this leaves no room for the vmlinuz file installed by
+			# 'apt' on kernel upgrades.
+			script += ExternalAction("... Deleting source user files to make space for kernel upgrades.", f"rm -f '{user_source}'")
+			del user_source
 
 		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
 			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
@@ -383,9 +389,7 @@ class KioskSetup(KioskDriver):
 			lines  = TextBuilder()
 			lines += "[Unit]"
 			lines += "Description=KioskForge kiosk server"
-			lines += "After=network-online.target"
 			lines += "Before=multi-user.target"
-			lines += "Wants=network-online.target"
 			lines += ""
 			lines += "[Service]"
 			lines += "Type=simple"
@@ -505,7 +509,10 @@ class KioskSetup(KioskDriver):
 				script += AptAction("... Installing X11 graphics driver for Pi 5.", "apt-get install -y ./gldriver-test_0.15_all.deb")
 				script += ExternalAction("... Deleting downloaded Pi 5 graphics driver file.", "rm -f gldriver-test_0.15_all.deb")
 
-				script += AptAction("... Installing GPU drivers for hardware Pi 5 H.265 decoder", "apt-get install -y linux-firmware-raspi mesa-utils libgl1-mesa-dri")
+				script += AptAction(
+					"... Installing GPU drivers for hardware Pi 5 H.265 decoder.",
+					"apt-get install -y linux-firmware-raspi mesa-utils libgl1-mesa-dri"
+				)
 
 				# Create X11 configuration file to enable Pi 5 hardware H.265 decoder.
 				lines  = TextBuilder()
@@ -521,7 +528,7 @@ class KioskSetup(KioskDriver):
 				lines += '\tDevice "Card1"'
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
-					"... Creating X11 configuration file to enable Pi 5 H.265 hardware decoder",
+					"... Creating X11 configuration file to enable Pi 5 H.265 hardware decoder.",
 					"/etc/X11/xorg.conf.d/20-modesetting.conf",
 					"root",
 					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -538,7 +545,7 @@ class KioskSetup(KioskDriver):
 				lines += '\tOption "PrimaryGPU" "true"'
 				lines += 'EndSection'
 				script += CreateTextWithUserAndModeAction(
-					"... Creating X11 configuration file to enable Pi 5 GPU",
+					"... Creating X11 configuration file to enable Pi 5 GPU.",
 					"/etc/X11/xorg.conf.d/99-v3d.conf",
 					"root",
 					stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH,
@@ -936,8 +943,6 @@ class KioskSetup(KioskDriver):
 		lines  = TextBuilder()
 		lines += "[Unit]"
 		lines += "Description=KioskForge kiosk configuration"
-		lines += "Wants=network-online.target"
-		lines += "After=network-online.target"
 		lines += "After=pipewire.service"
 		lines += "After=pipewire-pulse.service"
 		lines += "Before=graphical.target"
