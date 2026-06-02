@@ -2,14 +2,20 @@
 This document presents the important changes made to each KioskForge release from v0.18 onwards:
 
 ## Known Issues
-1. Some touchscreens misbehave on Ubuntu Server 26.04 so we strongly recommend using 24.04.x for the time being.
+1. Some touchscreens misbehave on Ubuntu Server 26.04 so we strongly recommend staying on 24.04.x for the time being.
 2. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue but let me know if it causes problems for you.
 3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.  In fact, IPv6 is currently disabled using a kernel command line option.
-4. The installed documentation needs a review as quite a few things have changed recently.
+4. The KioskForge documentation needs a review as quite a few things have changed recently.
 5. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
 6. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
-## Version 1.04 (2026.06.02)
+## Version 1.05 (2026.06.02)
+1. Fixed the v1.04 issue that it was no longer possible to use `sudo` as the `kiosk` user.  Just a small oversigt on my part, but the kiosk itself runs great.
+2. Fixed the issue that large (400+ megabytes) user files made the kiosk die with *No space left on the device* when upgrading the kernel.  The forge process now deletes the user files from the boot partition after having copied them to the main partition.
+3. The kiosk can now operate completely without internet access *after* it has been forged.  Simply test the kiosk, power it off (unplug or ssh to it and execute `sudo poweroff`), then deploy it.  There is a two-minute delay upon boot that I have not yet managed to eliminate, but once systemd's wait-network-online service times out, the kiosk continues to boot.
+4. The root user is now assigned a random 32+-character password which is **not** preserved anywhere as the kiosk user already has `sudo` permission.  Let me know if this causes problems.
+
+## Version 1.04 (2026.06.02) (BUGGY, AVOID)
 1. The new `mouse=auto` option has been fixed and tested (I did not have a touchscreen available when I wrote the code).
 2. The `sound_card` option now also takes the value `auto`, which means "*Use the jack on a Pi 4B and hdmi1 on a PI 5*".
 3. The `device` option has been removed as experience shows that end-users always forget to change it when they switch between a Pi 4B and a Pi 5.  The forge process now detects the kind of board on the running kiosk instead.
