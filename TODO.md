@@ -20,15 +20,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
-- [ ] 2026.05.31.02.53 U The `sound_card` option is completely broken - KioskForge **never** selects any output device!  Instead,
-                         `KioskStart.py` simply sets the volume on **all** sinks detected by PipeWire.  THIS IS A BUG!
-						 The bug was introduced when I switched from using `pactl` to using `wpctl`.  The latter is useless for us.
 - [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
-- [ ] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
-                         It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
-						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass
-						 in the regulatory domain as a kernel command line argument (in `cmdline.txt`).  It *may* be that the
-						 problems I am experiencing are caused by my Asus router, which possibly replies with a wrong reg. domain.
 - [ ] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
                          and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
@@ -215,6 +207,16 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
+                         It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
+						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass
+						 in the regulatory domain as a kernel command line argument (in `cmdline.txt`).  It *may* be that the
+						 problems I am experiencing are caused by my Asus router, which possibly replies with a wrong reg. domain.
+						 Even setting it on the kernel command line has no lasting effect.  I give up for now.
+- [x] 2026.05.31.02.53 U The `sound_card` option is completely broken - KioskForge **never** selects any output device!  Instead,
+                         `KioskStart.py` simply sets the volume on **all** sinks detected by PipeWire.  THIS IS A BUG!
+						 The bug was introduced when I switched from using `pactl` to using `wpctl`.  The latter is useless for us.
+						 KioskForge now, once again, sets the default sound card using PulseAudio's `pactl` tool.
 - [x] 2026.05.27.09.15 H Make the `device` option redundant by auto-detecting the host Pi type in `KioskSetup.py`.  Also, if the
                          host is a Pi 5, the `sound_card` should be mapped from `jack` to `hdmi1` if possible.  This to allow
 						 developers to use a Pi 5 and easily later deploy the project to a Pi 4B, which does have a jack.
