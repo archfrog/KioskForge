@@ -207,6 +207,9 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.06.02.15.44 H Somehow make the forge process capable of powering off or rebooting according to the user's needs.
+                         The end-user *should* **always** test the kiosk before deploying it.  After that, simply pull the power or
+						 ssh to the kiosk and execute `sudo poweroff`.
 - [x] 2026.05.28.22.31 H Make the `regulatory domain` (Wi-Fi country code) work on Ubuntu 26.04 and verify that it works on 24.04.
                          It doesn't appear to work on either 24.04 or 26.04.  Both are set to DE instead of DK.  I've spent hours
 						 on this issue and have no solution as none of the suggestions I tried worked.  For the time being, I pass
