@@ -357,7 +357,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write(f'hostname: "{self.kiosk.hostname.data}"')
 			stream.write()
 
-			# Disable the printing of SSH fingerprints (less clutter).
+			# Disable the printing of SSH fingerprints (less clutter) (does not seem to have any effect at all?).
 			stream.write("no_ssh_fingerprints: true")
 			stream.write()
 
@@ -366,14 +366,16 @@ class CloudinitConfigurator(Configurator):
 			stream.indent()
 
 			# Create the 'root' user which will be used by KioskForge to manage the kiosk (reboot, poweroff, upgrade, etc).
-			# NOTE: We never need the password so we simply generate a random 32-character password and forget all about it.
 			if self.kiosk.managed.data:
 				stream.write("- name: root")
 				stream.indent()
 				stream.write("gecos: Administrator")
 				stream.write("groups: root")
 				stream.write("shell: /bin/bash")
-				#stream.write("lock_passwd: true")
+				# NOTE: If 'lock_passwd: false' is missing or changed to 'lock_passwd: true', the user can't use 'sudo' anymore!
+				stream.write("lock_passwd: false")
+				# NOTE: We never need the password so we simply generate a random 64-character password and forget all about it.
+				# NOTE: The kiosk user can change it by using 'sudo passwd' and entering the new password twice.
 				stream.write(f'passwd: "{password_hash(password_create(32))}"')
 				stream.dedent()
 
@@ -383,7 +385,9 @@ class CloudinitConfigurator(Configurator):
 			stream.write("gecos: Kiosk user")
 			stream.write("groups: users,adm,audio,netdev,video,plugdev,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
-			#stream.write("lock_passwd: true")
+			# NOTE: If 'lock_passwd: false' is missing or changed to 'lock_passwd: true', the user can't use 'sudo' anymore!
+			# NOTE: The kiosk user can change it by using 'sudo passwd' and entering the new password twice.
+			stream.write("lock_passwd: false")
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is very dangerous if somebody gets through to the shell, but we may need passwordless 'sudo'.
 			#stream.write("sudo: ALL=(ALL) NOPASSWD:ALL")
