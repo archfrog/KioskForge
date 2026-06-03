@@ -25,7 +25,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
                          and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
                          This can only be done if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
-- [ ] 2026.05.21.00.08 H Move the `redact_prepare` and `redact_report` methods to their respective files, away from `kiosk.py`!
 - [ ] 2026.05.19.01.37 H Would it make sense to use a predefined name, say `Application`, to the user folder?  It would simplify
                          many things, such as understanding a KioskForge project, and it makes a lot of sense.  The `user_folder`
                          option would become redundant just like the `user_fonts` option.  Would this introduce problems?  None
@@ -207,6 +206,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2026.05.21.00.08 H Eliminiate the `redact_prepare` and `redact_report` methods in `kiosk.py`.
 - [x] 2025.06.02.15.44 H Somehow make the forge process capable of powering off or rebooting according to the user's needs.
                          The end-user *should* **always** test the kiosk before deploying it.  After that, simply pull the power or
 						 ssh to the kiosk and execute `sudo poweroff`.
