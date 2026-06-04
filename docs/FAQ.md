@@ -35,18 +35,18 @@ All files created by and used by KioskForge are located in `~/KioskForge`.  Plea
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
 ### How do I become `root` after login?
-You should generally try to avoid becoming `root`, and instead use the `sudo` command with the `kiosk` user, but if you really need to, you can use this procedure:
+You should generally try to avoid becoming `root`, and instead use the `sudo` command as the `kiosk` user, but if you really need to, you can use this procedure:
 
 ```bash
 # Log into the kiosk as the 'kiosk' user using SSH or local login.
-# Execute the commands below and fill in the requested passwords.
+# Execute the command below and fill in the requested passwords.
 sudo passwd
-# Enter password for the 'kiosk' user at the prompt.
+# Enter EXISTING password for the 'kiosk' user at the prompt.
 # Enter NEW password for the 'root' user at the prompt.
 # Retype NEW password for the 'root' user at the prompt.
 ```
 
-This step must be done before the first time you use `su` to become root.  Unfortunately, there's no way we can do this automatically.
+This step must be done before the first time you use `su` to become root.
 
 ### I am getting errors during the forge proccess about accessing the Ubuntu repositories?
 This is almost certainly a temporary issue with your Internet Service Provider (ISP) or Ubuntu's servers.  Either may be rebooting a DNS server or doing some other maintenance work.  I too run into this issue now and then.  Wait thirty minutes and try again.  Be patient!  :-)
