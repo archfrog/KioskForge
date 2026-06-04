@@ -20,27 +20,19 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
-- [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
+- [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow local and remote updates of the KioskForge folder in a kiosk.
+- [ ] 2026.05.14.01.01 H Zip the KioskForge files too as their file dates are ruined by the installation medium.
 - [ ] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
                          and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
+- [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
                          This can only be done if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
-- [ ] 2026.05.19.01.37 H Would it make sense to use a predefined name, say `Application`, to the user folder?  It would simplify
-                         many things, such as understanding a KioskForge project, and it makes a lot of sense.  The `user_folder`
-                         option would become redundant just like the `user_fonts` option.  Would this introduce problems?  None
-                         that I can see, but it would simplify many things.  If `Application` is present in the folder that
-                         contains the `KioskForge.kiosk` file, then `user_folder` is automatically enabled.
 - [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be supported as well.
-- [ ] 2026.05.14.12.46 H Add SSH access via the `root` user.  This is not really a security issue as it always uses a private key.
-                         This to allow systems operations from the KioskForge management GUI, if it is ever completed.
-- [ ] 2026.05.14.02.59 H Add `mouse=auto` option so that mouse is enabled only if there is no touchscreen (work in progress).
 - [ ] 2026.05.12.05.28 H Move the `KioskForge.kiosk` file to `/home/kiosk` so as to simplify manual upgrades a bit and also to
                          ensure that the `user_folder` and `user_fonts` settings work relative to the `KioskForge.kiosk` file.
                          This may be problematic in terms of upgrading the `.kiosk` file - it prevents rolling back to an earlier version.
-- [ ] 2026.05.14.01.01 H Use "zip method" for the KioskForge files too as their file dates are ruined by the installation medium.
-- [ ] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relative to the `.kiosk` file.
 - [ ] 2026.05.14.01.24 H Ensure the current working directory is `~` when the kiosk is launched.
-- [ ] 2026.05.10.09.55 H Rewrite this badly engineered [censored] to use plugins for each operation.  Also, `KioskSetup.py` should
+- [ ] 2026.05.10.09.55 M Rewrite this badly engineered [censored] to use plugins for each operation.  Also, `KioskSetup.py` should
                          not directly include logic for setting up the kiosk as it should use the defined plugins instead.
 - [ ] 2026.04.21.19.19 H Reorganize the settings, there are quite a few of them now, so all things related to, say, network starts
                          with `network_` and likewise with all things related to Python.  Make the KioskForge `upgrade` command so
@@ -48,7 +40,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2025.11.18.22.41 H Fix `version.py` and `driver.py` so that the printed app extension is correct (currently always `.py`).
 - [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
 - [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
-- [ ] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location.
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow it to be used in the GUI app.
 - [ ] 2025.07.14.17.05 H The host name should be generated on the kiosk itself, during the first post-forge boot, so as to allow
@@ -62,7 +53,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
                          `find` cannot find `xorg.conf` anywhere in the kiosk.  Check out where I store X11 config...
 - [ ] 2025.07.11.08.46 H Add default value to option header in help text so that the users can easily see the default value.
 - [ ] 2025.07.11.02.22 H Check out https://github.com/debloper/piosk and consider to join his project.
-- [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow remote updates of the KioskForge folder in a kiosk.
 - [ ] 2025.07.09.05.55 H Before going public: Consider the name and purpose of each `Kiosk*.py` script and rename it accordingly.
 - [ ] 2025.03.19.23.14 H Make the `pinch` feature optional, currently it is hard-coded so that pinch always is enabled.
                          2025.07.09.05.50: Chromium now *requires* the option `--touch-events=enabled` to use a touch screen
@@ -206,6 +196,17 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location. DROPPED.
+- [x] 2026.05.14.02.59 H Add `mouse=auto` option so that mouse is enabled only if there is no touchscreen (work in progress).
+- [x] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relative to the `.kiosk` file.
+- [x] 2026.05.14.12.46 H Add SSH access via the `root` user.  This is not really a security issue as it always uses a private key.
+                         This to allow systems operations from the KioskForge management GUI, if it is ever completed.  Added in v1.05.
+- [x] 2026.05.19.01.37 H Would it make sense to use a predefined name, say `Application`, to the user folder?  It would simplify
+                         many things, such as understanding a KioskForge project, and it makes a lot of sense.  The `user_folder`
+                         option would become redundant just like the `user_fonts` option.  Would this introduce problems?  None
+                         that I can see, but it would simplify many things.  If `Application` is present in the folder that
+                         contains the `KioskForge.kiosk` file, then `user_folder` is automatically enabled.
+						 Added in v1.06 and the `user_folder` and `user_fonts` have been removed.
 - [x] 2026.05.21.00.08 H Eliminiate the `redact_prepare` and `redact_report` methods in `kiosk.py`.
 - [x] 2025.06.02.15.44 H Somehow make the forge process capable of powering off or rebooting according to the user's needs.
                          The end-user *should* **always** test the kiosk before deploying it.  After that, simply pull the power or
