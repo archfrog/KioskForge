@@ -4,13 +4,13 @@ This document presents the important changes made to each KioskForge release fro
 ## Known Issues
 1. Some touchscreens misbehave on Ubuntu Server 26.04 so we strongly recommend staying on 24.04.x for the time being.
 2. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue but let me know if it causes problems for you.
-3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.  In fact, IPv6 is currently disabled using a kernel command line option.
-4. The KioskForge documentation needs a review as quite a few things have changed recently.
-5. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
-6. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
+3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.  In fact, IPv6 is currently disabled using a kernel command line option.  Please report this as a bug, if it is a problem to you.
+4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
+5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
 ## Version 1.06 (2026.06.04)
 1. It is always an ongoing project to simplify KioskForge...  In this release, the `user_folder` and `user_fonts` options have been removed.  KioskForge now always checks if there is a folder named `Application` in the folder that contains the `.kiosk` file.  If so, it is copied to the kiosk during the forge process.  Similarly, the forge process now installs all TrueType (`*.ttf`) fonts found in the application folder, if it exists.
+2. The documentation was updated some.
 
 ## Version 1.05 (2026.06.02)
 1. Fixed the v1.04 issue that it was no longer possible to use `sudo` as the `kiosk` user.  Just a small oversigt on my part, but the kiosk itself runs great.
