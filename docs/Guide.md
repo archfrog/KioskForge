@@ -13,15 +13,15 @@ When you want to display a remote website using your new kiosk, you have to focu
 | Name             | Option name       | Comment                                                                                  |
 | ---------------- | ----------------- | ---------------------------------------------------------------------------------------- |
 | Comment          | `comment`         | A string describing the kiosk and its purpose (for your records).                        |
-| Device type      | `device`          | `pi4b` for a 4B model, and `pi5` for a Pi 5.                                             |
 | Kiosk type       | `type`            | This should be `web` to launch Chromium in X11.                                          |
 | Command          | `command`         | The URL of the starting page of the website that you want the kiosk to browse.           |
-| Sound card       | `sound_card`      | One of `none`, `jack`, `hdmi1`, or `hdmi2`.  Jack requires an amplifier!                 |
+| Sound card       | `sound_card`      | One of `none`, `auto`, `jack`, `hdmi1`, or `hdmi2`.  Jack requires an amplifier!         |
 | Sound volume     | `sound_level`     | The logarithmic audio volume from 0 through 100 (`80` is typically a good choice).       |
-| Mouse cursor     | `mouse`           | This should be disabled (`0`) when using a touch panel, to hide the mouse cursor.        |
+| Mouse cursor     | `mouse`           | This should be be set to `auto` to enable the mouse if no touchscreen is present.        |
 | Idle timeout     | `idle_timeout`    | This should be set to a non-zero number of seconds, say `300`, between restarts [^1].    |
 | Screen rotation  | `screen_rotation` | none = default, left = rotate left, flip = flip upside-down, right = rotate right.       |
-| User folder      | `user_folder`     | This value should be left blank unless you want to display a local file-based website.   |
+| CPU overclocking | `cpu_boost`       | This should probably be enabled (Pi 4B only) to make the browser faster.                 |
+| Wi-Fi boost      | `wifi_boost`      | This should probably be enabled (`true`) to load pages as fast as possible.              |
 
 [^1]: Rude customers may sabotage the kiosk (young people often do this); the restart of the browser resets such sabotage.
 
@@ -45,12 +45,10 @@ When you want to display a local website using your new kiosk, you especially ha
 | Name             | Option name       | Comment                                                                                   |
 | ---------------- | ----------------- | ----------------------------------------------------------------------------------------- |
 | Comment          | `comment`         | A description of the kiosk and its purpose (for your records).                            |
-| Device type      | `device`          | The device model: `pi4b` or `pi5`.                                                        |
 | Sound card       | `sound_card`      | This should be set to `none` as pictures don't include sound.                             |
-| Mouse cursor     | `mouse`           | This should be disabled (`false`) to hide the mouse cursor.                               |
+| Mouse cursor     | `mouse`           | This should be be set to `auto` to enable the mouse if no touchscreen is present.         |
 | Idle timeout     | `idle_timeout`    | This should be set to zero, as the user will not be able to navigate away from your site. |
-| User folder      | `user_folder`     | Set to the location, on the host machine, of the folder with the website.                 |
-| CPU overclocking | `cpu_boost`       | This could well be disabled (`false`) as displaying images doesn't require too much CPU.  |
+| CPU overclocking | `cpu_boost`       | This could well be disabled (`false`) as displaying images does not require much CPU.     |
 | Wi-Fi boost      | `wifi_boost`      | This should probably be disabled (`false`) as local websites require no LAN access.       |
 
 [^1]: The `command` option is a bit peculiar.  You need to specify a `file://` URL to tell Chromium that it is displaying local
@@ -69,7 +67,7 @@ The important options to be aware of, when forging a kiosk with a touch screen, 
 
 | Name              | Option name         | Comment                                                                           |
 | ----------------- | ------------------- | ----------------------------------------------------------------------------------|
-| Mouse Enabled     | `mouse`             | You definitely want to disable the mouse when using a touchscreen.                |
+| Mouse cursor      | `mouse`             | This should be be set to `auto` to enable the mouse if no touchscreen is present. |
 | Screen Rotation   | `screen_rotation`   | If the screen needs to be rotated, use a value other than `none`.                 |
 | Chromium Autoplay | `chromium_autoplay` | If videos need to play immediately upon page load (no user interaction required). |
 

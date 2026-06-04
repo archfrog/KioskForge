@@ -35,24 +35,21 @@ All files created by and used by KioskForge are located in `~/KioskForge`.  Plea
 The setup script, `KioskSetup.py`, *intentionally* copies `KioskForge.py` (the main program) onto the target for posterity.
 
 ### How do I become `root` after login?
-You should generally try to avoid becoming `root`, and instead use the `sudo` command with the `kiosk` user, but if you really need
-to, you can use this procedure:
+You should generally try to avoid becoming `root`, and instead use the `sudo` command with the `kiosk` user, but if you really need to, you can use this procedure:
 
 ```bash
 # Log into the kiosk as the 'kiosk' user using SSH or local login.
 # Execute the commands below and fill in the requested passwords.
-sudo -s
+sudo passwd
 # Enter password for the 'kiosk' user at the prompt.
-passwd
 # Enter NEW password for the 'root' user at the prompt.
 # Retype NEW password for the 'root' user at the prompt.
 ```
 
-This step is only done the very first time you `su` to root.  Unfortunately, there's no way we can do this automatically.
+This step must be done before the first time you use `su` to become root.  Unfortunately, there's no way we can do this automatically.
 
 ### I am getting errors during the forge proccess about accessing the Ubuntu repositories?
-This is almost certainly a temporary issue with your Internet Service Provider (ISP).  Wait thirty minutes and try again.  Your ISP
-may be rebooting a DNS server or doing some other maintenance work.  I too run into this issue now and then.  Be patient!  :-)
+This is almost certainly a temporary issue with your Internet Service Provider (ISP) or Ubuntu's servers.  Either may be rebooting a DNS server or doing some other maintenance work.  I too run into this issue now and then.  Wait thirty minutes and try again.  Be patient!  :-)
 
 ### I get weird errors about `set chanspec 0xNNNN fail, reason -52`
 I'm pretty sure these *were* caused by the lack of the `wifi_country` option in pre-v0.20 releases of KioskForge.  Basically, the network driver was complaining that an incorrect channel was attempted selected because the Ubuntu Server Wi-Fi subsystem did not know the correct country for the network card.  The new `wifi_country` option is used to tell the Wi-Fi subsystem the legal set of channels that can and may be used in the kiosk.
@@ -67,7 +64,7 @@ If you run into this issue, please report it.
 ### I get spurious errors while the kiosk is being forged?
 The most likely reason for this issue is that your installation media, typically a MicroSD card, is becoming worn and unreliable from overuse.  Another possibility is that your USB key is too hot, which happens quite often.
 
-Try another installation media (a USB key or another MicroSD card), and the error(s) should disappear.
+Try another installation media (preferably another MicroSD card), and the error(s) should disappear.
 
 If the problem persists, report it as a bug.  It may be some obscure error in KioskForge.
 
@@ -89,9 +86,9 @@ No, the problem is that PCs are non-standard in every way, from the CPU to the g
 Supporting only two very standard target platforms at the time of this writing makes my job *a lot* easier and, hopefully, yields a stable, trustworthy, and flexible product that you and others can use for free.
 
 ### Why was KioskForge written in Python v3.x?
-I originally wrote the first version of KioskForge in Bash because it was very simple at the beginning, but I soon realized Python was much more intuitive and logical.
+I originally wrote the first version of KioskForge in Bash because it was very simple in the beginning, but I soon missed Python.
 
-In short, because Python v3. x is preinstalled on many Linux distributions, and Python is a great scripting language.
+In short, because Python v3.x is preinstalled on many Linux distributions, and Python is a great scripting language.
 
 ### Why can't you use KioskForge with Linux?
 This is a work in progress; pretty soon, you will be able to use KioskForge on both Windows and Linux.  Feel free to request this.

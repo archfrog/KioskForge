@@ -1,5 +1,6 @@
 # KioskForge Manual
-KioskForge is a free, open-source software (FOSS) program that automates and simplifies the setup of a new kiosk machine.
+KioskForge is a free, open-source software (FOSS) program that automates and simplifies the setup of new kiosks.  A kiosk is a
+small machine, in this case a Raspberry Pi 4B or 5, which serves some designated purpose such as showing a specific website.
 
 ## Synopsis
 KioskForge is intended for somewhat non-technical users to set up a kiosk machine for browsing a given website, or for more advanced users to set up a kiosk that runs a CLI or GUI app of the user's choice.
@@ -7,7 +8,9 @@ KioskForge is intended for somewhat non-technical users to set up a kiosk machin
 KioskForge takes two inputs:
 
 1. An Ubuntu Server 24.04.x/26.04 installation medium created using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
-2. A "kiosk file", which is a configuration file that specifies the values of all the settings that KioskForge supports.
+2. A "kiosk file", which is a configuration file that specifies the values of all the settings that KioskForge supports.  Kiosk files always end in `.kiosk`.
+3. Optionally, an application in the `Application` folder in the folder where the `.kiosk` file is located.
+4. Optionally, one or more custom fonts, also located in the `Application` folder, which are installed during initial setup of the kiosk.
 
 The first, the Ubuntu Server installation medium, is automatically located by KioskForge if it is present on the host system.  The kiosk file name can be passed as an argument to KioskForge or double-clicked to open KioskForge.
 
@@ -21,18 +24,21 @@ KioskForge currently supports these things:
 * Ubuntu Server 24.04.x LTS or Ubuntu Server 26.04.x LTS.
 * 64-bit Raspberry Pi 4B and Raspberry Pi 5 (with 2+ GB RAM) ARM64 (aarch64).
 * Creating a kiosk that allows browsing a website using Chromium in kiosk mode (without a URL address bar).
-* Creating a kiosk that runs a command-line (CLI) application programmed by the user.
+* Creating a kiosk that runs a command-line (CLI) or GUI application programmed by the user.  This can be done in Python or another language.
 * Touch screen input, insofar as the particular touch screen is supported out of the box by the target operating system.
 * Ethernet and/or Wi-Fi networking.
 * Configuring basic Linux things such as hostname, keyboard layout, locale, time zone, etc.
 * Rotating normal and touch-panel displays.
+* Installing custom fonts that the user needs in his or her application.
 
-Please notice that the kiosk needs either internet access or a real-time clock (RTC) for its automatic, daily maintenance to work reliably.  If the kiosk does not have internet access, it should be a Pi 5 with an RTC backup battery.  If not, the kiosk may reboot at seemingly random times because the system clock is wrong.  At this time, we cannot recommend using Raspberry Pi 4B without internet access.  It is best that the kiosk has internet access all the time or at a fixed, daily interval.
+Please notice that the kiosk needs either internet access or a real-time clock (RTC) for its automatic, daily maintenance to work reliably.  If the kiosk does not have internet access, it should be a Pi 5 with an RTC backup battery.  If not, the kiosk may reboot at seemingly random times because the system clock is wrong.  Alternatively, the kiosk should not have any Internet access at all.
 
 ## Security
 Ideally, you use a tool like [KeePassXC](https://keepassxc.org/) to manage the passwords to your kiosks and make sure that each kiosk has its own password so that getting access to one kiosk does not automatically grant access to every kiosk that you operate.
 
-To avoid problems with hackers and hostile visitors, you should **always** make sure that all kiosks run on their own, private subnet (`192.168.x.*`).  This will become much more important in the future, so heed our advice and implement this already now.
+To avoid problems with hackers and hostile visitors, you should **always** make sure that all kiosks run on a restricted subnet (`192.168.x.*`) so that visitors cannot port scan kiosks and attempt to hack them.
+
+Alternatively, you can make a networkless kiosk by forging it with an Ethernet cable and not configure Wi-Fi.  Once the kiosk is deployed, remove the network cable so that it cannot and will not update itself.
 
 ## Overview
 This chapter aims to give you a basic understanding of how to use KioskForge.
@@ -44,7 +50,7 @@ KioskForge is intended to be used by all sorts of users, for which reason it str
 KioskForge works by modifying a supported Ubuntu Server installation medium according to the settings the user has given in a
 `.kiosk` file (an INI-style configuration file).  The format of the `.kiosk` file is very simple and does not require significant
 technical knowledge.  After the installation medium has been configured by KioskForge, it is inserted into the target machine,
-which is then powered on, and the actual "forge process" takes place.  Over less than thirty minutes, the forge process configures,
+which is then powered on, and the actual "forge process" takes place.  In less than thirty minutes, the forge process configures,
 updates, modifies, and prepares the target kiosk machine to work as a kiosk machine (on a permanent basis, not requiring any
 maintenance whatsoever after the initial deployment).
 
@@ -77,13 +83,13 @@ This chapter explains the current method of installing KioskForge for the first 
 Please note that we recommend a specific Python version to ensure the best, most efficient experience for you.  You are free to try with other versions of these tools, but we cannot guarantee that they will work.
 
 ### Windows
-Download the most recent version of `KioskForge-x.yy-Setup.exe` from [KioskForge.org](https://kioskforge.org/downloads/).
+Download the most recent version of `KioskForge-x.yy-Setup.exe` from [KioskForge on GitHub.com](https://github.com/archfrog/KioskForge/releases).
 
-Navigate to the `Downloads` folder and double-click on the `KioskForge-x.yy-Setup.exe` file.  Follow the prompts to install.  If you have installed KioskForge before, you should probably skim the `CHANGES.html` file and see if there are any important changes.
+Navigate to the `Downloads` folder and double-click on the `KioskForge-x.yy-Setup.exe` file.  Follow the prompts to install.  If you have installed KioskForge before, you should skim the `Changes` file in the documentation and see if there are any important changes.
 
 After this, you can launch KioskForge directly from Windows Explorer by double-clicking a `.kiosk` file.
 
-**NOTE:** There's currently no point in starting KioskForge from the Windows Start menu: It will fail because it needs the name of a kiosk file to open.  You can, however, run it from a console if you are so inclined, insofar as you pass the name of a kiosk file.  If you run it from the command line, you need to add the `apply` keyword before the actual path of the `.kiosk` file to use.
+**NOTE:** There's currently no point in starting KioskForge from the Windows Start menu: It will fail because it needs the name of a kiosk file to open.  You can, however, run it from a console if you are so inclined, insofar as you pass the name of a kiosk file.  If you run it from the command line, you need to add the `prepare` keyword before the actual path of the `.kiosk` file to use.
 
 ### Linux
 Install a recent version of the [Python v3.13+ programming language](https://python.org).  On most Linuxes, this can be done with
@@ -97,10 +103,10 @@ git clone https://github.com/archfrog/KioskForge
 ```
 
 #### Activating the Python Virtual Environment
-Before you can use the KioskForge scripts, you need to activate the Python virtual environment:
+Before you can use the KioskForge scripts, you need to activate the Python virtual environment using the Bash shell:
 
 ```bash
-.venv/Scripts/activate
+source .venv/Scripts/activate
 ```
 
 If you don't use the Bash shell, you need to check the `.venv/Scripts` folder for a compatible `activate` script for your shell.
@@ -111,7 +117,7 @@ This sets up the runtime environment needed to execute KioskForge.
 You need to make sure that the script `KioskForge.py` has execute permissions (use `chmod u+x KioskForge.py` to set them), then you can invoke it using `./KioskForge.py`.
 
 #### Specifying the Installation Medium Mount Point
-`KioskForge.py` does not yet auto-detect the Ubuntu Server installation medium so you need to specify a mount point to the `KioskForge.py prepare` command.  If the `.kiosk` file is named `Test.kiosk` and the mount point for the Ubuntu Server installation medium is `/mnt/sdcard`, you need to execute this command:
+`KioskForge.py` does not yet auto-detect the Ubuntu Server installation medium on Linux so you need to specify a mount point to the `KioskForge.py prepare` command.  If the `.kiosk` file is named `Test.kiosk` and the mount point for the Ubuntu Server installation medium is `/mnt/sdcard`, you need to execute this command:
 
 ```bash
 ./KioskForge.py prepare Test.kiosk /mnt/sdcard
@@ -133,17 +139,17 @@ KioskForge is a simple application that modifies an Ubuntu Server 24.04.x/26.04.
 The only GUI way to use KioskForge is to double-click a kiosk file (which ends in `.kiosk` and has the Windows Explorer file type
 `KioskForge Kiosk`).
 
-If there is one or more errors in the kiosk file, KioskForge will report them, wait for you to hit enter, and then exit.
+If there are errors in the kiosk file, KioskForge will report them, wait for you to hit enter, and then exit.
 
 If there are no errors in the kiosk file, KioskForge will look through all drives in the system to see if it can recognize a valid
-Linux installation medium.  If it finds one, it will ask you to review the settings and then update the medium so that it will
-create a kiosk the first time that the kiosk machine is booted off that medium.
+Linux installation medium.  If it finds one, it will ask you to review the settings, press `Enter`, and then update the medium so
+that it will create a kiosk the first time that the kiosk machine is booted off that medium.
 
 **NOTE:** The kiosk MUST be connected to the internet while it is being forged!  After this, it can stay offline forever.  You can disable updates by setting the `update_time` option blank (`update_time=`).
 
 **NOTE:** Web-type kiosks should be permanently online that they can update Chromium and other system software.  But it can work without, and there are good reasons for keeping it offline: Updates MAY break the system!  This happens occasionally and is beyond our control.
 
-**NOTE:** We generally recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and unreliable.
+**NOTE:** We generally recommend MicroSD cards over USB keys as the latter have a tendency to get very hot and then unreliable.
 
 The procedure is as follows:
 
@@ -187,6 +193,6 @@ KioskForge/KioskReport.py
 
 This will create the archive `kiosklogs.zip` which you can then download from the kiosk using `scp` or [WinSCP](https://winscp.net).  Please attach the `kiosklogs.zip` file to your bug report, whether by email or via GitHub.
 
-All sensitive information (comment, user password, Wi-Fi name, Wi-Fi password, and the public SSH key) has been redacted out of the `.kiosk` file before inclusion in the ZIP archive.  You can search the unzipped `Kiosk.kiosk` file for the string `REDACTED` to verify this.
+All sensitive information (comment, user password, Wi-Fi name, Wi-Fi password, and the SSH keys) has been redacted out of the `.kiosk` file before inclusion in the ZIP archive.  You can search the unzipped `Kiosk.kiosk` file for the string `REDACTED` to verify this.
 
 **NOTE:** If you are uncomfortable submitting the ZIP archive to GitHub, you are more than welcome to send it attached to an email.

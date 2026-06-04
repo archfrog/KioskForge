@@ -25,7 +25,7 @@ To prepare for developing on KioskForge, follow this procedure:
 6. Activate the virtual environment on Windows: `.venv\Scripts\activate`
 7. Activate the virtual environment on Linux/Mac: `source .venv/bin/activate`
 8. Download and install required dependencies: `uv sync`
-9. Run the static analyzers on Windows: `check.py`
+9. Run the static analyzers on Windows: `check`
 10. Run the static analyzers on Linux: `./check.py`
 
 ### Dependencies
@@ -51,12 +51,12 @@ Set up these environment variables:
 The environment variables should be set at all times when working on KioskForge, especially when using the `build.py` and
 `check.py` development scripts.
 
-Run the script `check.py` (all platforms) to make MyPy and pylint test the code and report any discovered warnings and errors.
+Run the script `check.py` (all platforms) to make MyPy, pylint, and Pyrefly check the code and report any discovered issues.
 
 Run the script `build.py` (Windows only) to build the platform-specific installer, which is normally downloadable from
 [KioskForge.org](https://kioskforge.org).
 
 **NOTE**:
-The `build.py` takes an option, `--ship`, which you should not attempt to use.  It builds the Windows setup program using [Inno Setup](https://jrsoftware.org/isinfo.php) and updates the documentation on my personal web server, so it *will* fail on your equipment as you don't have the SSH configuration and private key to my personal web server...
+The `build.py` takes an option, `--ship`, which you should not attempt to use.  It builds the Windows setup program using [Inno Setup](https://jrsoftware.org/isinfo.php) and updates the documentation on my personal web server, so it *will* fail on your equipment as you don't have the SSH configuration and key to my personal web server...
 
-Development currently happens on a Windows 11 desktop computer, but I'll set up a Linux development environment soon.
+Development currently takes place on a Windows 11 desktop computer.  Linux support is limited, but I'll be happy to help.
