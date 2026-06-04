@@ -9,6 +9,9 @@ This document presents the important changes made to each KioskForge release fro
 5. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
 6. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
+## Version 1.06 (2026.06.04)
+1. It is always an ongoing project to simplify KioskForge...  In this release, the `user_folder` and `user_fonts` options have been removed.  KioskForge now always checks if there is a folder named `Application` in the folder that contains the `.kiosk` file.  If so, it is copied to the kiosk during the forge process.  Similarly, the forge process now installs all TrueType (`*.ttf`) fonts found in the application folder, if it exists.
+
 ## Version 1.05 (2026.06.02)
 1. Fixed the v1.04 issue that it was no longer possible to use `sudo` as the `kiosk` user.  Just a small oversigt on my part, but the kiosk itself runs great.
 2. Fixed the issue that large (400+ megabytes) user files made the kiosk die with *No space left on the device* when upgrading the kernel.  The forge process now deletes the user files from the boot partition after having copied them to the main partition.

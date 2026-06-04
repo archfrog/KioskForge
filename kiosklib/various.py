@@ -24,6 +24,7 @@
 #**********************************************************************************************************************************
 
 import errno
+import glob
 from hashlib import pbkdf2_hmac
 import io
 import os
@@ -38,6 +39,14 @@ import bcrypt
 
 from kiosklib.errors import KioskError
 from kiosklib.invoke import invoke_text
+
+
+def custom_fonts_get(appdir : str) -> List[str]:
+	"""Returns a list of all custom fonts found in the 'Application' folder, if that folder exists."""
+	if not os.path.isdir(appdir):
+		return []
+
+	return glob.glob(appdir + os.sep + "**" + os.sep + "*.[Tt][Tt][Ff]", recursive=True)
 
 
 def file_wipe_once(path : str) -> None:

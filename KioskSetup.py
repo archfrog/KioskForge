@@ -47,7 +47,7 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active, wifi_boost
 from kiosklib.script import Script
-from kiosklib.various import screen_clear
+from kiosklib.various import custom_fonts_get, screen_clear
 
 
 # NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
@@ -341,13 +341,12 @@ class KioskSetup(KioskDriver):
 
 		# Extract user-supplied archive on install medium, if any, to the target and set owner and permissions.
 		# NOTE: We set the execute bit on ALL user files just to be sure that 'KioskRunner.py' can actually run 'command=...'.
-		if kiosk.user_folder.data:
+		basename = "Application"
+		user_source = '/boot/firmware/' + basename + ".zip"
+		if os.path.isfile(user_source):
 			script += CustomAction("Copying user files to kiosk partition:", lambda: None)
 
-			basename = os.path.basename(os.path.abspath(kiosk.user_folder.data))
-			user_source = '/boot/firmware/' + basename + ".zip"
 			user_target = '/home/kiosk/' + basename
-			del basename
 
 			# Create target folder, change owner to 'kiosk', and unpack all user files in it.
 			script += UnpackZipAction("... Unpacking user files to user folder.", "kiosk", user_source, user_target)
@@ -359,7 +358,8 @@ class KioskSetup(KioskDriver):
 			# Delete source folder as it may be very big (450 megabytes) and this leaves no room for the vmlinuz file installed by
 			# 'apt' on kernel upgrades.
 			script += ExternalAction("... Deleting source user files to make space for kernel upgrades.", f"rm -f '{user_source}'")
-			del user_source
+		del user_source
+		del basename
 
 		if kiosk.wifi_name.data and kiosk.wifi_boost.data:
 			# Disable Wi-Fi power-saving mode, something that can cause Wi-Fi instability and slow down the Wi-Fi network a lot.
@@ -918,18 +918,19 @@ class KioskSetup(KioskDriver):
 			del lines
 
 		# Install user-supplied fonts, if any (basically any TrueType font files found in the user_folder folder).
-		if kiosk.type.data in ["web", "x11", "web-wayland"] and kiosk.user_fonts.data:
-			# Update the status screen before we continue.
-			script += CustomAction("Installing user fonts:", lambda: None)
+		# NOTE: This step requires that X11 or Wayland has been installed already.
+		appdir = "/home/kiosk/Application"
+		if kiosk.type.data in ["web", "x11", "web-wayland"] and custom_fonts_get(appdir):
+			# Report that we're installing custom fonts.
+			script += CustomAction("Installing custom fonts:", lambda: None)
 
-			source = os.path.dirname(origin) + os.sep + kiosk.user_folder.data
 			target = "/home/kiosk/.local/share/fonts/KioskForge"
-			script += InstallFontsAction("... Installing user-specified fonts", source, target)
-			del source
+			script += InstallFontsAction("... Installing fonts found in Application folder.", appdir, target)
 			del target
 
 			# Update the font cache.
-			script += ExternalAction("... Updating kiosk user's font cache", "sudo -u kiosk fc-cache -f")
+			script += ExternalAction("... Updating kiosk user's font cache.", "sudo -u kiosk fc-cache -f")
+		del appdir
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(

@@ -36,6 +36,7 @@ import zipfile
 
 from kiosklib.errors import InternalError, KioskError
 from kiosklib.invoke import invoke_text, Result
+from kiosklib.various import custom_fonts_get
 
 
 class Action:
@@ -416,9 +417,8 @@ class InstallFontsAction(Action):
 		self.__target = target
 
 	def execute(self) -> Result:
-		fonts = glob.glob(self.__source + os.sep + "**" + os.sep + "*.[Tt][Tt][Ff]", recursive=True)
-
-		# Abort if we didn't find any fonts.
+		# Check that there are indeed custom fonts to be installed.
+		fonts = custom_fonts_get(self.__source)
 		if not fonts:
 			raise KioskError("No fonts found")
 

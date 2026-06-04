@@ -49,7 +49,7 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
 from kiosklib.shell import tree_delete
 from kiosklib.sources import SOURCES
-from kiosklib.various import hostname_create, password_create, password_hash, wifi_password_hash
+from kiosklib.various import custom_fonts_get, hostname_create, password_create, password_hash, wifi_password_hash
 from kiosklib.version import Version
 
 
@@ -577,6 +577,10 @@ class KioskForge(KioskDriver):
 			raise KioskError("Only Ubuntu Server 24.04.x/26.04.x images for Raspberry Pi 4B and 5 are supported")
 		del accept
 
+		# Compute location of Application folder, if any.
+		basename = "Application"
+		appdir = os.path.abspath(os.path.join(os.path.dirname(filename), basename))
+
 		# Display a synopsis of the selected kiosk, incuding the comment, hostname, and possibly more.
 		print("*** Summary (some fields intentionally left out):")
 		print()
@@ -594,8 +598,8 @@ class KioskForge(KioskDriver):
 		print(f"    Upgrade time : {kiosk.upgrade_time.data}")
 		print(f"    Poweroff time: {kiosk.poweroff_time.data}")
 		print(f"    Rotation     : {kiosk.screen_rotation.data}")
-		print(f"    User folder  : {kiosk.user_folder.data}")
-		print(f"    User fonts   : {kiosk.user_fonts.data}")
+		print(f"    Application  : {'Present' if os.path.isdir(appdir) else 'Not present'}")
+		print(f"    Custom fonts : {'Present' if custom_fonts_get(appdir) else 'Not present'}")
 		print()
 
 		print("*** Press ENTER to prepare kiosk installation image or Ctrl-C to abort")
@@ -657,42 +661,36 @@ class KioskForge(KioskDriver):
 				raise InternalError("File not found while copying to installation medium: " + origin + os.sep + name)
 
 		# Zip up the user folder, if any, on the install medium so that it can be unzipped on the Pi to preserve UTF-8 file names.
-		if kiosk.user_folder.data:
-			# Use 'abspath' to the handle the case that the user folder is identical to '.'.
-			source = os.path.abspath(os.path.join(os.path.dirname(filename), kiosk.user_folder.data))
-
-			# Extract the last portion of the source's full path to get the name of the folder on the install medium.
-			basename = os.path.basename(source)
-			if basename.lower() == "kioskforge":
-				raise KioskError("The user_folder setting cannot be 'KioskForge' as this is a reserved name")
-
+		if os.path.isdir(appdir):
 			zipname = target.basedir + os.sep + basename + ".zip"
-			del basename
 
 			# Remove the archive if already created by a previous invokation of KioskForge.
 			if os.path.isfile(zipname):
 				os.unlink(zipname)
 
+			# Create list of all files in the 'Application' folder.
+			files = glob.glob(appdir + os.sep + "**" + os.sep + "*", recursive=True)
+			if not files:
+				raise KioskError("Application folder is empty: " + appdir)
+
 			# Create a UTF-8 ZIP file containing the user files as Ubuntu mounts the microSD card as ASCII and CodePage 437,
 			# which ruins all non-ASCII characters, which again can make the user app fail or render incorrect file names...
 			# NOTE: This is only necessary if foreign characters (not 7-bit ASCII characters) are present, but we do it always.
-			files = glob.glob(source + os.sep + "**" + os.sep + "*", recursive=True)
-			if not files:
-				raise KioskError("User folder (user_folder) is empty")
 			with zipfile.ZipFile(zipname, "w", zipfile.ZIP_STORED) as archive:
 				for file in files:
 					# Ignore hidden files.
 					if file[0] == '.':
 						continue
 
-					# Make the name relative to the absolute 'source' folder (D:\Foo\App\file1.txt => file1.txt).
-					name = file[len(source) + 1:]
+					# Make the name relative to the absolute 'appdir' folder (D:\Foo\App\file1.txt => file1.txt).
+					name = file[len(appdir) + 1:]
 
 					# Add the file to the archive, which puts the archive into UTF-8 mode if non-ASCII (CP437) chars are detected.
 					archive.write(file, name)
 			del files
-			del source
 			del zipname
+		del appdir
+		del basename
 
 		# Report success to the log.
 		match platform.system():

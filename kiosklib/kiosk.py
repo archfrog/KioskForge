@@ -61,9 +61,9 @@ two types are used for custom solutions that do not necessarily require a
 web browser, such as a Pi kiosk that detects motion and then plays a sound.
 
 Examples:
-    command=https://youtube.com                    (an online web kiosk)
-    command=file:///home/kiosk/Website/index.html  (a static web kiosk)
-    command=Application/Launcher.py                (a coded CLI kiosk)
+    command=https://youtube.com                        (an online web kiosk)
+    command=file:///home/kiosk/Application/index.html  (a static web kiosk)
+    command=Application/Launcher.py                    (a coded CLI kiosk)
 """.strip()
 
 
@@ -511,56 +511,6 @@ Examples:
 """.strip()
 
 
-USER_FOLDER_HELP = """
-The path of a user folder to copy from the host to the kiosk.
-
-If empty, nothing will be copied, otherwise the given folder is copied.
-
-A "user folder" is a custom folder that may contain various files needed by
-the kiosk, but which are not part of KioskForge.
-
-For instance, a 'web' type kiosk that browses local files needs these files
-copied from the host to the kiosk.  Similarly, 'cli' or 'x11' type kiosks
-also need the custom app to be copied to the kiosk.
-
-The last part of the path specified, which is relative to the main '.kiosk'
-file that contains the kiosk configuration is used as the name of the folder
-that's being created on the kiosk.
-
-For instance, if you set 'user_folder' to 'Website', then the local folder
-'Website', in the same folder as the main kiosk file, will be copied to the
-kiosk so that a new folder '/home/username/Website' is created and populated
-by the files it contains on the host.
-
-If you are creating a 'web' type kiosk that browses a remote website, you
-normally don't need to specify a value for this setting.
-
-NOTE:
-1. The path cannot end in 'KioskForge' or variants thereof, as this name is
-   reserved for the KioskForge program and its files.
-2. The path must be a subfolder of the folder that contains the kiosk file.
-3. The path may only consists of letters, digits, dashes, and dots.
-
-Examples:
-    user_folder=         (If no user-supplied files need to be copied)
-    user_folder=Website  (If the folder 'Website' needs to be copied)
-""".strip()
-
-
-USER_FONTS_HELP = """
-Indicates if KioskForge should search the 'user_folder' directory for fonts
-to install on the kiosk.  If so, the search will be for any TrueType font
-files (.ttf) in the user_folder directory tree.
-
-User-supplied fonts are typically only needed for GUI apps or when browsing
-a local website with one or more custom fonts.  Most users don't need this.
-
-Examples:
-    user_fonts=false  (No user fonts to be installed)
-    user_fonts=true   (Install any fonts found in the user folder)
-""".strip()
-
-
 USER_PACKAGES_HELP = """
 A space-separated list of user packages to install when forging the kiosk.
 
@@ -757,23 +707,17 @@ class Kiosk(Fields):
 		self += OptionalTimeField("poweroff_time", "", POWEROFF_TIME_HELP)
 		self += NaturalField("idle_timeout", "0", IDLE_TIMEOUT_HELP, 0, 24 * 60 * 60)
 		self += ChoiceField("screen_rotation", "none", SCREEN_ROTATION_HELP, ["none", "left", "flip", "right"])
-		self += OptionalRegexField("user_folder", "", USER_FOLDER_HELP, r"[a-zA-Z][a-zA-Z0-9-.]+")
 		self += OptionalRegexField("user_packages", "", USER_PACKAGES_HELP, r"([a-z][a-z0-9-.]+)(\ [a-z][a-z0-9-.]+)+")
 		self += BooleanField("managed", "false", MANAGED_HELP)
 		self += BooleanField("chromium_autoplay", "false", CHROMIUM_AUTOPLAY_HELP)
-		self += BooleanField("user_fonts", "false", USER_FONTS_HELP)
 
 	def check(self, path : str) -> List[TextFileError]:
 		"""Check that options don't conflict and that inter-dependent options are correctly configured."""
 		result = []
 		try:
-			# Check that the user_folder option is specified when the user_fonts option is enabled.
-			if self.user_fonts.data and not self.user_folder.data:
-				raise InputError("Option 'user_fonts' enabled so option 'user_folder' must also be enabled")
-
 			# Check that the sound level is not zero when an output sound card has been selected.
 			if self.sound_card.data != "none" and self.sound_level.data == 0:
-				raise InputError("Sound is disabled implicitly because 'sound_level' is zero")
+				raise InputError("'sound_card' is set but sound is disabled because 'sound_level' is zero")
 		except InputError as that:
 			result.append(TextFileError(path, 0, that.text))
 
