@@ -8,6 +8,11 @@ This document presents the important changes made to each KioskForge release fro
 4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
+## Version 1.07 (2026.06.07)
+1. Added support for external USB sound cards.  Such cards need to be supported by the Linux kernel.
+2. The `sound_card=auto` option now prefers USB sound cards over the built-in sound cards so that it is more flexible.  To enable an USB sound card, you need to plug it in and reboot the kiosk.  To disable it, you need to power down the kiosk and unplug it.
+3. The `sound_card` option now also allows the use of the value `usb`.  We recommend that you use `sound_card=auto` unless you have to force a specific card.
+
 ## Version 1.06 (2026.06.04)
 1. It is always an ongoing project to simplify KioskForge...  In this release, the `user_folder` and `user_fonts` options have been removed.  KioskForge now always checks if there is a folder named `Application` in the folder that contains the `.kiosk` file.  If so, it is copied to the kiosk during the forge process.  Similarly, the forge process now installs all TrueType (`*.ttf`) fonts found in the application folder, if it exists.
 2. The documentation was updated some.

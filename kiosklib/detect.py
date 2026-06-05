@@ -45,7 +45,7 @@ def pi_board_get() -> str:
 	"""Returns 'Pi 4B' if the host is a Raspberry Pi 4B and 'Pi 5' for a Raspberry Pi 5, otherwise it returns an empty string."""
 	model = pi_model_get()
 
-	if 'Raspberry Pi 4B' in model:
+	if 'Raspberry Pi 4 Model B' in model:
 		return "Pi 4B"
 
 	if 'Raspberry Pi 5' in model:
@@ -60,8 +60,14 @@ def unquote(value : str) -> str:
 	return value[1:-1]
 
 
-def pactl_parse_sinks_list(value : str) -> Dict[str, int]:
-	"""Returns a dictionary that maps the sink nick name (vc4-hdmi-N, where N is 0 or 1) to a pactl/wpctl sink id."""
+def pulseaudio_soundcards_get(value : str) -> Dict[str, int]:
+	"""
+		Returns a dictionary that maps the KioskForge device (hdmi1, hdmi2, jack, or usb) name to a PipeWire sink.
+
+		NOTE:
+			The output of 'wpctl' (PipeWire's control tool) does not provide enough info to select the card so we use
+			'pactl' (PulseAudio's control tool) instead for identifying the sound card to set as default.
+	"""
 	result = {}
 
 	lines = value.split("\n")
@@ -74,11 +80,19 @@ def pactl_parse_sinks_list(value : str) -> Dict[str, int]:
 		# Extract the few pieces of information that we need.
 		if line[:6] == "Sink #":
 			tag = int(line[6:])
-		elif line.startswith("device.nick = "):
+		elif line.startswith("alsa.driver_name = "):
+			# Use the alsa.driver_name to identify USB cards if and only if the driver_name is equal to "snd_usb_audio".
+			name = unquote(line[19:])
+			if name == "snd_usb_audio":
+				result["usb"] = tag
+				tag = 0
+				nick = ""
+		elif line.startswith("device.nick = ") and tag != 0:
+			# If no other device identifier has been picked, save the device.nick name.
 			nick = unquote(line[14:])
-
+			# Map Pipewire 'nick names' to KioskForge software names (the HDMI sound cards are named the same on Pi4B and Pi5).
+			nick = { "vc4-hdmi-0" : "hdmi1", "vc4-hdmi-1" : "hdmi2", "bcm2835 Headphones" : "jack" }[nick]
 			result[nick] = tag
-
 			tag = 0
 			nick = ""
 

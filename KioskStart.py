@@ -33,7 +33,7 @@ import sys
 import time
 
 from kiosklib.builder import TextBuilder
-from kiosklib.detect import pi_board_get, pactl_parse_sinks_list
+from kiosklib.detect import pi_board_get, pulseaudio_soundcards_get
 from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.invoke import invoke_list_safe, invoke_text, invoke_text_safe, Result
@@ -79,19 +79,6 @@ class KioskStart(KioskDriver):
 			# Create the signal that prevents this script from being launched multiple times by systemd.
 			signal.create()
 
-			# If the sound card is set to 'auto', choose 'jack' for Pi 4B and 'hdmi1' for Pi 5.
-			if kiosk.sound_card.data == "auto":
-				plug = ""
-				match pi_board_get():
-					case "Pi 4B":
-						plug = "jack"
-					case "Pi 5":
-						plug = "hdmi1"
-					case _:
-						raise KioskError("Unable to detect model of Raspberry Pi")
-				kiosk.assign("sound_card", plug)
-				del plug
-
 			# Configure audio subsystem, if applicable.
 			if kiosk.sound_card.data != "none":
 				# NOTE: I spent half a night trying out different solutions and none of them worked when done in 'KioskConfig.py',
@@ -122,29 +109,38 @@ class KioskStart(KioskDriver):
 					time.sleep(3)
 
 				# Grab the list of active sinks (typically only one) from the 'wpctl status' output.
-				nick_to_id_map = pactl_parse_sinks_list(result.output)
+				sound_cards = pulseaudio_soundcards_get(result.output)
 				del result
 
 				# Make sure we have at least one sink to set the volume of.
-				if len(nick_to_id_map) == 0:
+				if len(sound_cards) == 0:
 					raise KioskError("Unable to detect any PulseAudio sinks")
 
-				# Select the appropriate sink (sound_card).
-				wanted = {
-					# Software name => pactl nick name.
-					# TODO: What is the nick of Raspberry Pi 4B's jack audio output (my Pi 4B has died...).
-					"hdmi1" : "vc4-hdmi-0",
-					"hdmi2" : "vc4-hdmi-1"
-				}
-				wanted_nick = wanted.get(kiosk.sound_card.data, "")
-				del wanted
+				# If the sound card is set to 'auto', choose 'usb' then 'jack' for Pi 4B and 'usb' then 'hdmi1' for Pi 5.
+				if kiosk.sound_card.data == "auto":
+					plug = ""
+					if sound_cards.get("usb", ""):
+						# Check if there is an USB sound card.  If so, prefer it.
+						plug = "usb"
+					if not plug:
+						# If no USB sound card, use 'jack' on Pi4B and 'hdmi1' on Pi5.
+						match pi_board_get():
+							case "Pi 4B":
+								plug = "jack"
+							case "Pi 5":
+								plug = "hdmi1"
+							case _:
+								raise KioskError("Unable to detect model of Raspberry Pi")
+					kiosk.assign("sound_card", plug)
+					del plug
 
 				found = False
-				for nick in nick_to_id_map:
-					if nick != wanted_nick:
+				wanted_card = kiosk.sound_card.data
+				for sound_card in sound_cards:
+					if sound_card != wanted_card:
 						continue
 
-					wanted_id = nick_to_id_map.get(wanted_nick, 0)
+					wanted_id = sound_cards.get(wanted_card, 0)
 					if not wanted_id:
 						continue
 
@@ -158,7 +154,8 @@ class KioskStart(KioskDriver):
 
 					del wanted_id
 
-				del wanted_nick
+				del sound_cards
+				del wanted_card
 
 				if not found:
 					logger.error("Unable to locate sound card: " + kiosk.sound_card.data)
