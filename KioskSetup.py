@@ -219,6 +219,9 @@ class KioskSetup(KioskDriver):
 		)
 		del lines
 
+		# Set timezone to use user's choice.
+		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
+
 		# Create ~kiosk/.bash_aliases to add the 'kiosklog' command used for quickly viewing the Kiosk*.py log entries.
 		lines  = TextBuilder()
 		lines += "#!/usr/bin/bash"
@@ -244,9 +247,6 @@ class KioskSetup(KioskDriver):
 			stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH,
 			""
 		)
-
-		# Set timezone to use user's choice.
-		script += ExternalAction("Setting timezone.", f"timedatectl set-timezone {kiosk.timezone.data}")
 
 		# Uninstall package unattended-upgrades as I couldn't get it to work even after spending many hours on it.
 		# NOTE: Remove unattended-upgrades very early on as it likes to interfere with APT and the package manager.
