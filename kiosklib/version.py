@@ -24,7 +24,7 @@
 #**********************************************************************************************************************************
 
 PRODUCT = "KioskForge"
-VERSION = "1.06"
+VERSION = "1.07"
 COMPANY = "The KioskForge Team"
 CONTACT = "contact@kioskforge.org"
 WEBSITE = "https://kioskforge.org/"
