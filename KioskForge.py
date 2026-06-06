@@ -675,7 +675,7 @@ class KioskForge(KioskDriver):
 
 			# Create a UTF-8 ZIP file containing the user files as Ubuntu mounts the microSD card as ASCII and CodePage 437,
 			# which ruins all non-ASCII characters, which again can make the user app fail or render incorrect file names...
-			# NOTE: This is only necessary if foreign characters (not 7-bit ASCII characters) are present, but we do it always.
+			# NOTE: This is only necessary if foreign characters (non-ASCII characters) are present, but we do it always.
 			with zipfile.ZipFile(zipname, "w", zipfile.ZIP_STORED) as archive:
 				for file in files:
 					# Ignore hidden files.
