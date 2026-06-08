@@ -44,6 +44,8 @@ class KioskDiscoveryClient(KioskDriver):
 		KioskDriver.__init__(self)
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
+		del origin
+
 		# Parse command-line arguments.
 		if len(arguments) != 0:						# pylint: disable=duplicate-code
 			raise CommandError('"KioskDiscoveryClient.py"')
