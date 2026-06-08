@@ -81,7 +81,7 @@ class KioskReport(KioskDriver):
 			kiosk = Kiosk(self.version)
 
 			# Load the kiosk and throw an exception on failure.
-			kiosk.load_safe(logger, "KioskForge/KioskForge.kiosk")
+			kiosk.load_safe(logger, origin + os.sep + "KioskForge.kiosk")
 
 			# Replace the value of all sensitive fields with the string "REDACTED".
 			kiosk.redact(["comment", "user_password", "ssh_key_public", "ssh_key_private", "wifi_code", "wifi_name"])
