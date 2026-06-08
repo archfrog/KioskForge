@@ -20,6 +20,9 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.06.08.09.00 H Disable Bluetooth so guests don't get smart ideas about connecting headphones and stuff.
+- [ ] 2026.06.06.05.10 ? It seems that the Ubuntu ports server fails if two NICs (Ethernet and Wi-Fi) are present, so it would be
+                         nice to disable the Ethernet if Wi-Fi is present and active.  I get this error a lot and it is tiresome!
 - [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow local and remote updates of the KioskForge folder in a kiosk.
 - [ ] 2026.05.14.01.01 H Zip the KioskForge files too as their file dates are ruined by the installation medium.
 - [ ] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
