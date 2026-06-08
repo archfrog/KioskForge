@@ -210,7 +210,7 @@ class KioskBuild(KioskDriver):
 			company_name=version.company,
 			file_description=version.product,
 			internal_name=version.product,
-			legal_copyright="Copyright © " + version.company + ". All rights reserved.",
+			legal_copyright="Copyright © " + version.company + ".",
 			original_filename=version.product + ".exe",
 			product_name=version.product,
 			translations=[1033, 65001]

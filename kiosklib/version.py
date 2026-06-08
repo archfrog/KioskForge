@@ -44,5 +44,6 @@ class Version:
 		if CONTACT:
 			result += f" - {CONTACT}"
 		result += "\n"
+		# NOTE: BSD-style licenses do NOT require an "All rights reserved." phrase.
 		result += f"Copyright (c) 2024-2026 {self.company}."
 		return result
