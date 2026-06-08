@@ -27,13 +27,11 @@
 #
 # NOTE: This module currently assumes that '/tmp' is located in a non-persistent RAM disk, which is true for Ubuntu (and others).
 
-# Import Python v3.x's type hints as these are used extensively in order to allow MyPy to perform static checks on the code.
-from typing import Optional
-
 import os
+from pathlib import Path
 import shutil
 
-SIGNAL_PREFIX  = "/tmp"
+SIGNAL_PREFIX  = "/home/kiosk/.signals"
 SIGNAL_SUFFIX  = ".signal"
 TEMP_EXTENSION = ".tmp"
 
@@ -41,7 +39,7 @@ TEMP_EXTENSION = ".tmp"
 class Signal:
 	"""A class that implements very simple inter-process signal communication.  Not very robust at present."""
 
-	def __init__(self, name : str, owner : str, group : Optional[str] = None) -> None:
+	def __init__(self, name : str, owner : str, group : str = "") -> None:
 		"""Create a new Signal() instance with the specified name, owner, and group."""
 		# Initialize the instance.
 		self.__path  = SIGNAL_PREFIX + os.sep + name + SIGNAL_SUFFIX
@@ -58,8 +56,7 @@ class Signal:
 		# Create the file under another name, change ownership, and rename it to the signal file name.
 		# NOTE: Don't create directly and change ownership as it is removed when received (which will fail with the wrong owner).
 		temp = self.__path + TEMP_EXTENSION
-		open(temp, "wb").close()		# pylint: disable=consider-using-with
-		os.chmod(temp, 0o600)
+		Path(temp).touch(mode=0o600)
 		shutil.chown(temp, self.__owner, self.__group)
 		os.rename(temp, self.__path)
 

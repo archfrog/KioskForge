@@ -47,9 +47,8 @@ from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, InternalError, KioskError
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
-from kiosklib.shell import tree_delete
 from kiosklib.sources import SOURCES
-from kiosklib.various import custom_fonts_get, hostname_create, password_create, password_hash, wifi_password_hash
+from kiosklib.various import custom_fonts_get, hostname_create, password_hash, wifi_password_hash
 from kiosklib.version import Version
 
 
@@ -286,7 +285,7 @@ class Configurator:
 
 
 class CloudinitConfigurator(Configurator):
-	"""Installer configuration writer for Cloud-init, which is used for Raspberry Pi targets."""
+	"""Installer configuration writer for cloud-init, which is used for Raspberry Pi targets."""
 
 	def __init__(self, kiosk : Kiosk, target : Target, version : Version) -> None:
 		Configurator.__init__(self, kiosk, target, version)
@@ -361,22 +360,33 @@ class CloudinitConfigurator(Configurator):
 			stream.write("no_ssh_fingerprints: true")
 			stream.write()
 
+			# Set the root's password to the same as the kiosk user's to save some fidling for the kiosk owner.
+			if False:
+				# This feature is deprecated in cloud-init v22.2..................................................................
+				stream.write("chpasswd:")
+				stream.indent()
+				stream.write("expire: false")
+				stream.write("list: |")
+				stream.indent()
+				stream.write(f"root:{self.kiosk.user_code.data}")
+				stream.dedent()
+				stream.dedent()
+				stream.write()
+
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
 			stream.indent()
 
 			# Create the 'root' user which will be used by KioskForge to manage the kiosk (reboot, poweroff, upgrade, etc).
-			if self.kiosk.managed.data:
+			if False and self.kiosk.managed.data:
 				stream.write("- name: root")
 				stream.indent()
 				stream.write("gecos: Administrator")
 				stream.write("groups: root")
 				stream.write("shell: /bin/bash")
+				# NOTE: The kiosk user can change the root password by using 'sudo passwd' and entering the new password twice.
 				# NOTE: If 'lock_passwd: false' is missing or changed to 'lock_passwd: true', the user can't use 'sudo' anymore!
 				stream.write("lock_passwd: false")
-				# NOTE: We never need the password so we simply generate a random 64-character password and forget all about it.
-				# NOTE: The kiosk user can change it by using 'sudo passwd' and entering the new password twice.
-				stream.write(f'passwd: "{password_hash(password_create(32))}"')
 				stream.dedent()
 
 			# Create the 'kiosk' user which will be used exclusively for running the kiosk.
@@ -386,7 +396,6 @@ class CloudinitConfigurator(Configurator):
 			stream.write("groups: users,adm,audio,netdev,video,plugdev,input,gpio,spi,i2c,render,sudo")
 			stream.write("shell: /bin/bash")
 			# NOTE: If 'lock_passwd: false' is missing or changed to 'lock_passwd: true', the user can't use 'sudo' anymore!
-			# NOTE: The kiosk user can change it by using 'sudo passwd' and entering the new password twice.
 			stream.write("lock_passwd: false")
 			stream.write(f'passwd: "{self.kiosk.user_code.data}"')
 			# NOTE: The line below is very dangerous if somebody gets through to the shell, but we may need passwordless 'sudo'.
@@ -408,21 +417,24 @@ class CloudinitConfigurator(Configurator):
 			stream.dedent()
 			stream.write()
 
-			# Write commands to write a custom /etc/systemd/system/KioskSetup.service file (it is enabled further below).
+			# Begin writing cloud-init content files.
 			stream.write("write_files:")
+
+			# Write commands to write a custom /etc/systemd/system/KioskSetup.service file (it is enabled further below).
 			stream.write("- path: /etc/systemd/system/KioskSetup.service")
 			stream.indent()
 			stream.write("content: |")
 			stream.indent()
 			stream.write("[Unit]")
-			stream.write("Description=KioskForge forge process driver")
+			stream.write("Description=KioskForge: Forge process")
+			# NOTE: Don't remove the After=network-online.target line or the kiosk will fail to start forging.
 			stream.write("After=network-online.target")
 			stream.write("After=cloud-init.target")
 			stream.write("After=multi-user.target")
 			stream.write()
 			stream.write("[Service]")
 			stream.write("Type=simple")
-			stream.write("ExecStart=/home/kiosk/KioskForge/KioskSetup.py")
+			stream.write("ExecStart=/home/kiosk/KioskForge/kiosk-booter.py /home/kiosk/KioskForge/KioskSetup.py")
 			stream.write("StandardOutput=tty")
 			stream.write("StandardError=tty")
 			stream.write()
@@ -432,25 +444,30 @@ class CloudinitConfigurator(Configurator):
 			stream.write("owner: 'root:root'")
 			stream.write("permissions: '664'")
 			stream.dedent()
+
+			# End of writing content files.
 			stream.write()
 
 			# Compute location of source files.
 			source = "/boot/firmware"
 
-			# Write commands to copy and then make this script executable (this is done late in the boot process).
+			# Write commands to move the .kiosk file to /home/kiosk, reload systemd daemons, and enable KioskSetup.service.
 			stream.write("runcmd:")
 			stream.indent()
-			stream.write(f"- cp -pr {source}/KioskForge /home/kiosk")
-			stream.write("- chown -R kiosk:kiosk /home/kiosk/KioskForge")
-			stream.write("- chmod -R u+x /home/kiosk/KioskForge")
-			stream.write("- chmod a-x /home/kiosk/KioskForge/KioskForge.kiosk")
+			stream.write("- mkdir -p /home/kiosk/KioskForge")
+			stream.write(f"- mv -f {source}/KioskForge.kiosk /home/kiosk/KioskForge")
+			stream.write(f"- mv -f {source}/kiosk-booter.py /home/kiosk/KioskForge")
+			# The /home/kiosk/.signals folder is used for various KioskForge sentinel files.
+			stream.write("- mkdir -p /home/kiosk/.signals")
+			stream.write("- chown -R kiosk:kiosk /home/kiosk")
+			stream.write("- chmod -R u=rwx,go= /home/kiosk")
 			stream.write("- systemctl daemon-reload")
 			stream.write("- systemctl enable KioskSetup")
 			stream.dedent()
 			stream.write()
 			del source
 
-			# Write commands to reboot the machine once the dust settles for Cloud-Init.
+			# Write commands to reboot the machine once the dust settles for cloud-init.
 			stream.write("power_state:")
 			stream.indent()
 			stream.write("delay: now")
@@ -459,7 +476,7 @@ class CloudinitConfigurator(Configurator):
 			stream.dedent()
 			stream.write()
 
-			# Do not update and upgrade packages through CloudInit as it occasionally times out (in my experience).
+			# Do not update and upgrade packages through cloud-init as it occasionally times out (on old Ubuntu Server releases).
 			stream.write("package_update: false")
 			stream.write("package_upgrade: false")
 			stream.write()
@@ -474,13 +491,13 @@ class CloudinitConfigurator(Configurator):
 	def save(self, folder : str) -> None:
 		folder = folder_normalize(folder)
 
-		# Generate Cloud-init's meta-data file from scratch (to be sure of what's in it).
+		# Generate cloud-init's meta-data file from scratch (to be sure of what's in it).
 		self._save_metadata(folder + "meta-data")
 
-		# Generate Cloud-init's network-config file from scratch (to be sure of what's in it).
+		# Generate cloud-init's network-config file from scratch (to be sure of what's in it).
 		self._save_network_config(folder + "network-config")
 
-		# Generate Cloud-init's user-data file from scratch (to be sure of what's in it).
+		# Generate cloud-init's user-data file from scratch (to be sure of what's in it).
 		self._save_user_data(folder + "user-data")
 
 
@@ -641,24 +658,55 @@ class KioskForge(KioskDriver):
 				raise KioskError(f"Unknown installer type: {target.install}")
 		configurator.save(target.basedir)
 
-		# Compute output folder.
-		output = target.basedir + "KioskForge"
+		# Copy kiosk-booter.py to the target's base directory (the root of the installation medium).
+		source_file = origin + os.sep + "kiosk-booter.py"
+		target_file = target.basedir + os.sep + "kiosk-booter.py"
+		if os.path.isfile(target_file):
+			os.unlink(target_file)
+		shutil.copy(source_file, target_file)
+		del source_file
+		del target_file
 
-		# Remove previous KioskForge folder on installation medium, if any (handles read-only files unlike 'shutil.rmtree()').
-		if os.path.isdir(output):
-			tree_delete(output)
+		# Compute output archive name.
+		target_archive = target.basedir + "KioskForge.zip"
 
-		# Create KioskForge folder on the installation medium.
-		os.makedirs(output)
+		# Remove previous KioskForge archive on installation medium, if any.
+		if os.path.isfile(target_archive):
+			os.unlink(target_archive)
 
-		# Copy KioskForge files to the installation medium (copy KioskForge.py as well for posterity).
-		for name in SOURCES + ["docs"]:
-			if os.path.isfile(origin + os.sep + name):
-				shutil.copy2(origin + os.sep + name, output + os.sep + name)
-			elif os.path.isdir(origin + os.sep + name):
-				shutil.copytree(origin + os.sep + name, output + os.sep + name)
+		# Build list of KioskForge files to zip.
+		sources = []
+		for source in SOURCES:
+			# Prefix location of source files.
+			file = origin + os.sep + source
+
+			if os.path.isfile(file):
+				# If a file, simply append it to the list of files to zip.
+				sources.append(file)
+			elif os.path.isdir(file):
+				# If a folder, append every file in the folder to the list of files to zip.
+				sources += glob.glob(file + os.sep + "*")
 			else:
-				raise InternalError("File not found while copying to installation medium: " + origin + os.sep + name)
+				raise KioskError("Unknown type of source file: " + source)
+
+		# Add the documentation, in Markdown format, for posterity if somebody examines the kiosk tens years down the road.
+		sources += [origin + os.sep + "README.md"]
+		sources += glob.glob(origin + os.sep + "docs" + os.sep + "*.md")
+
+		# Zip KioskForge files to the installation medium (all source files including KioskForge.py for posterity).
+		with zipfile.ZipFile(target_archive, "w", zipfile.ZIP_STORED) as archive:
+			for source in sources:
+				# Ignore hidden files.
+				if source[0] == '.':
+					continue
+
+				# Make the name relative to the absolute 'source_folder' folder (D:\Foo\App\file1.txt => file1.txt).
+				name = source[len(origin) + 1:]
+
+				# Add the file to the archive, which puts the archive into UTF-8 mode if non-ASCII (CP437) chars are detected.
+				archive.write(source, name)
+
+		del sources
 
 		# Zip up the user folder, if any, on the install medium so that it can be unzipped on the Pi to preserve UTF-8 file names.
 		if os.path.isdir(appdir):
@@ -678,7 +726,7 @@ class KioskForge(KioskDriver):
 			# NOTE: This is only necessary if foreign characters (non-ASCII characters) are present, but we do it always.
 			with zipfile.ZipFile(zipname, "w", zipfile.ZIP_STORED) as archive:
 				for file in files:
-					# Ignore hidden files.
+					# Ignore dot files/hidden files.
 					if file[0] == '.':
 						continue
 
@@ -704,10 +752,9 @@ class KioskForge(KioskDriver):
 		print()
 		del action
 
-		# Write the updated kiosk configuration to the installation medium.
-		kiosk.save(output + os.sep + "KioskForge.kiosk")
+		# Write the updated kiosk configuration to the root of the installation medium.
+		kiosk.save(target.basedir + os.sep + "KioskForge.kiosk")
 		del filename
-		del output
 
 		print("Kiosk prepared successfully.")
 
