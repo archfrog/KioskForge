@@ -51,7 +51,7 @@ class KioskDiscoveryServer(KioskDriver):
 
 	def _main(self, logger : Logger, origin : str, arguments : List[str]) -> None:
 		# Check that we're running on Linux.
-		if sys.platform != "linux":		# pylint: disable=duplicate-code (duplicate-code)
+		if sys.platform != "linux":		# pylint: disable=duplicate-code
 			raise KioskError("This script can only be run on a Linux kiosk machine")
 
 		# Check that we have got root privileges.
