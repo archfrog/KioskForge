@@ -36,6 +36,7 @@ import zipfile
 
 from kiosklib.errors import InternalError, KioskError
 from kiosklib.invoke import invoke_text, Result
+from kiosklib.network import internet_active
 from kiosklib.various import custom_fonts_get
 
 
@@ -368,6 +369,11 @@ class AptAction(ExternalAction):
 	"""Base class for 'apt' actions."""
 
 	def execute(self) -> Result:
+		# I keep getting network errors when upgrading kiosks and it ruins the forge process, so make this crap a bit more robust.
+		while not internet_active("ports.ubuntu.com"):
+			print("ALERT: Waiting 5 seconds for Ubuntu servers to come online again...")
+			time.sleep(5)
+
 		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' has been removed.
 		while invoke_text("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke_text("lsof /var/lib/dpkg/lock").status == 0:
 			print("ALERT: Waiting 5 seconds for 'apt' lock to be released - 'apt' is running in the background...")

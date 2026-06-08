@@ -72,10 +72,10 @@ def get_network_cards() -> List[str]:
 
 
 # Source: https://stackoverflow.com/questions/3764291/how-can-i-see-if-theres-an-available-and-active-network-connection-in-python
-def internet_active() -> bool:
+def internet_active(address : str = "8.8.8.8") -> bool:
 	result = False
 
-	connection = httplib.HTTPSConnection("8.8.8.8", timeout=5)
+	connection = httplib.HTTPSConnection(address, timeout=5)
 	try:
 		connection.request("HEAD", "/")
 		result = True
@@ -108,10 +108,10 @@ def lan_broadcast_address() -> str:
 	return lan_subnet + '.255'
 
 
-def wait_for_internet_active(duration : int = 0) -> None:
-	"""Wait for the internet to become accessible.  Zero means 'wait forever', other values mean 'wait N seconds'."""
+def wait_for_internet_active(address : str = "8.8.8.8", duration : int = 0) -> None:
+	"""Wait for the given website to become accessible.  duration=0 means 'wait forever', other values mean 'wait N seconds'."""
 	elapsed = 0
-	while not internet_active():
+	while not internet_active(address):
 		time.sleep(1)
 		elapsed += 1
 
