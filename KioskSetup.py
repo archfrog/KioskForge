@@ -872,7 +872,7 @@ class KioskSetup(KioskDriver):
 		# Create cron job to clear out the /home/kiosk/.signals folder for old, stale sentinel files.
 		lines  = TextBuilder()
 		lines += "# Cron job to clean the /home/kiosk/.signals folder."
-		lines += f"@reboot\t\troot\trm -fr /home/kiosk/.signals/*"
+		lines += "@reboot\t\troot\trm -fr /home/kiosk/.signals/*"
 		script += CreateTextWithUserAndModeAction(
 			"Creating cron job to clean up the KioskForge signals folder at every boot.",
 			"/etc/cron.d/kiosk-clean-signals",
