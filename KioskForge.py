@@ -360,18 +360,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write("no_ssh_fingerprints: true")
 			stream.write()
 
-			# Set the root's password to the same as the kiosk user's to save some fidling for the kiosk owner.
-			if False:
-				# This feature is deprecated in cloud-init v22.2..................................................................
-				stream.write("chpasswd:")
-				stream.indent()
-				stream.write("expire: false")
-				stream.write("list: |")
-				stream.indent()
-				stream.write(f"root:{self.kiosk.user_code.data}")
-				stream.dedent()
-				stream.dedent()
-				stream.write()
+			# NOTE: Using 'chpasswd' (to set the root password) is deprecated in cloud-init v22.2 for which reason we don't use it.
 
 			# Write users: block, which lists the users to be created in the final kiosk system.
 			stream.write("users:")
@@ -634,8 +623,6 @@ class KioskForge(KioskDriver):
 		kernel_options.append("log_level=3")
 		#...Ask systemd to shut up.
 		kernel_options.append("systemd.show_status=auto")
-		# NOTE: Disable IPv6 because the Ubuntu ports server often fails on IPv6 queries.
-		kernel_options.append("ipv6.disable=1")
 		# NOTE: We shouldn't have to pass a kernel parameter for the 'regulatory domain' but the 'network-config' values aren't
 		# NOTE: picked up at my place in Denmark so I get the regulatory domain for Germany (DE), which is plain wrong.
 		kernel_options.append("cfg80211.ieee80211_regdom=" + kiosk.wifi_country.data)
