@@ -366,17 +366,7 @@ class CloudinitConfigurator(Configurator):
 			stream.write("users:")
 			stream.indent()
 
-			# Create the 'root' user which will be used by KioskForge to manage the kiosk (reboot, poweroff, upgrade, etc).
-			if False and self.kiosk.managed.data:
-				stream.write("- name: root")
-				stream.indent()
-				stream.write("gecos: Administrator")
-				stream.write("groups: root")
-				stream.write("shell: /bin/bash")
-				# NOTE: The kiosk user can change the root password by using 'sudo passwd' and entering the new password twice.
-				# NOTE: If 'lock_passwd: false' is missing or changed to 'lock_passwd: true', the user can't use 'sudo' anymore!
-				stream.write("lock_passwd: false")
-				stream.dedent()
+			# NOTE: No point in listing 'root' as a user as the specified password for root is not applied.
 
 			# Create the 'kiosk' user which will be used exclusively for running the kiosk.
 			stream.write("- name: kiosk")
