@@ -8,10 +8,11 @@ This document presents the important changes made to each KioskForge release fro
 4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
-## Version 1.07 (2026.06.07)
+## Version 1.07 (2026.06.11)
 1. Added support for external USB sound cards.  Such cards need to be supported by the Linux kernel.
 2. The `sound_card=auto` option now prefers USB sound cards over the built-in sound cards so that it is more flexible.  To enable an USB sound card, you need to plug it in and reboot the kiosk.  To disable it, you need to power down the kiosk and unplug it.
 3. The `sound_card` option now also allows the use of the value `usb`.  We recommend that you use `sound_card=auto` unless you have to force a specific card.
+4. Added support for upgrading KioskForge, the user application (`Application`), and the `.kiosk` file using a microSD-card, an USB-key, or SFTP.  KioskForge now looks for `KioskForge*.zip`, `Application.zip`, and `KioskForge.kiosk` in the root of the boot partition, on USB-keys, and in the `/home/kiosk/` folder on the system partition (this is for SFTP).  This is done whenever the kiosk is rebooted.  To upgrade KioskForge, you **must** also upgrade the `.kiosk` file.  The feature is very new so be careful!
 
 ## Version 1.06 (2026.06.04)
 1. It is always an ongoing project to simplify KioskForge...  In this release, the `user_folder` and `user_fonts` options have been removed.  KioskForge now always checks if there is a folder named `Application` in the folder that contains the `.kiosk` file.  If so, it is copied to the kiosk during the forge process.  Similarly, the forge process now installs all TrueType (`*.ttf`) fonts found in the application folder, if it exists.
@@ -21,7 +22,7 @@ This document presents the important changes made to each KioskForge release fro
 1. Fixed the v1.04 issue that it was no longer possible to use `sudo` as the `kiosk` user.  Just a small oversigt on my part, but the kiosk itself runs great.
 2. Fixed the issue that large (400+ megabytes) user files made the kiosk die with *No space left on the device* when upgrading the kernel.  The forge process now deletes the user files from the boot partition after having copied them to the main partition.
 3. The kiosk can now operate completely without internet access *after* it has been forged.  Simply test the kiosk, power it off (unplug or ssh to it and execute `sudo poweroff`), then deploy it.  There is a two-minute delay upon boot that I have not yet managed to eliminate, but once systemd's wait-network-online service times out, the kiosk continues to boot.
-4. The root user is now assigned a random 32+-character password which is **not** preserved anywhere as the kiosk user already has `sudo` permission.  Let me know if this causes problems.
+4. The root user is now assigned a random 32+-character password which is **not** preserved anywhere as the kiosk user already has `sudo` permission.  To change the root password, use the `sudo passwd` command as the `kiosk` user.
 
 ## Version 1.04 (2026.06.02) (BUGGY, AVOID)
 1. The new `mouse=auto` option has been fixed and tested (I did not have a touchscreen available when I wrote the code).
