@@ -24,6 +24,7 @@
 #**********************************************************************************************************************************
 # This script invokes various Python checkers to statically analyze the KioskForge Python source files.
 
+import glob
 import os
 import shutil
 import sys
@@ -34,7 +35,6 @@ from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, KioskError
 from kiosklib.invoke import invoke_list
 from kiosklib.logger import Logger
-from kiosklib.sources import SOURCES
 from kiosklib.various import ramdisk_get
 
 
@@ -56,7 +56,7 @@ class KioskCheck(KioskDriver):
 		del logger
 		del origin
 
-		sources = SOURCES + ["build.py", "check.py"]
+		sources = glob.glob("*.py") + ["kiosklib"]
 
 		# Parse command-line arguments.
 		if arguments:

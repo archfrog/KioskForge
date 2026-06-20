@@ -47,7 +47,6 @@ from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, InternalError, KioskError
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
-from kiosklib.sources import SOURCES
 from kiosklib.various import custom_fonts_get, hostname_create, password_hash, wifi_password_hash
 from kiosklib.version import Version
 
@@ -653,7 +652,11 @@ class KioskForge(KioskDriver):
 
 		# Build list of KioskForge files to zip.
 		sources = []
-		for source in SOURCES:
+		for source in glob.glob("*.py") + ["kiosklib"]:
+			# Exclude the build scripts.
+			if source in ["build.py", "check.py"]:
+				continue
+
 			# Prefix location of source files.
 			file = origin + os.sep + source
 
@@ -666,7 +669,7 @@ class KioskForge(KioskDriver):
 			else:
 				raise KioskError("Unknown type of source file: " + source)
 
-		# Add the documentation, in Markdown format, for posterity if somebody examines the kiosk tens years down the road.
+		# Add the documentation, in Markdown format, for posterity if somebody examines the kiosk ten years down the road.
 		sources += [origin + os.sep + "README.md"]
 		sources += glob.glob(origin + os.sep + "docs" + os.sep + "*.md")
 
