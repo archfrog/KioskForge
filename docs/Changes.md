@@ -8,6 +8,10 @@ This document presents the important changes made to each KioskForge release fro
 4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
+## Version 1.08 (2026.06.25)
+1. This release fixes the problem that the installed version of v1.07 failed to prepare a micro-SD card.  I simply forgot to test it as I normally use the command line version, which worked fine.  This error was caused by the significant changes in v1.07 to support upgrading the kiosk after installation.
+2. The documentation on the kiosk is now in HTML format instead of Markdown format.
+
 ## Version 1.07 (2026.06.11)
 1. Added support for external USB sound cards.  Such cards need to be supported by the Linux kernel.
 2. The `sound_card=auto` option now prefers USB sound cards over the built-in sound cards so that it is more flexible.  To enable an USB sound card, you need to plug it in and reboot the kiosk.  To disable it, you need to power down the kiosk and unplug it.
