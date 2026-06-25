@@ -652,26 +652,27 @@ class KioskForge(KioskDriver):
 
 		# Build list of KioskForge files to zip.
 		sources = []
-		for source in glob.glob("*.py") + ["kiosklib"]:
+		for source in glob.glob(origin + os.sep + "*.py") + [origin + os.sep + "kiosklib"]:
 			# Exclude the build scripts.
-			if source in ["build.py", "check.py"]:
+			if os.path.basename(source) in ["build.py", "check.py"]:
 				continue
 
 			# Prefix location of source files.
-			file = origin + os.sep + source
-
-			if os.path.isfile(file):
+			if os.path.isfile(source):
 				# If a file, simply append it to the list of files to zip.
-				sources.append(file)
-			elif os.path.isdir(file):
+				sources.append(source)
+			elif os.path.isdir(source):
 				# If a folder, append every file in the folder to the list of files to zip.
-				sources += glob.glob(file + os.sep + "*")
+				sources += glob.glob(source + os.sep + "*")
 			else:
-				raise KioskError("Unknown type of source file: " + source)
+				raise KioskError("Not a file or a folder: " + source)
 
 		# Add the documentation, in Markdown format, for posterity if somebody examines the kiosk ten years down the road.
-		sources += [origin + os.sep + "README.md"]
-		sources += glob.glob(origin + os.sep + "docs" + os.sep + "*.md")
+		if os.path.isfile(origin + os.sep + "README.md"):
+			sources += [origin + os.sep + "README.md"]
+			sources += glob.glob(origin + os.sep + "docs" + os.sep + "*.md")
+		else:
+			sources += glob.glob(origin + os.sep + "docs" + os.sep + "*.html")
 
 		# Zip KioskForge files to the installation medium (all source files including KioskForge.py for posterity).
 		with zipfile.ZipFile(target_archive, "w", zipfile.ZIP_STORED) as archive:
