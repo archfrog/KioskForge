@@ -122,7 +122,7 @@ class KioskSetup(KioskDriver):
 		# Check that we have got an active, usable internet connection, otherwise wait indefinitely for it come up.
 		# NOTE: We wait on ports.ubuntu.com to be available as we need it for virtually all 'apt' operations below.
 		if not internet_active("ports.ubuntu.com"):
-			logger.write("*** NETWORK DOWN: Waiting indefinitely for the kiosk to come online")
+			logger.write("*** NETWORK DOWN: Waiting for the kiosk to come online")
 			logger.write()
 			wait_for_internet_active("ports.ubuntu.com")
 
@@ -244,6 +244,17 @@ class KioskSetup(KioskDriver):
 		script += ExternalAction("... Generating system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
 		script += ExternalAction("... Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
+
+		# Disable Bluetooth service as we currently never use it for anything and it might be vulnerable to abuse.
+		script += ExternalAction("Disabling Bluetooth altogether.", "systemctl disable bluetooth.service")
+
+		# Disable unused network connections as they cause spurious "Network unreachable" errors that often break apt upgrades.
+		# TODO: Loop through and disable all unused (NO-CARRIER) network connections as Linux tries to route packets through them.
+		# NOTE: The commands below are executed on every boot in the 'KioskConfig.py' script, which runs as root.
+		if kiosk.wifi_name.data:
+			script += ExternalAction("Disabling 'eth0' to avoid 'Network unreachable' errors.", "ip link set eth0 down")
+		else:
+			script += ExternalAction("Disabling 'wlan0' to avoid 'Network unreachable' errors.", "ip link set wlan0 down")
 
 		# Update package lists to avoid getting all sorts of bizarre HTTP errors due to outdated package lists.
 		# NOTE: If this step is left out, you risk getting tons of HTTP 404 errors when trying to install, say, the audio packages.
@@ -929,7 +940,7 @@ class KioskSetup(KioskDriver):
 			"chown -R kiosk:kiosk /home/kiosk"
 		)
 
-		# Run 'KioskConfig.py' from 'kiosk-booter.py' at boot by creating a suitable systemd service to perform run both.
+		# Run 'KioskConfig.py' from 'kiosk-booter.py' at boot by creating a suitable systemd service to run both.
 		# NOTE: The ConditionPathExists line is there to ensure that only ONE copy of kiosk-booter.py is ever launched.
 		# NOTE: I'll probably die not knowing why systemd does not offer this feature on its own.
 		lines  = TextBuilder()
