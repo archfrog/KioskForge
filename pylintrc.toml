@@ -256,7 +256,7 @@ valid-metaclass-classmethod-first-arg = ["meta"]
 max-args = 8
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes = 8
+max-attributes = 10
 
 # Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr = 5
@@ -550,5 +550,4 @@ ignored-argument-names = "_.*|^ignored_|^unused_"
 # List of qualified module names which can have objects that can redefine
 # builtins.
 redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
-
 
