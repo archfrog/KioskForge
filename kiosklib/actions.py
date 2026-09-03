@@ -365,19 +365,29 @@ class ExternalAction(Action):
 		return invoke_text(self.__line)
 
 
+def apt_unavailable() -> bool:
+	return not internet_active("ports.ubuntu.com")
+
+
+def apt_locked() -> bool:
+	return invoke_text("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke_text("lsof /var/lib/dpkg/lock").status == 0
+
+
 class AptAction(ExternalAction):
 	"""Base class for 'apt' actions."""
 
 	def execute(self) -> Result:
-		# I keep getting network errors when upgrading kiosks and it ruins the forge process, so make this crap a bit more robust.
-		while not internet_active("ports.ubuntu.com"):
-			print("ALERT: Waiting 5 seconds for Ubuntu servers to come online again...")
-			time.sleep(5)
+		# I keep getting network errors when upgrading kiosks and it ruins the forge process, so make things a bit more robust.
+		if apt_unavailable():
+			print("ALERT: Waiting for Ubuntu software repositories to come back online again...")
+			while apt_unavailable():
+				time.sleep(1)
 
 		# Wait for 'apt' to release its lock, it sometimes runs in the background even if 'unattended-updates' has been removed.
-		while invoke_text("lsof /var/lib/dpkg/lock-frontend").status == 0 or invoke_text("lsof /var/lib/dpkg/lock").status == 0:
-			print("ALERT: Waiting 5 seconds for 'apt' lock to be released - 'apt' is running in the background...")
-			time.sleep(5)
+		if apt_locked():
+			print("ALERT: Waiting for 'apt' lock to be released as 'apt' is running in the background...")
+			while apt_locked():
+				time.sleep(1)
 
 		return super().execute()
 
