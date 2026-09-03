@@ -20,17 +20,10 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
-- [ ] 2026.06.08.09.00 H Disable Bluetooth so guests don't get smart ideas about connecting headphones and stuff.
-- [ ] 2026.06.06.05.10 ? It seems that the Ubuntu ports server fails if two NICs (Ethernet and Wi-Fi) are present, so it would be
-                         nice to disable the Ethernet if Wi-Fi is present and active.  I get this error a lot and it is tiresome!
-- [ ] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow local and remote updates of the KioskForge folder in a kiosk.
-- [ ] 2026.05.14.01.01 H Zip the KioskForge files too as their file dates are ruined by the installation medium.
-- [ ] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
-                         and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
+- [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files (they are virtually superflous).
 - [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
                          This can only be done if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
-- [ ] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be supported as well.
 - [ ] 2026.05.12.05.28 H Move the `KioskForge.kiosk` file to `/home/kiosk` so as to simplify manual upgrades a bit and also to
                          ensure that the `user_folder` and `user_fonts` settings work relative to the `KioskForge.kiosk` file.
                          This may be problematic in terms of upgrading the `.kiosk` file - it prevents rolling back to an earlier version.
@@ -41,7 +34,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
                          with `network_` and likewise with all things related to Python.  Make the KioskForge `upgrade` command so
                          that it *automatically* renames old-style settings to the new names.  The old names cannot be used anymore.
 - [ ] 2025.11.18.22.41 H Fix `version.py` and `driver.py` so that the printed app extension is correct (currently always `.py`).
-- [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files.
 - [ ] 2025.09.01.05.37 H GUI: Make feature to generate a new public and private SSH keypair.  Most users don't know how to do this.
 - [ ] 2025.07.19.02.53 H Implement a third level of syslog messages (DEBUG) to trace things like upgrade steps, etc.
 - [ ] 2025.07.14.17.30 H The `kiosklib` project must be split out, into its own Git repo, to allow it to be used in the GUI app.
@@ -199,7 +191,15 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
-- [x] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should documents its purpose and location. DROPPED.
+- [x] 2026.06.08.09.00 H Disable Bluetooth so guests don't get smart ideas about connecting headphones and stuff.
+- [x] 2026.06.06.05.10 H It seems that the Ubuntu ports server fails if two NICs (Ethernet and Wi-Fi) are present, so it would be
+                         nice to disable the Ethernet if Wi-Fi is present and active.  I get this error a lot and it is tiresome!
+- [x] 2026.05.14.01.01 H Zip the KioskForge files too as their file dates are ruined by the installation medium.
+- [x] 2025.07.09.05.56 H Make a good, lasting, well designed feature to allow local and remote updates of the KioskForge folder in a kiosk.
+- [x] 2026.05.27.13.41 H Make it possible to upgrade the user files (the application) by simply copying the files to the SD-card
+                         and then boot up the device.  The user should create a ZIP archive (`Application.zip`) with the new files.
+- [x] 2025.10.02.03.28 H `KioskUpgrade.py`: What if the user updates the user folder?  This needs to be supported as well.
+- [x] 2025.09.01.02.26 H Remove the kiosk name generator feature as the kiosk name should document its purpose and location. DROPPED.
 - [x] 2026.05.14.02.59 H Add `mouse=auto` option so that mouse is enabled only if there is no touchscreen (work in progress).
 - [x] 2026.05.10.13.14 H While at it, clean up `user_folder` and `user_fonts` so that they work relative to the `.kiosk` file.
 - [x] 2026.05.14.12.46 H Add SSH access via the `root` user.  This is not really a security issue as it always uses a private key.
