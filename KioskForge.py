@@ -164,7 +164,7 @@ class Recognizer:
 		return targets
 
 
-# SHA512 sums of 'initrd.img' on the installation medium: These are used to detect the version, to accept or reject it.
+# SHA512 sums of 'initrd.img' on the installation medium: These are used to detect the version; to accept or reject it.
 SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 = 'ce3eb9b96c3e458380f4cfd731b2dc2ff655bdf837cad00c2396ddbcded64dbc1d20510c22bf211498ad788c8c81ba3ea04c9e33d8cf82538be0b1c4133b2622'
 SHA512_UBUNTU_SERVER__24_04_1_ARM64 = '1d6c8d010c34f909f062533347c91f28444efa6e06cd55d0bdb39929487d17a8be4cb36588a9cbfe0122ad72fee72086d78cbdda6d036a8877e2c9841658d4ca'
 SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 = '32825b5b770f94996f05a9f2fa95e8f7670944de5990a258d10d95c5bd0062123a707d8b943d23e7b0d54e8c3ff8440b0fd7ebbb8dc42bc20da8a77b3f3f6408'
@@ -177,20 +177,24 @@ SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 = 'fa8750e5f71adc4d0cff50c985e499d7dc0ce1813
 SHA512_UBUNTU_SERVER__25_04_0_ARM64 = 'ef1f10d7cc59d8761490b0e0f3be0882d4781870e920d66f0b7ae440a940bf19fa689cc16ee06a0c81b5333b7ecc65fdb4137e050db1133a77fd117c03034157'
 SHA512_UBUNTU_DESKTOP_26_04_0_ARM64 = 'dfee0c02ed5cabcf21008adf264e94d3e5ed2fa329329bd8447bb485c7911e4bd9ebbd5908218d91b7893b6e81d7f370679c3394165ba5c9c00432daa6889e0f'
 SHA512_UBUNTU_SERVER__26_04_0_ARM64 = '27fce561e85c9ebc12b69692b421754f9b9b4232b14a490d3c80d443db168ca4801c9651703e8f8fe05dd972059eeb9d6968c43cd5ae59cf94abf8ce12326010'
+SHA512_UBUNTU_DESKTOP_26_04_1_ARM64 = 'a9d0b80640bb52ea2ce77f2feb09bc00d27f1feccaf5aa642c983fd989248a26987f56b8917ea6ad606645a8c3a6bb868813d8ac43affff16ff3a32e2a414e80'
+SHA512_UBUNTU_SERVER__26_04_1_ARM64 = '278bc3b1219e0b2facbc6618d9aca2d86ab75f3edb3829962d4b6b04f5940d860dde63e44b0937da07cdc61cce92c118f37400003a28974994eb1fd5fa6ddb7e'
 
 PI_OPERATING_SYSTEMS = {
 	SHA512_UBUNTU_DESKTOP_24_04_1_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.1", "arm64", "cloudinit"),
-	SHA512_UBUNTU_SERVER__24_04_1_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.1", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_1_ARM64 : Target("PI", "Ubuntu", "Server",  "24.04.1", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_24_04_2_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.2", "arm64", "cloudinit"),
-	SHA512_UBUNTU_SERVER__24_04_2_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.2", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_2_ARM64 : Target("PI", "Ubuntu", "Server",  "24.04.2", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_24_04_3_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.3", "arm64", "cloudinit"),
-	SHA512_UBUNTU_SERVER__24_04_3_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.3", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_3_ARM64 : Target("PI", "Ubuntu", "Server",  "24.04.3", "arm64", "cloudinit"),
 	SHA512_UBUNTU_DESKTOP_24_04_4_ARM64 : Target("PI", "Ubuntu", "Desktop", "24.04.4", "arm64", "cloudinit"),
-	SHA512_UBUNTU_SERVER__24_04_4_ARM64 : Target("PI", "Ubuntu", "Server", "24.04.4", "arm64", "cloudinit"),
-	SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "25.04", "arm64", "cloudinit"),
-	SHA512_UBUNTU_SERVER__25_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "25.04", "arm64", "cloudinit"),
-	SHA512_UBUNTU_DESKTOP_26_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "26.04", "arm64", "cloudinit"),
-	SHA512_UBUNTU_SERVER__26_04_0_ARM64 : Target("PI", "Ubuntu", "Server", "26.04", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__24_04_4_ARM64 : Target("PI", "Ubuntu", "Server",  "24.04.4", "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_25_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "25.04",   "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__25_04_0_ARM64 : Target("PI", "Ubuntu", "Server",  "25.04",   "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_26_04_0_ARM64 : Target("PI", "Ubuntu", "Desktop", "26.04",   "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__26_04_0_ARM64 : Target("PI", "Ubuntu", "Server",  "26.04",   "arm64", "cloudinit"),
+	SHA512_UBUNTU_DESKTOP_26_04_1_ARM64 : Target("PI", "Ubuntu", "Desktop", "26.04.1", "arm64", "cloudinit"),
+	SHA512_UBUNTU_SERVER__26_04_1_ARM64 : Target("PI", "Ubuntu", "Server",  "26.04.1", "arm64", "cloudinit"),
 }
 
 class PiRecognizer(Recognizer):
