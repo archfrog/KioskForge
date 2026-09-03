@@ -2,11 +2,17 @@
 This document presents the important changes made to each KioskForge release from v0.18 onwards:
 
 ## Known Issues
-1. Some touchscreens misbehave on Ubuntu Server 26.04 so we strongly recommend staying on 24.04.x for the time being.
+1. Some touchscreens lag a lot on Ubuntu Server 26.04 so we strongly recommend staying on 24.04.x for the time being.
 2. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue but let me know if it causes problems for you.
 3. KioskForge has **never** been tested with IPv6 and likely does not support it in its current state.  I don't have access to IPv6 so I can't develop and test this feature.
-4. KioskForge sorely lacks a GUI.  This is work in progress and will likely be completed in the calendar year of 2026 (using PySide6).
+4. KioskForge sorely lacks a GUI.  This is work in progress but not at a very high priority.
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
+
+## Version 1.09 (2026.09.03)
+1. Added support for Ubuntu Server 26.04.1, which has only been tested very lightly because of the 26.04 issue with lagging touchscreens (I don't have a touchscreen presently).
+2. Added detection of Ubuntu Desktop 26.04.1 in case the user accidentally picks the wrong edition of Ubuntu (Desktop instead of Server).
+3. The forge process now only displays a single `ALERT: ...` error message for each failure to access the Ubuntu software repositories.
+4. Upgraded Python packages to their newest versions (except `pefile` which needs to be `2023.2.7` to work and `astroid` which needs to be `4.0.4` for pylint to work).
 
 ## Version 1.08 (2026.06.25)
 1. This release fixes the problem that the installed version of v1.07 failed to prepare a micro-SD card.  I simply forgot to test it as I normally use the command line version, which worked fine.  This error was caused by the significant changes in v1.07 to support upgrading the kiosk after installation.
