@@ -20,6 +20,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
+- [ ] 2026.09.03.19.24 H Why does `KioskForge.py` only wait for one minute for the target medium to be detected?  Wait forever!
 - [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
                          This can only be done if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
