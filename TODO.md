@@ -20,7 +20,6 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 
 ## Open Tasks
 # TODO:
-- [ ] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files (they are virtually superflous).
 - [ ] 2026.05.31.06.51 H Make `KioskDiscovery*.py` as robust as at all possible.  All exceptions must be handled gracefully.
 - [ ] 2026.05.22.03.57 H Make the ssh key mandatory and disable all forms of password login (if not done already).
                          This can only be done if KioskForge is able to generate an SSH key for the user.  Preferably, the GUI.
@@ -191,6 +190,7 @@ also reported by `pylint`, which is automatically invoked by the `check.py` scri
 - [ ] 2024.10.10.xx.xx L Support Wayland instead of X11.  Use [wlr-randr](https://github.com/emersion/wlr-randr) instead of `xrandr`.
 
 ## Completed Tasks
+- [x] 2025.09.04.07.01 H Make sure that Python doesn't litter the kiosk with bytecode files (they are virtually superflous).
 - [x] 2026.06.08.09.00 H Disable Bluetooth so guests don't get smart ideas about connecting headphones and stuff.
 - [x] 2026.06.06.05.10 H It seems that the Ubuntu ports server fails if two NICs (Ethernet and Wi-Fi) are present, so it would be
                          nice to disable the Ethernet if Wi-Fi is present and active.  I get this error a lot and it is tiresome!

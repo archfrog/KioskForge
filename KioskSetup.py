@@ -153,6 +153,9 @@ class KioskSetup(KioskDriver):
 		# TODO: Does this have any effect at all or does the new environment need to be passed to every action?
 		os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 
+		# Set environment variable to stop Python from generating media-wearing Python bytecode files (they are not needed).
+		os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+
 		# Build the script to execute.
 		script = Script(logger)
 
