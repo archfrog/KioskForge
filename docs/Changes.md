@@ -10,7 +10,6 @@ This document presents the important changes made to each KioskForge release fro
 
 ## Version 1.10 (2026.09.03)
 1. Fixed the issue that the forge process quite often aborted due to `Network unreachable` errors.  This was fixed by taking down (disabling) unused network connections early in the forge and boot process.
-2. Bluetooth is now permanently disabled on forged kiosks to ensure no kiosk user meddles with it in unforeseen or unwanted ways.
 
 ## Version 1.09 (2026.09.03)
 1. Added support for Ubuntu Server 26.04.1, which has only been tested very lightly because of the 26.04 issue with lagging touchscreens (I don't have a touchscreen presently).

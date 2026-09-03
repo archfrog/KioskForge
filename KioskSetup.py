@@ -248,9 +248,6 @@ class KioskSetup(KioskDriver):
 		# Configure system to use user-specified locale (keep messages and error texts in US English).
 		script += ExternalAction("... Setting system locale.", f"update-locale LANG={kiosk.locale.data} LC_MESSAGES=en_US.UTF-8")
 
-		# Disable Bluetooth service as we currently never use it for anything and it might be vulnerable to abuse.
-		script += ExternalAction("Disabling Bluetooth altogether.", "systemctl disable bluetooth.service")
-
 		# Disable unused network connections as they cause spurious "Network unreachable" errors that often break apt upgrades.
 		# TODO: Loop through and disable all unused (NO-CARRIER) network connections as Linux tries to route packets through them.
 		# NOTE: The commands below are executed on every boot in the 'KioskConfig.py' script, which runs as root.
