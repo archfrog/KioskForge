@@ -377,9 +377,11 @@ class AptAction(ExternalAction):
 	"""Base class for 'apt' actions."""
 
 	def execute(self) -> Result:
-		# I keep getting network errors when upgrading kiosks and it ruins the forge process, so make things a bit more robust.
+		# I kept getting network errors when upgrading the kiosk during the forge process and they ruin the it.
+		# NOTE: This turns out to be because Linux tries to use the 'eth0' or 'wlan0' connection even if unconnected.  I am no
+		# NOTE: network expert so I have no clue why this is but KioskSetup.py now takes the unused device down to prevent this.
 		if apt_unavailable():
-			print("ALERT: Waiting for Ubuntu software repositories to come back online again...")
+			print("ALERT: Waiting for 'Network unreachable' condition to go away...")
 			while apt_unavailable():
 				time.sleep(1)
 
