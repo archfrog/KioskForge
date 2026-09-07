@@ -48,6 +48,10 @@ class KioskBooter:
 
 		mounted = []
 		try:
+			# Remove the previous kiosk-booter.err, if any.
+			if os.path.isfile("/home/kiosk/kiosk-booter.err"):
+				os.unlink("/home/kiosk/kiosk-booter.err")
+
 			# Mount source USB storage devices, if any.
 			sources = glob.glob("/dev/sd[a-z]1")
 			for source in sources:
