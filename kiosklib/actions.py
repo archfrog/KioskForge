@@ -37,7 +37,6 @@ import zipfile
 from kiosklib.errors import InternalError, KioskError
 from kiosklib.invoke import invoke_text, Result
 from kiosklib.network import internet_active
-from kiosklib.various import custom_fonts_get
 
 
 class Action:
@@ -391,8 +390,24 @@ class AptAction(ExternalAction):
 			while apt_locked():
 				time.sleep(1)
 
-		return super().execute()
+		# NOTE: I keep getting network errors so now we do a loop to try until the 'apt' operation succeeds.
+		show = True
+		while True:
+			# Try the 'apt' action.
+			result = super().execute()
 
+			# If successful, return result to caller.
+			if result.status == 0:
+				break
+
+			if show:
+				show = False
+				print("ALERT: Network error during installation or upgrade of system packages - retrying indefinitely")
+
+			time.sleep(5)
+
+		# Return result to caller.
+		return result
 
 class InstallPackagesAction(AptAction):
 	"""Apt action to install one or more packages."""
@@ -424,32 +439,3 @@ class CreateTreeAction(ExternalAction):
 	"""
 	def __init__(self, title : str, path : str, mode : int, user : str, group : str = "") -> None:
 		super().__init__(title, f"sudo -u {user} -g {group or user} mkdir -m={oct(mode)[2:].zfill(3)} -p {path}")
-
-
-class InstallFontsAction(Action):
-	"""Installs an automatically discovered set of TrueType font files from the 'source' folder to the 'target' folder."""
-
-	def __init__(self, title : str, source : str, target : str) -> None:
-		super().__init__(title)
-		self.__source = source
-		self.__target = target
-
-	def execute(self) -> Result:
-		# Check that there are indeed custom fonts to be installed.
-		fonts = custom_fonts_get(self.__source)
-		if not fonts:
-			raise KioskError("No fonts found")
-
-		# Create the target folder.
-		os.makedirs(self.__target, mode=0o700, exist_ok=True)
-		shutil.chown(self.__target, user="kiosk", group="kiosk")
-
-		# Install the found fonts.
-		for font in fonts:
-			basename = os.path.basename(font)
-			shutil.copyfile(font, self.__target + os.sep + basename)
-			os.chmod(self.__target + os.sep + basename, 0o600)
-			shutil.chown(self.__target + os.sep + basename, user="kiosk", group="kiosk")
-			del basename
-
-		return Result()

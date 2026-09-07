@@ -8,6 +8,13 @@ This document presents the important changes made to each KioskForge release fro
 4. KioskForge sorely lacks a GUI.  This is work in progress but not as a very high priority.
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
+
+## Version 1.11 (2026.09.07)
+1. Turns out that the `Network unreachable` issue was not fixed, only partially (it worked beautifully for a few days).
+2. Added loop to keep invoking `apt` commands until they succeed.  I see no other way because of the recurring `Network unreachable` error, which I do not know the cause of (network misconfiguration, network layer bug, or unstable mirror?).
+3. Disabled IPv6 once again because it *may* be the cause of the network instability that we're experiencing with KioskForge.
+4. Removed all custom font support from KioskForge as there are multiple ways to use these (installation and through the Python `pyglet` package).  Also, if the user changed or updated a font via the standard application upgrade procedure, this wasn't picked up by the kiosk.  The current solution is that the application itself checks if the font is installed and installs if if not.  This may be changed in a future version of KioskForge.
+
 ## Version 1.10 (2026.09.03)
 1. Fixed the issue that the forge process quite often aborted due to `Network unreachable` errors.  This was fixed by taking down (disabling) unused network connections early in the forge and boot process.
 

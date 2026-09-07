@@ -35,7 +35,7 @@ import sys
 import time
 
 from kiosklib.actions import AppendTextAction, AptAction, CreateTextAction, CreateTextWithUserAndModeAction, CustomAction
-from kiosklib.actions import ExternalAction, InstallFontsAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
+from kiosklib.actions import ExternalAction, InstallPackagesAction, InstallPackagesNoRecommendsAction
 from kiosklib.actions import PurgePackagesAction, RemoveFolderAction, ReplaceTextAction
 from kiosklib.builder import TextBuilder
 from kiosklib.detect import pi_board_get
@@ -47,7 +47,7 @@ from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger
 from kiosklib.network import internet_active, lan_broadcast_address, lan_address, wait_for_internet_active, wifi_boost
 from kiosklib.script import Script
-from kiosklib.various import custom_fonts_get, screen_clear
+from kiosklib.various import screen_clear
 
 
 # NOTE: The matrices have been verified against https://wiki.ubuntu.com/X/InputCoordinateTransformation.
@@ -918,21 +918,6 @@ class KioskSetup(KioskDriver):
 				lines.text
 			)
 			del lines
-
-		# Install user-supplied fonts, if any (basically any TrueType font files found in the user_folder folder).
-		# NOTE: This step requires that X11 or Wayland has been installed above.
-		appdir = "/home/kiosk/Application"
-		if kiosk.type.data in ["web", "x11", "web-wayland"] and custom_fonts_get(appdir):
-			# Report that we're installing custom fonts.
-			script += CustomAction("Installing custom fonts:", lambda: None)
-
-			target = "/home/kiosk/.local/share/fonts/KioskForge"
-			script += InstallFontsAction("... Installing fonts found in Application folder.", appdir, target)
-			del target
-
-			# Update the font cache.
-			script += ExternalAction("... Updating kiosk user's font cache.", "sudo -u kiosk fc-cache -f")
-		del appdir
 
 		# Change ownership of all files in the user's home dir to that of the user as we create a few files as sudo (root).
 		script += ExternalAction(

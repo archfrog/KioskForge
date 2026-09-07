@@ -47,7 +47,7 @@ from kiosklib.driver import KioskDriver
 from kiosklib.errors import CommandError, InternalError, KioskError
 from kiosklib.kiosk import Kiosk
 from kiosklib.logger import Logger, TextWriter
-from kiosklib.various import custom_fonts_get, hostname_create, password_hash, wifi_password_hash
+from kiosklib.various import hostname_create, password_hash, wifi_password_hash
 from kiosklib.version import Version
 
 
@@ -598,7 +598,6 @@ class KioskForge(KioskDriver):
 		print(f"    Poweroff time: {kiosk.poweroff_time.data}")
 		print(f"    Rotation     : {kiosk.screen_rotation.data}")
 		print(f"    Application  : {'Present' if os.path.isdir(appdir) else 'Not present'}")
-		print(f"    Custom fonts : {'Present' if custom_fonts_get(appdir) else 'Not present'}")
 		print()
 
 		print("*** Press ENTER to prepare kiosk installation image or Ctrl-C to abort")
@@ -619,6 +618,8 @@ class KioskForge(KioskDriver):
 		# NOTE: We shouldn't have to pass a kernel parameter for the 'regulatory domain' but the 'network-config' values aren't
 		# NOTE: picked up at my place in Denmark so I get the regulatory domain for Germany (DE), which is plain wrong.
 		kernel_options.append("cfg80211.ieee80211_regdom=" + kiosk.wifi_country.data)
+		# NOTE: I still get intermittent "Network unreachable" errors and the IPv6 stack is rumored to be unstable, so disable it.
+		kernel_options.append("ipv6.disable=1")
 		kernel_options.save(target.current + "cmdline.txt")
 
 		# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
