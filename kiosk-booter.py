@@ -24,19 +24,35 @@ class BooterError(Exception):
 	"""Local exception instance used to avoid using Exception directly."""
 
 
+def mount_handle(path : str) -> str:
+	"""Returns a 'handle' (a unique string) that uniquely identifies the mount point of the given path."""
+	stats = os.stat(path)
+	return f"{stats.st_dev}-{stats.st_ino}"
+
+
 def glob_unique(folders : List[str], pattern : str) -> str:
 	"""Finds at most one occurence of the glob pattern 'pattern' in the list of folders.  Fails if multiple files were found."""
 	result = []
 
 	# Scan through all folders and find as many occurences of pattern as we can.
+	mounts = {}
 	for folder in folders:
+		# Check that the folder hasn't already been processed as another mount point.
+		handle = mount_handle(folder)
+		if handle in mounts:
+			continue
+		mounts[handle] = True
+
 		result += glob.glob(folder + os.sep + pattern)
 
 	# Raise an exception if more than one occurence found.
-	if len(result) > 1:
-		raise BooterError(f"Multiple files matching '{pattern}' found")
-
-	return result[0] if len(result) == 1 else ""
+	match len(result):
+		case 0:
+			return ""
+		case 1:
+			return result[0]
+		case _:
+			raise BooterError(f"Multiple files matching '{pattern}' found")
 
 
 class KioskBooter:
