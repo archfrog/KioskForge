@@ -4,9 +4,13 @@ This document presents the important changes made to each KioskForge release fro
 ## Known Issues
 1. Some touchscreens lag a lot on Ubuntu Server 26.04 so we strongly recommend staying on 24.04.x for the time being.
 2. KioskForge does not currently support using HDMI-2 (board: HDMI1) on the Raspberry Pis.  This is a rather low priority issue but let me know if it causes problems for you.
-3. KioskForge has **never** been tested with IPv6 and likely does not support it in its current state.  I don't have access to IPv6 so I can't develop and test this feature.
+3. KioskForge has **never** been tested with IPv6 and does not support it in its current state.  I don't have access to IPv6 so I can't develop and test this feature.
 4. KioskForge sorely lacks a GUI.  This is work in progress but not as a very high priority.
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
+
+## Version 1.12 (2026.09.13)
+1. Added support for Ubuntu Server 24.04.5 (and detection of Ubuntu Desktop 24.04.5 for reporting an appropriate error message).
+2. Fixed the problem that the kiosk failed to boot if booting from an HDD or an SSD.  The upgrade script accidentally processed the `/boot/firmware` folder twice as two different mount point, which caused it to report that multiple `KioskForge.zip` files were found.
 
 ## Version 1.11 (2026.09.07)
 1. Turns out that the `Network unreachable` issue was not fixed, only seemingly as it worked beautifully for a few days then failed.
