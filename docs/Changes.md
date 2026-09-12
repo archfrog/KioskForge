@@ -10,8 +10,8 @@ This document presents the important changes made to each KioskForge release fro
 
 ## Version 1.12 (2026.09.13)
 1. Added support for Ubuntu Server 24.04.5 (and detection of Ubuntu Desktop 24.04.5 for reporting an appropriate error message).
-2. Fixed the problem that the kiosk failed to boot if booting from an HDD or an SSD.  The upgrade script accidentally processed the `/boot/firmware` folder twice as two different mount point, which caused it to report that multiple `KioskForge.zip` files were found.
-4. Upgraded Python packages to their newest versions (except `pefile` which needs to be `2023.2.7` for KioskForge work and `astroid` which needs to be `4.0.4` for `pylint` to work).
+2. Fixed the problem that the kiosk failed to boot if booting from an HDD or an SSD.  The upgrade script accidentally processed the `/boot/firmware` folder twice as two different mount points, which caused it to report that multiple `KioskForge.zip` files were found.
+4. Upgraded Python packages to their newest versions (except `pefile` which needs to be `2023.2.7` for KioskForge to work and `astroid` which needs to be `4.0.4` for `pylint` to work).
 
 ## Version 1.11 (2026.09.07)
 1. Turns out that the `Network unreachable` issue was not fixed, only seemingly as it worked beautifully for a few days then failed.
