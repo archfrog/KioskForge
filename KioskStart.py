@@ -29,6 +29,8 @@
 from typing import List
 
 import os
+import shlex
+import subprocess
 import sys
 import time
 
@@ -199,7 +201,8 @@ class KioskStart(KioskDriver):
 					invoke_text_safe("/snap/bin/ubuntu-frame")
 					invoke_text_safe(f"/snap/bin/chromium --kiosk '{kiosk.command.data}'")
 			elif kiosk.type.data == "cli":
-				invoke_text_safe(kiosk.command.data)
+				# Use subprocess.run so that the new process inherits the current console (the invoke_xxx functions override this).
+				subprocess.run(shlex.split(kiosk.command.data), check=True)
 			else:
 				raise KioskError(f"Unknown kiosk type: {kiosk.type.data}")
 
