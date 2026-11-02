@@ -242,6 +242,16 @@ class KioskSetup(KioskDriver):
 		script += PurgePackagesAction("Purging package unattended-upgrades.", ["unattended-upgrades"])
 		script += RemoveFolderAction("Removing remains of package unattended-upgrades.", "/var/log/unattended-upgrades")
 
+		# Disable the four forms of power saving states (sleep, suspend, hibernation, and hybrid sleep) to avoid issues with
+		# kiosks that seemingly cease to function or take a while to react after an hour or two of idle time.
+		# NOTE: I never ever suspected that a SERVER distro would enable these states by default!  I am astonished!
+		# NOTE: KioskForge has worked for years without disabling the power saving states so we intentionally don't do this.
+		if False:
+			script += ExternalAction(
+				"Disabling sleep, suspend, hibernation, and hybrid sleep.",
+				"systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target"
+			)
+
 		# Install US English and user-specified locales (purge all others).
 		script += CustomAction("Configuring system locale:", lambda: None)
 		script += ExternalAction("... Generating system locales.", f"locale-gen --purge en_US.UTF-8 {kiosk.locale.data}")
