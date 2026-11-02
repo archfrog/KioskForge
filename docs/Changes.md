@@ -8,6 +8,12 @@ This document presents the important changes made to each KioskForge release fro
 4. KioskForge sorely lacks a GUI.  This is work in progress but not as a very high priority.
 5. Support for remote upgrades of KioskForge and/or the user application via the GUI is work in progress.
 
+## Version 1.13 (2026.11.03)
+1. Fixed the problem that CLI applications could no longer use the default console for error reporting and status messages.  Output to the standard output device was previously simply lost.
+2. The kiosk no longer enters a power saving state such as sleep, suspend, hiberate, etc. after an hour or two.
+3. The kiosk no longer disconnects USB devices after a while (causing a flood of very serious Linux error messages).
+4. Upgraded Python packages to their newest versions (except `pefile` which needs to be `2023.2.7` for KioskForge to work).
+
 ## Version 1.12 (2026.09.13)
 1. Added support for Ubuntu Server 24.04.5 (and detection of Ubuntu Desktop 24.04.5 for reporting an appropriate error message).
 2. Fixed the problem that the kiosk failed to boot if booting from an HDD or an SSD.  The upgrade script accidentally processed the `/boot/firmware` folder twice as two different mount points, which caused it to report that multiple `KioskForge.zip` files were found.
