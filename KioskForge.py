@@ -624,6 +624,8 @@ class KioskForge(KioskDriver):
 		kernel_options.append("cfg80211.ieee80211_regdom=" + kiosk.wifi_country.data)
 		# NOTE: I still get intermittent "Network unreachable" errors and the IPv6 stack is rumored to be unstable, so disable it.
 		kernel_options.append("ipv6.disable=1")
+		# Disable USB autosuspend to stop Ubuntu from cutting power to USB devices after a certain period of time (one hour?).
+		kernel_options.append("usbcore.autosuspend=-1")
 		kernel_options.save(target.current + "cmdline.txt")
 
 		# If cpu_boost is false, disable the default CPU overclocking in the config.txt file.
