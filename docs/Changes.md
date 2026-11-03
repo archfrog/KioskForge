@@ -10,8 +10,8 @@ This document presents the important changes made to each KioskForge release fro
 
 ## Version 1.13 (2026.11.03)
 1. Fixed the problem that CLI applications could no longer use the default console for error reporting and status messages.  Output to the standard output device was previously simply lost.
-2. The kiosk no longer enters a power saving state such as sleep, suspend, hiberate, etc. after an hour or two.
-3. The kiosk no longer disconnects USB devices after a while (causing a flood of very serious Linux error messages).
+2. The kiosk no longer enters a power saving state such as sleep, suspend, hibernate, etc. after an hour or two.
+3. The kiosk no longer disconnects USB devices after a while (in some cases unmounting the root file system).
 4. Upgraded Python packages to their newest versions (except `pefile` which needs to be `2023.2.7` for KioskForge to work).
 
 ## Version 1.12 (2026.09.13)
